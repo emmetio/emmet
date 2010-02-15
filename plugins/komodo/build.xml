@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Komodo bundle" basedir="../../">
+	<description>Komodo Edit/IDE plugin building routines</description>
+	
+	<property file="build.properties"/>
+	<property file="${zencoding_plugins_source}/komodo/build.properties"/>
+
+	<target name="komodo_plugin" depends="build_komodo_plugin">
+		<echo>textarea plugin done</echo>
+	</target>
+
+	<target name="komodo_init">
+		<delete dir="${komodo.build_dir}"/>
+		<mkdir dir="${komodo.build_dir}"/>
+	</target>
+
+	<target name="build_komodo_plugin" depends="komodo_init">
+		<copy todir="${komodo.build_dir}/zencoding">
+			<fileset dir="${komodo.source}/zencoding"/>
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${zencoding_version}"/>
+				</replacetokens>
+			</filterchain>
+		</copy>
+		
+		<concat destfile="${komodo.build_dir}/zencoding/content/js/zencoding.js">
+			<filelist dir="${komodo.source}">
+				<file name="__intro.js"/>
+			</filelist>
+			<filelist refid="javascript.files"/>
+			<fileset dir="${zencoding_javascript_filters}">
+				<include name="*.js"/>
+			</fileset>
+			<filelist dir="${komodo.source}">
+				<file name="__outro.js"/>
+			</filelist>
+		</concat>
+	</target>
+</project>

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="zencodingCommandOverlay"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+		 
+   <broadcasterset id="broadcasterset_global">
+      <broadcaster
+        id="cmd_zencoding_expand_abbreviation"
+        key="key_cmd_zencoding_expand_abbreviation"
+        desc="Zen Coding: Expand Abbreviation"
+        oncommand="zen_controller.runAction('expand_abbreviation');"/>
+      <broadcaster
+        id="cmd_zencoding_balance_outward"
+        key="key_cmd_zencoding_balance_outward"
+        desc="Zen Coding: Balance Tag"
+        oncommand="zen_controller.runAction('match_pair_outward');"/>
+      <broadcaster
+        id="cmd_zencoding_balance_inward"
+        key="key_cmd_zencoding_balance_inward"
+        desc="Zen Coding: Balance Tag Inward"
+        oncommand="zen_controller.runAction('match_pair_inward');"/>
+      <broadcaster
+        id="cmd_zencoding_wrap"
+        key="key_cmd_zencoding_wrap"
+        desc="Zen Coding: Wrap with Abbreviation"
+        oncommand="zen_controller.runAction('wrap_with_abbreviation');"/>
+      <broadcaster
+        id="cmd_zencoding_next_edit_point"
+        key="key_cmd_zencoding_next_edit_point"
+        desc="Zen Coding: Next Edit Point"
+        oncommand="zen_controller.runAction('next_edit_point');"/>
+      <broadcaster
+        id="cmd_zencoding_prev_edit_point"
+        key="key_cmd_zencoding_prev_edit_point"
+        desc="Zen Coding: Previous Edit Point"
+        oncommand="zen_controller.runAction('prev_edit_point');"/>
+      <broadcaster
+        id="cmd_zencoding_prev_edit_point"
+        key="key_cmd_zencoding_prev_edit_point"
+        desc="Zen Coding: Previous Edit Point"
+        oncommand="zen_controller.runAction('prev_edit_point');"/>
+      <broadcaster
+        id="cmd_zencoding_merge_lines"
+        key="key_cmd_zencoding_merge_lines"
+        desc="Zen Coding: Merge Lines"
+        oncommand="zen_controller.runAction('merge_lines');"/>
+      <broadcaster
+        id="cmd_zencoding_remove_tag"
+        key="key_cmd_zencoding_remove_tag"
+        desc="Zen Coding: Remove Tag"
+        oncommand="zen_controller.runAction('remove_tag');"/>
+      <broadcaster
+        id="cmd_zencoding_split_join_tag"
+        key="key_cmd_zencoding_split_join_tag"
+        desc="Zen Coding: Split/Join Tag"
+        oncommand="zen_controller.runAction('split_join_tag');"/>
+      <broadcaster
+        id="cmd_zencoding_toggle_comment"
+        key="key_cmd_zencoding_toggle_comment"
+        desc="Zen Coding: Toggle Comment"
+        oncommand="zen_controller.runAction('toggle_comment');"/>
+   </broadcasterset>
+
+</overlay>

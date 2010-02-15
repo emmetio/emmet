@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<overlay id="helloworldOverlay"
+	xmlns:html="http://www.w3.org/1999/xhtml"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/zen_editor.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/zen_controller.js" />
+
+	<menupopup id="popup_tools">
+		<menu id="menu_zencoding" label="Zen Coding">
+			<menupopup id="popup_zencoding_tools">
+				<menuitem id="zencoding_expand_abbreviation"
+					label="Expand Abbreviation"
+					observes="cmd_zencoding_expand_abbreviation"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_balance_outward"
+					label="Balance Tag"
+					observes="cmd_zencoding_balance_outward"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_balance_inward"
+					label="Balance Tag Inward"
+					observes="cmd_zencoding_balance_inward"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_wrap"
+					label="Wrap with Abbreviation"
+					observes="cmd_zencoding_wrap"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_next_edit_point"
+					label="Next Edit Point"
+					observes="cmd_zencoding_next_edit_point"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_prev_edit_point"
+					label="Previous Edit Point"
+					observes="cmd_zencoding_prev_edit_point"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_merge_lines"
+					label="Merge Lines"
+					observes="cmd_zencoding_merge_lines"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_remove_tag"
+					label="Remove Tag"
+					observes="cmd_zencoding_remove_tag"
+					class="menu-iconic-wide"/>
+				
+				<menuitem id="zencoding_split_join_tag"
+					label="Split/Join Tag"
+					observes="cmd_zencoding_split_join_tag"
+					class="menu-iconic-wide"/>
+				
+				<menuitem id="zencoding_toggle_comment"
+					label="Toggle Comment"
+					oncommand="zen_controller.runAction('toggle_comment');"
+					class="menu-iconic-wide"/>
+			</menupopup>
+		</menu>
+	</menupopup> 
+</overlay>

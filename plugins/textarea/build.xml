@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="TextMate bundle" basedir="../../">
+	<description>&lt;textarea&gt; plugin building routines</description>
+	
+	<import file="${webtasks_path}"/>
+
+	<property file="build.properties"/>
+	<property file="${zencoding_plugins_source}/textarea/build.properties"/>
+
+	<target name="textarea_plugin" depends="build_textarea_plugin">
+		<zip destfile="${zencoding_plugins}/${zencoding_textarea_plugin.zip}">
+			<fileset dir="${textarea.build_dir}"></fileset>
+		</zip>
+		
+		<echo>textarea plugin done</echo>
+	</target>
+
+	<target name="textarea_init">
+		<delete dir="${textarea.build_dir}"/>
+		<mkdir dir="${textarea.build_dir}"/>
+	</target>
+
+	<target name="build_textarea_plugin" depends="textarea_init">
+		<concat destfile="${textarea.build_dir}/zen_textarea.js">
+			<filelist dir="${textarea.source}">
+				<file name="__intro.js"/>
+			</filelist>
+			<filelist refid="javascript.files"/>
+			<fileset dir="${zencoding_javascript_filters}">
+				<include name="*.js"/>
+			</fileset>
+			<filelist dir="${textarea.source}">
+				<file name="zen_editor.js"/>
+				<file name="shortcut.js"/>
+				<file name="manager.js"/>
+				<file name="__outro.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js-lib tofile="${textarea.build_dir}/zen_textarea.min.js">
+			<files>
+				<filelist dir="${textarea.build_dir}">
+					<file name="zen_textarea.js"/>
+				</filelist>
+			</files>
+		</compile-js-lib>
+		
+		<copy todir="${textarea.build_dir}">
+			<filelist dir="${textarea.source}">
+				<file name="example.html"></file>
+				<file name="zc-powered.png"></file>
+			</filelist>
+		</copy>
+	</target>
+</project>

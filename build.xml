@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Zen Coding" default="main" basedir=".">
+	<property file="build.properties"/>
+	<import file="${webtasks_path}"/>
+	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
+	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
+	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
+	<import file="${zencoding_plugins_source}/komodo/build.xml"/>
+	<import file="${zencoding_plugins_source}/pspad/build.xml"/>
+	
+	
+	<!-- List of Zen Coding JavaScript files -->
+	<filelist dir="${zencoding_javascript}" id="javascript.files">
+		<file name="zen_settings.js"/>
+		<file name="zen_coding.js"/>
+		<file name="zen_actions.js"/>
+		<file name="html_matcher.js"/>
+		<!-- <file name="filters/format.js"/>
+		<file name="filters/html.js"/>
+		<file name="filters/haml.js"/>
+		<file name="filters/escape.js"/>
+		<file name="filters/format-css.js"/>
+		<file name="filters/comment.js"/> -->
+	</filelist>
+	
+	<target name="init">
+		<mkdir dir="${zencoding_build_dir}"/>
+		<mkdir dir="${zencoding_plugins}"/>
+	</target>
+	
+	<target name="create_javascript" depends="init">
+		<concat destfile="${zencoding_build_dir}/zencoding.js">
+			<filelist refid="javascript.files"/>
+		</concat>
+	</target>
+
+	<!-- Main build routine -->
+	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, install_textmate_bundle">
+		<echo>Done</echo>
+	</target>
+</project>
