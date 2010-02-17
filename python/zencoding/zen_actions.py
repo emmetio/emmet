@@ -67,6 +67,8 @@ def expand_abbreviation_with_tab(editor, syntax, profile_name='xhtml'):
 	"""
 	if not expand_abbreviation(editor, syntax, profile_name):
 		editor.replace_content(zen_coding.get_variable('indentation'), editor.get_caret_pos())
+	
+	return True 
 
 def match_pair(editor, direction='out', syntax=None):
 	"""
@@ -180,6 +182,9 @@ def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
 	
 	if result:
 		editor.replace_content(result, start_offset, end_offset)
+		return True
+	
+	return False
 
 def unindent(editor, text):
 	"""
@@ -281,6 +286,9 @@ def prev_edit_point(editor):
 	
 	if new_point != -1:
 		editor.set_caret_pos(new_point)
+		return True
+	
+	return False
 
 def next_edit_point(editor):
 	"""
@@ -291,6 +299,9 @@ def next_edit_point(editor):
 	new_point = find_new_edit_point(editor, 1)
 	if new_point != -1:
 		editor.set_caret_pos(new_point)
+		return True
+	
+	return False
 
 def insert_formatted_newline(editor, mode='html'):
 	"""
@@ -314,6 +325,8 @@ def insert_formatted_newline(editor, mode='html'):
 			editor.replace_content(nl, caret_pos)
 	else:
 		editor.replace_content(nl, caret_pos)
+		
+	return True
 
 def select_line(editor):
 	"""
@@ -323,6 +336,7 @@ def select_line(editor):
 	"""
 	start, end = editor.get_current_line_range();
 	editor.create_selection(start, end)
+	return True
 
 def go_to_matching_pair(editor):
 	"""
@@ -349,6 +363,10 @@ def go_to_matching_pair(editor):
 			elif close_tag['start'] <= caret_pos and close_tag['end'] >= caret_pos:
 				editor.set_caret_pos(open_tag['start'])
 				
+		return True
+	
+	return False
+				
 
 def merge_lines(editor):
 	"""
@@ -371,6 +389,9 @@ def merge_lines(editor):
 		text = re.sub(r'\s{2,}', ' ', ''.join(lines))
 		editor.replace_content(text, start, end)
 		editor.create_selection(start, start + len(text))
+		return True
+	
+	return False
 
 def toggle_comment(editor):
 	"""
