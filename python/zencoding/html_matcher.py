@@ -155,7 +155,7 @@ def get_tags(html, start_ix, mode='xhtml'):
 	and returns array of opening and closing tags
 	This method is generally used for lookups
 	"""
-	return _find_pair(html, start_ix, mode, lambda op, cl, ix: (op, cl) if op.type == 'tag' else None)
+	return _find_pair(html, start_ix, mode, lambda op, cl=None, ix=0: (op, cl) if op and op.type == 'tag' else None)
 
 
 def _find_pair(html, start_ix, mode='xhtml', action=make_range):
