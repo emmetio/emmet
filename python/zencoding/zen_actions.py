@@ -568,7 +568,15 @@ def split_join_tag(editor, profile_name=None):
 				closing_slash = ' /'
 				
 			new_content = re.sub(r'\s*>$', closing_slash + '>', new_content)
-			editor.replace_content(new_content + caret, pair[0].start, pair[1].end)
+			
+			# add caret placeholder
+			if len(new_content) + pair[0].start < caret_pos:
+				new_content += caret
+			else:
+				d = caret_pos - pair[0].start
+				new_content = new_content[0:d] + caret + new_content[d:]
+			
+			editor.replace_content(new_content, pair[0].start, pair[1].end)
 		else: # split tag
 			nl = zen_coding.get_newline()
 			pad = zen_coding.get_variable('indentation')

@@ -613,7 +613,8 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
  */
 function splitJoinTag(editor, profile_name) {
 	var caret_pos = editor.getCaretPos(),
-		profile = zen_coding.getProfile(profile_name || editor.getProfileName());
+		profile = zen_coding.getProfile(profile_name || editor.getProfileName()),
+		caret = zen_coding.getCaretPlaceholder();
 
 	// find tag at current position
 	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos, editor.getProfileName());
@@ -626,14 +627,19 @@ function splitJoinTag(editor, profile_name) {
 				closing_slash = '/';
 				
 			new_content = new_content.replace(/\s*>$/, closing_slash + '>');
+			
+			// add caret placeholder
+			if (new_content.length + pair[0].start < caret_pos)
+				new_content += caret;
+			else {
+				var d = caret_pos - pair[0].start;
+				new_content = new_content.substring(0, d) + caret + new_content.substring(d);
+			}
+			
 			editor.replaceContent(new_content, pair[0].start, pair[1].end);
-
-			// adjust caret position
-			editor.setCaretPos(Math.min(caret_pos, pair[0].end));
 		} else { // split tag
 			var nl = zen_coding.getNewline(),
-				pad = zen_coding.getVariable('indentation'),
-				caret = zen_coding.getCaretPlaceholder();
+				pad = zen_coding.getVariable('indentation');
 			
 			// define tag content depending on profile
 			var tag_content = (profile.tag_nl === true)
