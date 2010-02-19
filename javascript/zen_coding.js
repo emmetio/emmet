@@ -674,6 +674,7 @@
 		this.name = tag.name;
 		this.attributes = tag.attributes;
 		this.children = [];
+		this.counter = 1;
 		
 		/** @type {Tag} Source element from which current tag was created */
 		this.source = tag;
@@ -849,6 +850,7 @@
 			for (var j = 0; j < how_many; j++) {
 				var tag = new ZenNode(child);
 				parent.addChild(tag);
+				tag.counter = j + 1;
 				
 				if (child.children.length)
 					rolloutTree(child, tag);

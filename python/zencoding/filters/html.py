@@ -121,15 +121,15 @@ def process(tree, profile, level=0):
 		# preformat tree
 		tree = zen_coding.run_filters(tree, profile, '_format')
 		
-	for i, item in enumerate(tree.children):
+	for item in tree.children:
 		if item.type == 'tag':
 			process_tag(item, profile, level)
 		else:
 			process_snippet(item, profile, level)
 	
 		# replace counters
-		item.start = zen_coding.replace_counter(item.start, i + 1)
-		item.end = zen_coding.replace_counter(item.end, i + 1)
+		item.start = zen_coding.replace_counter(item.start, item.counter)
+		item.end = zen_coding.replace_counter(item.end, item.counter)
 		process(item, profile, level + 1)
 		
 	return tree

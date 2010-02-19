@@ -62,6 +62,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<ul id="nav"><li class="item1"></li><li class="item2"></li><li class="item3"></li></ul>', expandAbbr('ul#nav>li.item$*3'))
 		self.assertEqual('<ul id="nav"><li class="item001"></li><li class="item002"></li><li class="item003"></li></ul>', expandAbbr('ul#nav>li.item$$$*3'));
 		self.assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
+		self.assertEqual('<ul id="nav"><li class="pre1"></li><li class="pre2"></li><li class="pre3"></li><li class="post1"></li><li class="post2"></li><li class="post3"></li></ul>', expandAbbr('ul#nav>li.pre$*3+li.post$*3'));
 		
 	def testShortTags(self):
 		self.assertEqual('<blockquote><p></p></blockquote>', expandAbbr('bq>p'))

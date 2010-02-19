@@ -559,6 +559,7 @@ def rollout_tree(tree, parent=None):
 		for j in range(how_many):
 			tag = ZenNode(child)
 			parent.add_child(tag)
+			tag.counter = j + 1
 			
 			if child.children:
 				rollout_tree(child, tag)
@@ -1111,6 +1112,7 @@ class ZenNode(object):
 		self.name = tag.name
 		self.attributes = tag.attributes
 		self.children = [];
+		self.counter = 1
 		
 		self.source = tag
 		"Source element from which current tag was created"
