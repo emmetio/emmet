@@ -908,7 +908,7 @@
 			last = null,
 			multiply_elem = null,
 			res = zen_settings[type],
-			re = /([\+>])?([a-z@\!\#\.][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+			re = /([\+>])?([a-z@\!\#\.][\w:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
 //				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 		
 		if (!abbr)
@@ -1111,6 +1111,7 @@
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
 			var tree_root = this.parseIntoTree(abbr, type);
+			
 			if (tree_root) {
 				var tree = rolloutTree(tree_root);
 				this.applyFilters(tree, type, profile, tree_root.filters);

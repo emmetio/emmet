@@ -142,6 +142,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<div class="content"></div>', expandAbbr('.content'))
 		self.assertEqual('<div id="content" class="demo"></div>', expandAbbr('#content.demo'))
 		self.assertEqual('<div class="demo" title="test"></div>', expandAbbr('.demo[title=test]'))
+		self.assertEqual('<div id="some_id"><div class="some_class"></div></div>', expandAbbr('#some_id>.some_class'));
 	
 	def testFilters(self):
 		self.assertEqual('&lt;div id="content"&gt;&lt;/div&gt;', expandAbbr('#content|e'))
