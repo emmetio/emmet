@@ -267,10 +267,25 @@ var zen_editor = (function(){
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
-			var new_pos = value.indexOf(caret_placeholder);
+			var new_pos = String(value).indexOf(caret_placeholder),
+				jface_link = Packages.org.eclipse.jface.text.link,
+				links = [];
+				
 			if (new_pos != -1) {
 				caret_pos = (start || 0) + new_pos;
-				value = value.split(caret_placeholder).join('');
+				// using Eclipse jFace Link interface to create tab stops
+				var chunks = value.split(caret_placeholder),
+					_offset = start || 0;
+					
+				// no need in jface links if there's only one cursor placeholder
+				if (chunks.length > 2) {
+					for (var i = 0, il = chunks.length; i < il; i++) {
+						_offset += chunks[i].length;
+						links.push(_offset);
+					}
+				}
+				
+				value = chunks.join('');
 			} else {
 				caret_pos = value.length + (start || 0);
 			}
@@ -285,7 +300,25 @@ var zen_editor = (function(){
 					editor.applyEdit(0, content.length, value);
 				}
 				
-				this.setCaretPos(caret_pos);
+				if (links.length) {
+					var viewer = editor.textEditor.viewer,
+						document = viewer.document,
+						model = new jface_link.LinkedModeModel();
+					
+					for (var j = 0, jl = links.length - 1; j < jl; j++) {
+						var group = new jface_link.LinkedPositionGroup();
+						group.addPosition(new jface_link.LinkedPosition(document, links[j], 0));
+						model.addGroup(group);
+					}
+					
+					model.forceInstall();
+					
+					var link_ui = new jface_link.LinkedModeUI(model, viewer);
+					link_ui.setSimpleMode(true);
+					link_ui.enter();
+				} else {
+					this.setCaretPos(caret_pos);
+				}
 			} catch(e){}
 //			editor.endCompoundChange();
 		},
