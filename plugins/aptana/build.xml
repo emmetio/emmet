@@ -45,6 +45,7 @@
 		
 		<zip destfile="${zencoding_plugins}/${zencoding_aptana_plugin.zip}">
 			<fileset dir="${aptana.build_dir}">
+			    <include name="filters/*.js"/>
 			    <include name="*.js"/>
 			    <exclude name="*.zip"/>
 			</fileset>
