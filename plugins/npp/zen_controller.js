@@ -6,12 +6,45 @@
 function zc_manager(action_name) {
 	zen_editor.setContext(Editor.currentView);
 	if (action_name == 'wrap_with_abbreviation') {
-		var abbr = prompt('Enter Abbreviation', 'div');
-		if (abbr)
-			return zen_coding.runAction(action_name, zen_editor, abbr);
+		var abbr = prompt('Enter Abbreviation', function(abbr){
+			if (abbr)
+				zen_coding.runAction(action_name, zen_editor, abbr);
+		});
 	} else {
 		return zen_coding.runAction(action_name, zen_editor);
 	}
+}
+
+function prompt(title, callback) {
+	var dialog = new Dialog({
+		npp: Editor,
+		html: "<form><input type='text' id='prompt_str' style='width:100%' onkeydown='Config.onKeyDown(window.event);' /></form>", 
+		Height: 100,
+		Width: 300,
+		Top: 200,
+		title: title,
+		js: function(){
+			this.getElementById("prompt_str").focus();
+		},
+		onKeyDown: function(evt) {
+			var target = evt.srcElement || evt.target,
+				keycode = evt.keyCode || evt.which;
+				
+			if (keycode == 27 || keycode == 13) { 
+				// escape or enter key pressed
+				var value = null;
+				if (keycode == 13)
+					value = target.value;
+					
+				dialog.close();
+				
+				if (callback)
+					callback(target.value);
+			}
+		}
+	});
+	
+	dialog.show();
 }
 
 var zc_menu = Editor.addMenu("Zen Coding");
@@ -56,7 +89,7 @@ function addMenuItem(name, action, keystroke) {
 
 // init engine
 addMenuItem('Expand Abbreviation', 'expand_abbreviation', 'Ctrl+E');
-//addMenuItem('Wrap with Abbreviation', 'wrap_with_abbreviation', 'Ctrl+Shift+A');
+addMenuItem('Wrap with Abbreviation', 'wrap_with_abbreviation', 'Ctrl+Shift+A');
 addMenuItem('Balance Tag', 'match_pair_outward', 'Ctrl+Shift+D');
 addMenuItem('Next Edit Point', 'next_edit_point', 'Ctrl+Alt+]');
 addMenuItem('Previous Edit Point', 'prev_edit_point', 'Ctrl+Alt+[');
