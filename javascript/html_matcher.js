@@ -258,7 +258,7 @@
 	 * 
 	 * @return {Array|null}
 	 */
-	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
+	var HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
 		return findPair(html, start_ix, mode, saveMatch);
 	}
 	
