@@ -301,8 +301,8 @@ var zen_editor = (function(){
 				}
 				
 				if (links.length) {
-					var viewer = editor.textEditor.viewer,
-						document = viewer.document,
+					var viewer = editor.textEditor.viewer || editor.textEditor.getTextViewer(), 
+						document = viewer.getDocument(),
 						model = new jface_link.LinkedModeModel();
 					
 					for (var j = 0, jl = links.length - 1; j < jl; j++) {
@@ -314,7 +314,8 @@ var zen_editor = (function(){
 					model.forceInstall();
 					
 					var link_ui = new jface_link.LinkedModeUI(model, viewer);
-					link_ui.setSimpleMode(true);
+					if (editor.textEditor.viewer)
+						link_ui.setSimpleMode(true); // simple mode for Aptana
 					link_ui.enter();
 				} else {
 					this.setCaretPos(caret_pos);
