@@ -19,7 +19,7 @@
 			<fileset dir="${komodo.source}/zencoding"/>
 			<filterchain>
 				<replacetokens>
-					<token key="VERSION" value="${zencoding_version}"/>
+					<token key="VERSION" value="${komodo.version}"/>
 				</replacetokens>
 			</filterchain>
 		</copy>

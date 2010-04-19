@@ -20,6 +20,37 @@ var zen_editor = {
 	context: null,
 	scimoz: null,
 	
+	_bytesToChar: function(bytes) {
+		return this.scimoz.getTextRange(0, bytes).length;
+	},
+	
+	_charsToByte: function(chars) {
+		var old_pos = this.scimoz.currentPos,
+			_c = chars,
+			bytes = null;
+			
+		if (_c) {
+			// find correct pos
+			do {
+				this.scimoz.gotoPos(_c);
+				if (this._bytesToChar(this.scimoz.currentPos))
+					break;
+			} while(_c--);
+		}
+			
+		this.scimoz.gotoPos(_c);
+		while (chars > this._bytesToChar(this.scimoz.currentPos)) {
+			this.scimoz.charRight();
+		}
+		
+		bytes = this.scimoz.currentPos;
+		
+		// revert position
+		this.scimoz.gotoPos(old_pos);
+		
+		return bytes;
+	},
+	
 	/**
 	 * Setup underlying editor context. You should call this method 
 	 * <code>before</code> using any Zen Coding action.
@@ -61,8 +92,8 @@ var zen_editor = {
 	 */
 	getSelectionRange: function() {
 		return {
-			start: this.scimoz.selectionStart,
-			end: this.scimoz.selectionEnd
+			start: this._bytesToChar(this.scimoz.selectionStart),
+			end: this._bytesToChar(this.scimoz.selectionEnd)
 		};
 	},
 	
@@ -79,6 +110,8 @@ var zen_editor = {
 	 * zen_editor.createSelection(15);
 	 */
 	createSelection: function(start, end) {
+		start = this._charsToByte(start);
+		end = this._charsToByte(end);
 		this.scimoz.setSel(start, end);
 	},
 	
@@ -92,10 +125,12 @@ var zen_editor = {
 	 */
 	getCurrentLineRange: function() {
 		var line = this.scimoz.lineFromPosition(this.getCaretPos());
-		return {
-			start: this.scimoz.positionFromLine(line), 
-			end: this.scimoz.getLineEndPosition(line)
+		var result = {
+			start: this._bytesToChar(this.scimoz.positionFromLine(line)), 
+			end: this._bytesToChar(this.scimoz.getLineEndPosition(line))
 		};
+		
+		return result;
 	},
 	
 	/**
@@ -103,7 +138,7 @@ var zen_editor = {
 	 * @return {Number|null}
 	 */
 	getCaretPos: function(){
-		return this.scimoz.currentPos;
+		return this._bytesToChar(this.scimoz.currentPos);
 	},
 	
 	/**
@@ -111,6 +146,7 @@ var zen_editor = {
 	 * @param {Number} pos Caret position
 	 */
 	setCaretPos: function(pos){
+		pos = this._charsToByte(pos);
 		this.scimoz.currentPos = pos;
 		this.scimoz.anchor = pos;
 	},
@@ -172,8 +208,8 @@ var zen_editor = {
 		
 		this.context.setFocus();
 		this.scimoz.beginUndoAction();
-		this.scimoz.targetStart = start;
-		this.scimoz.targetEnd = end;
+		this.scimoz.targetStart = this._charsToByte(start);
+		this.scimoz.targetEnd = this._charsToByte(end);
 		this.scimoz.replaceTarget(value.length, value);
 		this.setCaretPos(caret_pos);
 		this.scimoz.endUndoAction();
