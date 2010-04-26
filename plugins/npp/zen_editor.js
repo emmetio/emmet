@@ -58,6 +58,85 @@ var zen_editor = (function(){
 		return {start: start, end: end};
 	}
 	
+	var _char_byte_map = null,
+		_last_text = null; 
+	
+	/**
+	 * Creates bytes<->character map for UTF8 to deal with Scintilla awkward behavior
+	 * @param {String} text Text to create map from. The char map will be valid
+	 * for this text only
+	 * @return {Object}
+	 */
+	function createCharByteMap(text) {
+		var last_char = 0, 
+			last_byte = 0,
+			result = {
+				bytes: [], // bytes to chars
+				chars: []  // chars to bytes
+			},
+			char_code,
+			char_len;
+			
+		for (var i = 0, il = text.length; i < il; i++) {
+			char_code = text.charCodeAt(i);
+			if (char_code < 128) {
+				char_len = 1;
+			} else if (char_code > 127 && char_code < 2048) {
+				char_len = 2;
+			} else if (char_code > 2047 && char_code < 65536) {
+				char_len = 3;
+			} else {
+				char_len = 4;
+			}
+			
+			result.bytes[last_byte] = last_char;
+			result.chars[last_char] = last_byte;
+			
+			last_char++;
+			last_byte += char_len;
+		}
+		
+		result.bytes[last_byte] = last_char;
+		result.chars[last_char] = last_byte;
+		
+		return result;
+	}
+	
+	function updateCharMap() {
+		if (_last_text !== context.text) {
+			_last_text = context.text;
+			_char_byte_map = createCharByteMap(_last_text);
+		}
+	}
+	
+	/**
+	 * Converts character position into byte position
+	 * @param {Number} char_pos
+	 */
+	function charToBytes(char_pos) {
+		if (context.codepage == 65001) {
+			updateCharMap();
+			return _char_byte_map.chars[char_pos];
+		} else {
+			_last_text = null;
+			return char_pos;
+		}
+	}
+	
+	/**
+	 * Converts byte position into character position
+	 * @param {Number} byte_pos
+	 */
+	function byteToChars(byte_pos) {
+		if (context.codepage == 65001) {
+			updateCharMap();
+			return _char_byte_map.bytes[byte_pos];
+		} else {
+			_last_text = null;
+			return byte_pos;
+		}
+	}
+	
 	/**
 	 * Returns whitrespace padding of string
 	 * @param {String} str String line
@@ -89,8 +168,8 @@ var zen_editor = (function(){
 		 */
 		getSelectionRange: function() {
 			return {
-				start: Math.min(context.anchor, context.pos),
-				end: Math.max(context.anchor, context.pos)
+				start: byteToChars(Math.min(context.anchor, context.pos)),
+				end: byteToChars(Math.max(context.anchor, context.pos))
 			};
 		},
 		
@@ -107,8 +186,8 @@ var zen_editor = (function(){
 		 * zen_editor.createSelection(15);
 		 */
 		createSelection: function(start, end) {
-			context.anchor = start;
-			context.pos = end;
+			context.anchor = charToBytes(start);
+			context.pos = charToBytes(end);
 		},
 		
 		/**
@@ -120,7 +199,6 @@ var zen_editor = (function(){
 		 * alert(range.start + ', ' + range.end);
 		 */
 		getCurrentLineRange: function() {
-			var line = findNewlineBounds(this.getContent(), this.getCaretPos());
 			return findNewlineBounds(this.getContent(), this.getCaretPos());
 		},
 		
@@ -129,7 +207,7 @@ var zen_editor = (function(){
 		 * @return {Number|null}
 		 */
 		getCaretPos: function(){
-			return context.pos;
+			return byteToChars(context.pos);
 		},
 		
 		/**
@@ -137,7 +215,7 @@ var zen_editor = (function(){
 		 * @param {Number} pos Caret position
 		 */
 		setCaretPos: function(pos) {
-			context.anchor = context.pos = pos;
+			context.anchor = context.pos = charToBytes(pos);
 		},
 		
 		/**

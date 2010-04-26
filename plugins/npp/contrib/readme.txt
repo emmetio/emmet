@@ -9,10 +9,9 @@ If you don't see this item or plugin doesn't work, try to install latest Windows
 http://www.microsoft.com/downloads/details.aspx?FamilyId=01592C48-207D-4BE1-8A76-1C4099D7BBB9&displaylang=en
 
 
-==Changing shortcuts==
+==Changing settings and shortcuts==
 
-Due to some problems with including large JS files, Zen Coding is compiled right into 'NppScripting\start.js'
-file, making it quite large. You can find Zen Coding settings near the top of this file and shortcut settings
+You can find Zen Coding settings near the top of the includes/Zen Coding.js file and shortcut settings
 at the very bottom of it.
 
 

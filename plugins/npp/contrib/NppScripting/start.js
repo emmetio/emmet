@@ -1,4 +1,4 @@
-// Please place or include your code in body 
+﻿// Please place or include your code in body 
 // of Start function
 function Start(){
 	var includeDir = Editor.nppDir+"\\Plugins\\NppScripting\\includes";
@@ -235,4 +235,3 @@ GlobalListener = new Listener(['SHUTDOWN','READONLYCHANGED','LANGCHANGED','BUFFE
 Editor.setListener(GlobalListener);
 
 Start();
-
