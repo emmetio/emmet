@@ -6,10 +6,19 @@ Created on Jun 19, 2009
 import unittest
 
 from zencoding import zen_core as zen
+from zencoding import stparser
+
+my_zen_settings = {
+	'html': {
+		'snippets': {
+			'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$'
+		}
+	}
+}
 
 zen.set_caret_placeholder('|')
 
-#zen.update_settings(stparser.get_settings())
+zen.update_settings(stparser.get_settings(my_zen_settings))
 
 def expandAbbr(abbr, doc_type='html', profile_name='plain'):
 	return zen.expand_abbreviation(abbr, doc_type, profile_name)
@@ -150,6 +159,9 @@ class Test(unittest.TestCase):
 		
 		self.assertEqual('float: right;', expandAbbr('fl:r|fc', 'css'))
 		self.assertEqual('float: right;\ndisplay: none;', expandAbbr('fl:r+d:n|fc', 'css'))
+	
+	def testDollarSign(self):
+		self.assertEqual('$db->connect()\n\t$$$more dollaz1', expandAbbr('dol'));
 
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testAbbreviations']

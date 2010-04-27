@@ -136,8 +136,8 @@ def process(tree, profile, level=0):
 			process_snippet(item, profile, level)
 	
 		# replace counters
-		item.start = zen_coding.replace_counter(item.start, i + 1)
-		item.end = zen_coding.replace_counter(item.end, i + 1)
+		item.start = zen_coding.unescape_text(zen_coding.replace_counter(item.start, item.counter))
+		item.end = zen_coding.unescape_text(zen_coding.replace_counter(item.end, item.counter))
 		process(item, profile, level + 1)
 		
 	return tree

@@ -962,16 +962,27 @@ def replace_counter(text, value):
 	value = str(value)
 	
 	def replace_func(tx, symbol, pos, match_num):
-		if tx[pos + 1] == '{':
+		if char_at(tx, pos + 1) == '{':
 			# it's a variable, skip it
 			return False
 		
 		# replace sequense of $ symbols with padded number  
 		j = pos + 1
-		while tx[j] == '$' and char_at(tx, j + 1) != '{': j += 1
+		if j < len(text):
+			while tx[j] == '$' and char_at(tx, j + 1) != '{': j += 1
+		
 		return (tx[pos:j], value.zfill(j - pos))
 	
 	return replace_unescaped_symbol(text, symbol, replace_func)
+
+def unescape_text(text):
+	"""
+	Unescapes special characters used in Zen Coding, like '$', '|', etc.
+	@type text: str
+	@return: str
+	"""
+	return re.sub(r'\\(.)', r'\1', text)
+
 
 def get_profile(name):
 	"""
