@@ -193,6 +193,50 @@ var zen_editor = (function(){
 		return result;
 	}
 	
+	/**
+	 * Handle tab-stops (like $1 or ${1:label}) inside text: find first tab-stop,
+	 * marks it as selection, remove the rest. If tab-stop wasn't found, search
+	 * for caret placeholder and use it as selection
+	 * @param {String} text
+	 * @return {Array} Array with new text and selection indexes (['...', -1,-1] 
+	 * if there's no selection)
+	 */
+	function handleTabStops(text) {
+		var re_tabstop = /(\$\d+|\$\{\d+:[^\}]+\})/g,
+			result = ['', -1, -1],
+			caret_pos = text.indexOf(caret_placeholder),
+			is_found = false;
+			
+		// find caret position
+		if (caret_pos != -1) {
+			text = text.split(caret_placeholder).join('');
+		}
+			
+		result[0] = text.replace(re_tabstop, function(str, p1){
+			if (!is_found) {
+				is_found = true;
+				
+				result[1] = text.indexOf(p1);
+				if (caret_pos != -1 && result[1] > caret_pos) { // placeholder too far
+					result[1] = result[2] = caret_pos;
+					return '';
+				} else {
+					p1 = p1.replace(/^\$\d+|^\$\{\d+:|\}$/g, '');
+					result[2] = result[1] + p1.length;
+					return p1;
+				}
+				
+			} else {
+				return '';
+			}
+		});
+		
+		if (result[1] == -1)
+			result[1] = result[2] = caret_pos;
+			
+		return result;
+	}
+	
 	options = copyOptions();
 	
 	return {
@@ -267,13 +311,25 @@ var zen_editor = (function(){
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
-			var new_pos = value.indexOf(caret_placeholder);
-			if (new_pos != -1) {
-				caret_pos = (start || 0) + new_pos;
-				value = value.split(caret_placeholder).join('');
+			var tabstop_res = handleTabStops(value);
+			value = tabstop_res[0];
+			
+			start = start || 0;
+			if (tabstop_res[1] !== -1) {
+				tabstop_res[1] += start;
+				tabstop_res[2] += start;
 			} else {
-				caret_pos = value.length + (start || 0);
+				tabstop_res[1] = tabstop_res[2] = value.length + start;
 			}
+			
+			
+//			var new_pos = value.indexOf(caret_placeholder);
+//			if (new_pos != -1) {
+//				caret_pos = (start || 0) + new_pos;
+//				value = value.split(caret_placeholder).join('');
+//			} else {
+//				caret_pos = value.length + (start || 0);
+//			}
 			
 			try {
 				if (has_start && has_end) {
@@ -283,7 +339,8 @@ var zen_editor = (function(){
 				}
 				
 				target.value = content;
-				this.setCaretPos(caret_pos);
+				this.createSelection(tabstop_res[1], tabstop_res[2]);
+//				this.setCaretPos(caret_pos);
 			} catch(e){}
 		},
 		

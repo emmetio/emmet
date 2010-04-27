@@ -6,7 +6,8 @@
  * @include "../zen_coding.js"
  */
 (function(){
-	var child_token = '${child}';
+	var child_token = '${child}',
+		tabstops = 0;
 	
 	/**
 	 * Creates HTML attributes string from tag according to profile settings
@@ -121,8 +122,10 @@
 	 */
 	function process(tree, profile, level) {
 		level = level || 0;
-		if (level == 0)
+		if (level == 0) {
 			tree = zen_coding.runFilters(tree, profile, '_format');
+			tabstops = 0;
+		}
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
@@ -135,6 +138,8 @@
 			// replace counters
 			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, item.counter));
 			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, item.counter));
+			
+			tabstops += zen_coding.upgradeTabstops(item, tabstops) + 1;
 			
 			process(item, profile, level + 1);
 		}

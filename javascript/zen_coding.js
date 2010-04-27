@@ -45,6 +45,13 @@
 	var filters = {},
 		/** Filters that will be applied for unknown syntax */
 		basic_filters = 'html';
+		
+	function isNumeric(ch) {
+		if (typeof(ch) == 'string')
+			ch = ch.charCodeAt(0);
+			
+		return (ch && ch > 47 && ch < 58);
+	}
 	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
@@ -57,7 +64,7 @@
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
-				|| (char_code > 47 && char_code < 58)   // number
+				|| isNumeric(ch)                        // number
 				|| special_chars.indexOf(ch) != -1;     // special character
 	}
 	
@@ -831,9 +838,10 @@
 	 */
 	function rolloutTree(tree, parent) {
 		parent = parent || new ZenNode(tree);
+		
 		var how_many = 1,
 			tag_content = '';
-		
+			
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {Tag} */
 			var child = tree.children[i];
@@ -1372,7 +1380,7 @@
 			var symbol = '$';
 			value = String(value);
 			return replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, match_num){
-				if (str.charAt(pos + 1) == '{') {
+				if (str.charAt(pos + 1) == '{' || isNumeric(str.charAt(pos + 1)) ) {
 					// it's a variable, skip it
 					return false;
 				}
@@ -1382,6 +1390,29 @@
 				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
 				return [str.substring(pos, j), zeroPadString(value, j - pos)];
 			});
+		},
+		
+		/**
+		 * Upgrades tabstops in zen node in order to prevent naming conflicts
+		 * @param {ZenNode} node
+		 * @param {Number} offset Tab index offset
+		 * @returns {Number} Maximum tabstop index in element
+		 */
+		upgradeTabstops: function(node, offset) {
+			var max_num = 0,
+				props = ['start', 'end', 'content'];
+				
+			for (var i = 0, il = props.length; i < il; i++) {
+				node[props[i]] = node[props[i]].replace(/\$(\d+)|\$\{(\d+):[^\}]+\}/g, function(str, p1, p2){
+					var num = parseInt(p1 || p2, 10);
+					if (num > max_num)
+						max_num = num;
+						
+					return str.replace(/\d+/, num + offset);
+				});
+			}
+			
+			return max_num;
 		},
 		
 		/**

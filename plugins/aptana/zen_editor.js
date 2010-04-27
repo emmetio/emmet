@@ -139,6 +139,88 @@ var zen_editor = (function(){
 		}
 	}
 	
+	/**
+	 * Handle tab-stops (like $1 or ${1:label}) inside text: find them and create
+	 * indexes for linked mode
+	 * @param {String} text
+	 * @return {Array} Array with new text and selection indexes (['...', -1,-1] 
+	 * if there's no selection)
+	 */
+	function handleTabStops(text) {
+		var re_tabstop = /\$(\d+)|\$\{(\d+):[^\}]+\}/g,
+			carets = [],
+			ranges = [];
+			
+		text = String(text);
+		
+		// find all carets
+		var caret_placeholder = zen_coding.getCaretPlaceholder(),
+			chunks = text.split(caret_placeholder),
+			_offset = 0;
+			
+		if (chunks.length > 1) {
+			for (var i = 0, il = chunks.length - 1; i < il; i++) {
+				_offset += chunks[i].length;
+				carets.push(_offset);
+			}
+			
+			text = chunks.join('');
+		}
+		
+		// now, process all tab-stops
+		// we should process it in three iterations: find labels for tab-stops first,
+		// then replace short notations (like $1) with labels (normalize), and 
+		// finally save their positions
+		var tabstop_labels = [];
+		
+		// find labels
+		text.replace(/\$\{(\d+):([^\}]+)\}/g, function(str, p1, p2){
+			tabstop_labels[parseInt(p1, 10)] = p2;
+			return str;
+		});
+		
+		// normalize tab-stops
+		text = text.replace(re_tabstop, function(str, p1, p2) {
+			var num = parseInt(p1 || p2, 10);
+			if (tabstop_labels[num]) {
+				return '${' + num + ':' + tabstop_labels[num] + '}';
+			} else {
+				return str;
+				
+			}
+		});
+		
+		// save ranges
+		re_tabstop.compile(re_tabstop.source, ''); // remove global flag
+		var m;
+		while (m = re_tabstop.exec(text)) {
+			var pos = text.indexOf(m[0]),
+				num = parseInt(m[1] || m[2], 10),
+				label = tabstop_labels[num] || '';
+				
+			// replace tab-stop with label
+			text = text.substring(0, pos) + label + text.substring(pos + m[0].length);
+			re_tabstop.lastIndex = pos + label.length;
+			
+			// save range
+			if (!ranges[num])
+				ranges[num] = [];
+				
+			ranges[num].push([pos, pos + label.length]);
+		}
+		
+		// add cursor positions to indexes
+		for (var i = 0, il = carets.length; i < il; i++) {
+			ranges.push([ [carets[i], carets[i]] ]);
+		}
+		
+		ranges.sort(function(a, b) {
+			return a[0][0] - b[0][0];
+		});
+		
+		return [text, ranges];
+	}
+	
 	return {
 		/**
 		 * Depreacted name of <code>setContext</code> method
@@ -265,29 +347,15 @@ var zen_editor = (function(){
 				
 			// indent new value
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
-			
-			// find new caret position
-			var new_pos = String(value).indexOf(caret_placeholder),
+			var ts_result = handleTabStops(value),
 				jface_link = Packages.org.eclipse.jface.text.link,
-				links = [];
-				
-			if (new_pos != -1) {
-				caret_pos = (start || 0) + new_pos;
-				// using Eclipse jFace Link interface to create tab stops
-				var chunks = value.split(caret_placeholder),
-					_offset = start || 0;
-					
-				// no need in jface links if there's only one cursor placeholder
-				if (chunks.length > 2) {
-					for (var i = 0, il = chunks.length; i < il; i++) {
-						_offset += chunks[i].length;
-						links.push(_offset);
-					}
-				}
-				
-				value = chunks.join('');
-			} else {
-				caret_pos = value.length + (start || 0);
+				links = ts_result[1];
+			
+			value = ts_result[0];
+			start = start || 0;
+			
+			if (!links.length) {
+				links.push([ [value.length, value.length] ]);
 			}
 			
 //			editor.beginCompoundChange();
@@ -300,14 +368,16 @@ var zen_editor = (function(){
 					editor.applyEdit(0, content.length, value);
 				}
 				
-				if (links.length) {
+				if (links.length > 1 || links[0][0][0] != links[0][0][1]) {
 					var viewer = editor.textEditor.viewer || editor.textEditor.getTextViewer(), 
 						document = viewer.getDocument(),
 						model = new jface_link.LinkedModeModel();
 					
-					for (var j = 0, jl = links.length - 1; j < jl; j++) {
+					for (var j = 0, jl = links.length; j < jl; j++) {
 						var group = new jface_link.LinkedPositionGroup();
-						group.addPosition(new jface_link.LinkedPosition(document, links[j], 0));
+						for (var k = 0, kl = links[j].length; k < kl; k++) {
+							group.addPosition(new jface_link.LinkedPosition(document, start + links[j][k][0], links[j][k][1] - links[j][k][0]));
+						}
 						model.addGroup(group);
 					}
 					
@@ -318,9 +388,11 @@ var zen_editor = (function(){
 						link_ui.setSimpleMode(true); // simple mode for Aptana
 					link_ui.enter();
 				} else {
-					this.setCaretPos(caret_pos);
+					this.setCaretPos(start + links[0][0][0]);
 				}
-			} catch(e){}
+			} catch(e){
+//				alert(e);
+			}
 //			editor.endCompoundChange();
 		},
 		
