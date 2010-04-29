@@ -1499,6 +1499,7 @@
 						obj[key] = entry(TYPE_REFERENCE, key, value);
 					}
 					
+					obj[key].__ref = value;
 				}
 			}
 			

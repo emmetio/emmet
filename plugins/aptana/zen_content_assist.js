@@ -19,8 +19,7 @@ include('zencoding.js');
  * 
  * @include "../../javascript/zen_coding.js"
  * @include "zen_editor.js"
- */
-var zen_content_assist = (function(){
+ */var zen_content_assist = (function(){
 	/** Cached code assist proposals for different syntaxes */
 	var proposal_index = {},
 		/** Currently installed content assistants */
@@ -107,7 +106,7 @@ var zen_content_assist = (function(){
 		// fill cache
 		var _exists = {};
 		for (var p in abbreviations) if (abbreviations.hasOwnProperty(p)) {
-			items.push(proposal(TYPE.ABBREVIATION, p, abbreviations[p]));
+			items.push(proposal(TYPE.ABBREVIATION, p, abbreviations[p].__ref));
 			_exists[p] = true;
 		}
 		
@@ -121,7 +120,7 @@ var zen_content_assist = (function(){
 			var _add = additional[syntax]
 			for (var i = 0, il = _add.length; i < il; i++) {
 				if (!(_add[i] in _exists)) {
-					items.push(proposal(TYPE.TAG, _add[i]));
+					items.push(proposal(TYPE.TAG, _add[i], 'Tag <' + _add[i] + '>'));
 					_exists[_add[i]] = true;
 				}
 			}
@@ -188,9 +187,10 @@ var zen_content_assist = (function(){
 			for (var i = 0, il = suggestions.length; i < il; i++) {
 				/** @type {proposal} */
 				var s = suggestions[i];
+				var proposal = new J_CA.CompletionProposal(s.name, offset - cur_word.length, cur_word.length, s.name.length,
+					getImage(s.type), s.name, null, s.value);
 				
-				proposals.push(new J_CA.CompletionProposal(s.name, offset - cur_word.length, cur_word.length, s.name.length,
-					getImage(s.type), s.name, null, ''));
+				proposals.push(proposal);
 			}
 		}
 		return proposals;
@@ -224,6 +224,14 @@ var zen_content_assist = (function(){
 		return result;
 	}
 	
+	function getInformationControlCreator() {
+		return new JavaAdapter(Packages.org.eclipse.jface.text.IInformationControlCreator, {
+			createInformationControl: function(shell) {
+				return new Packages.org.eclipse.jface.text.DefaultInformationControl(shell);
+			}
+		});
+	}
+	
 	function installContentAssistant(editor) {
 		try{
 		var J_TEXT = Packages.org.eclipse.jface.text;
@@ -242,10 +250,10 @@ var zen_content_assist = (function(){
 		});
 		
 		var ca = new J_CA.ContentAssistant();
-		var cap = CompletionProcessor;
-		ca.setContentAssistProcessor(cap, J_TEXT.IDocument.DEFAULT_CONTENT_TYPE);
+		ca.setContentAssistProcessor(CompletionProcessor, J_TEXT.IDocument.DEFAULT_CONTENT_TYPE);
 		ca.setAutoActivationDelay(0);
 		ca.enableAutoActivation(isKnownEditor(editor));
+		ca.setInformationControlCreator(getInformationControlCreator());
 		ca.install(editor.textEditor.viewer || editor.textEditor.getTextViewer());
 		}catch(e){alert(e);}
 		return ca;
