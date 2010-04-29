@@ -3,7 +3,7 @@
  * Kudos: Sergey Chikuyonok (http://chikuyonok.ru)
  * License: EPL 1.0
  * Key: M3+CTRL+ARROW_DOWN
- * OnLoad: hookWorkbench()
+ * OnLoad: onLoad()
  * DOM: http://download.eclipse.org/technology/dash/update/org.eclipse.eclipsemonkey.lang.javascript
  */
 
@@ -19,7 +19,8 @@ include('zencoding.js');
  * 
  * @include "../../javascript/zen_coding.js"
  * @include "zen_editor.js"
- */var zen_content_assist = (function(){
+ */
+var zen_content_assist = (function(){
 	/** Cached code assist proposals for different syntaxes */
 	var proposal_index = {},
 		/** Currently installed content assistants */
@@ -44,13 +45,24 @@ include('zencoding.js');
 			'org.eclipse.wst.xsl.ui.XSLEditor',
 			'com.aptana.ide.editors.HTMLEditor',
 			'com.aptana.ide.editors.CSSEditor'
-		];
+		],
+		
+		/**
+		 * Additional completition proposals for syntaxes
+		 */
+		additional = {
+			'html': splitStr('address,applet,blockquote,button,dd,div,dl,dt,fieldset,form,frameset,hr,iframe,isindex,li,map,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,a,abbr,acronym,applet,b,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var')
+		};
 	
 	// translate activation characters into array
 	var _chars = activation_chars;
 	activation_chars = [];
 	for (var i = 0, il = _chars.length; i < il; i++) {
 		activation_chars.push(_chars.charAt(i));
+	}
+	
+	function splitStr(str) {
+		return str.split(',');
 	}
 		
 	/**
@@ -93,12 +105,26 @@ include('zencoding.js');
 			result = null;
 			
 		// fill cache
+		var _exists = {};
 		for (var p in abbreviations) if (abbreviations.hasOwnProperty(p)) {
 			items.push(proposal(TYPE.ABBREVIATION, p, abbreviations[p]));
+			_exists[p] = true;
 		}
 		
 		for (var p in snippets) if (snippets.hasOwnProperty(p)) {
 			items.push(proposal(TYPE.SNIPPET, p, snippets[p]));
+			_exists[p] = true;
+		}
+		
+		// carefully add additional proposals: if it already exists — skip it
+		if (syntax in additional) {
+			var _add = additional[syntax]
+			for (var i = 0, il = _add.length; i < il; i++) {
+				if (!(_add[i] in _exists)) {
+					items.push(proposal(TYPE.TAG, _add[i]));
+					_exists[_add[i]] = true;
+				}
+			}
 		}
 		
 		items.sort(function(a, b){
@@ -304,7 +330,25 @@ include('zencoding.js');
 				assistants[editor_id].showPossibleCompletions();
 		},
 		
-		isKnown: isKnownEditor
+		isKnown: isKnownEditor,
+		
+		/**
+		 * Auto-activate content assist for current editor and
+		 * automatically add it to newly opened editors
+		 */
+		setListener: function() {
+			var lst = new JavaAdapter(Packages.org.eclipse.ui.IPartListener, {
+				partOpened: function(part) {
+					setTimeout(function() {
+						zen_content_assist.install(editors.activeEditor);
+					}, 200);
+				}
+			});
+			window.getActivePage().addPartListener(lst);
+			
+			// try to install on active editor
+			this.install(editors.activeEditor);
+		}
 	};
 })();
 
@@ -312,20 +356,6 @@ function main() {
 	zen_content_assist.show(editors.activeEditor);
 }
 
-/**
- * Auto-activate code complete for current editor and
- * hook up to opening editors (parts) and add content assitant to them
- */
-function hookWorkbench() {
-	var lst = new JavaAdapter(Packages.org.eclipse.ui.IPartListener, {
-		partOpened: function(part) {
-			setTimeout(function() {
-				zen_content_assist.install(editors.activeEditor);
-			}, 200);
-		}
-	});
-	window.getActivePage().addPartListener(lst);
-	
-	// try to install on active editor
-	zen_content_assist.install(editors.activeEditor);
+function onLoad() {
+	zen_content_assist.setListener();
 }

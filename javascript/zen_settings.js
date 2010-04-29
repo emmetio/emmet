@@ -12,7 +12,7 @@ var zen_settings = {
 		'lang': 'en',
 		'locale': 'en-US',
 		'charset': 'UTF-8',
-		'profile': 'xhtml',
+//		'profile': 'xhtml', // force profile for html editors
 		
 		/** Inner element indentation */
 		'indentation': '\t'     // TODO take from Aptana settings

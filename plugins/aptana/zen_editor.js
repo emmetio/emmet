@@ -436,10 +436,13 @@ var zen_editor = (function(){
 				 case 'xsl':
 				 	return 'xml';
 				 case 'html':
-				 	// html or xhtml?
-				 	return this.getContent().search(/<!DOCTYPE[^>]+XHTML/) != -1 
-				 		? 'xhtml'
-				 		: 'html';
+				 	var profile = zen_coding.getVariable('profile');
+				 	if (!profile) { // no forced profile, guess from content
+					 	// html or xhtml?
+				 		profile = this.getContent().search(/<!DOCTYPE[^>]+XHTML/) != -1 ? 'xhtml': 'html';
+				 	}
+				 	
+				 	return profile;
 			}
 			
 			return 'xhtml';
