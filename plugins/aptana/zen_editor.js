@@ -34,13 +34,17 @@ var zen_editor = (function(){
 	 * @return {String}
 	 */
 	function getPartition(offset){
-		var class_name = String(editor.textEditor.getClass()).toLowerCase();
+		var class_name = String(editor.id || editor.textEditor.getClass()).toLowerCase();
 		if (class_name.indexOf('xsleditor') != -1)
 			return 'text/xsl';
 		else if (class_name.indexOf('hamleditor') != -1)
 			return 'text/haml';
 		else if (class_name.indexOf('sasseditor') != -1)
 			return 'text/css';
+		else if (class_name.indexOf('.css.') != -1)
+			return 'text/css';
+		else if (class_name.indexOf('.html.') != -1)
+			return 'text/html';
 			
 		try {
 			var fileContext = editor.textEditor.getFileContext();

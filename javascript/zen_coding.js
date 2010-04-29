@@ -59,6 +59,7 @@
 	 * @return {Boolean}
 	 */
 	function isAllowedChar(ch) {
+		ch = String(ch); // convert Java object to JS
 		var char_code = ch.charCodeAt(0),
 			special_chars = '#.>+*:$-_!@[]()|';
 		
@@ -1414,6 +1415,8 @@
 			
 			return max_num;
 		},
+		
+		getResource: getResource,
 		
 		/**
 		 * Get profile by it's name. If profile wasn't found, returns 'plain'
