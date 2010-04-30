@@ -83,7 +83,7 @@ include('zencoding.js');
 	function isAllowedChar(ch) {
 		ch = String(ch);
 		var char_code = ch.charCodeAt(0),
-			special_chars = ':';
+			special_chars = ':@!.#';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
