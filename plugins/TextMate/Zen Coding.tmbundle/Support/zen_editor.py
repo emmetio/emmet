@@ -199,5 +199,5 @@ class ZenEditor():
 			_ix[0] += 1
 			return '$%s' % _ix[0]
 		
-		text = re.sub(r'\$', '\\$', text)
+		text = re.sub(r'\$(?![\d\{])', '\\$', text)
 		return re.sub(zen.get_caret_placeholder(), get_ix, text)

@@ -9,6 +9,7 @@ Filter that produces HTML tree
 from zencoding import zen_core as zen_coding
 
 child_token = '${child}'
+tabstops = 0
 
 def make_attributes_string(tag, profile):
 	"""
@@ -120,6 +121,7 @@ def process(tree, profile, level=0):
 	if level == 0:
 		# preformat tree
 		tree = zen_coding.run_filters(tree, profile, '_format')
+		globals()['tabstops'] = 0
 		
 	for item in tree.children:
 		if item.type == 'tag':
@@ -130,6 +132,9 @@ def process(tree, profile, level=0):
 		# replace counters
 		item.start = zen_coding.unescape_text(zen_coding.replace_counter(item.start, item.counter))
 		item.end = zen_coding.unescape_text(zen_coding.replace_counter(item.end, item.counter))
+		
+		globals()['tabstops'] += zen_coding.upgrade_tabstops(item, tabstops) + 1
+		
 		process(item, profile, level + 1)
 		
 	return tree

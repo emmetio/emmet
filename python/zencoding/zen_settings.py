@@ -40,6 +40,7 @@ zen_settings = {
 			"r:a": "right:auto;",
 			"b": "bottom:|;",
 			"b:a": "bottom:auto;",
+			"brad": "-webkit-border-radius: ${1:radius};\n-moz-border-radius: $1;\n-ms-border-radius: $1;\nborder-radius: $1;$0",
 			"l": "left:|;",
 			"l:a": "left:auto;",
 			"z": "z-index:|;",

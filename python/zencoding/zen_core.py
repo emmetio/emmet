@@ -962,7 +962,7 @@ def replace_counter(text, value):
 	value = str(value)
 	
 	def replace_func(tx, symbol, pos, match_num):
-		if char_at(tx, pos + 1) == '{':
+		if char_at(tx, pos + 1) == '{' or char_at(tx, pos + 1).isdigit():
 			# it's a variable, skip it
 			return False
 		
@@ -974,6 +974,27 @@ def replace_counter(text, value):
 		return (tx[pos:j], value.zfill(j - pos))
 	
 	return replace_unescaped_symbol(text, symbol, replace_func)
+
+def upgrade_tabstops(node, offset):
+	"""
+	Upgrades tabstops in zen node in order to prevent naming conflicts
+	@type node: ZenNode
+	@param offset: Tab index offset
+	@type offset: int
+	@returns Maximum tabstop index in element
+	"""
+	max_num = [0]
+	props = ('start', 'end', 'content')
+	
+	def _replace(m):
+		num = int(m.group(1) or m.group(2))
+		if num > max_num[0]: max_num[0] = num
+		return re.sub(r'\d+', str(num + offset), m.group(0), 1)
+	
+	for prop in props:
+		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+):[^\}]+\}', _replace, node.__getattribute__(prop)))
+		
+	return max_num[0]
 
 def unescape_text(text):
 	"""
