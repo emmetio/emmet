@@ -60,6 +60,9 @@ default_profile = {
 basic_filters = 'html';
 "Filters that will be applied for unknown syntax"
 
+max_tabstop = 0
+"Maximum tabstop index for current session"
+
 def char_at(text, pos):
 	"""
 	Returns character at specified index of text.
@@ -975,7 +978,7 @@ def replace_counter(text, value):
 	
 	return replace_unescaped_symbol(text, symbol, replace_func)
 
-def upgrade_tabstops(node, offset):
+def upgrade_tabstops(node):
 	"""
 	Upgrades tabstops in zen node in order to prevent naming conflicts
 	@type node: ZenNode
@@ -989,10 +992,12 @@ def upgrade_tabstops(node, offset):
 	def _replace(m):
 		num = int(m.group(1) or m.group(2))
 		if num > max_num[0]: max_num[0] = num
-		return re.sub(r'\d+', str(num + offset), m.group(0), 1)
+		return re.sub(r'\d+', str(num + max_tabstop), m.group(0), 1)
 	
 	for prop in props:
 		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+):[^\}]+\}', _replace, node.__getattribute__(prop)))
+		
+	globals()['max_tabstop'] += max_num[0]
 		
 	return max_num[0]
 
