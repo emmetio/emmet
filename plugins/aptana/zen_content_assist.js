@@ -269,13 +269,13 @@ include('zencoding.js');
 		return false;
 	}
 	
-	var img = null;
-	function getImage() {
-		if (!img) {
-			img = new Packages.org.eclipse.swt.graphics.Image(window.getShell().getDisplay(), getAbsoluteUri('zc-icon.png'));
+	var images = [];
+	function getImage(type) {
+		if (!images[type]) {
+			images[type] = new Packages.org.eclipse.swt.graphics.Image(window.getShell().getDisplay(), getAbsoluteUri('zc-' + type + '.png'));
 		}
 		
-		return img;
+		return images[type];
 	}
 	
 	function getAbsoluteUri(img_path) {

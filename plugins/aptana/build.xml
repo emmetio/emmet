@@ -12,6 +12,7 @@
 		<copy todir="${aptana.build_dir}">
 			<fileset dir="${aptana.source}">
 			    <include name="*.js"/>
+			    <include name="*.png"/>
 			    <exclude name="zen_eclipse.js"/>
 			    <exclude name="zen_editor.js"/>
 			    <exclude name="__*.js"/>
