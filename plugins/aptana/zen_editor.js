@@ -151,7 +151,7 @@ var zen_editor = (function(){
 	 * if there's no selection)
 	 */
 	function handleTabStops(text) {
-		var re_tabstop = /\$(\d+)|\$\{(\d+):[^\}]+\}/g,
+		var re_tabstop = /\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}/g,
 			carets = [],
 			ranges = [];
 			

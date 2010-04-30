@@ -1404,7 +1404,7 @@
 				props = ['start', 'end', 'content'];
 				
 			for (var i = 0, il = props.length; i < il; i++) {
-				node[props[i]] = node[props[i]].replace(/\$(\d+)|\$\{(\d+):[^\}]+\}/g, function(str, p1, p2){
+				node[props[i]] = node[props[i]].replace(/\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}/g, function(str, p1, p2){
 					var num = parseInt(p1 || p2, 10);
 					if (num > max_num)
 						max_num = num;
