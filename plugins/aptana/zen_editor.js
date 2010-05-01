@@ -153,7 +153,8 @@ var zen_editor = (function(){
 	function handleTabStops(text) {
 		var re_tabstop = /\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}/g,
 			carets = [],
-			ranges = [];
+			ranges = [],
+			links = {};
 			
 		text = String(text);
 		
@@ -194,12 +195,13 @@ var zen_editor = (function(){
 			}
 		});
 		
-		// save ranges
+		// save links
 		re_tabstop.compile(re_tabstop.source, ''); // remove global flag
 		var m;
 		while (m = re_tabstop.exec(text)) {
 			var pos = text.indexOf(m[0]),
 				num = parseInt(m[1] || m[2], 10),
+				s_num = String(num),
 				label = tabstop_labels[num] || '';
 				
 			// replace tab-stop with label
@@ -207,10 +209,15 @@ var zen_editor = (function(){
 			re_tabstop.lastIndex = pos + label.length;
 			
 			// save range
-			if (!ranges[num])
-				ranges[num] = [];
+			if (!links[s_num])
+				links[s_num] = [];
 				
-			ranges[num].push([pos, pos + label.length]);
+			links[s_num].push([pos, pos + label.length]);
+		}
+		
+		// add links as ranges
+		for (var p in links) if (links.hasOwnProperty(p)) {
+			ranges.push(links[p]);
 		}
 		
 		// add cursor positions to indexes

@@ -997,7 +997,7 @@ def upgrade_tabstops(node):
 	for prop in props:
 		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+):[^\}]+\}', _replace, node.__getattribute__(prop)))
 		
-	globals()['max_tabstop'] += max_num[0]
+	globals()['max_tabstop'] += max_num[0] + 1
 		
 	return max_num[0]
 
