@@ -48,6 +48,7 @@
 			<fileset dir="${aptana.build_dir}">
 			    <include name="filters/*.js"/>
 			    <include name="*.js"/>
+			    <include name="*.png"/>
 			    <exclude name="*.zip"/>
 			</fileset>
 		</zip>
