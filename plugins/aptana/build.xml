@@ -29,6 +29,7 @@
 				<file name="zen_coding.js"/>
 				<file name="zen_actions.js"/>
 				<file name="html_matcher.js"/>
+				<file name="base64.js"/>
 			</filelist>
 			<filelist dir="${aptana.source}">
 				<file name="__outro.js"/>

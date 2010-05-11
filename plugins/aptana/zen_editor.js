@@ -453,6 +453,35 @@ var zen_editor = (function(){
 			}
 			
 			return 'xhtml';
+		},
+		
+		/**
+		 * Ask user to enter something
+		 * @param {String} Dialog title
+		 * @return {String} Entered data
+		 * @since 0.65
+		 */
+		prompt: function(title) {
+			return prompt(title);
+		},
+		
+		/**
+		 * Returns current selection
+		 * @return {String}
+		 * @since 0.65
+		 */
+		getSelection: function() {
+			var range = this.getSelectionRange();
+			return (range.start == range.end) ? '' : this.getContent().substring(range.start, range.end);
+		},
+		
+		/**
+		 * Returns current editor's file path
+		 * @return {String}
+		 * @since 0.65 
+		 */
+		getFilePath: function() {
+			return editor.uri.substring(7);
 		}
 	};
 })();

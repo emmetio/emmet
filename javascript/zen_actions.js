@@ -8,6 +8,8 @@
  * @include "zen_editor.js"
  * @include "html_matcher.js"
  * @include "zen_coding.js"
+ * @include "zen_file.js"
+ * @include "base64.js"
  */
 
 /**
@@ -717,6 +719,121 @@ function removeTag(editor) {
 	}
 }
 
+/**
+ * Test if <code>text</code> starts with <code>token</code> at <code>pos</code>
+ * position. If <code>pos</code> is ommited, search from beginning of text 
+ * @param {String} token Token to test
+ * @param {String} text Where to search
+ * @param {Number} pos Position where to start search
+ * @return {Boolean}
+ * @since 0.65
+ */
+function startsWith(token, text, pos) {
+	pos = pos || 0;
+	return text.charAt(pos) == token.charAt(0) && text.substr(pos, token.length) == token;
+}
+
+/**
+ * Encodes/decodes image under cursor to/from base64
+ * @param {zen_editor} editor
+ * @since 0.65
+ */
+function encodeDecodeBase64(editor) {
+	var data = zen_editor.getSelection(),
+		caret_pos = editor.getCaretPos();
+		
+	if (!data) {
+		// no selection, try to find image bounds from current caret position
+		var text = editor.getContent(),
+			ch, 
+			m;
+		while (caret_pos-- >= 0) {
+			if (startsWith('src=', text, caret_pos)) { // found <img src="">
+				if (m = text.substr(caret_pos).match(/^(src=(["'])?)([^'"<>\s]+)\1?/)) {
+					data = m[3];
+					caret_pos += m[1].length;
+				}
+				break;
+			} else if (startsWith('url(', text, caret_pos)) { // found CSS url() pattern
+				if (m = text.substr(caret_pos).match(/^(url\((['"])?)([^'"\)\s]+)\1?/)) {
+					data = m[3];
+					caret_pos += m[1].length;
+				}
+				break;
+			}
+		}
+	}
+	
+	if (data) {
+		if (startsWith('data:', data))
+			return decodeFromBase64(editor, data, caret_pos);
+		else
+			return encodeToBase64(editor, data, caret_pos);
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Encodes image to base64
+ * @requires zen_file
+ * 
+ * @param {zen_editor} editor
+ * @param {String} img_path Path to image
+ * @param {Number} pos Caret position where image is located in the editor
+ * @return {Boolean}
+ */
+function encodeToBase64(editor, img_path, pos) {
+	var editor_file = editor.getFilePath(),
+		default_mime_type = 'application/octet-stream';
+		
+	if (editor_file === null) {
+		throw "You should save your file before using this action";
+	}
+	
+	// locate real image path
+	var real_img_path = zen_file.locateFile(editor_file, img_path);
+	if (real_img_path === null) {
+		throw "Can't find " + img_path + ' file';
+	}
+	
+	var b64 = base64.encode(zen_file.read(real_img_path));
+	if (!b64) {
+		throw "Can't encode file content to base64";
+	}
+	
+	b64 = 'data:' + (base64.mime_types[zen_file.getExt(real_img_path)] || default_mime_type) +
+		';base64,' + b64;
+		
+	editor.replaceContent('$0' + b64, pos, pos + img_path.length);
+	return true;
+}
+
+/**
+ * Decodes base64 string back to file.
+ * @requires zen_editor.prompt
+ * @requires zen_file
+ * 
+ * @param {zen_editor} editor
+ * @param {String} data Base64-encoded file content
+ * @param {Number} pos Caret position where image is located in the editor
+ */
+function decodeFromBase64(editor, data, pos) {
+	// ask user to enter path to file
+	var file_path = editor.prompt('Enter path to file (absolute or relative)');
+	if (!file_path)
+		return false;
+		
+	var abs_path = zen_file.createPath(editor.getFilePath(), file_path);
+	if (!abs_path) {
+		throw "Can't save file";
+	}
+	
+	zen_file.save(abs_path, base64.decode( data.replace(/^data\:.+?;.+?,/, '') ));
+	editor.replaceContent('$0' + file_path, pos, pos + data.length);
+	return true;
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -738,3 +855,4 @@ zen_coding.registerAction('merge_lines', mergeLines);
 zen_coding.registerAction('toggle_comment', toggleComment);
 zen_coding.registerAction('split_join_tag', splitJoinTag);
 zen_coding.registerAction('remove_tag', removeTag);
+zen_coding.registerAction('encode_decode_data_url', encodeDecodeBase64);

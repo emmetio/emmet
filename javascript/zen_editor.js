@@ -129,5 +129,33 @@ var zen_editor = {
 	 */
 	getProfileName: function() {
 		return 'xhtml';
+	},
+	
+	/**
+	 * Ask user to enter something
+	 * @param {String} Dialog title
+	 * @return {String} Entered data
+	 * @since 0.65
+	 */
+	prompt: function(title) {
+		return '';
+	},
+	
+	/**
+	 * Returns current selection
+	 * @return {String}
+	 * @since 0.65
+	 */
+	getSelection: function() {
+		return '';
+	},
+	
+	/**
+	 * Returns current editor's file path
+	 * @return {String}
+	 * @since 0.65 
+	 */
+	getFilePath: function() {
+		return '';
 	}
 };
