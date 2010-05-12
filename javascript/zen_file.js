@@ -20,7 +20,7 @@
 	 * File name may be absolute or relative path
 	 * 
 	 * <b>Dealing with absolute path.</b>
-	 * Many modern editors has a "project" support as information unit, but you
+	 * Many modern editors have a "project" support as information unit, but you
 	 * should not rely on project path to find file with absolute path. First,
 	 * it requires user to create a project before using this method (and this 
 	 * is not acutually Zen). Second, project path doesn't always points to

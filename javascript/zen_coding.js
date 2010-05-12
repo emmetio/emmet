@@ -1426,6 +1426,62 @@
 			return (name in profiles) ? profiles[name] : profiles['plain'];
 		},
 		
+		/**
+		 * Gets image size from image byte stream.
+		 * @author http://romeda.org/rePublish/
+		 * @param {String} stream Image byte stream (use <code>zen_file.read()</code>)
+		 * @return {Object} Object with <code>width</code> and <code>height</code> properties
+		 */
+		getImageSize: function(stream) {
+			var pngMagicNum = "\211PNG\r\n\032\n",
+				jpgMagicNum = "\377\330",
+				gifMagicNum = "GIF8",
+				nextByte = function() {
+					return stream.charCodeAt(pos++);
+				};
+		
+			if (stream.substr(0, 8) === pngMagicNum) {
+				// PNG. Easy peasy.
+				var pos = stream.indexOf('IHDR') + 4;
+			
+				return { width:  (nextByte() << 24) | (nextByte() << 16) |
+								 (nextByte() <<  8) | nextByte(),
+						 height: (nextByte() << 24) | (nextByte() << 16) |
+								 (nextByte() <<  8) | nextByte() };
+			
+			} else if (stream.substr(0, 4) === gifMagicNum) {
+				pos = 6;
+			
+				return {
+					width:  nextByte() | (nextByte() << 8),
+					height: nextByte() | (nextByte() << 8)
+				};
+			
+			} else if (stream.substr(0, 2) === jpgMagicNum) {
+				// TODO need testing
+				pos = 2;
+			
+				var l = stream.length;
+				while (pos < l) {
+					if (nextByte() != 0xFF) return;
+				
+					var marker = nextByte();
+					if (marker == 0xDA) break;
+				
+					var size = (nextByte() << 8) | nextByte();
+				
+					if (marker >= 0xC0 && marker <= 0xCF && !(marker & 0x4) && !(marker & 0x8)) {
+						pos += 1;
+						return { height:  (nextByte() << 8) | nextByte(),
+								 width: (nextByte() << 8) | nextByte() };
+				
+					} else {
+						pos += size - 2;
+					}
+				}
+			}
+		},
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data

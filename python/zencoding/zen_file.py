@@ -1,0 +1,83 @@
+'''
+@author Sergey Chikuyonok (serge.che@gmail.com)
+@link http://chikuyonok.ru
+'''
+import os.path
+
+def read(path):
+	"""
+	Read file content and return it
+	@param path: File's relative or absolute path
+	@type path: str
+	@return: str
+	"""
+	fp = open(path, 'rb')
+	content = fp.read()
+	fp.close()
+	return content
+
+def locate_file(editor_file, file_name):
+	"""
+	Locate <code>file_name</code> file that relates to <code>editor_file</code>.
+	File name may be absolute or relative path
+	
+	@type editor_file: str
+	@type file_name: str
+	@return String or None if <code>file_name</code> cannot be located
+	"""
+	result = ''
+	
+	parent = os.path.dirname(editor_file)
+	while parent and os.path.exists(parent):
+		tmp = create_path(parent, file_name)
+		if os.path.exists(tmp):
+			result = tmp
+			break
+		
+		parent = os.path.dirname(editor_file)
+	
+	return result
+
+def create_path(parent, file_name):
+	"""
+	Creates absolute path by concatenating <code>parent</code> and <code>file_name</code>.
+	If <code>parent</code> points to file, its parent directory is used
+	
+	@type parent: str
+	@type file_name: str
+	@return: str
+	"""
+	result = ''
+	
+	if os.path.exists(parent):
+		if os.path.isfile(parent):
+			parent = os.path.dirname(parent)
+			
+		result = os.path.normpath(os.path.join(parent, file_name))
+	
+	return result
+
+def save(file, content):
+	"""
+	Saves <code>content</code> as <code>file</code>
+	
+	@param file: File's asolute path
+	@type file: str
+	@param content: File content
+	@type content: str
+	"""
+	fp = open(file, 'wb')
+	fp.write(content)
+	fp.close()
+
+def get_ext(file):
+	"""
+	Returns file extention in lower case
+	@type file: str
+	@return: str
+	"""
+	ext = os.path.splitext(file)[1]
+	if ext:
+		ext = ext[1:]
+	
+	return ext.lower()
