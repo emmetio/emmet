@@ -5,7 +5,8 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @version 0.65
- */var zen_file = {
+ */
+var zen_file = {
 	/**
 	 * Read file content and return it
 	 * @param {String} path File's relative or absolute path
