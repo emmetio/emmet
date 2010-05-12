@@ -104,6 +104,15 @@ var zen_file = {
 	 */
 	save: function(file, content) {
 		content = content || '';
+		file = String(file);
+		
+		var File = Packages.java.io.File,
+			f = new File(file);
+			
+		if (file.indexOf('/') != -1) {
+			var f_parent = new File(f.getParent());
+			f_parent.mkdirs();
+		}
 		
 		var stream = new Packages.java.io.FileOutputStream(file);
 		for (var i = 0, il = content.length; i < il; i++) {
