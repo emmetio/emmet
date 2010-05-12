@@ -1316,6 +1316,16 @@ class ZenNode(object):
 		content = ''.join([item.to_string() for item in self.children])
 		return self.start + self.content + content + self.end
 		
+class ZenError(Exception):
+	"""
+	Zen Coding specific error
+	@since: 0.65
+	"""
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+		
 # create default profiles
 setup_profile('xhtml');
 setup_profile('html', {'self_closing_tag': False});

@@ -9,9 +9,20 @@ This layer describes all available Zen Coding actions, like
 @link http://chikuyonok.ru
 """
 from zencoding import zen_core as zen_coding
-from zencoding import html_matcher
+from zencoding import html_matcher, zen_file
+from zen_core import char_at, ZenError
 import re
-from zen_core import char_at
+import base64
+
+mime_types = {
+	'gif': 'image/gif',
+	'png': 'image/png',
+	'jpg': 'image/jpeg',
+	'jpeg': 'image/jpeg',
+	'svg': 'image/svg+xml',
+	'html': 'text/html',
+	'htm': 'text/html'
+}
 
 def find_abbreviation(editor):
 	"""
@@ -644,3 +655,119 @@ def remove_tag(editor):
 		return True
 	else:
 		return False
+	
+def starts_with(token, text, pos):
+	"""
+	Test if <code>text</code> starts with <code>token</code> at <code>pos</code>
+	position. If <code>pos</code> is ommited, search from beginning of text 
+	
+	@param token: Token to test
+	@type token: str
+	@param text: Where to search
+	@type text: str
+	@param pos: Position where to start search
+	@type pos: int
+	@return: bool
+	@since 0.65
+	"""
+	pos = pos or 0
+	return text[pos] == token[0] and text[pos:pos + len(token)] == token
+	
+def encode_decode_base64(editor):
+	"""
+	Encodes/decodes image under cursor to/from base64
+	@type editor: ZenEditor
+	@since: 0.65
+	"""
+	data = editor.get_selection()
+	caret_pos = editor.get_caret_pos()
+		
+	if not data:
+#		no selection, try to find image bounds from current caret position
+		text = editor.get_content()
+		
+		while caret_pos >= 0:
+			text[caret_pos:]
+			
+			if starts_with('src=', text, caret_pos): # found <img src="">
+				m = re.match(r'^(src=(["\'])?)([^\'"<>\s]+)\1?', text[caret_pos:])
+				if m:
+					data = m.group(3)
+					caret_pos += len(m.group(1))
+				break
+			elif starts_with('url(', text, caret_pos): # found CSS url() pattern
+				m = re.match(r'^(url\(([\'"])?)([^\'"\)\s]+)\1?', text[caret_pos:])
+				if m:
+					data = m.group(3)
+					caret_pos += len(m.group(1))
+				break
+			
+			caret_pos -= 1
+	
+	if data:
+		if starts_with('data:', data):
+			return decode_from_base64(editor, data, caret_pos)
+		else:
+			return encode_to_base64(editor, data, caret_pos)
+	else:
+		return False
+
+def encode_to_base64(editor, img_path, pos):
+	"""
+	Encodes image to base64
+	@requires: zen_file
+	
+	@type editor: ZenEditor
+	@param img_path: Path to image
+	@type img_path: str
+	@param pos: Caret position where image is located in the editor
+	@type pos: int
+	@return: bool
+	"""
+	editor_file = editor.getFilePath()
+	default_mime_type = 'application/octet-stream'
+		
+	if editor_file in None:
+		raise ZenError("You should save your file before using this action")
+	
+	
+	# locate real image path
+	real_img_path = zen_file.locate_file(editor_file, img_path)
+	if real_img_path is None:
+		raise ZenError("Can't find %s file" % img_path)
+	
+	b64 = base64.b64encode(zen_file.read(real_img_path))
+	if not b64:
+		raise ZenError("Can't encode file content to base64")
+	
+	
+	b64 = 'data:' + (mime_types[zen_file.get_ext(real_img_path)] or default_mime_type) + ';base64,' + b64
+	
+	editor.replace_content('$0' + b64, pos, pos + img_path.length)
+	return True
+
+def decode_from_base64(editor, data, pos):
+	"""
+	Decodes base64 string back to file.
+	@requires: zen_editor.prompt
+	@requires: zen_file
+	 
+	@type editor: ZenEditor
+	@param data: Base64-encoded file content
+	@type data: str
+	@param pos: Caret position where image is located in the editor
+	@type pos: int
+	"""
+	# ask user to enter path to file
+	file_path = editor.prompt('Enter path to file (absolute or relative)')
+	if not file_path:
+		return False
+		
+	abs_path = zen_file.create_path(editor.get_file_path(), file_path)
+	if not abs_path:
+		raise ZenError("Can't save file")
+	
+	
+	zen_file.save(abs_path, base64.b64decode( re.sub(r'^data\:.+?;.+?,', '', data) ))
+	editor.replace_content('$0' + file_path, pos, pos + data.length)
+	return True

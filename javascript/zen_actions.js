@@ -739,7 +739,7 @@ function startsWith(token, text, pos) {
  * @since 0.65
  */
 function encodeDecodeBase64(editor) {
-	var data = zen_editor.getSelection(),
+	var data = editor.getSelection(),
 		caret_pos = editor.getCaretPos();
 		
 	if (!data) {
