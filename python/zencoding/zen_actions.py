@@ -656,7 +656,7 @@ def remove_tag(editor):
 	else:
 		return False
 	
-def starts_with(token, text, pos):
+def starts_with(token, text, pos=0):
 	"""
 	Test if <code>text</code> starts with <code>token</code> at <code>pos</code>
 	position. If <code>pos</code> is ommited, search from beginning of text 
@@ -670,7 +670,6 @@ def starts_with(token, text, pos):
 	@return: bool
 	@since 0.65
 	"""
-	pos = pos or 0
 	return text[pos] == token[0] and text[pos:pos + len(token)] == token
 	
 def encode_decode_base64(editor):
@@ -724,10 +723,10 @@ def encode_to_base64(editor, img_path, pos):
 	@type pos: int
 	@return: bool
 	"""
-	editor_file = editor.getFilePath()
+	editor_file = editor.get_file_path()
 	default_mime_type = 'application/octet-stream'
 		
-	if editor_file in None:
+	if editor_file is None:
 		raise ZenError("You should save your file before using this action")
 	
 	
@@ -743,7 +742,7 @@ def encode_to_base64(editor, img_path, pos):
 	
 	b64 = 'data:' + (mime_types[zen_file.get_ext(real_img_path)] or default_mime_type) + ';base64,' + b64
 	
-	editor.replace_content('$0' + b64, pos, pos + img_path.length)
+	editor.replace_content('$0' + b64, pos, pos + len(img_path))
 	return True
 
 def decode_from_base64(editor, data, pos):
@@ -769,5 +768,5 @@ def decode_from_base64(editor, data, pos):
 	
 	
 	zen_file.save(abs_path, base64.b64decode( re.sub(r'^data\:.+?;.+?,', '', data) ))
-	editor.replace_content('$0' + file_path, pos, pos + data.length)
+	editor.replace_content('$0' + file_path, pos, pos + len(data))
 	return True

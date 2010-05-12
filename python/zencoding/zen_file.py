@@ -66,7 +66,14 @@ def save(file, content):
 	@param content: File content
 	@type content: str
 	"""
-	fp = open(file, 'wb')
+	try:
+		fp = open(file, 'wb')
+	except:
+		fdirs, fname = os.path.split(file)
+		if fdirs:
+			os.makedirs(fdirs)
+		fp = open(file, 'wb')
+		
 	fp.write(content)
 	fp.close()
 

@@ -201,3 +201,15 @@ class ZenEditor():
 		
 		text = re.sub(r'\$(?![\d\{])', '\\$', text)
 		return re.sub(zen.get_caret_placeholder(), get_ix, text)
+	
+	def get_selection(self):
+		start, end = self.get_selection_range()
+		return self.get_content()[start:end] if start != end else ''
+	
+	def get_file_path(self):
+		"""
+		Returns current editor's file path
+		@return: str
+		@since: 0.65 
+		"""
+		return os.getenv('TM_FILEPATH', None)

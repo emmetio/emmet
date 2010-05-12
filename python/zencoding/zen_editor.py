@@ -126,3 +126,30 @@ class ZenEditor():
 		@return {String}
 		"""
 		return 'xhtml'
+	
+	def prompt(self, title):
+		"""
+		Ask user to enter something
+		@param title: Dialog title
+		@type title: str
+		@return: Entered data
+		@since: 0.65
+		"""
+		return ''
+	
+	def get_selection(self):
+		"""
+		Returns current selection
+		@return: str
+		@since: 0.65
+		"""
+		return ''
+	
+	def get_file_path(self):
+		"""
+		Returns current editor's file path
+		@return: str
+		@since: 0.65 
+		"""
+		return ''
+	

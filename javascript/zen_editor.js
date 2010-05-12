@@ -133,7 +133,7 @@ var zen_editor = {
 	
 	/**
 	 * Ask user to enter something
-	 * @param {String} Dialog title
+	 * @param {String} title Dialog title
 	 * @return {String} Entered data
 	 * @since 0.65
 	 */
