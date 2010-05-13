@@ -769,11 +769,8 @@ def run_action(name, *args, **kwargs):
 	"""
 	import zen_actions
 	
-	try:
-		if hasattr(zen_actions, name):
-			return getattr(zen_actions, name)(*args, **kwargs)
-	except:
-		return False
+	if hasattr(zen_actions, name):
+		return getattr(zen_actions, name)(*args, **kwargs)
 
 def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	"""

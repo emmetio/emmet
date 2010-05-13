@@ -11,9 +11,14 @@ def read(path):
 	@type path: str
 	@return: str
 	"""
-	fp = open(path, 'rb')
-	content = fp.read()
-	fp.close()
+	content = None
+	try:
+		fp = open(path, 'rb')
+		content = fp.read()
+		fp.close()
+	except:
+		pass
+	
 	return content
 
 def locate_file(editor_file, file_name):
