@@ -9,37 +9,53 @@
 	
 	return {
 		install: function(editor, force) {
-			var cur_editor = editor.textEditor,
-				viewer = cur_editor.viewer || cur_editor.getTextViewer(), 
-				document = viewer.getDocument(),
-				editor_id = cur_editor.toString();
+			var textEditor = editor.textEditor,
+				editor_id = textEditor.toString(),
+				viewer = textEditor.viewer || textEditor.getTextViewer(),
+				widget = viewer.getTextWidget(),
+				document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 				
 			if (editor_id in installed_editors && !force)
 				return;
 				
-			document.addDocumentListener(new JavaAdapter(Packages.org.eclipse.jface.text.IDocumentListener, {
-				documentChanged: function(evt) {
-					if (is_allowed && !evt.getLength() && evt.getText() == '\t') {
-						var offset = evt.getOffset();
-						
-						setTimeout(function() {
-							zen_editor.setContext(editor);
-							
-							var cur_line = zen_editor.getCurrentLineRange(),
-								abbr = zen_coding.extractAbbreviation(zen_editor.getContent().substring(cur_line.start, offset));
-								
-							if (abbr) {
-								var caret_pos = offset;
-								var content = zen_coding.expandAbbreviation(abbr, zen_editor.getSyntax(), zen_editor.getProfileName());
-								if (content) {
-									zen_editor.replaceContent(content, offset - abbr.length, offset + 1);
-								}
-							}
-						}, 1);
+			widget.addVerifyKeyListener(new JavaAdapter(Packages.org.eclipse.swt.custom.VerifyKeyListener, {
+				verifyKey: function(event) {
+					if (!is_allowed || !viewer || !document) {
+						return;
 					}
+			
+					// If the editor is linked editing mode - let it do the TAB key processing
+					if (Packages.org.eclipse.jface.text.link.LinkedModeModel.hasInstalledModel(document)) {
+						return;
+					}
+			
+					if (event.doit && event.keyCode == 9) {
+						var selection = textEditor.getSelectionProvider().getSelection();
+						if (selection.getLength() == 0) {
+							var offset = selection.getOffset();
+							try {
+								zen_editor.setContext(editors.activeEditor);
+					
+								var cur_line = zen_editor.getCurrentLineRange(),
+									abbr = zen_coding.extractAbbreviation(zen_editor.getContent().substring(cur_line.start, offset));
+									
+								if (abbr) {
+									var caret_pos = offset;
+									var content = zen_coding.expandAbbreviation(abbr, zen_editor.getSyntax(), zen_editor.getProfileName());
+									if (content) {
+										zen_editor.replaceContent(content, offset - abbr.length, offset);
+										event.doit = false;
+									}
+								}
+							} catch (e) {
+								return;
+							}
+						}
+					}
+					
 				}
 			}));
-			
+
 			installed_editors[editor_id] = true;
 		},
 		
