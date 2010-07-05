@@ -615,7 +615,7 @@ def abbr_to_primary_tree(abbr, doc_type='html'):
 	@return: Tag
 	"""
 	root = Tag('', 1, doc_type)
-	token = re.compile(r'([\+>])?([a-z@\!\#\.][\w:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?', re.IGNORECASE)
+	token = re.compile(r'([\+>])?([a-z@\!\#\.][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?', re.IGNORECASE)
 	
 	if not abbr:
 		return None
