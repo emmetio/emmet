@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>name</key>
+        <string>@TITLE@</string>
+        <key>uuid</key>
+        <string>zen-@UID_BASE@-2</string>
+        <key>input</key>
+        <string>none</string>
+        <key>keyEquivalent</key>
+        <string>@KEY@</string>
+        <key>output</key>
+        <string>discard</string>
+        <key>command</key>
+        <string>python "$TM_BUNDLE_SUPPORT"/@SEARCH_MODULE@</string>
+        <key>scope</key>
+        <string></string>
+    </dict>
+</plist>
