@@ -770,3 +770,101 @@ def decode_from_base64(editor, data, pos):
 	zen_file.save(abs_path, base64.b64decode( re.sub(r'^data\:.+?;.+?,', '', data) ))
 	editor.replace_content('$0' + file_path, pos, pos + len(data))
 	return True
+
+def _find_image(editor):
+	"""
+	Find image tag under caret
+ 	@return Image tag and its indexes inside editor source
+	"""
+	_caret = editor.get_caret_pos()
+	text = editor.get_content()
+	start_ix = -1
+	end_ix = -1
+	
+	# find the beginning of the tag
+	caret_pos = _caret
+	while caret_pos >= 0:
+		if text[caret_pos] == '<':
+			if text[caret_pos:caret_pos + 4].lower() == '<img':
+				# found the beginning of the image tag
+				start_ix = caret_pos
+				break
+			else:
+				# found some other tag
+				return None
+		caret_pos -= 1
+			
+	# find the end of the tag 
+	caret_pos = _caret
+	ln = len(text)
+	while caret_pos <= ln:
+		if text[caret_pos] == '>':
+			end_ix = caret_pos + 1
+			break
+		caret_pos += 1
+	
+	
+	if start_ix != -1 and end_ix != -1:
+		return {
+			'start': start_ix,
+			'end': end_ix,
+			'tag': text[start_ix:end_ix]
+		}
+	
+	return None
+
+def _replace_or_append(img_tag, attr_name, attr_value):
+	"""
+	Replaces or adds attribute to the tag
+	@type img_tag: str
+	@type attr_name: str
+	@type attr_value: str
+	"""
+	if attr_name in img_tag.lower():
+		# attribute exists
+		re_attr = re.compile(attr_name + r'=([\'"])(.*?)\1', re.I)
+		return re.sub(re_attr, lambda m: '%s=%s%s%s' % (attr_name, m.group(1), attr_value, m.group(1)), img_tag)
+	else:
+		return re.sub(r'\s*(\/?>)$', ' %s="%s" \\1' % (attr_name, attr_value), img_tag)
+
+
+def update_image_size(editor):
+	"""
+	Updates <img> tag's width and height attributes
+	@type editor: ZenEditor
+	@since: 0.65
+	"""
+	editor_file = editor.get_file_path()
+	caret_pos = editor.get_caret_pos()
+		
+	if editor_file is None:
+		raise ZenError("You should save your file before using this action")
+	
+	image = _find_image(editor)
+	if image:
+		# search for image path
+		m = re.search(r'src=(["\'])(.+?)\1', image['tag'], re.IGNORECASE)
+		if m:
+			src = zen_file.locate_file(editor.get_file_path(), m.group(2))
+			if not src:
+				raise ZenError("Can't locate file %s" % m.group(2))
+			
+			stream = zen_file.read(src)
+			if not stream:
+				raise ZenError("Can't read file %s" % src)
+			
+			size = zen_coding.get_image_size(zen_file.read(src))
+			if size:
+				new_tag = _replace_or_append(image['tag'], 'width', size['width'])
+				new_tag = _replace_or_append(new_tag, 'height', size['height'])
+				
+				# try to preserve caret position
+				if caret_pos < image['start'] + len(new_tag):
+					relative_pos = caret_pos - image['start']
+					new_tag = new_tag[:relative_pos] + zen_coding.get_caret_placeholder() + new_tag[relative_pos:]
+				
+				editor.replace_content(new_tag, image['start'], image['end'])
+				return True
+				
+	return False
+				
