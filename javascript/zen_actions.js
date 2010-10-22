@@ -18,15 +18,16 @@
  * @return {String|null}
  */
 function findAbbreviation(editor) {
-	var range = editor.getSelectionRange();
+	var range = editor.getSelectionRange(),
+		content = String(editor.getContent());
 	if (range.start != range.end) {
 		// abbreviation is selected by user
-		return editor.getContent().substring(range.start, range.end);
+		return content.substring(range.start, range.end);
 	}
 	
 	// search for new abbreviation from current caret position
 	var cur_line = editor.getCurrentLineRange();
-	return zen_coding.extractAbbreviation(editor.getContent().substring(cur_line.start, range.start));
+	return zen_coding.extractAbbreviation(content.substring(cur_line.start, range.start));
 }
 
 /**
@@ -38,8 +39,8 @@ function findAbbreviation(editor) {
  * successfully
  */
 function expandAbbreviation(editor, syntax, profile_name) {
-	syntax = syntax || editor.getSyntax();
-	profile_name = profile_name || editor.getProfileName();
+	syntax = String(syntax || editor.getSyntax());
+	profile_name = String(profile_name || editor.getProfileName());
 	
 	var caret_pos = editor.getSelectionRange().end,
 		abbr,
@@ -64,8 +65,8 @@ function expandAbbreviation(editor, syntax, profile_name) {
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  */
 function expandAbbreviationWithTab(editor, syntax, profile_name) {
-	syntax = syntax || editor.getSyntax();
-	profile_name = profile_name || editor.getProfileName();
+	syntax = String(syntax || editor.getSyntax());
+	profile_name = String(profile_name || editor.getProfileName());
 	if (!expandAbbreviation(editor, syntax, profile_name))
 		editor.replaceContent(zen_coding.getVariable('indentation'), editor.getCaretPos());
 }
@@ -77,15 +78,15 @@ function expandAbbreviationWithTab(editor, syntax, profile_name) {
  * Default is 'out'
  */
 function matchPair(editor, direction, syntax) {
-	direction = (direction || 'out').toLowerCase();
-	syntax = syntax || editor.getProfileName();
+	direction = String((direction || 'out').toLowerCase());
+	syntax = String(syntax || editor.getProfileName());
 	
 	var range = editor.getSelectionRange(),
 		cursor = range.end,
 		range_start = range.start, 
 		range_end = range.end,
 //		content = zen_coding.splitByLines(editor.getContent()).join('\n'),
-		content = editor.getContent(),
+		content = String(editor.getContent()),
 		range = null,
 		_r,
 	
@@ -166,13 +167,13 @@ function narrowToNonSpace(text, start, end) {
  * @param {String} [profile_name] Output profile name (html, xml, xhtml)
  */
 function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
-	syntax = syntax || editor.getSyntax();
-	profile_name = profile_name || editor.getProfileName();
+	syntax = String(syntax || editor.getSyntax());
+	profile_name = String(profile_name || editor.getProfileName());
 	
 	var range = editor.getSelectionRange(),
 		start_offset = range.start,
 		end_offset = range.end,
-		content = editor.getContent();
+		content = String(editor.getContent());
 		
 		
 	if (!abbr)
@@ -254,7 +255,7 @@ function findNewEditPoint(editor, inc, offset) {
 	inc = inc || 1;
 	offset = offset || 0;
 	var cur_point = editor.getCaretPos() + offset,
-		content = editor.getContent(),
+		content = String(editor.getContent()),
 		max_len = content.length,
 		next_point = -1,
 		re_empty_line = /^\s+$/;
@@ -343,7 +344,7 @@ function nextEditPoint(editor) {
  * @param {String} mode Syntax mode (only 'html' is implemented)
  */
 function insertFormattedNewline(editor, mode) {
-	mode = mode || 'html';
+	mode = String(mode || 'html');
 	var caret_pos = editor.getCaretPos(),
 		nl = zen_coding.getNewline(),
 		pad = zen_coding.getVariable('indentation');
@@ -351,7 +352,7 @@ function insertFormattedNewline(editor, mode) {
 	switch (mode) {
 		case 'html':
 			// let's see if we're breaking newly created tag
-			var pair = zen_coding.html_matcher.getTags(editor.getContent(), editor.getCaretPos(), editor.getProfileName());
+			var pair = zen_coding.html_matcher.getTags(String(editor.getContent()), editor.getCaretPos(), String(editor.getProfileName()));
 			
 			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
 				editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, caret_pos);
@@ -378,14 +379,14 @@ function selectLine(editor) {
  * @param {zen_editor} editor
  */
 function goToMatchingPair(editor) {
-	var content = editor.getContent(),
+	var content = String(editor.getContent()),
 		caret_pos = editor.getCaretPos();
 	
 	if (content.charAt(caret_pos) == '<') 
 		// looks like caret is outside of tag pair  
 		caret_pos++;
 		
-	var tags = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
+	var tags = zen_coding.html_matcher.getTags(content, caret_pos, String(editor.getProfileName()));
 		
 	if (tags && tags[0]) {
 		// match found
@@ -410,7 +411,7 @@ function mergeLines(editor) {
 	var selection = editor.getSelectionRange();
 	if (selection.start == selection.end) {
 		// find matching tag
-		var pair = zen_coding.html_matcher(editor.getContent(), editor.getCaretPos(), editor.getProfileName());
+		var pair = zen_coding.html_matcher(String(editor.getContent()), editor.getCaretPos(), String(editor.getProfileName()));
 		if (pair) {
 			selection.start = pair[0];
 			selection.end = pair[1];
@@ -419,7 +420,7 @@ function mergeLines(editor) {
 	
 	if (selection.start != selection.end) {
 		// got range, merge lines
-		var text = editor.getContent().substring(selection.start, selection.end),
+		var text = String(editor.getContent()).substring(selection.start, selection.end),
 			old_length = text.length;
 		var lines =  zen_coding.splitByLines(text);
 		
@@ -453,11 +454,11 @@ function toggleComment(editor) {
  */
 function toggleHTMLComment(editor) {
 	var rng = editor.getSelectionRange(),
-		content = editor.getContent();
+		content = String(editor.getContent());
 		
 	if (rng.start == rng.end) {
 		// no selection, find matching tag
-		var pair = zen_coding.html_matcher.getTags(content, editor.getCaretPos(), editor.getProfileName());
+		var pair = zen_coding.html_matcher.getTags(content, editor.getCaretPos(), String(editor.getProfileName()));
 		if (pair && pair[0]) { // found pair
 			rng.start = pair[0].start;
 			rng.end = pair[1] ? pair[1].end : pair[0].end;
@@ -480,7 +481,7 @@ function toggleCSSComment(editor) {
 		rng = editor.getCurrentLineRange();
 
 		// adjust start index till first non-space character
-		var _r = narrowToNonSpace(editor.getContent(), rng.start, rng.end);
+		var _r = narrowToNonSpace(String(editor.getContent()), rng.start, rng.end);
 		rng.start = _r[0];
 		rng.end = _r[1];
 	}
@@ -615,11 +616,11 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
  */
 function splitJoinTag(editor, profile_name) {
 	var caret_pos = editor.getCaretPos(),
-		profile = zen_coding.getProfile(profile_name || editor.getProfileName()),
+		profile = zen_coding.getProfile(String(profile_name || editor.getProfileName())),
 		caret = zen_coding.getCaretPlaceholder();
 
 	// find tag at current position
-	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos, editor.getProfileName());
+	var pair = zen_coding.html_matcher.getTags(String(editor.getContent()), caret_pos, String(editor.getProfileName()));
 	if (pair && pair[0]) {
 		var new_content = pair[0].full_tag;
 		
@@ -695,10 +696,10 @@ function getLineBounds(text, from) {
  */
 function removeTag(editor) {
 	var caret_pos = editor.getCaretPos(),
-		content = editor.getContent();
+		content = String(editor.getContent());
 		
 	// search for tag
-	var pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
+	var pair = zen_coding.html_matcher.getTags(content, caret_pos, String(editor.getProfileName()));
 	if (pair && pair[0]) {
 		if (!pair[1]) {
 			// simply remove unary tag
@@ -744,7 +745,7 @@ function encodeDecodeBase64(editor) {
 		
 	if (!data) {
 		// no selection, try to find image bounds from current caret position
-		var text = editor.getContent(),
+		var text = String(editor.getContent()),
 			ch, 
 			m;
 		while (caret_pos-- >= 0) {

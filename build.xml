@@ -34,9 +34,20 @@
 			<filelist refid="javascript.files"/>
 		</concat>
 	</target>
+	
+    <target name="generic_java" description="Builds generic package for Java usage">
+        <mkdir dir="${zencoding_plugins}/java"/>
+    	<concat destfile="${zencoding_plugins}/java/zencoding.js">
+    		<filelist refid="javascript.files" />
+    		<fileset dir="${zencoding_javascript_filters}">
+    			<include name="*.js"/>
+    		</fileset>
+    		<footer>function runZenCodingAction(editor, action_name){ zen_coding.runAction(action_name, editor); }</footer>
+    	</concat>
+    </target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, npp_plugin, install_textmate_bundle">
+	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, npp_plugin, generic_java, install_textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>
