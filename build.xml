@@ -8,6 +8,7 @@
 	<import file="${zencoding_plugins_source}/komodo/build.xml"/>
 	<import file="${zencoding_plugins_source}/pspad/build.xml"/>
 	<import file="${zencoding_plugins_source}/npp/build.xml"/>
+	<import file="${zencoding_plugins_source}/e2/build.xml"/>
 	
 	
 	<!-- List of Zen Coding JavaScript files -->
@@ -47,7 +48,7 @@
     </target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, npp_plugin, generic_java, install_textmate_bundle">
+	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, npp_plugin, generic_java, e2_bundle, install_textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>
