@@ -24,6 +24,7 @@
 function resetUserSettings() {
 	delete zen_coding.user_resources;
 	zen_coding.user_resources = {};
+	zen_coding.resetVariables();
 }
 
 /**
@@ -88,4 +89,8 @@ function setupOutputProfile(name, profile_obj) {
 	}
 	
 	zen_coding.setupProfile(name, profile);
+}
+
+function addUserVariable(name, value) {
+	zen_coding.setVariable(name, value);
 }

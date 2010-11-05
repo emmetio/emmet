@@ -16,7 +16,8 @@
 		
 		caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
-		default_tag = 'div';
+		default_tag = 'div',
+		user_variables = {};
 		
 	var default_profile = {
 		tag_case: 'lower',
@@ -233,10 +234,19 @@
 	 * @return {String}
 	 */
 	function replaceVariables(str, vars) {
-		vars = vars || zen_settings.variables;
-		return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1){
-			return (p1 in vars) ? vars[p1] : str;
-		});
+		var callback;
+		
+		if (vars)
+			callback = function(str, p1) {
+				return (p1 in vars) ? vars[p1] : str;
+			};
+		else 
+			callback = function(str, p1) {
+				var v = getVariable(p1);
+				return (v !== null && typeof v != 'undefined') ? v : str;
+			}
+		
+		return str.replace(/\$\{([\w\-]+)\}/g, callback);
 	}
 	
 	/**
@@ -395,7 +405,9 @@
 	 * @return {String}
 	 */
 	function getVariable(name) {
-		return zen_settings.variables[name];
+		return (name in user_variables)
+			? user_variables[name]
+			: zen_settings.variables[name];
 	}
 	
 	/**
@@ -1386,8 +1398,16 @@
 		repeatString: repeatString,
 		getVariable: getVariable,
 		setVariable: function(name, value) {
-			zen_settings.variables[name] = value;
+			user_variables[name] = value;
 		},
+		
+		/**
+		 * Removes all user-defined variables
+		 */
+		resetVariables: function() {
+			user_variables = {};
+		},
+		
 		replaceVariables: replaceVariables,
 		
 		/**
