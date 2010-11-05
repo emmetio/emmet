@@ -59,16 +59,20 @@ function hasZenCodingVariable(name) {
 
 
 function tryBoolean(val) {
-	var str_val = String(val).toLowerCase();
+	var str_val = String(val || '').toLowerCase();
 	if (str_val == 'true')
 		return true;
 	if (str_val == 'false')
 		return false;
+		
+	var int_val = parseInt(str_val, 10);
+	if (!isNaN(int_val))
+		return int_val;
 	
-	return val;
+	return str_val;
 }
 
-function setupOutputProfile(name, profile_obj) {
+function setupOutputProfile(name, profile_obj, editor) {
 	var map = {
 		tag_case: 'getTagCase',
 		attr_case: 'getAttrCase',
@@ -81,11 +85,12 @@ function setupOutputProfile(name, profile_obj) {
 		filters: 'getFilters'
 	};
 	
+	name = String(name);
+	
 	var profile = {}, val;
+		
 	for (var p in map) if (map.hasOwnProperty(p)) {
-		val = profile_obj[map[p]]();
-		if (val !== '' && val !== null)
-			profile[p] = tryBoolean(val);
+		profile[p] = tryBoolean(profile_obj[map[p]]());
 	}
 	
 	zen_coding.setupProfile(name, profile);

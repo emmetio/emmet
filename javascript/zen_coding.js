@@ -257,7 +257,6 @@
 	 * @param {String} type Tag type (html, xml)
 	 */
 	function Tag(name, count, type) {
-		name = name.toLowerCase();
 		type = type || 'html';
 		
 		var abbr = getAbbreviation(type, name);
@@ -1108,14 +1107,14 @@
 	 * Porcesses profile argument, returning, if possible, profile object
 	 */
 	function processProfile(profile) {
-		var _profile;
+		var _profile = profile;
 		if (typeof(profile) == 'string' && profile in profiles)
 			_profile = profiles[profile];
 		
 		if (!_profile)
 			_profile = profiles['plain'];
 			
-		return profile;
+		return _profile;
 	}
 	
 	// create default profiles

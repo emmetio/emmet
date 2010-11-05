@@ -15,7 +15,7 @@
 	 * @param {String} case_param Profile's case value ('lower', 'upper', 'leave')
 	 */
 	function processStringCase(val, case_param) {
-		switch (case_param.toLowerCase()) {
+		switch (String(case_param || '').toLowerCase()) {
 			case 'lower':
 				return val.toLowerCase();
 			case 'upper':
