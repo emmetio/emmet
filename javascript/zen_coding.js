@@ -36,7 +36,10 @@
 		inline_break: 3,
 		
 		// use self-closing style for writing empty elements, e.g. <br /> or <br>
-		self_closing_tag: 'xhtml'
+		self_closing_tag: 'xhtml',
+		
+		// Profile-level output filters, re-defines syntax filters 
+		filters: ''
 	};
 	
 	var profiles = {};
@@ -904,12 +907,8 @@
 	 * @return {ZenNode}
 	 */
 	function runFilters(tree, profile, filter_list) {
-		if (typeof(profile) == 'string' && profile in profiles)
-			profile = profiles[profile];
+		profile = processProfile(profile);
 		
-		if (!profile)
-			profile = profiles['plain'];
-			
 		if (typeof(filter_list) == 'string')
 			filter_list = filter_list.split(/[\|,]/g);
 			
@@ -1091,6 +1090,20 @@
 		}
 		
 		return str;
+	}
+	
+	/**
+	 * Porcesses profile argument, returning, if possible, profile object
+	 */
+	function processProfile(profile) {
+		var _profile;
+		if (typeof(profile) == 'string' && profile in profiles)
+			_profile = profiles[profile];
+		
+		if (!_profile)
+			_profile = profiles['plain'];
+			
+		return profile;
 	}
 	
 	// create default profiles
@@ -1350,8 +1363,11 @@
 		 * 
 		 * @return {ZenNode}
 		 */
-		applyFilters: function(tree, syntax, profile, additional_filters){
-			var _filters = getResource(syntax, 'filters') || basic_filters;
+		applyFilters: function(tree, syntax, profile, additional_filters) {
+			profile = processProfile(profile);
+			var _filters = profile.filters;
+			if (!_filters)
+				_filters = getResource(syntax, 'filters') || basic_filters;
 				
 			if (additional_filters)
 				_filters += '|' + ((typeof(additional_filters) == 'string') 

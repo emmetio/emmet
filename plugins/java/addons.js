@@ -76,7 +76,8 @@ function setupOutputProfile(name, profile_obj) {
 		place_cursor: 'isPlaceCaret',
 		indent: 'isIndentTags',
 		inline_break: 'getInlineBreak',
-		self_closing_tag: 'getSelfClosing'
+		self_closing_tag: 'getSelfClosing',
+		filters: 'getFilters'
 	};
 	
 	var profile = {}, val;
