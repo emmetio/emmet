@@ -43,7 +43,9 @@
     		<fileset dir="${zencoding_javascript_filters}">
     			<include name="*.js"/>
     		</fileset>
-    		<footer>function runZenCodingAction(editor, action_name){ zen_coding.runAction(action_name, editor); }</footer>
+    		<fileset dir="${zencoding_plugins_source}/java">
+    			<include name="*.js"/>
+    		</fileset>
     	</concat>
     </target>
 

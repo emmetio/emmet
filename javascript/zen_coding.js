@@ -442,17 +442,37 @@
 	}
 	
 	/**
-	 * Returns resurce value from data set with respect of inheritance
+	 * Returns resource value from data set with respect of inheritance
 	 * @param {String} syntax Resource syntax (html, css, ...)
 	 * @param {String} abbr Abbreviation name
 	 * @param {String} name Resource name ('snippets' or 'abbreviation')
 	 * @return {Object|null}
 	 */
 	function getSettingsResource(syntax, abbr, name) {
+		var result = getUserDefinedResource(syntax, abbr, name);
+		if (result)
+			return result;
+			
 		var chain = createResourceChain(syntax, name);
 		for (var i = 0, il = chain.length; i < il; i++) {
 			if (abbr in chain[i])
 				return chain[i][abbr];
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Returns user defined resource
+	 * @param {String} syntax Resource syntax (html, css, ...)
+	 * @param {String} abbr Abbreviation name
+	 * @param {String} name Resource name ('snippets' or 'abbreviation')
+	 * @return {Object|null}
+	 */
+	function getUserDefinedResource(syntax, abbr, name) {
+		var storage = zen_coding.user_resources;
+		if (storage && syntax in storage && name in storage[syntax]) {
+			return storage[syntax][name][abbr] || null;
 		}
 		
 		return null;
@@ -1084,6 +1104,9 @@
 		/** Hash of all available actions */
 		actions: {},
 		
+		/** User-defined snippets and abbreviations */
+		user_resources: {},
+		
 		/**
 		 * Adds new Zen Coding action. This action will be available in
 		 * <code>zen_settings.actions</code> object.
@@ -1537,24 +1560,33 @@
 			}
 			
 			/**
+			 * Parses single abbreviation
+			 * @param {String} key Abbreviation name
+			 * @param {String} value = Abbreviation value
+			 * @return {Object}
+			 */
+			function parseAbbreviation(key, value) {
+				key = trim(key);
+				var m;
+				if (key.substr(-1) == '+') {
+					// this is expando, leave 'value' as is
+					return makeExpando(key, value);
+				} else if (m = re_tag.exec(value)) {
+					return makeAbbreviation(key, m[1], m[2], m[4] == '/');
+				} else {
+					// assume it's reference to another abbreviation
+					return entry(TYPE_REFERENCE, key, value);
+				}
+			}
+			
+			/**
 			 * Parses all abbreviations inside object
 			 * @param {Object} obj
 			 */
 			function parseAbbreviations(obj) {
 				for (var key in obj) {
-					var value = obj[key], m;
-					
-					key = trim(key);
-					if (key.substr(-1) == '+') {
-						// this is expando, leave 'value' as is
-						obj[key] = makeExpando(key, value);
-					} else if (m = re_tag.exec(value)) {
-						obj[key] = makeAbbreviation(key, m[1], m[2], m[4] == '/');
-					} else {
-						// assume it's reference to another abbreviation
-						obj[key] = entry(TYPE_REFERENCE, key, value);
-					}
-					
+					var value = obj[key];
+					obj[key] = parseAbbreviation(trim(key), value);
 					obj[key].__ref = value;
 				}
 			}
@@ -1578,6 +1610,8 @@
 							arguments.callee(settings[p]);
 					}
 				},
+				
+				parseAbbreviation: parseAbbreviation,
 				
 				extend: function(parent, child) {
 					for (var p in child) {
