@@ -8,6 +8,22 @@
 (function(){
 	var child_token = '${child}',
 		tabstops = 0;
+		
+	/**
+	 * Returns proper string case, depending on profile value
+	 * @param {String} val String to process
+	 * @param {String} case_param Profile's case value ('lower', 'upper', 'leave')
+	 */
+	function processStringCase(val, case_param) {
+		switch (case_param.toLowerCase()) {
+			case 'lower':
+				return val.toLowerCase();
+			case 'upper':
+				return val.toUpperCase();
+		}
+		
+		return val;
+	}
 	
 	/**
 	 * Creates HTML attributes string from tag according to profile settings
@@ -23,7 +39,7 @@
 			
 		for (var i = 0; i < tag.attributes.length; i++) {
 			var a = tag.attributes[i];
-			attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
+			attr_name = processStringCase(a.name, profile.attr_case);
 			attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 		}
 		
@@ -89,7 +105,7 @@
 			self_closing = '/';
 			
 		// define opening and closing tags
-		var tag_name = (profile.tag_case == 'upper') ? item.name.toUpperCase() : item.name.toLowerCase();
+		var tag_name = processStringCase(item.name, profile.tag_case);
 		if (is_unary) {
 			start = '<' + tag_name + attrs + self_closing + '>';
 			item.end = '';
