@@ -169,6 +169,7 @@ function narrowToNonSpace(text, start, end) {
 function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 	syntax = String(syntax || editor.getSyntax());
 	profile_name = String(profile_name || editor.getProfileName());
+	abbr = String(abbr || editor.prompt("Enter abbreviation"));
 	
 	var range = editor.getSelectionRange(),
 		start_offset = range.start,
