@@ -836,6 +836,107 @@ function decodeFromBase64(editor, data, pos) {
 	return true;
 }
 
+/**
+ * Find image tag under caret
+ * @param {zen_editor} editor
+ * @return Image tag and its indexes inside editor source
+ */
+function findImage(editor) {
+	var caret_pos = editor.getCaretPos(),
+		content = editor.getContent(),
+		content_len = content.length,
+		start_ix = -1,
+		end_ix = -1;
+	
+	// find the beginning of the tag
+	do {
+		if (caret_pos < 0)
+			break;
+		if (content.charAt(caret_pos) == '<') {
+			if (content.substring(caret_pos, caret_pos + 4).toLowerCase() == '<img') {
+				// found the beginning of the image tag
+				start_ix = caret_pos;
+				break;
+			} else {
+				// found some other tag
+				return null;
+			}
+		}
+	} while(caret_pos--);
+	
+	// find the end of the tag 
+	caret_pos = editor.getCaretPos();
+	do {
+		if (caret_pos >= content_len)
+			break;
+			
+		if (content.charAt(caret_pos) == '>') {
+			end_ix = caret_pos + 1;
+			break;
+		}
+	} while(caret_pos++);
+	
+	if (start_ix != -1 && end_ix != -1)
+		
+		return {
+			start: start_ix,
+			end: end_ix,
+			tag: content.substring(start_ix, end_ix)
+		};
+	
+	return null;
+}
+
+/**
+ * Replaces or adds attribute to the tag
+ * @param {String} img_tag
+ * @param {String} attr_name
+ * @param {String} attr_value
+ */
+function replaceOrAppend(img_tag, attr_name, attr_value) {
+	if (img_tag.toLowerCase().indexOf(attr_name) != -1) {
+		// attribute exists
+		var re = new RegExp(attr_name + '=([\'"])(.*?)([\'"])', 'i');
+		return img_tag.replace(re, function(str, p1, p2){
+			return attr_name + '=' + p1 + attr_value + p1;
+		});
+	} else {
+		return img_tag.replace(/\s*(\/?>)$/, ' ' + attr_name + '="' + attr_value + '" $1');
+	}
+}
+
+/**
+ * Update Image Size actions: reads image from &lt;img src=""&gt; file
+ * and updates dimentions inside tag
+ * @param {zen_editor} editor
+ */
+function updateImageSize(editor) {
+	var offset = editor.getCaretPos();
+		
+	var image = findImage();
+	if (image) {
+		var re = /\bsrc=(["'])(.+?)\1/i, m, src;
+		if (m = re.exec(image.tag))
+			src = m[2];
+		
+		if (src) {
+			var abs_path = zen_file.locateFile(editor.getFilePath(), src);
+			if (abs_path === null) {
+				throw "Can't find " + img_path + ' file';
+			}
+			
+			var size = zen_coding.getImageSize(zen_file.read(abs_path));
+			if (size) {
+				var new_tag = replaceOrAppend(image.tag, 'width', size.width);
+				new_tag = replaceOrAppend(new_tag, 'height', size.height);
+				
+				editor.replaceContent(new_tag, image.start, image.end);
+				editor.setCaretPos(offset);
+			}
+		}
+	}
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -858,3 +959,4 @@ zen_coding.registerAction('toggle_comment', toggleComment);
 zen_coding.registerAction('split_join_tag', splitJoinTag);
 zen_coding.registerAction('remove_tag', removeTag);
 zen_coding.registerAction('encode_decode_data_url', encodeDecodeBase64);
+zen_coding.registerAction('update_image_size', updateImageSize);
