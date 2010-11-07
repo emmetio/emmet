@@ -741,7 +741,7 @@ function startsWith(token, text, pos) {
  * @since 0.65
  */
 function encodeDecodeBase64(editor) {
-	var data = editor.getSelection(),
+	var data = String(editor.getSelection()),
 		caret_pos = editor.getCaretPos();
 		
 	if (!data) {
@@ -799,12 +799,12 @@ function encodeToBase64(editor, img_path, pos) {
 		throw "Can't find " + img_path + ' file';
 	}
 	
-	var b64 = base64.encode(zen_file.read(real_img_path));
+	var b64 = base64.encode(String(zen_file.read(real_img_path)));
 	if (!b64) {
 		throw "Can't encode file content to base64";
 	}
 	
-	b64 = 'data:' + (base64.mime_types[zen_file.getExt(real_img_path)] || default_mime_type) +
+	b64 = 'data:' + (base64.mime_types[String(zen_file.getExt(real_img_path))] || default_mime_type) +
 		';base64,' + b64;
 		
 	editor.replaceContent('$0' + b64, pos, pos + img_path.length);
@@ -843,7 +843,7 @@ function decodeFromBase64(editor, data, pos) {
  */
 function findImage(editor) {
 	var caret_pos = editor.getCaretPos(),
-		content = editor.getContent(),
+		content = String(editor.getContent()),
 		content_len = content.length,
 		start_ix = -1,
 		end_ix = -1;
@@ -913,7 +913,7 @@ function replaceOrAppend(img_tag, attr_name, attr_value) {
 function updateImageSize(editor) {
 	var offset = editor.getCaretPos();
 		
-	var image = findImage();
+	var image = findImage(editor);
 	if (image) {
 		var re = /\bsrc=(["'])(.+?)\1/i, m, src;
 		if (m = re.exec(image.tag))
@@ -922,10 +922,10 @@ function updateImageSize(editor) {
 		if (src) {
 			var abs_path = zen_file.locateFile(editor.getFilePath(), src);
 			if (abs_path === null) {
-				throw "Can't find " + img_path + ' file';
+				throw "Can't find " + src + ' file';
 			}
 			
-			var size = zen_coding.getImageSize(zen_file.read(abs_path));
+			var size = zen_coding.getImageSize(String(zen_file.read(abs_path)));
 			if (size) {
 				var new_tag = replaceOrAppend(image.tag, 'width', size.width);
 				new_tag = replaceOrAppend(new_tag, 'height', size.height);
