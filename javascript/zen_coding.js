@@ -6,7 +6,8 @@
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
  */var zen_coding = (function(){
 	
-	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/;
+	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
+		re_text_node = /^ZEN:TEXT:(\d+)$/;;
 	
 	var TYPE_ABBREVIATION = 'zen-tag',
 		TYPE_EXPANDO = 'zen-expando',
@@ -205,6 +206,15 @@
 	}
 	
 	/**
+	 * If abbreviation is a text node
+	 * @param {String} abbr
+	 * @return {Boolean}
+	 */
+	function isTextNode(abbr) {
+		return re_text_node.test(abbr);
+	}
+	
+	/**
 	 * Test if passed string ends with XHTML tag. This method is used for testing
 	 * '>' character: it belongs to tag or it's a part of abbreviation? 
 	 * @param {String} str
@@ -266,9 +276,6 @@
 		
 		this.name = (abbr) ? abbr.value.name : name.replace('+', '');
 		this.count = count || 1;
-		this.children = [];
-		this.attributes = [];
-		this._attr_hash = {};
 		this._abbr = abbr;
 		this._res = zen_settings[type];
 		this._content = '';
@@ -292,6 +299,9 @@
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
+			if (!this.children)
+				this.children = [];
+				
 			tag.parent = this;
 			this.children.push(tag);
 		},
@@ -302,6 +312,12 @@
 		 * @param {String} value Attribute's value
 		 */
 		addAttribute: function(name, value) {
+			if (!this.attributes)
+				this.attributes = [];
+				
+			if (!this._attr_hash)
+				this._attr_hash = {};
+			
 			// the only place in Tag where pipe (caret) character may exist
 			// is the attribute: escape it with internal placeholder
 			value = replaceUnescapedSymbol(value, '|', caret_placeholder);
@@ -344,7 +360,7 @@
 		 * @return {String}
 		 */
 		getContent: function() {
-			return this._content;
+			return this._content || '';
 		},
 		
 		/**
@@ -352,13 +368,13 @@
 		 * @return {Tag|null} Returns null if there's no children
 		 */
 		findDeepestChild: function() {
-			if (!this.children.length)
+			if (!this.children || !this.children.length)
 				return null;
 				
 			var deepest_child = this;
 			while (true) {
 				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
-				if (!deepest_child.children.length)
+				if (!deepest_child.children || !deepest_child.children.length)
 					break;
 			}
 			
@@ -379,6 +395,24 @@
 	}
 	
 	inherit(Snippet, Tag);
+	
+	/**
+	 * @param {String} name
+	 */
+	function TextNode(name, count, node_list) {
+		this.name = name;
+		this.count = count || 1;
+		this._list = node_list;
+		this._content = '';
+		
+		// find node content
+		var m = name.match(re_text_node);
+		if (m) {
+			this._content = replaceUnescapedSymbol(node_list[parseInt(m[1], 10)], '|', caret_placeholder);
+		}
+	}
+	
+	inherit(TextNode, Tag);
 	
 	/**
 	 * Returns abbreviation value from data set
@@ -664,12 +698,15 @@
 			cur_item = root.addChild(),
 			stack = [],
 			i = 0,
+			text_nodes = 0,
 			il = abbr.length;
 		
 		while (i < il) {
 			var ch = abbr.charAt(i);
 			switch(ch) {
 				case '(':
+					if (text_nodes) break;
+					
 					// found new group
 					var operator = i ? abbr.charAt(i - 1) : '';
 					if (operator == '>') {
@@ -681,6 +718,8 @@
 					cur_item = null;
 					break;
 				case ')':
+					if (text_nodes) break;
+					
 					last_parent = stack.pop();
 					var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
 					if (next_char == '*') {
@@ -706,7 +745,7 @@
 						i++;
 					break;
 				default:
-					if (ch == '+' || ch == '>') {
+					if (!text_nodes && (ch == '+' || ch == '>')) {
 						// skip operator if it's followed by parenthesis
 						var next_char = (i + 1 < il) ? abbr.charAt(i + 1) : '';
 						if (next_char == '(') break;
@@ -714,6 +753,11 @@
 					if (!cur_item)
 						cur_item = last_parent.addChild();
 					cur_item.expr += ch;
+					
+					if (ch == '{')
+						text_nodes++;
+					else if (ch == '}')
+						text_nodes--;
 			}
 			
 			i++;
@@ -729,10 +773,13 @@
 	 * @param {Tag} tag
 	 */
 	function ZenNode(tag) {
-		
-		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
+		this.type = 'tag';
+		if (tag instanceof Snippet)
+			this.type = 'snippet';
+		else if (tag instanceof TextNode)
+			this.type = 'text';
 		this.name = tag.name;
-		this.attributes = tag.attributes;
+		this.attributes = tag.attributes || [];
 		this.children = [];
 		this.counter = 1;
 		
@@ -789,7 +836,7 @@
 		 * @return {Boolean}
 		 */
 		isUnary: function() {
-			if (this.type == 'snippet')
+			if (this.type == 'snippet' || this.type == 'text')
 				return false;
 				
 			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this.source._res, 'empty'));
@@ -800,7 +847,7 @@
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return (this.name in getElementsCollection(this.source._res, 'inline_level'));
+			return this.type == 'text' || (this.name in getElementsCollection(this.source._res, 'inline_level'));
 		},
 		
 		/**
@@ -895,32 +942,34 @@
 		var how_many = 1,
 			tag_content = '';
 			
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {Tag} */
-			var child = tree.children[i];
-			how_many = child.count;
-			
-			if (child.repeat_by_lines) {
-				// it's a repeating element
-				tag_content = splitByLines(child.getContent(), true);
-				how_many = Math.max(tag_content.length, 1);
-			} else {
-				tag_content = child.getContent();
-			}
-			
-			for (var j = 0; j < how_many; j++) {
-				var tag = new ZenNode(child);
-				parent.addChild(tag);
-				tag.counter = j + 1;
+		if (tree.children) {
+			for (var i = 0, il = tree.children.length; i < il; i++) {
+				/** @type {Tag} */
+				var child = tree.children[i];
+				how_many = child.count;
 				
-				if (child.children.length)
-					rolloutTree(child, tag);
+				if (child.repeat_by_lines) {
+					// it's a repeating element
+					tag_content = splitByLines(child.getContent(), true);
+					how_many = Math.max(tag_content.length, 1);
+				} else {
+					tag_content = child.getContent();
+				}
+				
+				for (var j = 0; j < how_many; j++) {
+					var tag = new ZenNode(child);
+					parent.addChild(tag);
+					tag.counter = j + 1;
 					
-				var add_point = tag.findDeepestChild() || tag;
-				if (tag_content) {
-					add_point.content = (typeof(tag_content) == 'string') 
-						? tag_content 
-						: (tag_content[j] || '');
+					if (child.children && child.children.length)
+						rolloutTree(child, tag);
+						
+					var add_point = tag.findDeepestChild() || tag;
+					if (tag_content) {
+						add_point.content = (typeof(tag_content) == 'string') 
+							? tag_content 
+							: (tag_content[j] || '');
+					}
 				}
 			}
 		}
@@ -952,6 +1001,64 @@
 	}
 	
 	/**
+	 * Processes text nodes and replaces them with entities
+	 * @param {String} abbr
+	 * @param {Array} nodes Array pointer where to store text nodes
+	 * @return {String} New abbreviation with text node entities
+	 */
+	function processTextNodes(abbr, nodes) {
+		var brace_count = 0,
+			i = 0,
+			il = abbr.length,
+			brace_start = -1,
+			new_abbr = '',
+			prev_char,
+			ch;
+			
+		while (i < il) {
+			prev_char = i ? abbr.charAt(i - 1) : '';
+			ch = abbr.charAt(i);
+			switch (ch) {
+				case '{':
+					if (prev_char != '\\') {
+						brace_count++;
+						if (brace_count === 1)
+							brace_start = i;
+					} else if (!brace_count) {
+						new_abbr += ch;
+					}
+					break;
+				case '}':
+					if (prev_char != '\\') {
+						brace_count--;
+						if (brace_count === 0) {
+							// found text node
+							nodes.push(abbr.substring(brace_start + 1, i));
+							if (brace_start > 0) {
+								var op = abbr.charAt(brace_start - 1);
+								if (op != '+' && op != '>')
+									new_abbr += '>';
+							}
+							
+							new_abbr += 'ZEN:TEXT:' + (nodes.length - 1);
+						}
+					} else if (!brace_count) {
+						new_abbr += ch;
+					}
+					
+					break;
+				default:
+					if (!brace_count)
+						new_abbr += ch; 
+			}
+			
+			i++;
+		}
+		
+		return new_abbr;
+	}
+	
+	/**
 	 * Transforms abbreviation into a primary internal tree. This tree should'n 
 	 * be used ouside of this scope
 	 * @param {String} abbr Abbreviation
@@ -965,7 +1072,7 @@
 			last = null,
 			multiply_elem = null,
 			res = zen_settings[type],
-			re = /([\+>])?([a-z@\!\#\.][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+			re = /([\+>])?([a-z@\!\#\.:][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
 //				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 		
 		if (!abbr)
@@ -976,6 +1083,10 @@
 			var a = getAbbreviation(type, str);
 			return a ? a.value : str;
 		});
+		
+		// process text nodes and replace them with entities
+		var text_nodes = [];
+		abbr = processTextNodes(abbr, text_nodes);
 		
 		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
 			var multiply_by_lines = (has_multiplier && !multiplier);
@@ -989,8 +1100,15 @@
 			
 			if (has_expando)
 				tag_name += '+';
-				
-			var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
+			
+			var current;
+			if (isTextNode(tag_name))
+				current = new TextNode(tag_name, multiplier, text_nodes);
+			else if (isShippet(tag_name, type))
+				current = new Snippet(tag_name, multiplier, type);
+			else
+				current = new Tag(tag_name, multiplier, type);
+			
 			if (attrs) {
 				attrs = parseAttributes(attrs);
 				for (var i = 0, il = attrs.length; i < il; i++) {
@@ -1016,7 +1134,7 @@
 		root.multiply_elem = multiply_elem;
 		
 		// empty 'abbr' string means that abbreviation was successfully expanded,
-		// if not — abbreviation wasn't valid 
+		// if not — abbreviation wasn't valid
 		return (!abbr) ? root : null;	
 	}
 	
@@ -1178,6 +1296,8 @@
 				if (name in this.actions)
 					return this.actions[name].apply(this, args);
 			} catch(e){
+				if (window && window.console)
+					console.error(e);
 				return false; 
 			}
 		},
@@ -1203,7 +1323,8 @@
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
 				start_index = -1,
-				brace_count = 0;
+				brace_count = 0,
+				text_count = 0;
 			
 			while (true) {
 				cur_offset--;
@@ -1219,9 +1340,13 @@
 					brace_count++;
 				else if (ch == '[')
 					brace_count--;
+				if (ch == '}')
+					text_count++;
+				else if (ch == '{')
+					text_count--;
 				else {
-					if (brace_count) 
-						// respect all characters inside attribute sets
+					if (brace_count || text_count) 
+						// respect all characters inside attribute sets or text nodes
 						continue;
 					else if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
 						// found stop symbol

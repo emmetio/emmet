@@ -105,13 +105,15 @@
 			self_closing = '/';
 			
 		// define opening and closing tags
-		var tag_name = processStringCase(item.name, profile.tag_case);
-		if (is_unary) {
-			start = '<' + tag_name + attrs + self_closing + '>';
-			item.end = '';
-		} else {
-			start = '<' + tag_name + attrs + '>';
-			end = '</' + tag_name + '>';
+		if (item.type != 'text') {
+			var tag_name = processStringCase(item.name, profile.tag_case);
+			if (is_unary) {
+				start = '<' + tag_name + attrs + self_closing + '>';
+				item.end = '';
+			} else {
+				start = '<' + tag_name + attrs + '>';
+				end = '</' + tag_name + '>';
+			}
 		}
 		
 		var placeholder = '%s';

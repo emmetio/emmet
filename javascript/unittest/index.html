@@ -219,6 +219,13 @@
 				 
 				 "test dollar sign":  function(){ with (this) {
 					assertEqual('$db->connect()\n\t$$$more dollaz1', expandAbbr('dol'));
+				 }},
+				 
+				 "test text nodes":  function(){ with (this) {
+					assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello world}'));
+					assertEqual('<span>Hello world</span>', expandAbbr('span{Hello world}'));
+					assertEqual('<span>Hello world</span>', expandAbbr('span{Hello}+{ world}'));
+//					assertEqual('<span>Click <a href="/url/">here</a> for more info</span>', expandAbbr('span>{Click }+(a[href=/url/]{here})+{ for more info}'));
 				 }}
 				 
 			});
