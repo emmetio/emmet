@@ -822,7 +822,7 @@ function encodeToBase64(editor, img_path, pos) {
  */
 function decodeFromBase64(editor, data, pos) {
 	// ask user to enter path to file
-	var file_path = editor.prompt('Enter path to file (absolute or relative)');
+	var file_path = String(editor.prompt('Enter path to file (absolute or relative)'));
 	if (!file_path)
 		return false;
 		

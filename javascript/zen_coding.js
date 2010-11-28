@@ -96,6 +96,7 @@
 		var lines = (text || '')
 			.replace(/\r\n/g, '\n')
 			.replace(/\n\r/g, '\n')
+			.replace(/\r/g, '\n')
 			.replace(/\n/g, nl)
 			.split(nl);
 		
