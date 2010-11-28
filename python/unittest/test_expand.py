@@ -136,6 +136,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'))
 		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'))
 		self.assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'))
+		self.assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
 	
 	def testExtract(self):
 		abbr = 'ul#nav>li.$$item$$$*3>a+span'

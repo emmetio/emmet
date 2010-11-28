@@ -2,3 +2,4 @@
 /_project_src
 *.pyc
 /_docs
+.DS_Store

@@ -466,8 +466,9 @@ class AbbrGroup(object):
 		self.parent = parent
 		self.children = []
 		
-	def add_child(self):
-		child = AbbrGroup(self)
+	def add_child(self, child=None):
+		if child is None:
+			child = AbbrGroup(self)
 		self.children.append(child)
 		return child
 	
@@ -506,8 +507,25 @@ def split_by_groups(abbr):
 			cur_item = None
 		elif ch == ')':
 			last_parent = stack.pop()
-			cur_item = None
 			next_char = char_at(abbr, i + 1)
+			
+			if next_char == '*':
+				# group multiplication
+				group_mul = ''
+				for j in xrange(i + 2, il):
+					n_ch = char_at(abbr, j)
+					if n_ch.isdigit():
+						group_mul += n_ch
+					else:
+						break
+				
+				i += len(group_mul) + 1
+				group_mul = int(group_mul or 1)
+				while 1 < group_mul:
+					last_parent.add_child(cur_item)
+					group_mul -= 1
+			
+			cur_item = None
 			if next_char == '+' or next_char == '>': 
 				# next char is group operator, skip it
 				i += 1

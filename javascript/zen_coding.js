@@ -633,8 +633,8 @@
 			expr: '',
 			parent: parent || null,
 			children: [],
-			addChild: function() {
-				var child = abbrGroup(this);
+			addChild: function(child) {
+				child = child || abbrGroup(this);
 				this.children.push(child);
 				return child;
 			},
@@ -682,8 +682,25 @@
 					break;
 				case ')':
 					last_parent = stack.pop();
-					cur_item = null;
 					var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
+					if (next_char == '*') {
+						// group multiplication
+						var group_mul = '', n_ch;
+						for (var j = i + 2; j < il; j++) {
+							n_ch = abbr.charAt(j);
+							if (isNumeric(n_ch))
+								group_mul += n_ch;
+							else 
+								break;
+						}
+						
+						i += group_mul.length + 1;
+						group_mul = parseInt(group_mul || 1, 10);
+						while (1 < group_mul--)
+							last_parent.addChild(cur_item);
+					}
+					
+					cur_item = null;
 					if (next_char == '+' || next_char == '>') 
 						// next char is group operator, skip it
 						i++;
