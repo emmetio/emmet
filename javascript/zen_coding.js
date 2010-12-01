@@ -263,34 +263,39 @@
 	/**
 	 * Tag
 	 * @class
-	 * @param {String} name tag name
-	 * @param {Number} count Output multiplier (default: 1)
+	 * @param {zen_parser.TreeNode} node Parsed tree node
 	 * @param {String} type Tag type (html, xml)
 	 */
-	function Tag(name, count, type) {
+	function Tag(node, type) {
 		type = type || 'html';
 		
-		var abbr = getAbbreviation(type, name);
-		if (abbr && abbr.type == TYPE_REFERENCE)
-			abbr = getAbbreviation(type, abbr.value);
+		var abbr = null;
+		if (node.name) {
+			abbr = getAbbreviation(type, node.name);
+			if (abbr && abbr.type == TYPE_REFERENCE)
+				abbr = getAbbreviation(type, abbr.value);
+		}
 		
-		this.name = (abbr) ? abbr.value.name : name.replace('+', '');
-		this.count = count || 1;
+		this.name = (abbr) ? abbr.value.name : node.name;
+		this.count = node.count || 1;
 		this._abbr = abbr;
 		this._res = zen_settings[type];
-		this._content = '';
-		this.repeat_by_lines = false;
+		this._content = node.text || '';
+		this.repeat_by_lines = node.is_repeating;
 		this.parent = null;
 		
+		var attr;
 		// add default attributes
 		if (this._abbr && this._abbr.value.attributes) {
 			var def_attrs = this._abbr.value.attributes;			if (def_attrs) {
 				for (var i = 0; i < def_attrs.length; i++) {
-					var attr = def_attrs[i];
+					attr = def_attrs[i];
 					this.addAttribute(attr.name, attr.value);
 				}
 			}
 		}
+		
+		this.copyAttributes(node);
 	}
 	
 	Tag.prototype = {
@@ -340,6 +345,17 @@
 		},
 		
 		/**
+		 * Copy attributes from parsed node
+		 */
+		copyAttributes: function(node) {
+			if (node.attributes)
+				for (var i = 0, il = node.attributes.length; i < il; i++) {
+					var attr = node.attributes[i];
+					this.addAttribute(attr.name, attr.value);
+				}
+		},
+		
+		/**
 		 * This function tests if current tags' content contains xHTML tags. 
 		 * This function is mostly used for output formatting
 		 */
@@ -382,37 +398,26 @@
 		}
 	};
 	
-	function Snippet(name, count, type) {
+	/**
+	 * Snippet
+	 * @param {zen_parser.TreeNode} node
+	 * @param {String} type Tag type (html, xml)
+	 */
+	function Snippet(node, type) {
 		/** @type {String} */
-		this.name = name;
-		this.count = count || 1;
+		this.name = node.name;
+		this.count = node.count;
 		this.children = [];
-		this._content = '';
-		this.repeat_by_lines = false;
+		this._content = node.text || '';
+		this.repeat_by_lines = node.is_repeating;
 		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
 		this.value = replaceUnescapedSymbol(getSnippet(type, name), '|', caret_placeholder);
 		this.parent = null;
+		
+		this.copyAttributes(node);
 	}
 	
 	inherit(Snippet, Tag);
-	
-	/**
-	 * @param {String} name
-	 */
-	function TextNode(name, count, node_list) {
-		this.name = name;
-		this.count = count || 1;
-		this._list = node_list;
-		this._content = '';
-		
-		// find node content
-		var m = name.match(re_text_node);
-		if (m) {
-			this._content = replaceUnescapedSymbol(node_list[parseInt(m[1], 10)], '|', caret_placeholder);
-		}
-	}
-	
-	inherit(TextNode, Tag);
 	
 	/**
 	 * Returns abbreviation value from data set
@@ -528,246 +533,6 @@
 	}
 	
 	/**
-	 * Get word, starting at <code>ix</code> character of <code>str</code>
-	 */
-	function getWord(ix, str) {
-		var m = str.substring(ix).match(/^[\w\-:\$]+/);
-		return m ? m[0] : '';
-	}
-	
-	/**
-	 * Extract attributes and their values from attribute set 
-	 * @param {String} attr_set
-	 */
-	function extractAttributes(attr_set) {
-		attr_set = trim(attr_set);
-		var loop_count = 100, // endless loop protection
-			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
-			result = [],
-			attr;
-			
-		while (attr_set && loop_count--) {
-			var attr_name = getWord(0, attr_set);
-			attr = null;
-			if (attr_name) {
-				attr = {name: attr_name, value: ''};
-//				result[attr_name] = '';
-				// let's see if attribute has value
-				var ch = attr_set.charAt(attr_name.length);
-				switch (ch) {
-					case '=':
-						var ch2 = attr_set.charAt(attr_name.length + 1);
-						if (ch2 == '"' || ch2 == "'") {
-							// we have a quoted string
-							var m = attr_set.substring(attr_name.length + 1).match(re_string);
-							if (m) {
-								attr.value = m[2];
-								attr_set = trim(attr_set.substring(attr_name.length + m[0].length + 1));
-							} else {
-								// something wrong, break loop
-								attr_set = '';
-							}
-						} else {
-							// unquoted string
-							var m = attr_set.substring(attr_name.length + 1).match(/(.+?)(\s|$)/);
-							if (m) {
-								attr.value = m[1];
-								attr_set = trim(attr_set.substring(attr_name.length + m[1].length + 1));
-							} else {
-								// something wrong, break loop
-								attr_set = '';
-							}
-						}
-						break;
-					default:
-						attr_set = trim(attr_set.substring(attr_name.length));
-						break;
-				}
-			} else {
-				// something wrong, can't extract attribute name
-				break;
-			}
-			
-			if (attr) result.push(attr);
-		}
-		return result;
-	}
-	
-	/**
-	 * Parses tag attributes extracted from abbreviation
-	 * @param {String} str
-	 */
-	function parseAttributes(str) {
-		/*
-		 * Example of incoming data:
-		 * #header
-		 * .some.data
-		 * .some.data#header
-		 * [attr]
-		 * #item[attr=Hello other="World"].class
-		 */
-		var result = [],
-			class_name,
-			char_map = {'#': 'id', '.': 'class'};
-		
-		// walk char-by-char
-		var i = 0,
-			il = str.length,
-			val;
-			
-		while (i < il) {
-			var ch = str.charAt(i);
-			switch (ch) {
-				case '#': // id
-					val = getWord(i, str.substring(1));
-					result.push({name: char_map[ch], value: val});
-					i += val.length + 1;
-					break;
-				case '.': // class
-					val = getWord(i, str.substring(1));
-					if (!class_name) {
-						// remember object pointer for value modification
-						class_name = {name: char_map[ch], value: ''};
-						result.push(class_name);
-					}
-					
-					class_name.value += ((class_name.value) ? ' ' : '') + val;
-					i += val.length + 1;
-					break;
-				case '[': //begin attribute set
-					// search for end of set
-					var end_ix = str.indexOf(']', i);
-					if (end_ix == -1) {
-						// invalid attribute set, stop searching
-						i = str.length;
-					} else {
-						var attrs = extractAttributes(str.substring(i + 1, end_ix));
-						for (var j = 0, jl = attrs.length; j < jl; j++) {
-							result.push(attrs[j]);
-						}
-						i = end_ix;
-					}
-					break;
-				default:
-					i++;
-				
-			}
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Creates group element
-	 * @param {String} expr Part of abbreviation that belongs to group item
-	 * @param {abbrGroup} [parent] Parent group item element
-	 */
-	function abbrGroup(parent) {
-		return {
-			expr: '',
-			parent: parent || null,
-			children: [],
-			addChild: function(child) {
-				child = child || abbrGroup(this);
-				this.children.push(child);
-				return child;
-			},
-			cleanUp: function() {
-				for (var i = this.children.length - 1; i >= 0; i--) {
-					var expr = this.children[i].expr;
-					if (!expr)
-						this.children.splice(i, 1);
-					else {
-						// remove operators at the and of expression
-//						this.children[i].expr = expr.replace(/[\+>]+$/, '');
-						this.children[i].cleanUp();
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Split abbreviation by groups
-	 * @param {String} abbr
-	 * @return {abbrGroup()}
-	 */
-	function splitByGroups(abbr) {
-		var root = abbrGroup(),
-			last_parent = root,
-			cur_item = root.addChild(),
-			stack = [],
-			i = 0,
-			text_nodes = 0,
-			il = abbr.length;
-		
-		while (i < il) {
-			var ch = abbr.charAt(i);
-			switch(ch) {
-				case '(':
-					if (text_nodes) break;
-					
-					// found new group
-					var operator = i ? abbr.charAt(i - 1) : '';
-					if (operator == '>') {
-						stack.push(cur_item);
-						last_parent = cur_item;
-					} else {
-						stack.push(last_parent);
-					}
-					cur_item = null;
-					break;
-				case ')':
-					if (text_nodes) break;
-					
-					last_parent = stack.pop();
-					var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
-					if (next_char == '*') {
-						// group multiplication
-						var group_mul = '', n_ch;
-						for (var j = i + 2; j < il; j++) {
-							n_ch = abbr.charAt(j);
-							if (isNumeric(n_ch))
-								group_mul += n_ch;
-							else 
-								break;
-						}
-						
-						i += group_mul.length + 1;
-						group_mul = parseInt(group_mul || 1, 10);
-						while (1 < group_mul--)
-							last_parent.addChild(cur_item);
-					}
-					
-					cur_item = null;
-					if (next_char == '+' || next_char == '>') 
-						// next char is group operator, skip it
-						i++;
-					break;
-				default:
-					if (!text_nodes && (ch == '+' || ch == '>')) {
-						// skip operator if it's followed by parenthesis
-						var next_char = (i + 1 < il) ? abbr.charAt(i + 1) : '';
-						if (next_char == '(') break;
-					}
-					if (!cur_item)
-						cur_item = last_parent.addChild();
-					cur_item.expr += ch;
-					
-					if (ch == '{')
-						text_nodes++;
-					else if (ch == '}')
-						text_nodes--;
-			}
-			
-			i++;
-		}
-		
-		root.cleanUp();
-		return root;
-	}
-	
-	/**
 	 * @class
 	 * Creates simplified tag from Zen Coding tag
 	 * @param {Tag} tag
@@ -776,8 +541,6 @@
 		this.type = 'tag';
 		if (tag instanceof Snippet)
 			this.type = 'snippet';
-		else if (tag instanceof TextNode)
-			this.type = 'text';
 		this.name = tag.name;
 		this.attributes = tag.attributes || [];
 		this.children = [];
@@ -1001,141 +764,44 @@
 	}
 	
 	/**
-	 * Processes text nodes and replaces them with entities
-	 * @param {String} abbr
-	 * @param {Array} nodes Array pointer where to store text nodes
-	 * @return {String} New abbreviation with text node entities
-	 */
-	function processTextNodes(abbr, nodes) {
-		var brace_count = 0,
-			i = 0,
-			il = abbr.length,
-			brace_start = -1,
-			new_abbr = '',
-			prev_char,
-			ch;
-			
-		while (i < il) {
-			prev_char = i ? abbr.charAt(i - 1) : '';
-			ch = abbr.charAt(i);
-			switch (ch) {
-				case '{':
-					if (prev_char != '\\') {
-						brace_count++;
-						if (brace_count === 1)
-							brace_start = i;
-					} else if (!brace_count) {
-						new_abbr += ch;
-					}
-					break;
-				case '}':
-					if (prev_char != '\\') {
-						brace_count--;
-						if (brace_count === 0) {
-							// found text node
-							nodes.push(abbr.substring(brace_start + 1, i));
-							if (brace_start > 0) {
-								var op = abbr.charAt(brace_start - 1);
-								if (op != '+' && op != '>')
-									new_abbr += '>';
-							}
-							
-							new_abbr += 'ZEN:TEXT:' + (nodes.length - 1);
-						}
-					} else if (!brace_count) {
-						new_abbr += ch;
-					}
-					
-					break;
-				default:
-					if (!brace_count)
-						new_abbr += ch; 
-			}
-			
-			i++;
-		}
-		
-		return new_abbr;
-	}
-	
-	/**
 	 * Transforms abbreviation into a primary internal tree. This tree should'n 
 	 * be used ouside of this scope
-	 * @param {String} abbr Abbreviation
+	 * @param {zen_parser.TreeNode} abbr Parsed tree node
 	 * @param {String} [type] Document type (xsl, html, etc.)
 	 * @return {Tag}
-	 * TODO переписать
 	 */
-	function transformTreeNode(abbr, type) {
+	function transformTreeNode(node, type) {
 		type = type || 'html';
-		var root = new Tag('', 1, type),
-			parent = root,
-			last = null,
-			multiply_elem = null,
-			re = /([\+>])?([a-z@\!\#\.:][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
-//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
+		if (!abbr) return null;
 		
-		if (!abbr)
-			return null;
+		return isShippet(node.name, type) 
+				? new Snippet(node, type)
+				: new Tag(node, type);
+	}
+	
+	/**
+	 * Process single tree node: expand it and its children 
+	 * @param {zen_parser.TreeNode} node
+	 * @param {String} type
+	 * @param {Tag} parent
+	 */
+	function processParsedNode(node, type, parent) {
+		var t_node = transformTreeNode(node, type);
+		parent.addChild(t_node);
+			
+		// set repeating element to the topmost node
+		var root = parent;
+		while (root.parent)
+			root = root.parent;
 		
-		// replace expandos
-		abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
-			var a = getAbbreviation(type, str);
-			return a ? a.value : str;
-		});
-		
-		// process text nodes and replace them with entities
-		var text_nodes = [];
-		abbr = processTextNodes(abbr, text_nodes);
-		
-		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
-			var multiply_by_lines = (has_multiplier && !multiplier);
-			multiplier = multiplier ? parseInt(multiplier) : 1;
+		root.last = t_node;
+		if (t_node.repeat_by_lines)
+			root.multiply_elem = t_node;
 			
-			var tag_ch = tag_name.charAt(0);
-			if (tag_ch == '#' || tag_ch == '.') {
-				attrs = tag_name + (attrs || '');
-				tag_name = default_tag;
-			}
-			
-			if (has_expando)
-				tag_name += '+';
-			
-			var current;
-			if (isTextNode(tag_name))
-				current = new TextNode(tag_name, multiplier, text_nodes);
-			else if (isShippet(tag_name, type))
-				current = new Snippet(tag_name, multiplier, type);
-			else
-				current = new Tag(tag_name, multiplier, type);
-			
-			if (attrs) {
-				attrs = parseAttributes(attrs);
-				for (var i = 0, il = attrs.length; i < il; i++) {
-					current.addAttribute(attrs[i].name, attrs[i].value);
-				}
-			}
-			
-			// dive into tree
-			if (operator == '>' && last)
-				parent = last;
-				
-			parent.addChild(current);
-			
-			last = current;
-			
-			if (multiply_by_lines)
-				multiply_elem = current;
-			
-			return '';
-		});
-		
-		root.last = last;
-		root.multiply_elem = multiply_elem;
-		
-		// empty 'abbr' string means that abbreviation was successfully expanded,
-		// if not — abbreviation wasn't valid
-		return (!abbr) ? root : null;	
+		// process child groups
+		for (var j = 0, jl = node.children.length; j < jl; j++) {
+			expandGroup(node.children[j], type, t_node);
+		}
 	}
 	
 	/**
@@ -1144,6 +810,7 @@
 	 * @param {String} abbr Abbreviation
 	 * @param {String} [type] Document type (xsl, html, etc.)
 	 * @return {Tag}
+	 * TODO remove
 	 */
 	function abbrToPrimaryTree(abbr, type) {
 		type = type || 'html';
@@ -1223,6 +890,7 @@
 	 * @param {abbrGroup} group
 	 * @param {String} type
 	 * @param {Tag} parent
+	 * TODO remove
 	 */
 	function expandGroup(group, type, parent) {
 		var tree = abbrToPrimaryTree(group.expr, type),
@@ -1460,19 +1128,11 @@
 			
 			// split abbreviation by groups
 			var abbr_tree = zen_parser.parse(abbr),
-				tree_root = new Tag('', 1, type);
-			
-//			var group_root = splitByGroups(abbr),
-//				tree_root = new Tag('', 1, type);
-			
+				tree_root = new Tag({}, type);
+				
 			// then recursively expand each group item
-			try {
-				for (var i = 0, il = group_root.children.length; i < il; i++) {
-					expandGroup(group_root.children[i], type, tree_root);
-				}
-			} catch(e) {
-				// there's invalid group, stop parsing
-				return null;
+			for (var i = 0, il = abbr_tree.children.length; i < il; i++) {
+				processParsedNode(abbr_tree.children[i], type, tree_root);
 			}
 			
 			tree_root.filters = filter_list;

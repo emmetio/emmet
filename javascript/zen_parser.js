@@ -510,7 +510,8 @@
 			dumpToken();
 			
 			return optimizeTree(root);
-		}
+		},
 		
+		TreeNode: TreeNode
 	}
 })();
