@@ -11,10 +11,13 @@
 	 * @class
 	 */
 	function TreeNode(parent) {
-		this.expr = '';
+		this.abbreviation = '';
 		this.parent = null;
 		this.children = [];
 		this.count = 1;
+		this.name = null;
+		this.text = null;
+		this.attributes = [];
 		this.is_repeating = false;
 	}
 	
@@ -36,13 +39,25 @@
 		 * @param {String} abbr
 		 */
 		setAbbreviation: function(abbr) {
+			this.abbreviation = abbr;
 			var m = abbr.match(/\*(\d+)?$/);
 			if (m) {
 				this.count = parseInt(m[1] || 1, 10);
 				this.is_repeating = !m[1];
-				this.expr = abbr.substr(0, abbr.length - m[0].length);
-			} else {
-				this.expr = abbr;
+				abbr = abbr.substr(0, abbr.length - m[0].length);
+			}
+			
+			if (abbr) {
+				var name_text = splitExpression(abbr);
+				var name = name_text[0];
+				if (name_text.length == 2)
+					this.text = name_text[1];
+					
+				if (name) {
+					var attr_result = parseAttributes(name);
+					this.name = attr_result[0] || 'div';
+					this.attributes = attr_result[1];
+				}
 			}
 		},
 		
@@ -59,9 +74,25 @@
 		 */
 		toString: function(level) {
 			level = level || 0;
+			var output = '(empty)';
+			if (this.abbreviation) {
+				output = '';
+				if (this.name)
+					output = this.name;
+					
+				if (this.text !== null)
+					output += (output ? ' ' : '') + '{text: "' + this.text + '"}';
+					
+				if (this.attributes.length) {
+					var attrs = [];
+					for (var i = 0, il = this.attributes.length; i < il; i++) {
+						attrs.push(this.attributes[i].name + '="' + this.attributes[i].value + '"'); 
+					}
+					output += ' [' + attrs.join(', ') + ']';
+				}
+			}
 			var result = zen_coding.repeatString('-', level)
-//				+ (this.expr ? this.expr + ' (' + this.count + '|' + this.is_repeating + ')' : '(empty)') 
-				+ (this.expr || '(empty)') 
+				+ output 
 				+ '\n';
 			for (var i = 0, il = this.children.length; i < il; i++) {
 				result += this.children[i].toString(level + 1);
@@ -88,7 +119,15 @@
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
-			return !this.expr;
+			return !this.abbreviation;
+		},
+		
+		/**
+		 * Check if current node is a text-only node
+		 * @return {Boolean}
+		 */
+		isTextNode: function() {
+			return !this.name && this.text;
 		}
 	};
 	
@@ -127,6 +166,151 @@
 	}
 	
 	/**
+	 * Trim whitespace from string
+	 * @param {String} text
+	 * @return {String}
+	 */
+	function trim(text) {
+		return (text || "").replace( /^\s+|\s+$/g, "" );
+	}
+	
+	/**
+	 * Get word, starting at <code>ix</code> character of <code>str</code>
+	 */
+	function getWord(ix, str) {
+		var m = str.substring(ix).match(/^[\w\-:\$]+/);
+		return m ? m[0] : '';
+	}
+	
+	/**
+	 * Extract attributes and their values from attribute set 
+	 * @param {String} attr_set
+	 */
+	function extractAttributes(attr_set) {
+		attr_set = trim(attr_set);
+		var loop_count = 100, // endless loop protection
+			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
+			result = [],
+			attr;
+			
+		while (attr_set && loop_count--) {
+			var attr_name = getWord(0, attr_set);
+			attr = null;
+			if (attr_name) {
+				attr = {name: attr_name, value: ''};
+//				result[attr_name] = '';
+				// let's see if attribute has value
+				var ch = attr_set.charAt(attr_name.length);
+				switch (ch) {
+					case '=':
+						var ch2 = attr_set.charAt(attr_name.length + 1);
+						if (ch2 == '"' || ch2 == "'") {
+							// we have a quoted string
+							var m = attr_set.substring(attr_name.length + 1).match(re_string);
+							if (m) {
+								attr.value = m[2];
+								attr_set = trim(attr_set.substring(attr_name.length + m[0].length + 1));
+							} else {
+								// something wrong, break loop
+								attr_set = '';
+							}
+						} else {
+							// unquoted string
+							var m = attr_set.substring(attr_name.length + 1).match(/(.+?)(\s|$)/);
+							if (m) {
+								attr.value = m[1];
+								attr_set = trim(attr_set.substring(attr_name.length + m[1].length + 1));
+							} else {
+								// something wrong, break loop
+								attr_set = '';
+							}
+						}
+						break;
+					default:
+						attr_set = trim(attr_set.substring(attr_name.length));
+						break;
+				}
+			} else {
+				// something wrong, can't extract attribute name
+				break;
+			}
+			
+			if (attr) result.push(attr);
+		}
+		return result;
+	}
+	
+	/**
+	 * Parses tag attributes extracted from abbreviation
+	 * @param {String} str
+	 */
+	function parseAttributes(str) {
+		/*
+		 * Example of incoming data:
+		 * #header
+		 * .some.data
+		 * .some.data#header
+		 * [attr]
+		 * #item[attr=Hello other="World"].class
+		 */
+		var result = [],
+			name = '',
+			collect_name = true,
+			class_name,
+			char_map = {'#': 'id', '.': 'class'};
+		
+		// walk char-by-char
+		var i = 0,
+			il = str.length,
+			val;
+			
+		while (i < il) {
+			var ch = str.charAt(i);
+			switch (ch) {
+				case '#': // id
+					val = getWord(i, str.substring(1));
+					result.push({name: char_map[ch], value: val});
+					i += val.length + 1;
+					collect_name = false;
+					break;
+				case '.': // class
+					val = getWord(i, str.substring(1));
+					if (!class_name) {
+						// remember object pointer for value modification
+						class_name = {name: char_map[ch], value: ''};
+						result.push(class_name);
+					}
+					
+					class_name.value += ((class_name.value) ? ' ' : '') + val;
+					i += val.length + 1;
+					collect_name = false;
+					break;
+				case '[': //begin attribute set
+					// search for end of set
+					var end_ix = str.indexOf(']', i);
+					if (end_ix == -1) {
+						// invalid attribute set, stop searching
+						i = str.length;
+					} else {
+						var attrs = extractAttributes(str.substring(i + 1, end_ix));
+						for (var j = 0, jl = attrs.length; j < jl; j++) {
+							result.push(attrs[j]);
+						}
+						i = end_ix;
+					}
+					collect_name = false;
+					break;
+				default:
+					if (collect_name)
+						name += ch;
+					i++;
+			}
+		}
+		
+		return [name, result];
+	}
+	
+	/**
 	 * @param {TreeNode} node
 	 * @return {TreeNode}
 	 */
@@ -139,6 +323,64 @@
 		}
 		
 		return node;
+	}
+	
+	/**
+	 * Split expression by node name and its content, if exists. E.g. if we pass
+	 * <code>a{Text}</code> expression, it will be splitted into <code>a</code>
+	 * and <code>Text</code>
+	 * @param {String} expr
+	 * @return {Array} Result with one or two elements (if expression contains
+	 * text node)
+	 */
+	function splitExpression(expr) {
+		// fast test on text node
+		if (expr.indexOf('{') == -1)
+			return [expr];
+			
+		var attr_lvl = 0,
+			text_lvl = 0,
+			brace_stack = [],
+			i = 0,
+			il = expr.length,
+			ch;
+			
+		while (i < il) {
+			ch = expr.charAt(i);
+			switch (ch) {
+				case '[':
+					if (!text_lvl)
+						attr_lvl++;
+					break;
+				case ']':
+					if (!text_lvl)
+						attr_lvl--;
+					break;
+				case '{':
+					if (!attr_lvl) {
+						text_lvl++;
+						brace_stack.push(i);
+					}
+					break;
+				case '}':
+					if (!attr_lvl) {
+						text_lvl--;
+						var brace_start = brace_stack.pop();
+						if (text_lvl === 0) {
+							// found braces bounds
+							return [
+								expr.substring(0, brace_start),
+								expr.substring(brace_start + 1, i)
+							];
+						}
+					}
+					break;
+			}
+			i++;
+		}
+		
+		// if we are here, then no valid text node found
+		return [expr];
 	}
 	
 	

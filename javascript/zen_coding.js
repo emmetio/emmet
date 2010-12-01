@@ -3,7 +3,7 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @include "settings.js"
- * @include "/EclipseMonkey/scripts/monkey-doc.js"
+ * @include "zen_parser.js"
  */var zen_coding = (function(){
 	
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
@@ -1064,6 +1064,86 @@
 	 * @param {String} abbr Abbreviation
 	 * @param {String} [type] Document type (xsl, html, etc.)
 	 * @return {Tag}
+	 * TODO переписать
+	 */
+	function transformTreeNode(abbr, type) {
+		type = type || 'html';
+		var root = new Tag('', 1, type),
+			parent = root,
+			last = null,
+			multiply_elem = null,
+			re = /([\+>])?([a-z@\!\#\.:][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
+		
+		if (!abbr)
+			return null;
+		
+		// replace expandos
+		abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
+			var a = getAbbreviation(type, str);
+			return a ? a.value : str;
+		});
+		
+		// process text nodes and replace them with entities
+		var text_nodes = [];
+		abbr = processTextNodes(abbr, text_nodes);
+		
+		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
+			var multiply_by_lines = (has_multiplier && !multiplier);
+			multiplier = multiplier ? parseInt(multiplier) : 1;
+			
+			var tag_ch = tag_name.charAt(0);
+			if (tag_ch == '#' || tag_ch == '.') {
+				attrs = tag_name + (attrs || '');
+				tag_name = default_tag;
+			}
+			
+			if (has_expando)
+				tag_name += '+';
+			
+			var current;
+			if (isTextNode(tag_name))
+				current = new TextNode(tag_name, multiplier, text_nodes);
+			else if (isShippet(tag_name, type))
+				current = new Snippet(tag_name, multiplier, type);
+			else
+				current = new Tag(tag_name, multiplier, type);
+			
+			if (attrs) {
+				attrs = parseAttributes(attrs);
+				for (var i = 0, il = attrs.length; i < il; i++) {
+					current.addAttribute(attrs[i].name, attrs[i].value);
+				}
+			}
+			
+			// dive into tree
+			if (operator == '>' && last)
+				parent = last;
+				
+			parent.addChild(current);
+			
+			last = current;
+			
+			if (multiply_by_lines)
+				multiply_elem = current;
+			
+			return '';
+		});
+		
+		root.last = last;
+		root.multiply_elem = multiply_elem;
+		
+		// empty 'abbr' string means that abbreviation was successfully expanded,
+		// if not — abbreviation wasn't valid
+		return (!abbr) ? root : null;	
+	}
+	
+	/**
+	 * Transforms abbreviation into a primary internal tree. This tree should'n 
+	 * be used ouside of this scope
+	 * @param {String} abbr Abbreviation
+	 * @param {String} [type] Document type (xsl, html, etc.)
+	 * @return {Tag}
 	 */
 	function abbrToPrimaryTree(abbr, type) {
 		type = type || 'html';
@@ -1379,8 +1459,11 @@
 			});
 			
 			// split abbreviation by groups
-			var group_root = splitByGroups(abbr),
+			var abbr_tree = zen_parser.parse(abbr),
 				tree_root = new Tag('', 1, type);
+			
+//			var group_root = splitByGroups(abbr),
+//				tree_root = new Tag('', 1, type);
 			
 			// then recursively expand each group item
 			try {
