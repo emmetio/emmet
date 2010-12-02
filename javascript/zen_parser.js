@@ -12,6 +12,7 @@
 	 */
 	function TreeNode(parent) {
 		this.abbreviation = '';
+		/** @type {TreeNode} */
 		this.parent = null;
 		this.children = [];
 		this.count = 1;
@@ -32,6 +33,24 @@
 			child.parent = this;
 			this.children.push(child);
 			return child;
+		},
+		
+		/**
+		 * Replace current node in parent's child list with another node
+		 * @param {TreeNode} node
+		 */
+		replace: function(node) {
+			if (this.parent) {
+				var children = this.parent.children;
+				for (var i = 0, il = children.length; i < il; i++) {
+					if (children[i] === this) {
+						var old_node = children[i];
+						children[i] = node;
+						old_node = old_node.parent = null;
+						return;
+					}
+				}
+			}
 		},
 		
 		/**
@@ -512,6 +531,7 @@
 			return optimizeTree(root);
 		},
 		
-		TreeNode: TreeNode
+		TreeNode: TreeNode,
+		optimizeTree: optimizeTree
 	}
 })();

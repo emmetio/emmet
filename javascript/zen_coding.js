@@ -411,7 +411,7 @@
 		this._content = node.text || '';
 		this.repeat_by_lines = node.is_repeating;
 		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
-		this.value = replaceUnescapedSymbol(getSnippet(type, name), '|', caret_placeholder);
+		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', caret_placeholder);
 		this.parent = null;
 		
 		this.copyAttributes(node);
@@ -772,7 +772,7 @@
 	 */
 	function transformTreeNode(node, type) {
 		type = type || 'html';
-		if (!abbr) return null;
+		if (node.isEmpty()) return null;
 		
 		return isShippet(node.name, type) 
 				? new Snippet(node, type)
@@ -800,8 +800,36 @@
 			
 		// process child groups
 		for (var j = 0, jl = node.children.length; j < jl; j++) {
-			expandGroup(node.children[j], type, t_node);
+			processParsedNode(node.children[j], type, t_node);
 		}
+	}
+	
+	/**
+	 * Replaces expando nodes by its parsed content
+	 * @param {zen_parser.TreeNode}
+	 * @param {String} type
+	 */
+	function replaceExpandos(node, type) {
+		for (var i = 0, il = node.children.length; i < il; i++) {
+			var n = node.children[i];
+			if (!n.isEmpty() && !n.isTextNode() && n.name.indexOf('+') != -1) {
+				// it's expando
+				var a = getAbbreviation(type, n.name);
+				if (a)
+					node.children[i] = zen_parser.parse(a.value);
+			}
+			replaceExpandos(node.children[i], type);
+		}
+	}
+	
+	/**
+	 * Replaces expandos and optimizes tree structure by removing empty nodes
+	 * @param {zen_parser.TreeNode} tree
+	 * @param {String} type
+	 */
+	function preprocessParsedTree(tree, type) {
+		replaceExpandos(tree, type);
+		return zen_parser.optimizeTree(tree);
 	}
 	
 	/**
@@ -1052,11 +1080,11 @@
 		
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
-			var tree_root = this.parseIntoTree(abbr, type);
+			var parsed_tree = this.parseIntoTree(abbr, type);
 			
-			if (tree_root) {
-				var tree = rolloutTree(tree_root);
-				this.applyFilters(tree, type, profile, tree_root.filters);
+			if (parsed_tree) {
+				var tree = rolloutTree(parsed_tree);
+				this.applyFilters(tree, type, profile, parsed_tree.filters);
 				return replaceVariables(tree.toString());
 			}
 			
@@ -1129,6 +1157,8 @@
 			// split abbreviation by groups
 			var abbr_tree = zen_parser.parse(abbr),
 				tree_root = new Tag({}, type);
+				
+			abbr_tree = preprocessParsedTree(abbr_tree, type);
 				
 			// then recursively expand each group item
 			for (var i = 0, il = abbr_tree.children.length; i < il; i++) {

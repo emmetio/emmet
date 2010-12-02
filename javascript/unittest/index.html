@@ -21,6 +21,7 @@
 				}
 			};
 		</script>
+		<script src="../zen_parser.js" type="text/javascript"></script>
 		<script src="../zen_coding.js" type="text/javascript"></script>
 		<script type="text/javascript" src="../filters/format.js"></script>
 		<script type="text/javascript" src="../filters/html.js"></script>
@@ -174,10 +175,9 @@
 				 
 				 "test groups":  function(){ with (this) {
 					assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'));
-					assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'));
+					assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>((ul#nav>li*3)+(div.subnav>p)+(div.othernav))+div#footer'));
 					assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'));
-					// FIXME later, use groups as workaround
-					//assertEqual('<ul><li class="pre1"></li><li class="pre2"></li><li class="item1"><a href=""></a></li><li class="item2"><a href=""></a></li><li class="item3"><a href=""></a></li><li class="item4"><a href=""></a></li><li class="post1"></li><li class="post2"></li></ul>', expandAbbr('ul>li.pre$*2+(li.item$*4>a)+li.post$*2'));
+					assertEqual('<ul><li class="pre1"></li><li class="pre2"></li><li class="item1"><a href=""></a></li><li class="item2"><a href=""></a></li><li class="item3"><a href=""></a></li><li class="item4"><a href=""></a></li><li class="post1"></li><li class="post2"></li></ul>', expandAbbr('ul>li.pre$*2+(li.item$*4>a)+li.post$*2'));
 					assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
 				 }},
 				 
@@ -224,8 +224,8 @@
 				 "test text nodes":  function(){ with (this) {
 					assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello world}'));
 					assertEqual('<span>Hello world</span>', expandAbbr('span{Hello world}'));
-					assertEqual('<span>Hello world</span>', expandAbbr('span{Hello}+{ world}'));
-//					assertEqual('<span>Click <a href="/url/">here</a> for more info</span>', expandAbbr('span>{Click }+(a[href=/url/]{here})+{ for more info}'));
+					assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello}+{ world}'));
+					assertEqual('<span>Click <a href="/url/">here</a> for more info</span>', expandAbbr('span>{Click }+(a[href=/url/]{here})+{ for more info}'));
 				 }}
 				 
 			});
