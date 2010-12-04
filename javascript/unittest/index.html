@@ -98,6 +98,7 @@
 					assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
 					assertEqual('<ul id="nav"><li class="pre1"></li><li class="pre2"></li><li class="pre3"></li><li class="post1"></li><li class="post2"></li><li class="post3"></li></ul>', expandAbbr('ul#nav>li.pre$*3+li.post$*3'));
 					assertEqual('<div class="sample1"></div><div class="sample2"></div><div class="sample3"></div>', expandAbbr('.sample$*3'));
+					assertEqual('<ul id="nav"><li>text</li><li>text</li><li>text</li></ul>', expandAbbr('ul#nav>li{text}*3'));
 				 }},
 				 
 				 "test user-defined settings":  function(){ with (this) {
@@ -171,6 +172,7 @@
 					assertEqual('<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>', expandAbbr('div>span*3', 'html', 'xhtml'));
 					assertEqual('<span>|</span><span>|</span>', expandAbbr('span*2', 'html', 'xhtml'));
 					assertEqual('<span>|</span>\n<span>|</span>\n<span>|</span>', expandAbbr('span*3', 'html', 'xhtml'));
+					assertEqual('<span>|hello world</span><span>hello |world</span>', expandAbbr('span{hello world}+span{hello |world}', 'html', 'xhtml'));
 				 }},
 				 
 				 "test groups":  function(){ with (this) {

@@ -126,7 +126,7 @@
 		pos = item.end.indexOf(placeholder);
 		item.end = item.end.substring(0, pos) + end + item.end.substring(pos + placeholder.length);
 		
-		if (!item.children.length && !is_unary)
+		if (!item.children.length && !is_unary && item.content.indexOf(cursor) == -1)
 			item.start += cursor;
 		
 		return item;
