@@ -231,13 +231,15 @@
 	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
-	 * @param {Object} [vars] Variable set (default is <code>zen_settings.variables</code>) 
+	 * @param {Object|Function} [vars] Variable set (default is <code>zen_settings.variables</code>) 
 	 * @return {String}
 	 */
 	function replaceVariables(str, vars) {
 		var callback;
 		
-		if (vars)
+		if (typeof vars == 'function')
+			callback = vars;
+		else if (vars)
 			callback = function(str, p1) {
 				return (p1 in vars) ? vars[p1] : str;
 			};
@@ -271,6 +273,7 @@
 		this._abbr = abbr;
 		this._res = zen_settings[type];
 		this._content = '';
+		this._paste_content = '';
 		this.repeat_by_lines = node.is_repeating;
 		this.parent = null;
 		
@@ -361,6 +364,22 @@
 		 */
 		getContent: function() {
 			return this._content || '';
+		},
+		
+		/**
+		 * Set content that should be pasted to the output
+		 * @param {String} val
+		 */
+		setPasteContent: function(val) {
+			this._paste_content = val;
+		},
+		
+		/**
+		 * Get content that should be pasted to the output
+		 * @return {String}
+		 */
+		getPasteContent: function() {
+			return this._paste_content;
 		},
 		
 		/**
@@ -522,13 +541,24 @@
 	 * @param {Tag} tag
 	 */
 	function ZenNode(tag) {
-		this.type = 'tag';
-		if (tag instanceof Snippet)
-			this.type = 'snippet';
+		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
 		this.name = tag.name;
-		this.attributes = tag.attributes || [];
 		this.children = [];
 		this.counter = 1;
+		
+		// create deep copy of attribute list so we can change
+		// their values in runtime without affecting other nodes
+		// created from the same tag
+		this.attributes = [];
+		if (tag.attributes) {
+			for (var i = 0, il = tag.attributes.length; i < il; i++) {
+				var a =  tag.attributes[i];
+				this.attributes.push({
+					name: a.name,
+					value: a.value
+				});
+			}
+		}
 		
 		/** @type {Tag} Source element from which current tag was created */
 		this.source = tag;
@@ -544,7 +574,7 @@
 		// output params
 		this.start = '';
 		this.end = '';
-		this.content = '';
+		this.content = tag.getContent() || '';
 		this.padding = '';
 	}
 	
@@ -666,6 +696,50 @@
 			}
 			
 			return this.start + this.content + content + this.end;
+		},
+		
+		/**
+		 * Paste content in context of current node. Pasting is a special case
+		 * of recursive adding content in node. 
+		 * This function will try to find ${output} variable inside node's 
+		 * attributes and text content and replace in with <code>text</code>.
+		 * If it doesn't find ${output} variable, it will put <code>text</code>
+		 * value as the deepest child content
+		 * @param {String} text Test to paste
+		 * @param {Number} [had_var] Flag indicating that previous function run
+		 * (basically, on node's parent) had replaced ${output} variable (1),
+		 * pasted as node content (2) or did nothing (0)
+		 * @return {Number} Is text was pasted as ${output} variable
+		 */
+		pasteContent: function(text, had_var) {
+			had_var = had_var || 0;
+			var fn = function(str, p1) {
+				if (p1 == 'output') {
+					had_var = 1;
+					return text;
+				}
+				
+				return str;
+			};
+			
+			for (var i = 0, il = this.attributes.length; i < il; i++) {
+				var a = this.attributes[i];
+				a.value = replaceVariables(a.value, fn);
+			}
+			
+			this.content = replaceVariables(this.content, fn);
+			if (this.hasChildren()) {
+				for (var i = 0, il = this.children.length; i < il; i++) {
+					had_var = this.children[i].pasteContent(text, had_var);
+					if (had_var === 2) return had_var;
+				}
+			} else if (had_var == 0) {
+				// put text as node content
+				this.content += text;
+				return 2;
+			}
+			
+			return had_var;
 		}
 	}
 	
@@ -697,10 +771,10 @@
 				
 				if (child.repeat_by_lines) {
 					// it's a repeating element
-					tag_content = splitByLines(child.getContent(), true);
+					tag_content = splitByLines(child.getPasteContent(), true);
 					how_many = Math.max(tag_content.length, 1);
 				} else {
-					tag_content = child.getContent();
+					tag_content = child.getPasteContent();
 				}
 				
 				for (var j = 0; j < how_many; j++) {
@@ -711,11 +785,11 @@
 					if (child.children && child.children.length)
 						rolloutTree(child, tag);
 						
-					var add_point = tag.findDeepestChild() || tag;
 					if (tag_content) {
-						add_point.content = (typeof(tag_content) == 'string') 
+						var text = (typeof(tag_content) == 'string') 
 							? tag_content 
 							: (tag_content[j] || '');
+						tag.pasteContent(text);
 					}
 				}
 			}
@@ -1063,7 +1137,7 @@
 			var tree_root = this.parseIntoTree(abbr, type);
 			if (tree_root) {
 				var repeat_elem = tree_root.multiply_elem || tree_root.last;
-				repeat_elem.setContent(text);
+				repeat_elem.setPasteContent(text);
 				repeat_elem.repeat_by_lines = !!tree_root.multiply_elem;
 				
 				var tree = rolloutTree(tree_root);
