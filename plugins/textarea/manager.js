@@ -164,7 +164,7 @@
 	addShortcut('Meta+/', 'Toggle Comment');
 	addShortcut('Meta+J', 'Split/Join Tag');
 	addShortcut('Meta+K', 'Remove Tag');
-	addShortcut('Enter', 'Insert Formatted Line Break');
+	addShortcut('Meta+Y', 'Evaluate Math Expression');
 	
 	addShortcut('Ctrl+UP', 'Increment number by 1');
 	addShortcut('Ctrl+DOWN', 'Decrement number by 1');
@@ -173,6 +173,7 @@
 	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
 	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
 	
+	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	return {
 		shortcut: addShortcut,

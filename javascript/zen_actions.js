@@ -1008,6 +1008,35 @@ function incrementNumber(editor, step) {
 	return false;
 }
 
+/**
+ * Evaluates simple math expresison under caret
+ * @param {zen_editor} editor
+ */
+function evaluateMathExpression(editor) {
+	var content = String(editor.getContent()),
+		chars = '.+-*/\\';
+		
+	var r = findExpressionBounds(editor, function(ch) {
+		return zen_coding.isNumeric(ch) || chars.indexOf(ch) != -1;
+	});
+		
+	if (r) {
+		var expr = content.substring(r[0], r[1]);
+		
+		// replace integral division: 11\2 => Math.round(11/2) 
+		expr = expr.replace(/([\d\.\-]+)\\([\d\.\-]+)/g, 'Math.round($1/$2)');
+		
+		try {
+			var result = new Function('return ' + expr)();
+			result = prettifyNumber(result);
+			editor.replaceContent(result, r[0], r[1]);
+			editor.setCaretPos(r[0] + result.length);
+		} catch (e) {}
+	}
+	
+	return false;
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -1055,3 +1084,5 @@ zen_coding.registerAction('increment_number_by_01', function(editor) {
 zen_coding.registerAction('decrement_number_by_01', function(editor) {
 	return incrementNumber(editor, -0.1);
 });
+
+zen_coding.registerAction('evaluate_math_expression', evaluateMathExpression);
