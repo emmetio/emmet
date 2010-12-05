@@ -371,7 +371,7 @@
 		 * @param {String} val
 		 */
 		setPasteContent: function(val) {
-			this._paste_content = val;
+			this._paste_content = zen_coding.escapeText(val);
 		},
 		
 		/**
