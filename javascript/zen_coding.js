@@ -201,7 +201,7 @@
 	 * @return {Boolean}
 	 */
 	function isShippet(abbr, type) {
-		return getSnippet(type, abbr) ? true : false;
+		return getSnippet(type, filterNodeName(abbr)) ? true : false;
 	}
 	
 	/**
@@ -253,6 +253,15 @@
 	}
 	
 	/**
+	 * Removes any unnecessary characters from node name
+	 * @param {String} name
+	 * @return {String}
+	 */
+	function filterNodeName(name) {
+		return (name || '').replace(/(.+)\!$/, '$1');
+	}
+	
+	/**
 	 * Tag
 	 * @class
 	 * @param {zen_parser.TreeNode} node Parsed tree node
@@ -263,12 +272,13 @@
 		
 		var abbr = null;
 		if (node.name) {
-			abbr = getAbbreviation(type, node.name);
+			abbr = getAbbreviation(type, filterNodeName(node.name));
 			if (abbr && abbr.type == TYPE_REFERENCE)
-				abbr = getAbbreviation(type, abbr.value);
+				abbr = getAbbreviation(type, filterNodeName(abbr.value));
 		}
 		
 		this.name = (abbr) ? abbr.value.name : node.name;
+		this.real_name = node.name;
 		this.count = node.count || 1;
 		this._abbr = abbr;
 		this._res = zen_settings[type];
@@ -408,7 +418,8 @@
 	 */
 	function Snippet(node, type) {
 		/** @type {String} */
-		this.name = node.name;
+		this.name = filterNodeName(node.name);
+		this.real_name = node.name;
 		this.count = node.count;
 		this.children = [];
 		this._content = node.text || '';
@@ -543,6 +554,7 @@
 	function ZenNode(tag) {
 		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
 		this.name = tag.name;
+		this.real_name = tag.real_name;
 		this.children = [];
 		this.counter = 1;
 		
