@@ -801,7 +801,7 @@
 						var text = (typeof(tag_content) == 'string') 
 							? tag_content 
 							: (tag_content[j] || '');
-						tag.pasteContent(text);
+						tag.pasteContent(trim(text));
 					}
 				}
 			}
