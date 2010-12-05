@@ -440,7 +440,8 @@
 	 * @return {Object|null}
 	 */
 	function getAbbreviation(type, abbr) {
-		return getSettingsResource(type, abbr, 'abbreviations');
+		return getSettingsResource(type, abbr, 'abbreviations') 
+			|| getSettingsResource(type, abbr.replace(/\-/g, ':'), 'abbreviations');
 	}
 	
 	/**
@@ -450,7 +451,8 @@
 	 * @return {Object|null}
 	 */
 	function getSnippet(type, snippet_name) {
-		return getSettingsResource(type, snippet_name, 'snippets');
+		return getSettingsResource(type, snippet_name, 'snippets')
+			|| getSettingsResource(type, snippet_name.replace(/\-/g, ':'), 'snippets');
 	}
 	
 	/**
