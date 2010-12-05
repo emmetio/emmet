@@ -105,13 +105,15 @@
 			self_closing = '/';
 			
 		// define opening and closing tags
-		var tag_name = processStringCase(item.name, profile.tag_case);
-		if (is_unary) {
-			start = '<' + tag_name + attrs + self_closing + '>';
-			item.end = '';
-		} else {
-			start = '<' + tag_name + attrs + '>';
-			end = '</' + tag_name + '>';
+		if (item.type != 'text') {
+			var tag_name = processStringCase(item.name, profile.tag_case);
+			if (is_unary) {
+				start = '<' + tag_name + attrs + self_closing + '>';
+				item.end = '';
+			} else {
+				start = '<' + tag_name + attrs + '>';
+				end = '</' + tag_name + '>';
+			}
 		}
 		
 		var placeholder = '%s';
@@ -124,7 +126,7 @@
 		pos = item.end.indexOf(placeholder);
 		item.end = item.end.substring(0, pos) + end + item.end.substring(pos + placeholder.length);
 		
-		if (!item.children.length && !is_unary)
+		if (!item.children.length && !is_unary && item.content.indexOf(cursor) == -1)
 			item.start += cursor;
 		
 		return item;
@@ -154,6 +156,7 @@
 			// replace counters
 			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, item.counter));
 			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, item.counter));
+			item.content = zen_coding.unescapeText(zen_coding.replaceCounter(item.content, item.counter));
 			
 			tabstops += zen_coding.upgradeTabstops(item, tabstops) + 1;
 			

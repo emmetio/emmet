@@ -57,10 +57,10 @@
 		// calculate how many inline siblings we have
 		var node_count = 1;
 		while (node = node.nextSibling) {
-			if (node.isInline())
+			if (node.type == 'text' || !node.isInline())
+				node_count = 0;
+			else if (node.isInline())
 				node_count++;
-			else
-				break;
 		}
 		
 		return node_count >= profile.inline_break;
@@ -140,22 +140,24 @@
 				should_break = shouldBreakLine(item, profile);
 			
 			// formatting block-level elements
-			if (( (item.isBlock() || should_break) && item.parent) || force_nl) {
-				// snippet children should take different formatting
-				if (!item.parent || (item.parent.type != 'snippet' && !isVeryFirstChild(item)))
+			if (item.type != 'text') {
+				if (( (item.isBlock() || should_break) && item.parent) || force_nl) {
+					// snippet children should take different formatting
+					if (!item.parent || (item.parent.type != 'snippet' && !isVeryFirstChild(item)))
+						item.start = getNewline() + padding + item.start;
+						
+					if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (force_nl && !is_unary))
+						item.end = getNewline() + padding + item.end;
+						
+					if (item.hasTagsInContent() || (force_nl && !item.hasChildren() && !is_unary))
+						item.start += getNewline() + padding + getIndentation();
+					
+				} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
 					item.start = getNewline() + padding + item.start;
-					
-				if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (force_nl && !is_unary))
-					item.end = getNewline() + padding + item.end;
-					
-				if (item.hasTagsInContent() || (force_nl && !item.hasChildren() && !is_unary))
-					item.start += getNewline() + padding + getIndentation();
+				}
 				
-			} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
-				item.start = getNewline() + padding + item.start;
+				item.padding = padding + getIndentation();
 			}
-			
-			item.padding = padding + getIndentation();
 		}
 		
 		return item;

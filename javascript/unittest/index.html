@@ -21,6 +21,7 @@
 				}
 			};
 		</script>
+		<script src="../zen_parser.js" type="text/javascript"></script>
 		<script src="../zen_coding.js" type="text/javascript"></script>
 		<script type="text/javascript" src="../filters/format.js"></script>
 		<script type="text/javascript" src="../filters/html.js"></script>
@@ -97,6 +98,7 @@
 					assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
 					assertEqual('<ul id="nav"><li class="pre1"></li><li class="pre2"></li><li class="pre3"></li><li class="post1"></li><li class="post2"></li><li class="post3"></li></ul>', expandAbbr('ul#nav>li.pre$*3+li.post$*3'));
 					assertEqual('<div class="sample1"></div><div class="sample2"></div><div class="sample3"></div>', expandAbbr('.sample$*3'));
+					assertEqual('<ul id="nav"><li>text</li><li>text</li><li>text</li></ul>', expandAbbr('ul#nav>li{text}*3'));
 				 }},
 				 
 				 "test user-defined settings":  function(){ with (this) {
@@ -170,14 +172,14 @@
 					assertEqual('<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>', expandAbbr('div>span*3', 'html', 'xhtml'));
 					assertEqual('<span>|</span><span>|</span>', expandAbbr('span*2', 'html', 'xhtml'));
 					assertEqual('<span>|</span>\n<span>|</span>\n<span>|</span>', expandAbbr('span*3', 'html', 'xhtml'));
+					assertEqual('<span>|hello world</span><span>hello |world</span>', expandAbbr('span{hello world}+span{hello |world}', 'html', 'xhtml'));
 				 }},
 				 
 				 "test groups":  function(){ with (this) {
 					assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'));
-					assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'));
+					assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>((ul#nav>li*3)+(div.subnav>p)+(div.othernav))+div#footer'));
 					assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'));
-					// FIXME later, use groups as workaround
-					//assertEqual('<ul><li class="pre1"></li><li class="pre2"></li><li class="item1"><a href=""></a></li><li class="item2"><a href=""></a></li><li class="item3"><a href=""></a></li><li class="item4"><a href=""></a></li><li class="post1"></li><li class="post2"></li></ul>', expandAbbr('ul>li.pre$*2+(li.item$*4>a)+li.post$*2'));
+					assertEqual('<ul><li class="pre1"></li><li class="pre2"></li><li class="item1"><a href=""></a></li><li class="item2"><a href=""></a></li><li class="item3"><a href=""></a></li><li class="item4"><a href=""></a></li><li class="post1"></li><li class="post2"></li></ul>', expandAbbr('ul>li.pre$*2+(li.item$*4>a)+li.post$*2'));
 					assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
 				 }},
 				 
@@ -219,6 +221,13 @@
 				 
 				 "test dollar sign":  function(){ with (this) {
 					assertEqual('$db->connect()\n\t$$$more dollaz1', expandAbbr('dol'));
+				 }},
+				 
+				 "test text nodes":  function(){ with (this) {
+					assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello world}'));
+					assertEqual('<span>Hello world</span>', expandAbbr('span{Hello world}'));
+					assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello}+{ world}'));
+					assertEqual('<span>Click <a href="/url/">here</a> for more info</span>', expandAbbr('span>{Click }+(a[href=/url/]{here})+{ for more info}'));
 				 }}
 				 
 			});
