@@ -1305,6 +1305,8 @@
 			});
 		},
 		
+		isNumeric: isNumeric,
+		
 		/**
 		 * Upgrades tabstops in zen node in order to prevent naming conflicts
 		 * @param {ZenNode} node

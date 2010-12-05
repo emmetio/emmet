@@ -84,6 +84,7 @@
 		return name
 			.replace(/(^\s+|\s+$)/g, '') // remove trailing spaces
 			.replace(/[\s\\\/]+/g, '_')
+			.replace(/\./g, '')
 			.toLowerCase();
 	}
 	
@@ -164,6 +165,13 @@
 	addShortcut('Meta+J', 'Split/Join Tag');
 	addShortcut('Meta+K', 'Remove Tag');
 	addShortcut('Enter', 'Insert Formatted Line Break');
+	
+	addShortcut('Ctrl+UP', 'Increment number by 1');
+	addShortcut('Ctrl+DOWN', 'Decrement number by 1');
+	addShortcut('Alt+UP', 'Increment number by 0.1');
+	addShortcut('Alt+DOWN', 'Decrement number by 0.1');
+	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
+	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
 	
 	
 	return {

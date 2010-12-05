@@ -937,6 +937,77 @@ function updateImageSize(editor) {
 	}
 }
 
+/**
+ * Make decimal number look good: convert it to fixed precision end remove
+ * traling zeroes 
+ * @param {Number} num
+ * @param {Number} [fracion] Fraction numbers (default is 2)
+ * @return {String}
+ */
+function prettifyNumber(num, fracion) {
+	return num.toFixed(typeof fraction == 'undefined' ? 2 : fracion).replace(/\.?0+$/, '');
+}
+
+/**
+ * Find expression bounds in current editor at caret position. 
+ * On each character a <code>fn</code> function will be caller which must 
+ * return <code>true</code> if current character meets requirements, 
+ * <code>false</code> otherwise
+ * @param {zen_editor} editor
+ * @param {Function} fn Function to test each character of expression
+ * @requires {Array} If expression found, returns array with start and end 
+ * positions 
+ */
+function findExpressionBounds(editor, fn) {
+	var content = String(editor.getContent()),
+		il = content.length,
+		expr_start = editor.getCaretPos() - 1,
+		expr_end = expr_start + 1;
+		
+	// start by searching left
+	while (expr_start >= 0 && fn(content.charAt(expr_start), expr_start, content)) expr_start--;
+	
+	// then search right
+	while (expr_end < il && fn(content.charAt(expr_end), expr_end, content)) expr_end++;
+	
+	return expr_end > expr_start ? [++expr_start, expr_end] : null;
+}
+
+/**
+ * Extract number from current caret position of the <code>editor</code> and
+ * increment it by <code>step</code>
+ * @param {zen_editor} editor
+ * @param {Number} step Increment step (may be negative)
+ */
+function incrementNumber(editor, step) {
+	var content = String(editor.getContent()),
+		has_sign = false,
+		has_decimal = false;
+		
+	var r = findExpressionBounds(editor, function(ch) {
+		if (zen_coding.isNumeric(ch))
+			return true;
+		if (ch == '.')
+			return has_decimal ? false : has_decimal = true;
+		if (ch == '-')
+			return has_sign ? false : has_sign = true;
+			
+		return false;
+	});
+		
+	if (r) {
+		var num = parseFloat(content.substring(r[0], r[1]));
+		if (!isNaN(num)) {
+			num = prettifyNumber(num + step);
+			editor.replaceContent(num, r[0], r[1]);
+			editor.createSelection(r[0], r[0] + num.length);
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -960,3 +1031,27 @@ zen_coding.registerAction('split_join_tag', splitJoinTag);
 zen_coding.registerAction('remove_tag', removeTag);
 zen_coding.registerAction('encode_decode_data_url', encodeDecodeBase64);
 zen_coding.registerAction('update_image_size', updateImageSize);
+
+zen_coding.registerAction('increment_number_by_1', function(editor) {
+	return incrementNumber(editor, 1);
+});
+
+zen_coding.registerAction('decrement_number_by_1', function(editor) {
+	return incrementNumber(editor, -1);
+});
+
+zen_coding.registerAction('increment_number_by_10', function(editor) {
+	return incrementNumber(editor, 10);
+});
+
+zen_coding.registerAction('decrement_number_by_10', function(editor) {
+	return incrementNumber(editor, -10);
+});
+
+zen_coding.registerAction('increment_number_by_01', function(editor) {
+	return incrementNumber(editor, 0.1);
+});
+
+zen_coding.registerAction('decrement_number_by_01', function(editor) {
+	return incrementNumber(editor, -0.1);
+});
