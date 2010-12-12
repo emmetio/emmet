@@ -1107,10 +1107,15 @@
 			});
 			
 			// split abbreviation by groups
-			var abbr_tree = zen_parser.parse(abbr),
-				tree_root = new Tag({}, type);
-				
-			abbr_tree = preprocessParsedTree(abbr_tree, type);
+			try {
+				var abbr_tree = zen_parser.parse(abbr),
+					tree_root = new Tag({}, type);
+					
+				abbr_tree = preprocessParsedTree(abbr_tree, type);
+			} catch(e) {
+				if (e.message == "InvalidAbbreviation")
+					return null;
+			}
 				
 			// then recursively expand each group item
 			for (var i = 0, il = abbr_tree.children.length; i < il; i++) {

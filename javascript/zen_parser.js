@@ -7,6 +7,8 @@
  * @include "zen_coding.js"
  */var zen_parser = (function(){
 	
+	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
+	
 	/**
 	 * @class
 	 */
@@ -77,6 +79,11 @@
 					this.name = attr_result[0] || 'div';
 					this.attributes = attr_result[1];
 				}
+			}
+			
+			// validate name
+			if (this.name && !re_valid_name.test(this.name)) {
+				throw new Error('InvalidAbbreviation');
 			}
 		},
 		
