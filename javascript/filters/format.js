@@ -17,7 +17,7 @@
 	}
 	
 	function getIndentation() {
-		return zen_coding.getVariable('indentation');
+		return zen_resources.getVariable('indentation');
 	}
 	
 	/**

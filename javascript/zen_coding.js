@@ -4,52 +4,43 @@
  * @link http://chikuyonok.ru
  * @include "settings.js"
  * @include "zen_parser.js"
+ * @include "zen_resources.js"
  */var zen_coding = (function(){
+	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 	
-	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/;
-	
-	var TYPE_ABBREVIATION = 'zen-tag',
-		TYPE_EXPANDO = 'zen-expando',
-	
-		/** Reference to another abbreviation or tag */
-		TYPE_REFERENCE = 'zen-reference',
-		
 		caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
-		default_tag = 'div',
-		user_variables = {};
 		
-	var default_profile = {
-		tag_case: 'lower',
-		attr_case: 'lower',
-		attr_quotes: 'double',
-		
-		// each tag on new line
-		tag_nl: 'decide',
-		
-		place_cursor: true,
-		
-		// indent tags
-		indent: true,
-		
-		// how many inline elements should be to force line break 
-		// (set to 0 to disable)
-		inline_break: 3,
-		
-		// use self-closing style for writing empty elements, e.g. <br /> or <br>
-		self_closing_tag: 'xhtml',
-		
-		// Profile-level output filters, re-defines syntax filters 
-		filters: ''
-	};
-	
-	var profiles = {};
-	
-	/** List of registered filters */
-	var filters = {},
+		/** List of registered filters */
+		filters = {},
 		/** Filters that will be applied for unknown syntax */
-		basic_filters = 'html';
+		basic_filters = 'html',
 		
+		profiles = {},
+		default_profile = {
+			tag_case: 'lower',
+			attr_case: 'lower',
+			attr_quotes: 'double',
+			
+			// each tag on new line
+			tag_nl: 'decide',
+			
+			place_cursor: true,
+			
+			// indent tags
+			indent: true,
+			
+			// how many inline elements should be to force line break 
+			// (set to 0 to disable)
+			inline_break: 3,
+			
+			// use self-closing style for writing empty elements, e.g. <br /> or <br>
+			self_closing_tag: 'xhtml',
+			
+			// Profile-level output filters, re-defines syntax filters 
+			filters: ''
+		};
+	
 	function isNumeric(ch) {
 		if (typeof(ch) == 'string')
 			ch = ch.charCodeAt(0);
@@ -132,17 +123,6 @@
 	}
 	
 	/**
-	 * Helper function that transforms string into hash
-	 * @return {Object}
-	 */
-	function stringToHash(str){
-		var obj = {}, items = str.split(",");
-		for ( var i = 0; i < items.length; i++ )
-			obj[ items[i] ] = true;
-		return obj;
-	}
-	
-	/**
 	 * Repeats string <code>how_many</code> times
 	 * @param {String} str
 	 * @param {Number} how_many
@@ -215,20 +195,6 @@
 	}
 	
 	/**
-	 * Returns specified elements collection (like 'empty', 'block_level') from
-	 * <code>resource</code>. If collections wasn't found, returns empty object
-	 * @param {Object} resource
-	 * @param {String} type
-	 * @return {Object}
-	 */
-	function getElementsCollection(resource, type) {
-		if (resource && resource.element_types)
-			return resource.element_types[type] || {}
-		else
-			return {};
-	}
-	
-	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
 	 * @param {Object|Function} [vars] Variable set (default is <code>zen_settings.variables</code>) 
@@ -273,7 +239,7 @@
 		var abbr = null;
 		if (node.name) {
 			abbr = getAbbreviation(type, filterNodeName(node.name));
-			if (abbr && abbr.type == TYPE_REFERENCE)
+			if (abbr && abbr.type == 'zen-reference')
 				abbr = getAbbreviation(type, filterNodeName(abbr.value));
 		}
 		
@@ -440,8 +406,7 @@
 	 * @return {Object|null}
 	 */
 	function getAbbreviation(type, abbr) {
-		return getSettingsResource(type, abbr, 'abbreviations') 
-			|| getSettingsResource(type, abbr.replace(/\-/g, ':'), 'abbreviations');
+		return zen_resources.getAbbreviation(type, abbr);
 	}
 	
 	/**
@@ -451,8 +416,7 @@
 	 * @return {Object|null}
 	 */
 	function getSnippet(type, snippet_name) {
-		return getSettingsResource(type, snippet_name, 'snippets')
-			|| getSettingsResource(type, snippet_name.replace(/\-/g, ':'), 'snippets');
+		return zen_resources.getSnippet(type, snippet_name);
 	}
 	
 	/**
@@ -460,9 +424,7 @@
 	 * @return {String}
 	 */
 	function getVariable(name) {
-		return (name in user_variables)
-			? user_variables[name]
-			: zen_settings.variables[name];
+		zen_resources.getVariable(name);
 	}
 	
 	/**
@@ -471,81 +433,6 @@
 	 */
 	function getIndentation() {
 		return getVariable('indentation');
-	}
-	
-	/**
-	 * Creates resource inheritance chain for lookups
-	 * @param {String} syntax Syntax name
-	 * @param {String} name Resource name
-	 * @return {Array}
-	 */
-	function createResourceChain(syntax, name) {
-		var resource = zen_settings[syntax],
-			result = [];
-		
-		if (resource) {
-			if (name in resource)
-				result.push(resource[name]);
-			if ('extends' in resource) {
-				// find resource in ancestors
-				for (var i = 0; i < resource['extends'].length; i++) {
-					var type = resource['extends'][i];
-					if (zen_settings[type] && zen_settings[type][name])
-						result.push(zen_settings[type][name]);
-				}
-			}
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Get resource collection from settings file for specified syntax. 
-	 * It follows inheritance chain if resource wasn't directly found in
-	 * syntax settings
-	 * @param {String} syntax Syntax name
-	 * @param {String} name Resource name
-	 */
-	function getResource(syntax, name) {
-		var chain = createResourceChain(syntax, name);
-		return chain[0];
-	}
-	
-	/**
-	 * Returns resource value from data set with respect of inheritance
-	 * @param {String} syntax Resource syntax (html, css, ...)
-	 * @param {String} abbr Abbreviation name
-	 * @param {String} name Resource name ('snippets' or 'abbreviation')
-	 * @return {Object|null}
-	 */
-	function getSettingsResource(syntax, abbr, name) {
-		var result = getUserDefinedResource(syntax, abbr, name);
-		if (result)
-			return result;
-			
-		var chain = createResourceChain(syntax, name);
-		for (var i = 0, il = chain.length; i < il; i++) {
-			if (abbr in chain[i])
-				return chain[i][abbr];
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Returns user defined resource
-	 * @param {String} syntax Resource syntax (html, css, ...)
-	 * @param {String} abbr Abbreviation name
-	 * @param {String} name Resource name ('snippets' or 'abbreviation')
-	 * @return {Object|null}
-	 */
-	function getUserDefinedResource(syntax, abbr, name) {
-		var storage = zen_coding.user_resources;
-		if (storage && syntax in storage && name in storage[syntax]) {
-			return storage[syntax][name][abbr] || null;
-		}
-		
-		return null;
 	}
 	
 	/**
@@ -630,7 +517,8 @@
 			if (this.type == 'snippet')
 				return false;
 				
-			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this.source._res, 'empty'));
+			return (this.source._abbr && this.source._abbr.value.is_empty) 
+				|| (this.name in zen_resources.getElementsCollection(this.source._res, 'empty'));
 		},
 		
 		/**
@@ -638,7 +526,8 @@
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return this.type == 'text' || (this.name in getElementsCollection(this.source._res, 'inline_level'));
+			return this.type == 'text' 
+				|| (this.name in zen_resources.getElementsCollection(this.source._res, 'inline_level'));
 		},
 		
 		/**
@@ -992,9 +881,6 @@
 		/** Hash of all available actions */
 		actions: {},
 		
-		/** User-defined snippets and abbreviations */
-		user_resources: {},
-		
 		/**
 		 * Adds new Zen Coding action. This action will be available in
 		 * <code>zen_settings.actions</code> object.
@@ -1251,7 +1137,7 @@
 			profile = processProfile(profile);
 			var _filters = profile.filters;
 			if (!_filters)
-				_filters = getResource(syntax, 'filters') || basic_filters;
+				_filters = zen_resources.getSubset(syntax, 'filters') || basic_filters;
 				
 			if (additional_filters)
 				_filters += '|' + ((typeof(additional_filters) == 'string') 
@@ -1269,17 +1155,6 @@
 		
 		repeatString: repeatString,
 		getVariable: getVariable,
-		setVariable: function(name, value) {
-			user_variables[name] = value;
-		},
-		
-		/**
-		 * Removes all user-defined variables
-		 */
-		resetVariables: function() {
-			user_variables = {};
-		},
-		
 		replaceVariables: replaceVariables,
 		
 		/**
@@ -1349,8 +1224,6 @@
 			return max_num;
 		},
 		
-		getResource: getResource,
-		
 		/**
 		 * Get profile by it's name. If profile wasn't found, returns 'plain'
 		 * profile
@@ -1413,160 +1286,6 @@
 					}
 				}
 			}
-		},
-		
-		settings_parser: (function(){
-			/**
-			 * Unified object for parsed data
-			 */
-			function entry(type, key, value) {
-				return {
-					type: type,
-					key: key,
-					value: value
-				};
-			}
-			
-			/** Regular expression for XML tag matching */
-			var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
-				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
-			
-			/**
-			 * Make expando from string
-			 * @param {String} key
-			 * @param {String} value
-			 * @return {Object}
-			 */
-			function makeExpando(key, value) {
-				return entry(TYPE_EXPANDO, key, value);
-			}
-			
-			/**
-			 * Make abbreviation from string
-			 * @param {String} key Abbreviation key
-			 * @param {String} tag_name Expanded element's tag name
-			 * @param {String} attrs Expanded element's attributes
-			 * @param {Boolean} is_empty Is expanded element empty or not
-			 * @return {Object}
-			 */
-			function makeAbbreviation(key, tag_name, attrs, is_empty) {
-				var result = {
-					name: tag_name,
-					is_empty: Boolean(is_empty)
-				};
-				
-				if (attrs) {
-					var m;
-					result.attributes = [];
-					while (m = re_attrs.exec(attrs)) {
-						result.attributes.push({
-							name: m[1],
-							value: m[3]
-						});
-					}
-				}
-				
-				return entry(TYPE_ABBREVIATION, key, result);
-			}
-			
-			/**
-			 * Parses single abbreviation
-			 * @param {String} key Abbreviation name
-			 * @param {String} value = Abbreviation value
-			 * @return {Object}
-			 */
-			function parseAbbreviation(key, value) {
-				key = trim(key);
-				var m;
-				if (key.substr(-1) == '+') {
-					// this is expando, leave 'value' as is
-					return makeExpando(key, value);
-				} else if (m = re_tag.exec(value)) {
-					return makeAbbreviation(key, m[1], m[2], m[4] == '/');
-				} else {
-					// assume it's reference to another abbreviation
-					return entry(TYPE_REFERENCE, key, value);
-				}
-			}
-			
-			/**
-			 * Parses all abbreviations inside object
-			 * @param {Object} obj
-			 */
-			function parseAbbreviations(obj) {
-				for (var key in obj) {
-					var value = obj[key];
-					obj[key] = parseAbbreviation(trim(key), value);
-					obj[key].__ref = value;
-				}
-			}
-			
-			return {
-				/**
-				 * Parse user's settings
-				 * @param {Object} settings
-				 */
-				parse: function(settings) {
-					for (var p in settings) {
-						if (p == 'abbreviations')
-							parseAbbreviations(settings[p]);
-						else if (p == 'extends') {
-							var ar = settings[p].split(',');
-							for (var i = 0; i < ar.length; i++) 
-								ar[i] = trim(ar[i]);
-							settings[p] = ar;
-						}
-						else if (typeof(settings[p]) == 'object')
-							arguments.callee(settings[p]);
-					}
-				},
-				
-				parseAbbreviation: parseAbbreviation,
-				
-				extend: function(parent, child) {
-					for (var p in child) {
-						if (typeof(child[p]) == 'object' && parent.hasOwnProperty(p))
-							arguments.callee(parent[p], child[p]);
-						else
-							parent[p] = child[p];
-					}
-				},
-				
-				/**
-				 * Create hash maps on certain string properties
-				 * @param {Object} obj
-				 */
-				createMaps: function(obj) {
-					for (var p in obj) {
-						if (p == 'element_types') {
-							for (var k in obj[p]) 
-								obj[p][k] = stringToHash(obj[p][k]);
-						} else if (typeof(obj[p]) == 'object') {
-							arguments.callee(obj[p]);
-						}
-					}
-				},
-				
-				TYPE_ABBREVIATION: TYPE_ABBREVIATION,
-				TYPE_EXPANDO: TYPE_EXPANDO,
-				
-				/** Reference to another abbreviation or tag */
-				TYPE_REFERENCE: TYPE_REFERENCE
-			}
-		})()
+		}
 	}
-	
 })();
-
-if ('zen_settings' in this || zen_settings) {
-	// first we need to expand some strings into hashes
-	zen_coding.settings_parser.createMaps(zen_settings);
-	if ('my_zen_settings' in this) {
-		// we need to extend default settings with user's
-		zen_coding.settings_parser.createMaps(my_zen_settings);
-		zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
-	}
-	
-	// now we need to parse final set of settings
-	zen_coding.settings_parser.parse(zen_settings);
-}

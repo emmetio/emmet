@@ -70,29 +70,6 @@
 	}
 	
 	/**
-	 * Returns specified elements collection (like 'empty', 'block_level') from
-	 * <code>resource</code>. If collections wasn't found, returns empty object
-	 * @param {Object} resource
-	 * @param {String} type
-	 * @return {Object}
-	 */
-	function getElementsCollection(resource, type) {
-		if (resource && resource.element_types) {
-			// if it's not parsed yet – do it
-			var res = resource.element_types;
-			if (!isParsed(res)) {
-				for (var p in res) 
-					res[p] = stringToHash(res[p]);
-					
-				setParsed(res);
-			}
-			return res[type] || {}
-		}
-		else
-			return {};
-	}
-	
-	/**
 	 * Creates resource inheritance chain for lookups
 	 * @param {String} vocabulary Resource vocabulary
 	 * @param {String} syntax Syntax name
@@ -101,27 +78,40 @@
 	 */
 	function createResourceChain(vocabulary, syntax, name) {
 		var voc = getVocabulary(vocabulary),
-			result = [];
+			result = [],
+			resource;
 		
 		if (voc && syntax in voc) {
-			var resource = voc[syntax];
+			resource = voc[syntax];
 			if (name in resource)
 				result.push(resource[name]);
-			if ('extends' in resource) {
-				if (!isParsed(resource['extends'])) {
-					var ar = resource['extends'].split(',');
-					for (var i = 0; i < ar.length; i++) 
-						ar[i] = trim(ar[i]);
-					resource['extends'] = ar;
-					setParsed(resource['extends']);
-				}
-				
-				// find resource in ancestors
-				for (var i = 0; i < resource['extends'].length; i++) {
-					var type = resource['extends'][i];
-					if (voc[type] && voc[type][name])
-						result.push(voc[type][name]);
-				}
+		}
+		
+		// get inheritance definition
+		// in case of user-defined vocabulary, resource dependency
+		// may be defined in system vocabulary only, so we have to correctly
+		// handle this case
+		var chain_source;
+		if (resource && 'extends' in resource)
+			chain_source = resource;
+		else if (vocabulary == VOC_USER && syntax in system_settings 
+			&& 'extends' in system_settings[syntax] )
+			chain_source = system_settings[syntax];
+			
+		if (chain_source) {
+			if (!isParsed(chain_source['extends'])) {
+				var ar = chain_source['extends'].split(',');
+				for (var i = 0; i < ar.length; i++) 
+					ar[i] = trim(ar[i]);
+				chain_source['extends'] = ar;
+				setParsed(chain_source['extends']);
+			}
+			
+			// find resource in ancestors
+			for (var i = 0; i < chain_source['extends'].length; i++) {
+				var type = chain_source['extends'][i];
+				if (voc[type] && voc[type][name])
+					result.push(voc[type][name]);
 			}
 		}
 		
@@ -136,7 +126,7 @@
 	 * @param {String} syntax Syntax name
 	 * @param {String} name Resource name
 	 */
-	function getResource(vocabulary, syntax, name) {
+	function getSubset(vocabulary, syntax, name) {
 		var chain = createResourceChain(vocabulary, syntax, name);
 		return chain[0];
 	}
@@ -266,35 +256,35 @@
 		/**
 		 * Returns resource value from data set with respect of inheritance
 		 * @param {String} syntax Resource syntax (html, css, ...)
-		 * @param {String} abbr Abbreviation name
 		 * @param {String} name Resource name ('snippets' or 'abbreviation')
+		 * @param {String} abbr Abbreviation name
 		 * @return {Object|null}
 		 */
-		getSettingsResource: function(syntax, abbr, name) {
-			return getParsedItem(VOC_USER, syntax, name, abbr) 
-				|| getParsedItem(VOC_SYSTEM, syntax, name, abbr);
+		getResource: function(syntax, name, item) {
+			return getParsedItem(VOC_USER, syntax, name, item) 
+				|| getParsedItem(VOC_SYSTEM, syntax, name, item);
 		},
 		
 		/**
 		 * Returns abbreviation value from data set
 		 * @param {String} type Resource type (html, css, ...)
-		 * @param {String} abbr Abbreviation name
+		 * @param {String} name Abbreviation name
 		 * @return {Object|null}
 		 */
-		getAbbreviation: function(type, abbr) {
-			return this.getSettingsResource(type, abbr, 'abbreviations') 
-				|| this.getSettingsResource(type, abbr.replace(/\-/g, ':'), 'abbreviations');
+		getAbbreviation: function(type, name) {
+			return this.getResource(type, 'abbreviations', name) 
+				|| this.getResource(type, 'abbreviations', name.replace(/\-/g, ':'));
 		},
 		
 		/**
 		 * Returns snippet value from data set
 		 * @param {String} type Resource type (html, css, ...)
-		 * @param {String} snippet_name Snippet name
+		 * @param {String} name Snippet name
 		 * @return {Object|null}
 		 */
-		getSnippet: function(type, snippet_name) {
-			return this.getSettingsResource(type, snippet_name, 'snippets')
-				|| this.getSettingsResource(type, snippet_name.replace(/\-/g, ':'), 'snippets');
+		getSnippet: function(type, name) {
+			return this.getResource(type, 'snippets', name)
+				|| this.getResource(type, 'snippets', name.replace(/\-/g, ':'));
 		},
 		
 		/**
@@ -302,8 +292,42 @@
 		 * @return {String}
 		 */
 		getVariable: function(name) {
-			return getResource(VOC_USER, 'variables', name) 
-				|| getResource(VOC_SYSTEM, 'variables', name);
+			return getSubset(VOC_USER, 'variables', name) 
+				|| getSubset(VOC_SYSTEM, 'variables', name);
+		},
+		
+		/**
+		 * Returns resource subset from settings vocabulary
+		 * @param {String} syntax Syntax name
+		 * @param {String} name Resource name
+		 * @return {Object}
+		 */
+		getSubset: function(syntax, name) {
+			return getSubset(VOC_USER, syntax, name) 
+				|| getSubset(VOC_SYSTEM, syntax, name);
+		},
+		
+		/**
+		 * Returns specified elements collection (like 'empty', 'block_level') from
+		 * <code>resource</code>. If collections wasn't found, returns empty object
+		 * @param {Object} resource
+		 * @param {String} type
+		 * @return {Object}
+		 */
+		getElementsCollection: function(resource, type) {
+			if (resource && resource.element_types) {
+				// if it's not parsed yet – do it
+				var res = resource.element_types;
+				if (!isParsed(res)) {
+					for (var p in res) 
+						res[p] = stringToHash(res[p]);
+						
+					setParsed(res);
+				}
+				return res[type] || {}
+			}
+			else
+				return {};
 		}
 	}
 })();
@@ -312,4 +336,4 @@ if ('zen_settings' in this)
 	zen_resources.setVocabulary(zen_settings, 'system');
 	
 if ('my_zen_settings' in this)
-	zen_resources.setVocabulary(zen_settings, 'user');
+	zen_resources.setVocabulary(my_zen_settings, 'user');
