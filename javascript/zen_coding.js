@@ -73,6 +73,16 @@
 	}
 	
 	/**
+	 * Returns caret placeholder
+	 * @return {String}
+	 */
+	function getCaretPlaceholder() {
+		return (typeof(caret_placeholder) != 'string') 
+			? caret_placeholder()
+			: caret_placeholder
+	}
+	
+	/**
 	 * Split text into lines. Set <code>remove_empty</code> to true to filter
 	 * empty lines
 	 * @param {String} text
@@ -288,7 +298,7 @@
 				this._attr_hash = {};
 			
 			// escape pipe (caret) character with internal placeholder
-			value = replaceUnescapedSymbol(value, '|', caret_placeholder);
+			value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -331,7 +341,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = replaceUnescapedSymbol(str || '', '|', caret_placeholder);
+			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
 		},
 		
 		/**
@@ -390,8 +400,8 @@
 		this.children = [];
 		this._content = node.text || '';
 		this.repeat_by_lines = node.is_repeating;
-		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
-		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', caret_placeholder);
+		this.attributes = {'id': getCaretPlaceholder(), 'class': getCaretPlaceholder()};
+		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
 		
 		this.copyAttributes(node);
@@ -1085,11 +1095,7 @@
 		 * Returns caret placeholder
 		 * @return {String}
 		 */
-		getCaretPlaceholder: function() {
-			return (typeof(caret_placeholder) != 'string') 
-				? caret_placeholder()
-				: caret_placeholder
-		},
+		getCaretPlaceholder: getCaretPlaceholder,
 		
 		/**
 		 * Set caret placeholder: a string (like '|') or function.

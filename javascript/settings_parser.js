@@ -12,11 +12,11 @@ var zen_settings_parser = (function(){
 		return (text || "").replace( /^\s+|\s+$/g, "" );
 	}
 	
-	var TYPE_ABBREVIATION: 'zen-tag',
-		TYPE_EXPANDO: 'zen-expando',
+	var TYPE_ABBREVIATION = 'zen-tag',
+		TYPE_EXPANDO = 'zen-expando',
 	
 		/** Reference to another abbreviation or tag */
-		TYPE_REFERENCE: 'zen-reference';
+		TYPE_REFERENCE = 'zen-reference';
 	
 	/**
 	 * Unified object for parsed data
