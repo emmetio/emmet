@@ -434,7 +434,7 @@
 	 * @return {String}
 	 */
 	function getVariable(name) {
-		zen_resources.getVariable(name);
+		return zen_resources.getVariable(name);
 	}
 	
 	/**
@@ -1161,6 +1161,19 @@
 		
 		repeatString: repeatString,
 		getVariable: getVariable,
+		/**
+		 * Store runtime variable in user storage
+		 * @param {String} name Variable name
+		 * @param {String} value Variable value
+		 */
+		setVariable: function(name, value){
+			var voc = zen_resources.getVocabulary('user') || {};
+			if (!('varaibles' in voc))
+				voc.variables = {};
+				
+			voc.variables[name] = value;
+			zen_resources.setVocabulary(voc, 'user');
+		},
 		replaceVariables: replaceVariables,
 		
 		/**
