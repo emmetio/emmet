@@ -515,7 +515,7 @@ var zen_editor = (function(){
 		},
 		
 		getInfo: function() {
-			var message = 'All textareas on this page are powered by Zen Coding project: ' +
+			var message = 'This CodeMirror editor is powered by Zen Coding project: ' +
 					'a set of tools for fast HTML coding.\n\n' +
 					'Available shortcuts:\n';
 					
