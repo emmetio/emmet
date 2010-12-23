@@ -142,6 +142,7 @@ var zen_editor = (function(){
 		// test if occured event corresponds to one of the defined shortcut
 		for (var s in shortcuts) if (shortcuts.hasOwnProperty(s)) {
 			if (shortcut.test(s, evt)) {
+				evt.preventDefault();
 				var name = aliases[shortcuts[s]] || shortcuts[s],
 					result = zen_coding.runAction(name, [zen_editor]);
 				return (name == 'expand_abbreviation') ? result : true;
@@ -266,8 +267,10 @@ var zen_editor = (function(){
 		bind: function(context) {
 			var that = this;
 			context.grabKeys(actionManager, function(key_code, evt){
-				that.setContext(context);
-				return keysFilter(key_code, evt);
+				if (evt.type == 'keydown') {
+					that.setContext(context);
+					return keysFilter(key_code, evt);
+				}
 			});
 		},
 		
@@ -279,7 +282,6 @@ var zen_editor = (function(){
 		setContext: function(context) {
 			mirror = context;
 			zen_coding.setVariable('indentation', zen_coding.repeatString(' ', mirror.options.indentUnit));
-//			mirror.grabKeys(actionManager, keysFilter);
 		},
 		
 		/**
