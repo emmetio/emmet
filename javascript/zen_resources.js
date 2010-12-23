@@ -332,8 +332,7 @@
 	}
 })();
 
-if ('zen_settings' in this)
+try {
 	zen_resources.setVocabulary(zen_settings, 'system');
-	
-if ('my_zen_settings' in this)
 	zen_resources.setVocabulary(my_zen_settings, 'user');
+} catch(e) {}
