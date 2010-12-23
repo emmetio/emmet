@@ -25,14 +25,7 @@
 			<filelist dir="${codemirror.source}">
 				<file name="__intro.js"/>
 			</filelist>
-			<filelist dir="${zencoding_javascript}" id="javascript.files">
-				<file name="zen_settings.js"/>
-				<file name="zen_parser.js"/>
-				<file name="zen_resources.js"/>
-				<file name="zen_coding.js"/>
-				<file name="zen_actions.js"/>
-				<file name="html_matcher.js"/>
-			</filelist>
+			<filelist refid="javascript.files"/>
 			<fileset dir="${zencoding_javascript_filters}">
 				<include name="*.js"/>
 			</fileset>
@@ -43,12 +36,12 @@
 			</filelist>
 		</concat>
 		
-		<compile-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
+		<!-- <compile-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
 			<files>
 				<filelist dir="${codemirror.build_dir}">
 					<file name="zen_codemirror.js"/>
 				</filelist>
 			</files>
-		</compile-js-lib>
+		</compile-js-lib> -->
 	</target>
 </project>
