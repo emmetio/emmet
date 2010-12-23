@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="CodeMirror plugin" basedir="../../">
+	<description>CodeMirror plugin building routines</description>
+	
+	<import file="${webtasks_path}"/>
+
+	<property file="build.properties"/>
+	<property file="${zencoding_plugins_source}/codemirror/build.properties"/>
+
+	<target name="codemirror_plugin" depends="build_codemirror_plugin">
+		<zip destfile="${zencoding_plugins}/${zencoding_codemirror_plugin.zip}">
+			<fileset dir="${codemirror.build_dir}"></fileset>
+		</zip>
+		
+		<echo>codemirror plugin done</echo>
+	</target>
+
+	<target name="codemirror_init">
+		<delete dir="${codemirror.build_dir}"/>
+		<mkdir dir="${codemirror.build_dir}"/>
+	</target>
+
+	<target name="build_codemirror_plugin" depends="codemirror_init">
+		<concat destfile="${codemirror.build_dir}/zen_codemirror.js">
+			<filelist dir="${codemirror.source}">
+				<file name="__intro.js"/>
+			</filelist>
+			<filelist dir="${zencoding_javascript}" id="javascript.files">
+				<file name="zen_settings.js"/>
+				<file name="zen_parser.js"/>
+				<file name="zen_resources.js"/>
+				<file name="zen_coding.js"/>
+				<file name="zen_actions.js"/>
+				<file name="html_matcher.js"/>
+			</filelist>
+			<fileset dir="${zencoding_javascript_filters}">
+				<include name="*.js"/>
+			</fileset>
+			<filelist dir="${codemirror.source}">
+				<file name="zen_editor.js"/>
+				<file name="shortcut.js"/>
+				<file name="__outro.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
+			<files>
+				<filelist dir="${codemirror.build_dir}">
+					<file name="zen_codemirror.js"/>
+				</filelist>
+			</files>
+		</compile-js-lib>
+	</target>
+</project>
