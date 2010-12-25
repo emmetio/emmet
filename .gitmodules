@@ -1,3 +1,6 @@
 [submodule "plugins/codemirror/CodeMirror"]
 	path = plugins/codemirror/CodeMirror
 	url = git@github.com:sergeche/CodeMirror.git
+[submodule "ant-tools"]
+	path = ant-tools
+	url = git@github.com:sergeche/ant-tools.git
