@@ -22,41 +22,23 @@
 var zen_editor = (function(){
 	/** @type {CodeMirror} */
 	var mirror,
-		mac_char_map = {
-		'ctrl': '⌃',
-		'control': '⌃',
-		'meta': '⌘',
-		'shift': '⇧',
-		'alt': '⌥',
-		'enter': '⏎',
-		'tab': '⇥',
-		'left': '←',
-		'right': '→'
-	},
-	
-	pc_char_map = {
-		'left': '←',
-		'right': '→'
-	},
-	
-	know_syntaxes = {
-		'html': 1,
-		'css': 1,
-		'xml': 1,
-		'xml': 1,
-		'haml': 1
-	},
-	
-	/** Actions aliases */
-	aliases = {
-		balance_tag_inward: 'match_pair_inward',
-		balance_tag_outward: 'match_pair_outward',
-		previous_edit_point: 'prev_edit_point',
-		pretty_break: 'insert_formatted_line_break'
-	},
-	
-	shortcuts = {},
-	is_mac = /mac\s+os/i.test(navigator.userAgent);;
+		know_syntaxes = {
+			'html': 1,
+			'css': 1,
+			'xml': 1,
+			'xml': 1,
+			'haml': 1
+		},
+		
+		/** Actions aliases */
+		aliases = {
+			balance_tag_inward: 'match_pair_inward',
+			balance_tag_outward: 'match_pair_outward',
+			previous_edit_point: 'prev_edit_point',
+			pretty_break: 'insert_formatted_line_break'
+		},
+		
+		shortcuts = {};
 	
 	/**
 	 * Returns content of specified line
@@ -143,7 +125,8 @@ var zen_editor = (function(){
 		for (var s in shortcuts) if (shortcuts.hasOwnProperty(s)) {
 			if (shortcut.test(s, evt)) {
 				evt.preventDefault();
-				var name = aliases[shortcuts[s]] || shortcuts[s],
+				var sh = shortcuts[s],
+					name = aliases[sh.action] || sh.action,
 					result = zen_coding.runAction(name, [zen_editor]);
 				return (name == 'expand_abbreviation') ? result : true;
 			}
@@ -152,9 +135,7 @@ var zen_editor = (function(){
 		return false;
 	}
 	
-	function actionManager() {
-		
-	}
+	function actionManager() {}
 	
 	/**
 	 * Returns object with <code>line</code> and <code>character</code> properties
@@ -177,45 +158,6 @@ var zen_editor = (function(){
 	}
 	
 	/**
-	 * Makes first letter of string in uppercase
-	 * @param {String} str
-	 */
-	function capitalize(str) {
-		return str.charAt().toUpperCase() + str.substring(1);
-	}
-	
-	function humanize(str) {
-		return capitalize(str.replace(/_(\w)/g, function(s, p){return ' ' + p.toUpperCase()}));
-	}
-	
-	function formatShortcut(char_map, glue) {
-		var result = [];
-		if (typeof(glue) == 'undefined')
-			glue = '+';
-			
-		for (var p in shortcuts) if (shortcuts.hasOwnProperty(p)) {
-			var keys = p.split('+'),
-				ar = [],
-				lp = p.toLowerCase();
-				
-			if (lp == 'tab' || lp == 'enter')
-				continue;
-				
-			for (var i = 0; i < keys.length; i++) {
-				var key = keys[i].toLowerCase();
-				ar.push(key in char_map ? char_map[key] : capitalize(key));
-			}
-			
-			result.push({
-				'keystroke': ar.join(glue), 
-				'action_name': humanize(shortcuts[p])
-			});
-		}
-		
-		return result;
-	}
-	
-	/**
 	 * Returns normalized action name
 	 * @param {String} name Action name (like 'Expand Abbreviation')
 	 * @return Normalized name for coding (like 'expand_abbreviation')
@@ -231,11 +173,14 @@ var zen_editor = (function(){
 	/**
 	 * Bind shortcut to Zen Coding action
 	 * @param {String} keystroke
+	 * @param {String} label
 	 * @param {String} action_name
 	 */
-	function addShortcut(keystroke, action_name) {
-		action_name = normalizeActionName(action_name);
-		shortcuts[keystroke.toLowerCase()] = action_name;
+	function addShortcut(keystroke, label, action_name) {
+		shortcuts[keystroke.toLowerCase()] = {
+			label: label,
+			action: normalizeActionName(action_name || label)
+		};
 	}
 	
 	// add default shortcuts
@@ -453,6 +398,9 @@ var zen_editor = (function(){
 		 * @return {String}
 		 */
 		getProfileName: function() {
+			if (mirror.options.profile)
+				return mirror.options.profile;
+				
 			switch(this.getSyntax()) {
 				 case 'xml':
 				 case 'xsl':
@@ -515,7 +463,23 @@ var zen_editor = (function(){
 		 * @return {Array}
 		 */
 		getShortcuts: function() {
-			return formatShortcut(is_mac ? mac_char_map : pc_char_map, is_mac ? '' : '+');
+			var result = [], lp;
+			
+			for (var p in shortcuts) if (shortcuts.hasOwnProperty(p)) {
+				lp = p.toLowerCase();
+				
+				// skip some internal bindings
+				if (lp == 'tab' || lp == 'enter')
+					continue;
+					
+				result.push({
+					keystroke: shortcut.format(p), 
+					label: shortcuts[p].label,
+					action: shortcuts[p].action
+				});
+			}
+			
+			return result;
 		},
 		
 		getInfo: function() {
@@ -527,7 +491,7 @@ var zen_editor = (function(){
 				actions = [];
 				
 			for (var i = 0; i < sh.length; i++) {
-				actions.push(sh[i].keystroke + ' — ' + sh[i].action_name)
+				actions.push(sh[i].keystroke + ' — ' + sh[i].label)
 			}
 			
 			message += actions.join('\n') + '\n\n';
@@ -541,6 +505,39 @@ var zen_editor = (function(){
 		 */
 		showInfo: function() {
 			alert(this.getInfo());
+		},
+		
+		// expose some core Zen Coding objects
+		
+		/**
+		 * Returns core Zen Codind object
+		 */
+		getCore: function() {
+			return zen_coding;
+		},
+		
+		/**
+		 * Returns Zen Coding resource manager. You can add new snippets and 
+		 * abbreviations with this manager, as well as modify ones.<br><br>
+		 * 
+		 * Zen Coding stores settings in two separate vocabularies: 'system' 
+		 * and 'user'. The ultimate solution to add new abbreviations and
+		 * snippets is to setup a 'user' vocabulary, like this:
+		 * 
+		 * @example
+		 * var my_settings = {
+		 * 	html: {
+		 * 		abbreviations: {
+		 * 			'tag': '<div class="mytag">'
+		 * 		}
+		 * 	}
+		 * };
+		 * zen_editor.getResourceManager().setVocabulary(my_settings, 'user')
+		 * 
+		 * @see zen_resources.js
+		 */
+		getResourceManager: function() {
+			return zen_resources;
 		}
 	}
 })();

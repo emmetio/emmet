@@ -87,7 +87,38 @@ var shortcut = (function(){
 			'f10':121,
 			'f11':122,
 			'f12':123
+		},
+		
+		mac_char_map = {
+			'ctrl': '⌃',
+			'control': '⌃',
+			'meta': '⌘',
+			'shift': '⇧',
+			'alt': '⌥',
+			'enter': '⏎',
+			'tab': '⇥',
+			'left': '←',
+			'right': '→',
+			'up': '↑',
+			'down': '↓'
+		},
+		
+		pc_char_map = {
+			'meta': 'Ctrl',
+			'control': 'Ctrl',
+			'left': '←',
+			'right': '→',
+			'up': '↑',
+			'down': '↓'
 		};
+		
+	/**
+	 * Makes first letter of string in uppercase
+	 * @param {String} str
+	 */
+	function capitalize(str) {
+		return str.charAt().toUpperCase() + str.substring(1);
+	}
 		
 	return {
 		/**
@@ -166,6 +197,27 @@ var shortcut = (function(){
 				modifiers.shift.pressed == modifiers.shift.wanted &&
 				modifiers.alt.pressed == modifiers.alt.wanted &&
 				modifiers.meta.pressed == modifiers.meta.wanted);
+		},
+		
+		/**
+		 * Format keystroke for better readability, considering current platform
+		 * mnemonics
+		 * @param {String} keystroke
+		 * @return {String}
+		 */
+		format: function(keystroke) {
+			var char_map = is_mac ? mac_char_map : pc_char_map,
+				glue = is_mac ? '' : '+',
+				keys = keystroke.toLowerCase().split('+'),
+				ar = [],
+				key;
+				
+			for (var i = 0; i < keys.length; i++) {
+				key = keys[i];
+				ar.push(key in char_map ? char_map[key] : capitalize(key));
+			}
+			
+			return ar.join(glue);
 		}
 	}
 })();
