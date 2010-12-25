@@ -1,0 +1,3 @@
+[submodule "plugins/codemirror/CodeMirror"]
+	path = plugins/codemirror/CodeMirror
+	url = git@github.com:sergeche/CodeMirror.git
