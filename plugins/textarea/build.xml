@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="TextMate bundle" basedir="../../">
+<project name="textarea bundle" basedir="../../">
 	<description>&lt;textarea&gt; plugin building routines</description>
 	
 	<import file="${webtasks_path}"/>

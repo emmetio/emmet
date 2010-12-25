@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Zen Coding" default="main" basedir=".">
 	<property file="build.properties"/>
-	<import file="${webtasks_path}"/>
+	<import file="${basedir}/ant-tools/webtasks.xml"/>
 	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
 	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
 	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
@@ -9,21 +9,18 @@
 	<import file="${zencoding_plugins_source}/pspad/build.xml"/>
 	<import file="${zencoding_plugins_source}/npp/build.xml"/>
 	<import file="${zencoding_plugins_source}/e2/build.xml"/>
+	<import file="${zencoding_plugins_source}/codemirror/build.xml"/>
 	
 	
 	<!-- List of Zen Coding JavaScript files -->
 	<filelist dir="${zencoding_javascript}" id="javascript.files">
 		<file name="zen_settings.js"/>
+		<file name="zen_resources.js"/>
+		<file name="zen_parser.js"/>
 		<file name="zen_coding.js"/>
 		<file name="zen_actions.js"/>
 		<file name="html_matcher.js"/>
 		<file name="base64.js"/>
-		<!-- <file name="filters/format.js"/>
-		<file name="filters/html.js"/>
-		<file name="filters/haml.js"/>
-		<file name="filters/escape.js"/>
-		<file name="filters/format-css.js"/>
-		<file name="filters/comment.js"/> -->
 	</filelist>
 	
 	<target name="init">
@@ -51,7 +48,7 @@
     </target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, pspad_plugin, npp_plugin, generic_java, e2_bundle, install_textmate_bundle">
+	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin">
 		<echo>Done</echo>
 	</target>
 </project>
