@@ -110,6 +110,13 @@ var shortcut = (function(){
 			'right': '→',
 			'up': '↑',
 			'down': '↓'
+		},
+		
+		MODIFIERS = {
+			SHIFT: 1,
+			CTRL:  2,
+			ALT:   4,
+			META:  8
 		};
 		
 	/**
@@ -122,38 +129,18 @@ var shortcut = (function(){
 		
 	return {
 		/**
-		 * Test shortcut combination against event
-		 * @param {String} combination Keyboard shortcut
-		 * @param {Event} evt
+		 * Compile keyboard combination for faster tests
+		 * @param {String|Object} combination
 		 */
-		test: function(combination, evt) {
-			combination = combination.toLowerCase();
-			
-			var code = evt.keyCode ? evt.keyCode : evt.which,
-				character = String.fromCharCode(code).toLowerCase(),
-				modifiers = { 
-					shift: { wanted:false, pressed:false},
-					ctrl : { wanted:false, pressed:false},
-					alt  : { wanted:false, pressed:false},
-					meta : { wanted:false, pressed:false}	//Meta is Mac specific
-				},
-				/**
-				 * Key Pressed - counts the number of valid keypresses - if it 
-				 * is same as the number of keys, the shortcut function 
-				 * is invoked
-				 */
-				kp = 0;
-			
-			if(code == 188) character = ","; //If the user presses , when the type is onkeydown
-			if(code == 190) character = ".";
-			if(code == 191) character = "/";
-			
-			if(evt.ctrlKey)	modifiers.ctrl.pressed = true;
-			if(evt.shiftKey)	modifiers.shift.pressed = true;
-			if(evt.altKey)	modifiers.alt.pressed = true;
-			if(evt.metaKey)   modifiers.meta.pressed = true;
-            
-			var keys = combination.split("+"), k;
+		compile: function(combination) {
+			if (typeof combination != 'string') //already compiled
+				return combination;
+				
+			var mask = 0,
+				keys = combination.toLowerCase().split('+'), 
+				key,
+				k;
+				
 			for(var i = 0, il = keys.length; i < il; i++) {
 				k = keys[i];
 				// Due to stupid Opera bug I have to swap Ctrl and Meta keys
@@ -167,36 +154,57 @@ var shortcut = (function(){
 				}
 				
 				//Modifiers
-				if(k == 'ctrl' || k == 'control') {
-					kp++;
-					modifiers.ctrl.wanted = true;
-				} else if (k == 'shift') {
-					kp++;
-					modifiers.shift.wanted = true;
-				} else if (k == 'alt') {
-					kp++;
-					modifiers.alt.wanted = true;
-				} else if (k == 'meta') {
-					kp++;
-					modifiers.meta.wanted = true;
-				} else if (k.length > 1) { //If it is a special key
-					if(special_keys[k] == code) kp++;
-				} else { //The special keys did not match
-					if(character == k) kp++;
-					else {
-						if (shift_nums[character] && evt.shiftKey) { //Stupid Shift key bug created by using lowercase
-							character = shift_nums[character]; 
-							if (character == k) kp++;
-						}
-					}
-				}
+				if(k == 'ctrl' || k == 'control')
+					mask |= MODIFIERS.CTRL;
+				else if (k == 'shift')
+					mask |= MODIFIERS.SHIFT;
+				else if (k == 'alt')
+					mask |= MODIFIERS.ALT;
+				else if (k == 'meta')
+					mask |= MODIFIERS.META;
+				else
+					key = k;
 			}
 			
-			return (kp == keys.length && 
-				modifiers.ctrl.pressed == modifiers.ctrl.wanted &&
-				modifiers.shift.pressed == modifiers.shift.wanted &&
-				modifiers.alt.pressed == modifiers.alt.wanted &&
-				modifiers.meta.pressed == modifiers.meta.wanted);
+			return {
+				mask: mask,
+				key: key
+			};
+		},
+		
+		/**
+		 * Test shortcut combination against event
+		 * @param {String} combination Keyboard shortcut
+		 * @param {Event} evt
+		 */
+		test: function(combination, evt) {
+			var mask = 0,
+				ccomb = this.compile(combination);
+			
+			if (evt.ctrlKey)  mask |= MODIFIERS.CTRL;
+			if (evt.shiftKey) mask |= MODIFIERS.SHIFT;
+			if (evt.altKey)   mask |= MODIFIERS.ALT;
+			if (evt.metaKey)  mask |= MODIFIERS.META;
+			
+			var code = evt.keyCode ? evt.keyCode : evt.which,
+				character = String.fromCharCode(code).toLowerCase();
+			
+			// if mask doesn't match, no need to test further
+			if (mask !== ccomb.mask) return false;
+			
+			if (ccomb.key.length > 1) { //If it is a special key
+				return special_keys[ccomb.key] == code;
+			} else { //The special keys did not match
+				if(code == 188) character = ","; //If the user presses , when the type is onkeydown
+				if(code == 190) character = ".";
+				if(code == 191) character = "/";
+				
+				if (character == ccomb.key) return true;
+				if (evt.shiftKey && shift_nums[character]) //Stupid Shift key bug created by using lowercase
+					return shift_nums[character] == ccomb.key;
+			}
+			
+			return false;
 		},
 		
 		/**
@@ -219,5 +227,5 @@ var shortcut = (function(){
 			
 			return ar.join(glue);
 		}
-	}
+	};
 })();

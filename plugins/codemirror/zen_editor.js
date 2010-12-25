@@ -122,12 +122,13 @@ var zen_editor = (function(){
 	
 	function keysFilter(key_code, evt) {
 		// test if occured event corresponds to one of the defined shortcut
+		var sh, name, result;
 		for (var s in shortcuts) if (shortcuts.hasOwnProperty(s)) {
-			if (shortcut.test(s, evt)) {
+			sh = shortcuts[s];
+			if (shortcut.test(sh.compiled, evt)) {
 				evt.preventDefault();
-				var sh = shortcuts[s],
-					name = aliases[sh.action] || sh.action,
-					result = zen_coding.runAction(name, [zen_editor]);
+				name = aliases[sh.action] || sh.action;
+				result = zen_coding.runAction(aliases[sh.action] || sh.action, [zen_editor]);
 				return (name == 'expand_abbreviation') ? result : true;
 			}
 		}
@@ -178,6 +179,7 @@ var zen_editor = (function(){
 	 */
 	function addShortcut(keystroke, label, action_name) {
 		shortcuts[keystroke.toLowerCase()] = {
+			compiled: shortcut.compile(keystroke),
 			label: label,
 			action: normalizeActionName(action_name || label)
 		};
