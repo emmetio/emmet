@@ -392,6 +392,10 @@ var zen_editor = (function(){
 			// indent new value
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
+			if (mirror.win.asEditorLines) {
+				value = mirror.win.asEditorLines(value).join(zen_coding.getNewline());
+			}
+			
 			// find new caret position
 			var tabstop_res = handleTabStops(value);
 			value = tabstop_res[0];
@@ -406,7 +410,7 @@ var zen_editor = (function(){
 			
 			try {
 				this.createSelection(start, end);
-				mirror.replaceSelection(value);
+				mirror.editor.replaceSelection(value);
 				this.createSelection(tabstop_res[1], tabstop_res[2]);
 			} catch(e){}
 		},
