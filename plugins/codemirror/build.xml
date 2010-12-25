@@ -25,13 +25,20 @@
 			<filelist dir="${codemirror.source}">
 				<file name="__intro.js"/>
 			</filelist>
-			<filelist refid="javascript.files"/>
+			<filelist dir="${zencoding_javascript}">
+				<file name="zen_settings.js"/>
+				<file name="zen_resources.js"/>
+				<file name="zen_parser.js"/>
+				<file name="zen_coding.js"/>
+				<file name="zen_actions.js"/>
+				<file name="html_matcher.js"/>
+			</filelist>
 			<fileset dir="${zencoding_javascript_filters}">
 				<include name="*.js"/>
 			</fileset>
 			<filelist dir="${codemirror.source}">
-				<file name="zen_editor.js"/>
 				<file name="shortcut.js"/>
+				<file name="zen_editor.js"/>
 				<file name="__outro.js"/>
 			</filelist>
 		</concat>
