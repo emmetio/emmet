@@ -273,6 +273,17 @@ def get_subset(syntax, name):
 	return _get_subset(VOC_USER, syntax, name) \
 		or _get_subset(VOC_SYSTEM, syntax, name)
 		
+def is_item_in_collection(syntax, collection, item):
+	"""
+	Check if specified item exists in specified resource collection
+	(like 'empty', 'block_level')
+	@param {String} syntax 
+	@param {String} collection Collection name
+	@param {String} item Item name
+	"""
+	return item in get_elements_collection(get_vocabulary(VOC_USER)[syntax], collection) \
+		or item in get_elements_collection(get_vocabulary(VOC_SYSTEM)[syntax], collection)
+
 def get_elements_collection(resource, type):
 	"""
 	Returns specified elements collection (like 'empty', 'block_level') from

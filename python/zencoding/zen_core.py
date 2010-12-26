@@ -26,14 +26,14 @@ Created on Apr 17, 2009
 '''
 from zen_settings import zen_settings
 import re
-import stparser
+import zen_resources
+import zen_parser
+import copy
 
 newline = '\n'
 "Newline symbol"
 
 caret_placeholder = '{%::zen-caret::%}'
-
-default_tag = 'div'
 
 re_tag = re.compile(r'<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*\s*(\/?)>$')
 
@@ -53,8 +53,10 @@ default_profile = {
 	
 	'inline_break': 3,           # how many inline elements should be to force line break (set to 0 to disable)
 	
-	'self_closing_tag': 'xhtml'  # use self-closing style for writing empty elements, e.g. <br /> or <br>. 
+	'self_closing_tag': 'xhtml', # use self-closing style for writing empty elements, e.g. <br /> or <br>. 
                                  # values are True, False, 'xhtml'
+                                 
+	'filters': ''                # Profile-level output filters, re-defines syntax filters
 }
 
 basic_filters = 'html';
@@ -69,34 +71,6 @@ def char_at(text, pos):
 	If index if out of range, returns empty string
 	"""
 	return text[pos] if pos < len(text) else ''
-
-def has_deep_key(obj, key):
-	"""
-	Check if <code>obj</code> dictionary contains deep key. For example,
-	example, it will allow you to test existance of my_dict[key1][key2][key3],
-	testing existance of my_dict[key1] first, then my_dict[key1][key2], 
-	and finally my_dict[key1][key2][key3]
-	@param obj: Dictionary to test
-	@param obj: dict
-	@param key: Deep key to test. Can be list (like ['key1', 'key2', 'key3']) or
-	string (like 'key1.key2.key3')
-	@type key: list, tuple, str
-	@return: bool
-	"""
-	if isinstance(key, str):
-		key = key.split('.')
-		
-	last_obj = obj
-	for v in key:
-		if hasattr(last_obj, v):
-			last_obj = getattr(last_obj, v)
-		elif last_obj.has_key(v):
-			last_obj = last_obj[v]
-		else:
-			return False
-	
-	return True
-		
 
 def is_allowed_char(ch):
 	"""
@@ -118,18 +92,6 @@ def split_by_lines(text, remove_empty=False):
 	lines = text.splitlines()
 	
 	return remove_empty and [line for line in lines if line.strip()] or lines
-
-def make_map(prop):
-	"""
-	Helper function that transforms string into dictionary for faster search
-	@param prop: Key name in <code>zen_settings['html']</code> dictionary
-	@type prop: str
-	"""
-	obj = {}
-	for a in zen_settings['html'][prop].split(','):
-		obj[a] = True
-		
-	zen_settings['html'][prop] = obj
 
 def create_profile(options):
 	"""
@@ -165,18 +127,6 @@ def set_newline(char):
 	"""
 	global newline
 	newline = char
-
-def string_to_hash(text):
-	"""
-	Helper function that transforms string into hash
-	@return: dict
-	"""
-	obj = {}
-	items = text.split(",")
-	for i in items:
-		obj[i] = True
-		
-	return obj
 
 def pad_string(text, pad):
 	"""
@@ -220,19 +170,6 @@ def is_ends_with_tag(text):
 	@return: bool
 	"""
 	return re_tag.search(text) != None
-
-def get_elements_collection(resource, type):
-	"""
-	Returns specified elements collection (like 'empty', 'block_level') from
-	<code>resource</code>. If collections wasn't found, returns empty object
-	@type resource: dict
-	@type type: str
-	@return: dict
-	"""
-	if 'element_types' in resource and type in resource['element_types']:
-		return resource['element_types'][type]
-	else:
-		return {}
 	
 def replace_variables(text, vars=zen_settings['variables']):
 	"""
@@ -242,309 +179,57 @@ def replace_variables(text, vars=zen_settings['variables']):
 	"""
 	return re.sub(r'\$\{([\w\-]+)\}', lambda m: m.group(1) in vars and vars[m.group(1)] or m.group(0), text)
 
-def get_abbreviation(res_type, abbr):
+def filter_node_name(name):
+	"""
+	Removes any unnecessary characters from node name
+	@type name: str
+	@return: str
+	"""
+	return re.sub(r'(.+)\!$', '\\1')
+
+def get_abbreviation(syntax, abbr):
 	"""
 	Returns abbreviation value from data set
-	@param res_type: Resource type (html, css, ...)
-	@type res_type: str
+	@param syntax: Resource syntax (html, css, ...)
+	@type syntax: str
 	@param abbr: Abbreviation name
 	@type abbr: str
 	@return dict, None
 	"""
-	return get_settings_resource(res_type, abbr, 'abbreviations')
+	return zen_resources.get_abbreviation(syntax, abbr)
 
-def get_snippet(res_type, snippet_name):
+def get_snippet(syntax, snippet_name):
 	"""
 	Returns snippet value from data set
-	@param res_type: Resource type (html, css, ...)
-	@type res_type: str
+	@param syntax: Resource syntax (html, css, ...)
+	@type syntax: str
 	@param snippet_name: Snippet name
 	@type snippet_name: str
 	@return dict, None
 	"""
-	return get_settings_resource(res_type, snippet_name, 'snippets');
+	return zen_resources.get_snippet(syntax, snippet_name)
 
 def get_variable(name):
 	"""
 	Returns variable value
 	 @return: str
 	"""
-	return zen_settings['variables'][name]
+	return zen_resources.get_variable(name)
 
 def set_variable(name, value):
-	"""
-	Set variable value
-	"""
-	zen_settings['variables'][name] = value
+	voc = zen_resources.get_vocabulary('user') or {}
+	if 'varaibles' not in voc:
+		voc['variables'] = {}
+		
+	voc['variables'][name] = value
+	zen_resources.set_vocabulary(voc, 'user')
 
 def get_indentation():
 	"""
 	Returns indentation string
 	@return {String}
 	"""
-	return get_variable('indentation');
-
-def create_resource_chain(syntax, name):
-	"""
-	Creates resource inheritance chain for lookups
-	@param syntax: Syntax name
-	@type syntax: str
-	@param name: Resource name
-	@type name: str
-	@return: list
-	"""
-	result = []
-	
-	if syntax in zen_settings:
-		resource = zen_settings[syntax]
-		if name in resource:
-			result.append(resource[name])
-		if 'extends' in resource:
-			# find resource in ancestors
-			for type in resource['extends']:
-				if  has_deep_key(zen_settings, [type, name]):
-					result.append(zen_settings[type][name])
-				
-	return result
-
-def get_resource(syntax, name):
-	"""
-	Get resource collection from settings file for specified syntax. 
-	It follows inheritance chain if resource wasn't directly found in
-	syntax settings
-	@param syntax: Syntax name
-	@type syntax: str
-	@param name: Resource name
-	@type name: str
-	"""
-	chain = create_resource_chain(syntax, name)
-	return chain[0] if chain else None
-
-def get_settings_resource(syntax, abbr, name):
-	"""
-	Returns resurce value from data set with respect of inheritance
-	@param syntax: Resource syntax (html, css, ...)
-	@type syntax: str
-	@param abbr: Abbreviation name
-	@type abbr: str
-	@param name: Resource name ('snippets' or 'abbreviation')
-	@type name: str
-	@return dict, None
-	"""
-	for item in create_resource_chain(syntax, name):
-		if abbr in item:
-			return item[abbr]
-		
-	return None
-
-def get_word(ix, text):
-	"""
-	Get word, starting at <code>ix</code> character of <code>text</code>
-	@param ix: int
-	@param text: str
-	"""
-	m = re.match(r'^[\w\-:\$]+', text[ix:])
-	return m.group(0) if m else ''
-	
-def extract_attributes(attr_set):
-	"""
-	Extract attributes and their values from attribute set 
- 	@param attr_set: str
-	"""
-	attr_set = attr_set.strip()
-	loop_count = 100 # endless loop protection
-	re_string = r'^(["\'])((?:(?!\1)[^\\]|\\.)*)\1'
-	result = []
-		
-	while attr_set and loop_count:
-		loop_count -= 1
-		attr_name = get_word(0, attr_set)
-		attr = None
-		if attr_name:
-			attr = {'name': attr_name, 'value': ''}
-			
-			# let's see if attribute has value
-			ch = attr_set[len(attr_name)] if len(attr_set) > len(attr_name) else ''
-			if ch == '=':
-				ch2 = attr_set[len(attr_name) + 1]
-				if ch2 in '"\'':
-					# we have a quoted string
-					m = re.match(re_string, attr_set[len(attr_name) + 1:])
-					if m:
-						attr['value'] = m.group(2)
-						attr_set = attr_set[len(attr_name) + len(m.group(0)) + 1:].strip()
-					else:
-						# something wrong, break loop
-						attr_set = ''
-				else:
-					# unquoted string
-					m = re.match(r'^(.+?)(\s|$)', attr_set[len(attr_name) + 1:])
-					if m:
-						attr['value'] = m.group(1)
-						attr_set = attr_set[len(attr_name) + len(m.group(1)) + 1:].strip()
-					else:
-						# something wrong, break loop
-						attr_set = ''
-				
-			else:
-				attr_set = attr_set[len(attr_name):].strip()
-		else:
-			# something wrong, can't extract attribute name
-			break
-		
-		if attr: result.append(attr)
-		
-	return result
-
-def parse_attributes(text):
-	"""
-	Parses tag attributes extracted from abbreviation
-	"""
-	
-#	Example of incoming data:
-#	#header
-#	.some.data
-#	.some.data#header
-#	[attr]
-#	#item[attr=Hello other="World"].class
-
-	result = []
-	class_name = None
-	char_map = {'#': 'id', '.': 'class'}
-	
-	# walk char-by-char
-	i = 0
-	il = len(text)
-		
-	while i < il:
-		ch = text[i]
-		
-		if ch == '#': # id
-			val = get_word(i, text[1:])
-			result.append({'name': char_map[ch], 'value': val})
-			i += len(val) + 1
-			
-		elif ch == '.': #class
-			val = get_word(i, text[1:])
-			if not class_name:
-				# remember object pointer for value modification
-				class_name = {'name': char_map[ch], 'value': ''}
-				result.append(class_name)
-			
-			if class_name['value']:
-				class_name['value'] += ' ' + val
-			else:
-				class_name['value'] = val
-			
-			i += len(val) + 1
-				
-		elif ch == '[': # begin attribute set
-			# search for end of set
-			end_ix = text.find(']', i)
-			if end_ix == -1:
-				# invalid attribute set, stop searching
-				i = len(text)
-			else:
-				result.extend(extract_attributes(text[i + 1:end_ix]))
-				i = end_ix
-		else:
-			i += 1
-		
-		
-	return result
-
-class AbbrGroup(object):
-	"""
-	Abreviation's group element
-	"""
-	def __init__(self, parent=None):
-		"""
-		@param parent: Parent group item element
-		@type parent: AbbrGroup
-		"""
-		self.expr = ''
-		self.parent = parent
-		self.children = []
-		
-	def add_child(self, child=None):
-		if child is None:
-			child = AbbrGroup(self)
-		self.children.append(child)
-		return child
-	
-	def clean_up(self):
-		for item in self.children:
-			expr = item.expr
-			if not expr:
-				self.children.remove(item)
-			else:
-				# remove operators at the and of expression
-				item.clean_up()
-
-def split_by_groups(abbr):
-	"""
-	Split abbreviation by groups
-	@type abbr: str
-	@return: AbbrGroup
-	"""
-	root = AbbrGroup()
-	last_parent = root
-	cur_item = root.add_child()
-	stack = []
-	i = 0
-	il = len(abbr)
-	
-	while i < il:
-		ch = abbr[i]
-		if ch == '(':
-			# found new group
-			operator = i and abbr[i - 1] or ''
-			if operator == '>':
-				stack.append(cur_item)
-				last_parent = cur_item
-			else:
-				stack.append(last_parent)
-			cur_item = None
-		elif ch == ')':
-			last_parent = stack.pop()
-			next_char = char_at(abbr, i + 1)
-			
-			if next_char == '*':
-				# group multiplication
-				group_mul = ''
-				for j in xrange(i + 2, il):
-					n_ch = char_at(abbr, j)
-					if n_ch.isdigit():
-						group_mul += n_ch
-					else:
-						break
-				
-				i += len(group_mul) + 1
-				group_mul = int(group_mul or 1)
-				while 1 < group_mul:
-					last_parent.add_child(cur_item)
-					group_mul -= 1
-			
-			cur_item = None
-			if next_char == '+' or next_char == '>': 
-				# next char is group operator, skip it
-				i += 1
-		else:
-			if ch == '+' or ch == '>':
-				# skip operator if it's followed by parenthesis
-				next_char = char_at(abbr, i + 1)
-				if next_char == '(':
-					i += 1 
-					continue
-			
-			if not cur_item:
-				cur_item = last_parent.add_child()
-			cur_item.expr += ch
-			
-		i += 1
-	
-	root.clean_up()
-	return root
+	return get_variable('indentation')
 
 def rollout_tree(tree, parent=None):
 	"""
@@ -572,12 +257,12 @@ def rollout_tree(tree, parent=None):
 		
 		if child.repeat_by_lines:
 			# it's a repeating element
-			tag_content = split_by_lines(child.get_content(), True)
+			tag_content = split_by_lines(child.get_paste_content(), True)
 			how_many = max(len(tag_content), 1)
 		else:
-			tag_content = child.get_content()
+			tag_content = child.get_paste_content()
 		
-		for j in range(how_many):
+		for j in xrange(how_many):
 			tag = ZenNode(child)
 			parent.add_child(tag)
 			tag.counter = j + 1
@@ -585,13 +270,9 @@ def rollout_tree(tree, parent=None):
 			if child.children:
 				rollout_tree(child, tag)
 				
-			add_point = tag.find_deepest_child() or tag
-			
 			if tag_content:
-				if isinstance(tag_content, basestring):
-					add_point.content = tag_content
-				else:
-					add_point.content = tag_content[j] or ''
+				text = isinstance(tag_content, basestring) and tag_content or tag_content[j] or ''
+				tag.paste_content(text.strip())
 					
 	return parent
 
@@ -605,11 +286,7 @@ def run_filters(tree, profile, filter_list):
 	"""
 	import filters
 	
-	if isinstance(profile, basestring) and profile in profiles:
-		profile = profiles[profile];
-	
-	if not profile:
-		profile = profiles['plain']
+	profile = process_profile(profile)
 		
 	if isinstance(filter_list, basestring):
 		filter_list = re.split(r'[\|,]', filter_list)
@@ -621,109 +298,67 @@ def run_filters(tree, profile, filter_list):
 			
 	return tree
 
-def abbr_to_primary_tree(abbr, doc_type='html'):
+def transform_tree_node(node, syntax='html'):
 	"""
 	Transforms abbreviation into a primary internal tree. This tree should'n 
 	be used ouside of this scope
-	@param abbr: Abbreviation to transform
-	@type abbr: str
-	@param doc_type: Document type (xsl, html), a key of dictionary where to
-	search abbreviation settings
-	@type doc_type: str
+	@param node: Parsed tree node
+	@type node: zen_parser.TreeNode
+	@param syntax: Document syntax (xsl, html, etc.)
+	@type syntax: str
 	@return: Tag
 	"""
-	root = Tag('', 1, doc_type)
-	token = re.compile(r'([\+>])?([a-z@\!\#\.][\w:\-\$]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?', re.IGNORECASE)
+	syntax = syntax or 'html';
+	if node.is_empty(): return None
 	
-	if not abbr:
-		return None
-	
-	def expando_replace(m):
-		ex = m.group(0)
-		a = get_abbreviation(doc_type, ex)
-		return a and a.value or ex
-		
-	def token_expander(operator, tag_name, attrs, has_multiplier, multiplier, has_expando):
-		multiply_by_lines = (has_multiplier and not multiplier)
-		multiplier = multiplier and int(multiplier) or 1
-		
-		tag_ch = tag_name[0]
-		if tag_ch == '#' or tag_ch == '.':
-			if attrs: attrs = tag_name + attrs
-			else: attrs = tag_name
-			tag_name = default_tag
-		
-		if has_expando:
-			tag_name += '+'
-		
-		current = is_snippet(tag_name, doc_type) and Snippet(tag_name, multiplier, doc_type) or Tag(tag_name, multiplier, doc_type)
-		
-		if attrs:
-			attrs = parse_attributes(attrs)
-			for attr in attrs:
-				current.add_attribute(attr['name'], attr['value'])
-			
-		# dive into tree
-		if operator == '>' and token_expander.last:
-			token_expander.parent = token_expander.last;
-			
-		token_expander.parent.add_child(current)
-		token_expander.last = current
-		
-		if multiply_by_lines:
-			root.multiply_elem = current
-		
-		return ''
-		
-	# replace expandos
-	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
-	
-	token_expander.parent = root
-	token_expander.last = None
-	
-	
-#	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
-	# Issue from Einar Egilsson
-	abbr = token.sub(lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)), abbr)
-	
-	root.last = token_expander.last
-	
-	# empty 'abbr' variable means that abbreviation was expanded successfully, 
-	# non-empty variable means there was a syntax error
-	return not abbr and root or None;
+	return is_snippet(node.name, syntax) and Snippet(node, syntax) or Tag(node, syntax)
 
-def expand_group(group, doc_type, parent):
+def process_parsed_node(node, syntax, parent):
 	"""
-	Expand single group item 
-	@param group: AbbrGroup
-	@param doc_type: str
-	@param parent: Tag
+	Process single tree node: expand it and its children 
+	@type node: zen_parser.TreeNode
+	@type syntax: str
+	@type parent: Tag
 	"""
-	tree = abbr_to_primary_tree(group.expr, doc_type)
-	last_item = None
+	t_node = transform_tree_node(node, syntax)
+	parent.addChild(t_node)
 		
-	if tree:
-		for item in tree.children:
-			last_item = item
-			parent.add_child(last_item)
-	else:
-		raise Exception('InvalidGroup')
-	
-	
 	# set repeating element to the topmost node
 	root = parent
 	while root.parent:
 		root = root.parent
 	
-	root.last = tree.last
-	if tree.multiply_elem:
-		root.multiply_elem = tree.multiply_elem
+	root.last = t_node;
+	if t_node.repeat_by_lines:
+		root.multiply_elem = t_node
 		
 	# process child groups
-	if group.children:
-		add_point = last_item.find_deepest_child() or last_item
-		for child in group.children:
-			expand_group(child, doc_type, add_point)
+	for child in node.children:
+		process_parsed_node(child, syntax, t_node)
+
+def replace_expandos(node, syntax):
+	"""
+	Replaces expando nodes by its parsed content
+	@type node: zen_parser.TreeNode
+	@type syntax: str
+	"""
+	for i, n in enumerate(node.children):
+		if not n.is_empty() and not n.is_text_node() and '+' in n.name:
+			# it's expando
+			a = get_abbreviation(syntax, n.name)
+			if a:
+				node.children[i] = zen_parser.parse(a.value)
+		
+		replace_expandos(node.children[i], syntax)
+
+def preprocess_parsed_tree(tree, syntax):
+	"""
+	Replaces expandos and optimizes tree structure by removing empty nodes
+	@type tree: zen_parser.TreeNode
+	@type syntax: str
+	"""
+	replace_expandos(tree, syntax)
+	return zen_parser.optimize_tree(tree)
 
 def replace_unescaped_symbol(text, symbol, replace):
 	"""
@@ -771,6 +406,20 @@ def replace_unescaped_symbol(text, symbol, replace):
 			i += 1
 	
 	return text
+
+def process_profile(profile):
+	"""
+	Processes profile argument, returning, if possible, profile object
+	"""
+	_profile = profile
+	if isinstance(profile, basestring) and profile in profiles:
+		_profile = profiles[profile]
+	
+	if not _profile:
+		_profile = profiles['plain']
+		
+	return _profile
+
 	
 def run_action(name, *args, **kwargs):
 	"""
@@ -813,6 +462,7 @@ def extract_abbreviation(text):
 	cur_offset = len(text)
 	start_index = -1
 	brace_count = 0
+	text_count = 0
 	
 	while True:
 		cur_offset -= 1
@@ -827,8 +477,12 @@ def extract_abbreviation(text):
 			brace_count += 1
 		elif ch == '[':
 			brace_count -= 1
+		elif ch == '}':
+			text_count += 1
+		elif ch == '{':
+			text_count -= 1
 		else:
-			if brace_count: 
+			if brace_count or text_count:
 				# respect all characters inside attribute sets
 				continue
 			if not is_allowed_char(ch) or (ch == '>' and is_ends_with_tag(text[0:cur_offset + 1])):
@@ -838,14 +492,14 @@ def extract_abbreviation(text):
 		
 	return text[start_index:] if start_index != -1 else ''
 
-def parse_into_tree(abbr, doc_type='html'):
+def parse_into_tree(abbr, syntax='html'):
 	"""
 	Parses abbreviation into a node set
 	@param abbr: Abbreviation to transform
 	@type abbr: str
-	@param doc_type: Document type (xsl, html), a key of dictionary where to
+	@param syntax: Document type (xsl, html), a key of dictionary where to
 	search abbreviation settings
-	@type doc_type: str
+	@type syntax: str
 	@return: Tag
 	"""
 	# remove filters from abbreviation
@@ -858,19 +512,19 @@ def parse_into_tree(abbr, doc_type='html'):
 	re_filter = re.compile(r'\|([\w\|\-]+)$')
 	abbr = re_filter.sub(filter_replace, abbr)
 	
-	# split abbreviation by groups
-	group_root = split_by_groups(abbr)
-	tree_root = Tag('', 1, doc_type)
-	
-	# then recursively expand each group item
+	# try to parse abbreviation
 	try:
-		for item in group_root.children:
-			expand_group(item, doc_type, tree_root)
-	except:
-		# there's invalid group, stop parsing
+		abbr_tree = zen_parser.parse(abbr)
+		tree_root = Tag({}, syntax)
+		abbr_tree = preprocess_parsed_tree(abbr_tree, syntax)
+	except zen_parser.ZenInvalidAbbreviation:
 		return None
+		
+	# then recursively expand each group item
+	for child in abbr_tree.children:
+		process_parsed_node(child, syntax, tree_root)
 	
-	tree_root.filters = ''.join(filter_list)
+	tree_root.filters = filter_list
 	return tree_root
 
 def is_inside_tag(html, cursor_pos):
@@ -890,7 +544,7 @@ def is_inside_tag(html, cursor_pos):
 
 	return False
 
-def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
+def wrap_with_abbreviation(abbr, text, syntax='html', profile='plain'):
 	"""
 	Wraps passed text with abbreviation. Text will be placed inside last
 	expanded element
@@ -900,21 +554,21 @@ def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
 	@param text: Text to wrap
 	@type text: str
 	
-	@param doc_type: Document type (html, xml, etc.)
-	@type doc_type: str
+	@param syntax: Document type (html, xml, etc.)
+	@type syntax: str
 	
 	@param profile: Output profile's name.
 	@type profile: str
 	@return {String}
 	"""
-	tree_root = parse_into_tree(abbr, doc_type)
+	tree_root = parse_into_tree(abbr, syntax)
 	if tree_root:
 		repeat_elem = tree_root.multiply_elem or tree_root.last
-		repeat_elem.set_content(text)
+		repeat_elem.set_paste_content(text)
 		repeat_elem.repeat_by_lines = bool(tree_root.multiply_elem)
 		
 		tree = rollout_tree(tree_root)
-		apply_filters(tree, doc_type, profile, tree_root.filters);
+		apply_filters(tree, syntax, profile, tree_root.filters)
 		return replace_variables(tree.to_string())
 	
 	return None
@@ -954,14 +608,18 @@ def apply_filters(tree, syntax, profile, additional_filters=None):
 	 
 	@return: ZenNode
 	"""
-	_filters = get_resource(syntax, 'filters') or basic_filters
+	profile = process_profile(profile)
+	_filters = profile.filters
+	if not _filters:
+		_filters = zen_resources.get_subset(syntax, 'filters') or basic_filters
 		
 	if additional_filters:
-		_filters += '|'
-		if isinstance(additional_filters, basestring):
-			_filters += additional_filters
-		else:
-			_filters += '|'.join(additional_filters)
+		if additional_filters:
+			_filters += '|'
+			if isinstance(additional_filters, basestring):
+				_filters += additional_filters
+			else:
+				_filters += '|'.join(additional_filters)
 		
 	if not _filters:
 		# looks like unknown syntax, apply basic filters
@@ -1016,6 +674,16 @@ def upgrade_tabstops(node):
 		
 	return max_num[0]
 
+def escape_text(text):
+	"""
+	Escapes special characters used in Zen Coding, like '$', '|', etc.
+	Use this method before passing to actions like "Wrap with Abbreviation"
+	to make sure that existing spacial characters won't be altered
+	@type text: str
+	@return: str
+	"""
+	return re.sub(r'([\$\|\\])', r'\\\1', text)
+
 def unescape_text(text):
 	"""
 	Unescapes special characters used in Zen Coding, like '$', '|', etc.
@@ -1023,7 +691,6 @@ def unescape_text(text):
 	@return: str
 	"""
 	return re.sub(r'\\(.)', r'\1', text)
-
 
 def get_profile(name):
 	"""
@@ -1082,42 +749,40 @@ def get_image_size(stream):
 			'height': -1
 		}
 
-def update_settings(settings):
-	globals()['zen_settings'] = settings
-	
 class Tag(object):
-	def __init__(self, name, count=1, doc_type='html'):
+	def __init__(self, node, syntax='html'):
 		"""
-		@param name: Tag name
-		@type name: str
-		@param count:  How many times this tag must be outputted
-		@type count: int
-		@param doc_type: Document type (xsl, html)
-		@type doc_type: str
+		@param node: Parsed tree node
+		@type node: zen_parser.TreeNode
+	 	@param syntax: Tag type (html, xml)
+	 	@type syntax: str
 		"""
-		name = name.lower()
+		abbr = None
+		if node.name:
+			abbr = get_abbreviation(syntax, filter_node_name(node.name))
+			if abbr and abbr.type == 'zen-reference':
+				abbr = get_abbreviation(type, filter_node_name(abbr.value))
 		
-		abbr = get_abbreviation(doc_type, name)
-		
-		if abbr and abbr.type == stparser.TYPE_REFERENCE:
-			abbr = get_abbreviation(doc_type, abbr.value)
-		
-		self.name = abbr and abbr.value['name'] or name.replace('+', '')
-		self.count = count
+		self.name = abbr and abbr.value.name or node.name
+		self.real_name = node.name
+		self.count = node.count or 1
+		self.__abbr = abbr
+		self.syntax = syntax
+		self.__content = ''
+		self.__paste_content = ''
+		self.repeat_by_lines = node.is_repeating
+		self.parent = None
 		self.children = []
 		self.attributes = []
-		self.multiply_elem = None
 		self.__attr_hash = {}
-		self._abbr = abbr
-		self.__content = ''
-		self.repeat_by_lines = False
-		self._res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
-		self.parent = None
+		
+		self.set_content(node.text)
 		
 		# add default attributes
-		if self._abbr and 'attributes' in self._abbr.value:
-			for a in self._abbr.value['attributes']:
-				self.add_attribute(a['name'], a['value'])
+		if self.__abbr:
+			self.copy_attributes(self.__abbr.value)
+		
+		self.copy_attributes(node)
 		
 	def add_child(self, tag):
 		"""
@@ -1156,6 +821,14 @@ class Tag(object):
 			a = {'name': name, 'value': value}
 			self.__attr_hash[name] = a
 			self.attributes.append(a)
+			
+	def copy_attributes(self, node):
+		"""
+		Copy attributes from parsed node
+		"""
+		if node and node.attributes:
+			for attr in node.attributes:
+				self.add_attribute(attr.name, attr.value)
 	
 	def has_tags_in_content(self):
 		"""
@@ -1168,14 +841,22 @@ class Tag(object):
 		return self.__content
 	
 	def set_content(self, value):
-		self.__content = value
+		self.__content = replace_unescaped_symbol(value or '', '|', get_caret_placeholder())
 		
-	def set_content(self, content): #@DuplicatedSignature
-		self.__content = content
-		
-	def get_content(self): #@DuplicatedSignature
-		return self.__content
+	def set_paste_content(self, val):
+		"""
+		Set content that should be pasted to the output
+		@type val: str
+		"""
+		self.__paste_content = escape_text(val)
 	
+	def get_paste_content(self):
+		"""
+		Get content that should be pasted to the output
+		"""
+		return self.__paste_content
+	
+		
 	def find_deepest_child(self):
 		"""
 		Search for deepest and latest child of current element.
@@ -1193,12 +874,23 @@ class Tag(object):
 		
 		return deepest_child
 	
+	def get_abbr(self):
+		return self.__abbr
+	
 class Snippet(Tag):
-	def __init__(self, name, count=1, doc_type='html'):
-		super(Snippet, self).__init__(name, count, doc_type)
-		self.value = replace_unescaped_symbol(get_snippet(doc_type, name), '|', get_caret_placeholder())
+	def __init__(self, node, syntax='html'):
+		self.name = filter_node_name(node.name)
+		self.real_name = node.name
+		self.count = node.count
+		self.children = []
+		self.repeat_by_lines = node.is_repeating
 		self.attributes = {'id': get_caret_placeholder(), 'class': get_caret_placeholder()}
-		self._res = zen_settings[doc_type]		
+		self.value = replace_unescaped_symbol(get_snippet(syntax, self.name), '|', get_caret_placeholder())
+		self.parent = None
+		self.syntax = syntax
+		
+		self.set_content(node.text or '');
+		self.copy_attributes(node)		
 	
 	def is_block(self):
 		return True
@@ -1213,9 +905,14 @@ class ZenNode(object):
 		"""
 		self.type = 'snippet' if isinstance(tag, Snippet) else 'tag'
 		self.name = tag.name
-		self.attributes = tag.attributes
+		self.real_name = tag.real_name
 		self.children = [];
 		self.counter = 1
+		
+		# create deep copy of attribute list so we can change
+		# their values in runtime without affecting other nodes
+		# created from the same tag
+		self.attributes = copy.deepcopy(tag.attributes)
 		
 		self.source = tag
 		"Source element from which current tag was created"
@@ -1228,7 +925,7 @@ class ZenNode(object):
 		# output params
 		self.start = ''
 		self.end = ''
-		self.content = ''
+		self.content = tag.get_content() or ''
 		self.padding = ''
 
 	def add_child(self, tag):
@@ -1265,14 +962,15 @@ class ZenNode(object):
 		if self.type == 'snippet':
 			return False
 			
-		return (self.source._abbr and self.source._abbr.value['is_empty']) or (self.name in get_elements_collection(self.source._res, 'empty'))
+		return self.source.get_abbr() and self.source.get_abbr().value['is_empty'] \
+				or zen_resources.is_item_in_collection(self.source.syntax, 'empty', self.name)
 	
 	def is_inline(self):
 		"""
 		Test if current tag is inline-level (like <strong>, <img>)
 		@return: bool
 		"""
-		return self.name in get_elements_collection(self.source._res, 'inline_level')
+		return zen_resources.is_item_in_collection(self.source.syntax, 'inline_level', self.name)
 	
 	def is_block(self):
 		"""
@@ -1330,6 +1028,46 @@ class ZenNode(object):
 		"@return {String}"
 		content = ''.join([item.to_string() for item in self.children])
 		return self.start + self.content + content + self.end
+	
+	def paste_content(self, text, had_var=0):
+		"""
+		Paste content in context of current node. Pasting is a special case
+		of recursive adding content in node. 
+		This function will try to find ${output} variable inside node's 
+		attributes and text content and replace in with <code>text</code>.
+		If it doesn't find ${output} variable, it will put <code>text</code>
+		value as the deepest child content
+		
+		@param text: Test to paste
+		@type text: str
+		@param had_var: Flag indicating that previous function run
+		(basically, on node's parent) had replaced ${output} variable (1),
+		pasted as node content (2) or did nothing (0)
+		@type had_var: int
+		@return: Is text was pasted as ${output} variable (int)
+		"""
+		_had_var = [had_var]
+		def fn(s, p1):
+			if p1 == 'output':
+				_had_var[0] = 1
+				return text
+			
+			return s
+		
+		for a in self.attributes:
+			a.value = replace_variables(a.value, fn)
+			
+		self.content = replace_variables(self.content, fn)
+		if self.has_children():
+			for child in self.children:
+				_had_var[0] = child.paste_content(text, _had_var[0])
+				if _had_var[0] == 2: return _had_var[0]
+		elif _had_var[0] == 0:
+			# put text as node content
+			self.content += text
+			return 2
+		
+		return _had_var[0]
 		
 class ZenError(Exception):
 	"""
@@ -1346,8 +1084,3 @@ setup_profile('xhtml');
 setup_profile('html', {'self_closing_tag': False});
 setup_profile('xml', {'self_closing_tag': True, 'tag_nl': True});
 setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False});
-
-# This method call explicity loads default settings from zen_settings.py on start up
-# Comment this line if you want to load data from other resources (like editor's 
-# native snippet) 
-update_settings(stparser.get_settings())

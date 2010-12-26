@@ -306,6 +306,18 @@
 		},
 		
 		/**
+		 * Check if specified item exists in specified resource collection
+		 * (like 'empty', 'block_level')
+		 * @param {String} syntax 
+		 * @param {String} collection Collection name
+		 * @param {String} item Item name
+		 */
+		isItemInCollection: function(syntax, collection, item) {
+			return item in this.getElementsCollection(getVocabulary(VOC_USER)[syntax], collection)
+				|| item in this.getElementsCollection(getVocabulary(VOC_SYSTEM)[syntax], collection);
+		},
+		
+		/**
 		 * Returns specified elements collection (like 'empty', 'block_level') from
 		 * <code>resource</code>. If collections wasn't found, returns empty object
 		 * @param {Object} resource

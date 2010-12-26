@@ -257,7 +257,7 @@
 		this.real_name = node.name;
 		this.count = node.count || 1;
 		this._abbr = abbr;
-		this._res = zen_settings[type];
+		this.syntax = syntax;
 		this._content = '';
 		this._paste_content = '';
 		this.repeat_by_lines = node.is_repeating;
@@ -403,6 +403,7 @@
 		this.attributes = {'id': getCaretPlaceholder(), 'class': getCaretPlaceholder()};
 		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
+		this.syntax = type;
 		
 		this.copyAttributes(node);
 	}
@@ -528,7 +529,7 @@
 				return false;
 				
 			return (this.source._abbr && this.source._abbr.value.is_empty) 
-				|| (this.name in zen_resources.getElementsCollection(this.source._res, 'empty'));
+				|| zen_resources.isItemInCollection(this.source.syntax, 'empty', this.name);
 		},
 		
 		/**
@@ -537,7 +538,7 @@
 		 */
 		isInline: function() {
 			return this.type == 'text' 
-				|| (this.name in zen_resources.getElementsCollection(this.source._res, 'inline_level'));
+				|| zen_resources.isItemInCollection(this.source.syntax, 'inline_level', this.name);
 		},
 		
 		/**
@@ -737,7 +738,7 @@
 	/**
 	 * Transforms abbreviation into a primary internal tree. This tree should'n 
 	 * be used ouside of this scope
-	 * @param {zen_parser.TreeNode} abbr Parsed tree node
+	 * @param {zen_parser.TreeNode} node Parsed tree node
 	 * @param {String} [type] Document type (xsl, html, etc.)
 	 * @return {Tag}
 	 */
@@ -777,7 +778,7 @@
 	
 	/**
 	 * Replaces expando nodes by its parsed content
-	 * @param {zen_parser.TreeNode}
+	 * @param {zen_parser.TreeNode} node
 	 * @param {String} type
 	 */
 	function replaceExpandos(node, type) {
@@ -867,7 +868,7 @@
 	}
 	
 	/**
-	 * Porcesses profile argument, returning, if possible, profile object
+	 * Processes profile argument, returning, if possible, profile object
 	 */
 	function processProfile(profile) {
 		var _profile = profile;
@@ -1002,7 +1003,7 @@
 				return '';
 			});
 			
-			// split abbreviation by groups
+			// try to parse abbreviation
 			try {
 				var abbr_tree = zen_parser.parse(abbr),
 					tree_root = new Tag({}, type);
