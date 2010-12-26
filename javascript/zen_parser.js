@@ -46,9 +46,8 @@
 				var children = this.parent.children;
 				for (var i = 0, il = children.length; i < il; i++) {
 					if (children[i] === this) {
-						var old_node = children[i];
 						children[i] = node;
-						old_node = old_node.parent = null;
+						this.parent = null;
 						return;
 					}
 				}
