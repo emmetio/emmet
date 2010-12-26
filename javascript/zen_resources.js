@@ -17,12 +17,10 @@
 		
 		/** Regular expression for XML tag matching */
 		re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
-		re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g
+		re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g,
 		
 		system_settings = {},
-		user_settings = {},
-		
-		user_variables = {};
+		user_settings = {};
 		
 	/**
 	 * Trim whitespace from string
@@ -137,7 +135,7 @@
 	 * @param {String} vocabulary Resource vocabulary
 	 * @param {String} syntax Syntax name
 	 * @param {String} name Resource name ('abbreviation', 'snippet')
-	 * @param {String} item Abbreviationor snippet name
+	 * @param {String} item Abbreviation or snippet name
 	 * @return {Object|null}
 	 */
 	function getParsedItem(vocabulary, syntax, name, item) {
