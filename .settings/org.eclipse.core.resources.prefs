@@ -1,4 +1,4 @@
-#Thu May 13 01:09:18 MSD 2010
+#Sun Dec 26 22:43:05 MSK 2010
 eclipse.preferences.version=1
 encoding//plugins/TextMate/Zen\ Coding.tmbundle/Support/encode_decode_image.py=utf-8
 encoding//plugins/TextMate/Zen\ Coding.tmbundle/Support/expand_abbreviation.py=utf-8
@@ -10,3 +10,4 @@ encoding//python/zencoding/filters/html.py=utf-8
 encoding//python/zencoding/html_matcher.py=utf-8
 encoding//python/zencoding/zen_actions.py=utf-8
 encoding//python/zencoding/zen_core.py=utf-8
+encoding//python/zencoding/zen_resources.py=utf-8
