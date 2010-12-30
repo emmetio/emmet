@@ -5,7 +5,7 @@
 	<key>beforeRunningCommand</key>
 	<string>nop</string>
 	<key>command</key>
-	<string>python "$TM_BUNDLE_SUPPORT"/next_edit_point.py</string>
+	<string>python "$TM_BUNDLE_SUPPORT"/runner.py next_edit_point</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>

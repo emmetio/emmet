@@ -10,7 +10,7 @@
 				<key>beforeRunningCommand</key>
 				<string>nop</string>
 				<key>command</key>
-				<string>python "$TM_BUNDLE_SUPPORT"/@SEARCH_MODULE@</string>
+				<string>python "$TM_BUNDLE_SUPPORT"/runner.py @ACTION_NAME@ @ARGS@</string>
 				<key>input</key>
 				<string>document</string>
 				<key>keyEquivalent</key>
