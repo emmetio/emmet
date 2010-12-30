@@ -343,7 +343,7 @@ class TreeNode(object):
 		self.abbreviation = abbr
 		m = self.re_multiplier.search(abbr)
 		if m:
-			self.count = int(m.group(1))
+			self.count = m.group(1) and int(m.group(1)) or 1
 			self.is_repeating = not m.group(1)
 			abbr = abbr[0:-len(m.group(0))]
 		

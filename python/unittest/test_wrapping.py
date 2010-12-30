@@ -8,8 +8,11 @@ Created on Jun 19, 2009
 import unittest
 import sys
 from zencoding import zen_core as zen
+from zencoding import zen_resources
+from zencoding.zen_settings import zen_settings
 
 zen.set_caret_placeholder('|')
+zen_resources.set_vocabulary(zen_settings, zen_resources.VOC_SYSTEM)
 
 def expandAbbr(abbr, doc_type='html', profile_name='plain'):
 	return zen.expand_abbreviation(abbr, doc_type, profile_name)
@@ -32,6 +35,8 @@ class Test(unittest.TestCase):
 		self.assertEqual('<li>one</li><li>two</li><li>three</li>', wrap('li*', 'one\ntwo\nthree'));
 		self.assertEqual('<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>', wrap('li*>a', 'one\ntwo\nthree'));
 		self.assertEqual(u'<li><a href="">раз</a></li><li><a href="">два</a></li><li><a href="">три</a></li>', wrap(u'li*>a', u'раз\nдва\nтри'));
+		self.assertEqual('<ul><li><a href="" title="one"></a></li><li><a href="" title="two"></a></li><li><a href="" title="three"></a></li></ul>', wrap('ul>li*>a[title=${output}]', 'one\ntwo\nthree'));
+		self.assertEqual('<ul><li><a href="" title="one">one</a></li><li><a href="" title="two">two</a></li><li><a href="" title="three">three</a></li></ul>', wrap('ul>li*>a[title=${output}]{${output}}', 'one\ntwo\nthree'));
 	
 	def testSnippetsWrap(self):
 		self.assertEqual('<!--[if IE]>\n\thello world|\n<![endif]-->', wrap('cc:ie', 'hello world'));

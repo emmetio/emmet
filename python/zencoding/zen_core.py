@@ -171,13 +171,23 @@ def is_ends_with_tag(text):
 	"""
 	return re_tag.search(text) != None
 	
-def replace_variables(text, vars=zen_settings['variables']):
+def replace_variables(text, vars=None):
 	"""
 	Replace variables like ${var} in string
 	@param text: str
 	@return: str
 	"""
-	return re.sub(r'\$\{([\w\-]+)\}', lambda m: m.group(1) in vars and vars[m.group(1)] or m.group(0), text)
+	re_var = r'\$\{([\w\-]+)\}'
+	if callable(vars):
+		return re.sub(re_var, vars, text)
+	else:
+		def _repl(m):
+			if vars and m.group(1) in vars:
+				return vars[m.group(1)]
+			else:
+				return zen_resources.get_variable(m.group(1))
+		
+	return re.sub(re_var, _repl, text)
 
 def filter_node_name(name):
 	"""
@@ -769,6 +779,8 @@ class Tag(object):
 		self.children = []
 		self.attributes = []
 		self.__attr_hash = {}
+		self.multiply_elem = None
+		self.last = None
 		
 		if node:
 			abbr = None
@@ -894,7 +906,10 @@ class Tag(object):
 class Snippet(Tag):
 	def __init__(self, node, syntax='html'):
 		super(Snippet, self).__init__(node, syntax)
-		self.attributes = {'id': get_caret_placeholder(), 'class': get_caret_placeholder()}
+		self.attributes = [
+			{'name': 'id', 'value': get_caret_placeholder()},
+			{'name': 'class', 'value': get_caret_placeholder()}
+		]
 		self.value = replace_unescaped_symbol(get_snippet(syntax, self.name), '|', get_caret_placeholder())
 	
 	def is_block(self):
@@ -1052,15 +1067,15 @@ class ZenNode(object):
 		@return: Is text was pasted as ${output} variable (int)
 		"""
 		_had_var = [had_var]
-		def fn(s, p1):
-			if p1 == 'output':
+		def fn(m):
+			if m.group(1) and m.group(1) == 'output':
 				_had_var[0] = 1
 				return text
 			
-			return s
+			return m.group(0)
 		
 		for a in self.attributes:
-			a.value = replace_variables(a.value, fn)
+			a['value'] = replace_variables(a['value'], fn)
 			
 		self.content = replace_variables(self.content, fn)
 		if self.has_children():
