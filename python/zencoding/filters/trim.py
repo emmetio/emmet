@@ -16,7 +16,7 @@ re_indicators = re.compile(r'^([\s|\u00a0])?[\d|#|\-|\*|\u2022]+\.?\s*')
 def process(tree, profile):
 	for item in tree.children:
 		if item.content:
-			item.content = re_indicators.sub(r'\1', item.content)
+			item.content = re_indicators.sub('', item.content)
 		
 		process(item, profile)
 	
