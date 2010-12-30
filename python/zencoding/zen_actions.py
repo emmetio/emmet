@@ -868,3 +868,125 @@ def update_image_size(editor):
 				
 	return False
 				
+				
+def prettify_number(num, fraction=2):
+	"""
+	Make decimal number look good: convert it to fixed precision end remove
+	traling zeroes 
+	@type num: int
+	@param fracion: Fraction numbers
+	@type fracion: int
+	@return: str
+	"""
+	return re.sub(r'\.?0+$', '', ('%.' + str(fraction) +'f') % num)
+
+def find_expression_bounds(editor, fn):
+	"""
+	Find expression bounds in current editor at caret position. 
+	On each character a <code>fn</code> function will be caller which must 
+	return <code>true</code> if current character meets requirements, 
+	<code>false</code> otherwise
+	@type editor: ZenEditor
+	@param fn: Function to test each character of expression
+	@type fn: function
+	@return: If expression found, returns array with start and end 
+	positions 
+	"""
+	content = editor.get_content()
+	il = len(content.length)
+	expr_start = editor.get_caret_pos() - 1
+	expr_end = expr_start + 1
+		
+	# start by searching left
+	while expr_start >= 0 and fn(content[expr_start], expr_start, content): expr_start -= 1
+	
+	# then search right
+	while expr_end < il and fn(content[expr_end], expr_end, content): expr_end += 1
+	
+	return expr_end > expr_start and (expr_start + 1, expr_end) or None
+
+def increment_number(editor, step):
+	"""
+	Extract number from current caret position of the <code>editor</code> and
+	increment it by <code>step</code>
+	@type editor: ZenCoding
+	@param step: Increment step (may be negative)
+	@type step: int
+	"""
+	content = editor.get_content()
+	has_sign = [False]
+	has_decimal = [False]
+	
+	def _bounds(ch, start, content):
+		if ch.isnumeric():
+			return True
+		if ch == '.':
+			if has_decimal[0]:
+				return False
+			else:
+				has_decimal[0] = True
+				return True
+		if ch == '-':
+			if has_sign[0]:
+				return False
+			else:
+				has_sign[0] = True
+				return True
+			
+		return False
+		
+	r = find_expression_bounds(editor, _bounds)
+	if r:
+		try:
+			num = float(content[r[0]:r[1]])
+			num = prettify_number(num + step)
+			editor.replace_content(num, r[0], r[1]);
+			editor.create_selection(r[0], r[0] + len(num))
+			return True
+		except:
+			pass
+	
+	return False
+
+def increment_number_by_1(editor):
+	return increment_number(editor, 1)
+
+def decrement_number_by_1(editor):
+	return increment_number(editor, -1)
+
+def increment_number_by_10(editor):
+	return increment_number(editor, 10)
+
+def decrement_number_by_10(editor):
+	return increment_number(editor, -10)
+
+def increment_number_by_01(editor):
+	return increment_number(editor, 0.1)
+
+def decrement_number_by_01(editor):
+	return increment_number(editor, -0.1)
+
+def evaluate_math_expression(editor):
+	"""
+	Evaluates simple math expresison under caret
+	@param editor: ZenEditor
+	"""
+	content = editor.get_content()
+	chars = '.+-*/\\'
+		
+	r = find_expression_bounds(editor, lambda ch, start, content: ch.isnumeric() or ch in chars)
+	
+	
+	if r:
+		# replace integral division: 11\2 => Math.round(11/2)
+		expr = re.sub(r'([\d\.\-]+)\\([\d\.\-]+)', 'round($1/$2)', content[r[0]:r[1]]) 
+		
+		try:
+			result = prettify_number(eval(expr))
+			editor.replace_content(result, r[0], r[1])
+			editor.set_caret_pos(r[0] + len(result))
+			return True
+		except:
+			pass
+	
+	return False

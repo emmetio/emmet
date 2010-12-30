@@ -944,8 +944,8 @@ function updateImageSize(editor) {
  * @param {Number} [fracion] Fraction numbers (default is 2)
  * @return {String}
  */
-function prettifyNumber(num, fracion) {
-	return num.toFixed(typeof fraction == 'undefined' ? 2 : fracion).replace(/\.?0+$/, '');
+function prettifyNumber(num, fraction) {
+	return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
 }
 
 /**
@@ -955,7 +955,7 @@ function prettifyNumber(num, fracion) {
  * <code>false</code> otherwise
  * @param {zen_editor} editor
  * @param {Function} fn Function to test each character of expression
- * @requires {Array} If expression found, returns array with start and end 
+ * @return {Array} If expression found, returns array with start and end 
  * positions 
  */
 function findExpressionBounds(editor, fn) {
@@ -1031,6 +1031,7 @@ function evaluateMathExpression(editor) {
 			result = prettifyNumber(result);
 			editor.replaceContent(result, r[0], r[1]);
 			editor.setCaretPos(r[0] + result.length);
+			return true;
 		} catch (e) {}
 	}
 	
