@@ -6,6 +6,9 @@
 '''
 import re
 import types
+from zen_settings import zen_settings
+import imp
+import os.path
 
 TYPE_ABBREVIATION = 'zen-tag'
 TYPE_EXPANDO = 'zen-expando'
@@ -43,7 +46,7 @@ def has_deep_key(obj, key):
 	"""
 	Check if <code>obj</code> dictionary contains deep key. For example,
 	example, it will allow you to test existance of my_dict[key1][key2][key3],
-	testing existance of my_dict[key1] first, then my_dict[key1][key2], 
+	testing existance of my_dict[key1] first, then my_dict[key1][key2],
 	and finally my_dict[key1][key2][key3]
 	@param obj: Dictionary to test
 	@param obj: dict
@@ -54,7 +57,7 @@ def has_deep_key(obj, key):
 	"""
 	if isinstance(key, str):
 		key = key.split('.')
-		
+
 	last_obj = obj
 	for v in key:
 		if hasattr(last_obj, v):
@@ -63,7 +66,7 @@ def has_deep_key(obj, key):
 			last_obj = last_obj[v]
 		else:
 			return False
-	
+
 	return True
 
 
@@ -81,13 +84,13 @@ def create_resource_chain(vocabulary, syntax, name):
 	voc = get_vocabulary(vocabulary)
 	result = []
 	resource = None
-	
+
 	if voc and syntax in voc:
 		resource = voc[syntax]
 		if name in resource:
 			result.append(resource[name])
-	
-	
+
+
 	# get inheritance definition
 	# in case of user-defined vocabulary, resource dependency
 	# may be defined in system vocabulary only, so we have to correctly
@@ -97,21 +100,21 @@ def create_resource_chain(vocabulary, syntax, name):
 		chain_source = resource
 	elif vocabulary == VOC_USER and has_deep_key(get_vocabulary(VOC_SYSTEM), [syntax, 'extends']):
 		chain_source = get_vocabulary(VOC_SYSTEM)[syntax]
-		
+
 	if chain_source:
 		if not is_parsed(chain_source['extends']):
 			chain_source['extends'] = [v.strip() for v in chain_source['extends'].split(',')]
-		
+
 		# find resource in ancestors
 		for type in chain_source['extends']:
 			if has_deep_key(voc, [type, name]):
 				result.append(voc[type][name])
-			
+
 	return result
 
 def _get_subset(vocabulary, syntax, name):
 	"""
-	Get resource collection from settings vocbulary for specified syntax. 
+	Get resource collection from settings vocbulary for specified syntax.
 	It follows inheritance chain if resource wasn't directly found in
 	syntax settings
 	@param voc: Resource vocabulary
@@ -139,15 +142,15 @@ def get_parsed_item(vocabulary, syntax, name, item):
 	@return {Object|null}
 	"""
 	chain = create_resource_chain(vocabulary, syntax, name)
-	
+
 	for res in chain:
 		if item in res:
 			if name == 'abbreviations' and not is_parsed(res[item]):
 				# parse abbreviation
 				res[item] = parse_abbreviation(item, res[item])
-			
+
 			return res[item]
-	
+
 	return None
 
 def make_expando(key, value):
@@ -176,7 +179,7 @@ def make_abbreviation(key, tag_name, attrs, is_empty=False):
 		'name': tag_name,
 		'is_empty': is_empty
 	};
-	
+
 	if attrs:
 		result['attributes'] = [];
 		for m in re_attrs.findall(attrs):
@@ -184,7 +187,7 @@ def make_abbreviation(key, tag_name, attrs, is_empty=False):
 				'name': m[0],
 				'value': m[2]
 			})
-			
+
 	return Entry(TYPE_ABBREVIATION, key, result)
 
 def parse_abbreviation(key, value):
@@ -242,7 +245,7 @@ def get_abbreviation(syntax, name):
 	"""
 	if name is None:
 		return False
-	
+
 	return get_resource(syntax, 'abbreviations', name) \
 		or get_resource(syntax, 'abbreviations', name.replace('-', ':'))
 
@@ -256,7 +259,7 @@ def get_snippet(syntax, name):
 	"""
 	if name is None:
 		return False
-	
+
 	return get_resource(syntax, 'snippets', name) \
 		or get_resource(syntax, 'snippets', name.replace('-', ':'))
 
@@ -279,18 +282,18 @@ def get_subset(syntax, name):
 	"""
 	return _get_subset(VOC_USER, syntax, name) \
 		or _get_subset(VOC_SYSTEM, syntax, name)
-		
+
 def is_item_in_collection(syntax, collection, item):
 	"""
 	Check if specified item exists in specified resource collection
 	(like 'empty', 'block_level')
-	@param {String} syntax 
+	@param {String} syntax
 	@param {String} collection Collection name
 	@param {String} item Item name
 	"""
 	user_voc = get_vocabulary(VOC_USER)
 	if syntax in user_voc and item in get_elements_collection(user_voc[syntax], collection):
-		return True 
+		return True
 	try:
 		return item in get_elements_collection(get_vocabulary(VOC_SYSTEM)[syntax], collection)
 	except:
@@ -308,7 +311,7 @@ def get_elements_collection(resource, name):
 		res = resource['element_types']
 		if not is_parsed(res[name]):
 			res[name] = [el.strip() for el in res[name].split(',')]
-			
+
 		return res[name]
 	else:
 		return {}
@@ -326,6 +329,34 @@ class Entry:
 		self.type = entry_type
 		self.key = key
 		self.value = value
-		
+
 	def __repr__(self):
 		return 'Entry[type=%s, key=%s, value=%s]' % (self.type, self.key, self.value)
+
+# init vocabularies
+set_vocabulary(zen_settings, VOC_SYSTEM)
+user_settings = None
+
+# try to load settings from user's home folder
+fp = None
+
+try:
+	fp, pathname, description = imp.find_module('my_zen_settings', [os.path.expanduser('~')])
+	module = imp.load_module('my_zen_settings', fp, pathname, description)
+	user_settings = module.my_zen_settings
+except:
+	pass
+finally:
+	# Since we may exit via an exception, close fp explicitly.
+	if fp: fp.close()
+
+if not user_settings:
+	# try to load local module
+	try:
+		from my_zen_settings import my_zen_settings
+		user_settings = my_zen_settings
+	except:
+		pass
+	
+if user_settings:
+	set_vocabulary(user_settings, VOC_USER)

@@ -24,7 +24,6 @@ Created on Apr 17, 2009
 
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
-from zen_settings import zen_settings
 import re
 import zen_resources 
 import zen_parser
@@ -195,7 +194,7 @@ def filter_node_name(name):
 	@type name: str
 	@return: str
 	"""
-	return re.sub(r'(.+)\!$', '\\1', name)
+	return re.sub(r'(.+)\!$', '\\1', name or '')
 
 def get_abbreviation(syntax, abbr):
 	"""

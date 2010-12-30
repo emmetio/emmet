@@ -7,7 +7,6 @@ import unittest
 
 from zencoding import zen_core as zen
 from zencoding import zen_resources
-from zencoding.zen_settings import zen_settings
 
 my_zen_settings = {
 	'html': {
@@ -18,7 +17,6 @@ my_zen_settings = {
 }
 
 zen.set_caret_placeholder('|')
-zen_resources.set_vocabulary(zen_settings, zen_resources.VOC_SYSTEM)
 zen_resources.set_vocabulary(my_zen_settings, zen_resources.VOC_USER)
 
 def expandAbbr(abbr, syntax='html', profile_name='plain'):
