@@ -896,7 +896,7 @@ def find_expression_bounds(editor, fn):
 	positions 
 	"""
 	content = editor.get_content()
-	il = len(content.length)
+	il = len(content)
 	expr_start = editor.get_caret_pos() - 1
 	expr_end = expr_start + 1
 		
@@ -921,7 +921,7 @@ def increment_number(editor, step):
 	has_decimal = [False]
 	
 	def _bounds(ch, start, content):
-		if ch.isnumeric():
+		if ch.isdigit():
 			return True
 		if ch == '.':
 			if has_decimal[0]:
@@ -941,8 +941,8 @@ def increment_number(editor, step):
 	r = find_expression_bounds(editor, _bounds)
 	if r:
 		try:
-			num = float(content[r[0]:r[1]])
-			num = prettify_number(num + step)
+			num = content[r[0]:r[1]]
+			num = prettify_number(float(num) + float(step))
 			editor.replace_content(num, r[0], r[1]);
 			editor.create_selection(r[0], r[0] + len(num))
 			return True
@@ -977,7 +977,7 @@ def evaluate_math_expression(editor):
 	content = editor.get_content()
 	chars = '.+-*/\\'
 		
-	r = find_expression_bounds(editor, lambda ch, start, content: ch.isnumeric() or ch in chars)
+	r = find_expression_bounds(editor, lambda ch, start, content: ch.isdigit() or ch in chars)
 	
 	
 	if r:
