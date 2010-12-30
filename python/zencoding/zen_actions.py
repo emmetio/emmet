@@ -158,7 +158,7 @@ def narrow_to_non_space(text, start, end):
 		
 	return start, end
 
-def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
+def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 	"""
 	Wraps content with abbreviation
 	@param editor: Editor instance
@@ -168,6 +168,9 @@ def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
 	@param profile_name: Output profile name (html, xml, xhtml)
 	@type profile_name: str
 	"""
+	if abbr is None:
+		abbr = editor.prompt('Enter abbreviation')
+	
 	if not abbr: return None 
 	
 	if syntax is None: syntax = editor.get_syntax()
