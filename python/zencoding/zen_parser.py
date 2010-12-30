@@ -3,11 +3,17 @@
 @link http://chikuyonok.ru
 '''
 import re
-from zen_core import char_at
 
 re_word = re.compile(r'^[\w\-:\$]+')
 re_attr_string = re.compile(r'^(["\'])((?:(?!\1)[^\\]|\\.)*)\1')
 re_valid_name = re.compile(r'^[\w\d\-_\$\:@!]+\+?$', re.IGNORECASE)
+
+def char_at(text, pos):
+	"""
+	Returns character at specified index of text.
+	If index if out of range, returns empty string
+	"""
+	return text[pos] if pos < len(text) else ''
 
 def split_expression(expr):
 	"""
@@ -157,7 +163,7 @@ def extract_attributes(attr_set):
 						# something wrong, break loop
 						attr_set = ''
 			else:
-				attr_set = attr_set[len(attr_name)].strip()
+				attr_set = attr_set[len(attr_name):].strip()
 		else:
 			# something wrong, can't extract attribute name
 			break;
@@ -294,7 +300,7 @@ def parse(abbr):
 	return optimize_tree(root)
 
 class TreeNode(object):
-	re_multiplier = re.compile('\*(\d+)?$')
+	re_multiplier = re.compile(r'\*(\d+)?$')
 	
 	def __init__(self, parent=None):
 		self.abbreviation = '';
@@ -335,7 +341,7 @@ class TreeNode(object):
 		@type abbr: str
 		"""
 		self.abbreviation = abbr
-		m = self.re_multiplier.match(abbr)
+		m = self.re_multiplier.search(abbr)
 		if m:
 			self.count = int(m.group(1))
 			self.is_repeating = not m.group(1)
@@ -351,7 +357,7 @@ class TreeNode(object):
 		
 		# validate name
 		if self.name and not re_valid_name.match(self.name):
-			raise ZenInvalidAbbreviation
+			raise ZenInvalidAbbreviation('self.name')
 		
 	def get_abbreviation(self):
 		return self.expr

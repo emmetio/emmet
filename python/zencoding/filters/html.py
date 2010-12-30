@@ -10,6 +10,22 @@ from zencoding import zen_core as zen_coding
 
 child_token = '${child}'
 
+def process_string_case(val, case_param=''):
+	"""
+	Returns proper string case, depending on profile value
+	@param val: String to process
+	@type val: str
+	@param case_param: Profile's case value ('lower', 'upper', 'leave')
+	@type case_param: str
+	"""
+	case_param = case_param.lower()
+	if case_param == 'lower':
+		return val.lower()
+	elif case_param == 'upper':
+		return val.upper()
+	else:
+		return val;
+
 def make_attributes_string(tag, profile):
 	"""
 	Creates HTML attributes string from tag according to profile settings
@@ -23,7 +39,7 @@ def make_attributes_string(tag, profile):
 	
 	# process other attributes
 	for a in tag.attributes:
-		attr_name = profile['attr_case'] == 'upper' and a['name'].upper() or a['name'].lower()
+		attr_name = process_string_case(a['name'], profile['attr_case']);
 		attrs += ' ' + attr_name + '=' + attr_quote + (a['value'] or cursor) + attr_quote
 		
 	return attrs
@@ -94,7 +110,7 @@ def process_tag(item, profile, level):
 		self_closing = '/'
 		
 	# define opening and closing tags
-	tag_name = profile['tag_case'] == 'upper' and item.name.upper() or item.name.lower()
+	tag_name = process_string_case(item.name, profile['tag_case'])
 	if is_unary:
 		start = '<' + tag_name + attrs + self_closing + '>'
 		item.end = ''
@@ -105,7 +121,7 @@ def process_tag(item, profile, level):
 	item.start = _replace(item.start, start)
 	item.end = _replace(item.end, end)
 	
-	if not item.children and not is_unary:
+	if not item.children and not is_unary and cursor not in item.content:
 		item.start += cursor
 	
 	return item
@@ -131,6 +147,7 @@ def process(tree, profile, level=0):
 		# replace counters
 		item.start = zen_coding.unescape_text(zen_coding.replace_counter(item.start, item.counter))
 		item.end = zen_coding.unescape_text(zen_coding.replace_counter(item.end, item.counter))
+		item.content = zen_coding.unescape_text(zen_coding.replace_counter(item.content, item.counter));
 		zen_coding.upgrade_tabstops(item)
 		
 		process(item, profile, level + 1)

@@ -6,7 +6,8 @@ Created on Jun 19, 2009
 import unittest
 
 from zencoding import zen_core as zen
-from zencoding import stparser
+from zencoding import zen_resources
+from zencoding.zen_settings import zen_settings
 
 my_zen_settings = {
 	'html': {
@@ -17,11 +18,11 @@ my_zen_settings = {
 }
 
 zen.set_caret_placeholder('|')
+zen_resources.set_vocabulary(zen_settings, zen_resources.VOC_SYSTEM)
+zen_resources.set_vocabulary(my_zen_settings, zen_resources.VOC_USER)
 
-zen.update_settings(stparser.get_settings(my_zen_settings))
-
-def expandAbbr(abbr, doc_type='html', profile_name='plain'):
-	return zen.expand_abbreviation(abbr, doc_type, profile_name)
+def expandAbbr(abbr, syntax='html', profile_name='plain'):
+	return zen.expand_abbreviation(abbr, syntax, profile_name)
 
 def extractAbbr(line):
 	return zen.extract_abbreviation(line)
@@ -30,7 +31,7 @@ class Test(unittest.TestCase):
 	
 	def testPlusOperator(self):
 		self.assertEqual('<p></p><p></p>', expandAbbr('p+p'))
-		self.assertEqual('<p></p><p></p>', expandAbbr('p+P'))
+		self.assertEqual('<p></p><P></P>', expandAbbr('p+P'))
 		self.assertEqual('<p class="name"></p><p></p><p></p>', expandAbbr('p.name+p+p'))
 		
 	def testChildOperator(self):
@@ -134,7 +135,7 @@ class Test(unittest.TestCase):
 		
 	def testGroups(self):
 		self.assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'))
-		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'))
+		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>((ul#nav>li*3)+(div.subnav>p)+(div.othernav))+div#footer'))
 		self.assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'))
 		self.assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
 	

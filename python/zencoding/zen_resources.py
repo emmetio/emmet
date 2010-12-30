@@ -5,6 +5,7 @@
 @link http://chikuyonok.ru
 '''
 import re
+import types
 
 TYPE_ABBREVIATION = 'zen-tag'
 TYPE_EXPANDO = 'zen-expando'
@@ -28,7 +29,7 @@ def is_parsed(obj):
 	Check if specified resource is parsed by Zen Coding
 	@return: bool
 	"""
-	return obj and not isinstance(obj, str)
+	return obj and not isinstance(obj, types.StringTypes)
 
 def get_vocabulary(name):
 	"""
@@ -201,7 +202,7 @@ def parse_abbreviation(key, value):
 	else:
 		m = re_tag.search(value)
 		if m:
-			return make_abbreviation(key, m.group(1), m.group(2), (m.group(3) == '/'))
+			return make_abbreviation(key, m.group(1), m.group(2), (m.group(4) == '/'))
 		else:
 #			assume it's reference to another abbreviation
 			return Entry(TYPE_REFERENCE, key, value)
@@ -281,25 +282,28 @@ def is_item_in_collection(syntax, collection, item):
 	@param {String} collection Collection name
 	@param {String} item Item name
 	"""
-	return item in get_elements_collection(get_vocabulary(VOC_USER)[syntax], collection) \
-		or item in get_elements_collection(get_vocabulary(VOC_SYSTEM)[syntax], collection)
+	user_voc = get_vocabulary(VOC_USER)
+	if syntax in user_voc and item in get_elements_collection(user_voc[syntax], collection):
+		return True 
+	try:
+		return item in get_elements_collection(get_vocabulary(VOC_SYSTEM)[syntax], collection)
+	except:
+		return False
 
-def get_elements_collection(resource, type):
+def get_elements_collection(resource, name):
 	"""
 	Returns specified elements collection (like 'empty', 'block_level') from
 	<code>resource</code>. If collections wasn't found, returns empty object
 	@type resource: object
-	@type type: str
+	@type name: str
 	"""
-	if resource and 'element_types' in resource:
+	if resource and has_deep_key(resource, ['element_types', name]):
 		# if it's not parsed yet -- do it
 		res = resource['element_types']
-		if not is_parsed(res):
-			for k, v in res.items():
-				if isinstance(v, str):
-					res[k] = [el.strip() for el in v.split(',')]
+		if not is_parsed(res[name]):
+			res[name] = [el.strip() for el in res[name].split(',')]
 			
-		return type in res and res[type] or {}
+		return res[name]
 	else:
 		return {}
 

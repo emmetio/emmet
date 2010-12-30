@@ -26,7 +26,7 @@ Created on Apr 17, 2009
 '''
 from zen_settings import zen_settings
 import re
-import zen_resources
+import zen_resources 
 import zen_parser
 import copy
 
@@ -41,8 +41,8 @@ profiles = {}
 "Available output profiles"
 
 default_profile = {
-	'tag_case': 'lower',         # values are 'lower', 'upper'
-	'attr_case': 'lower',        # values are 'lower', 'upper'
+	'tag_case': 'leave',         # values are 'lower', 'upper'
+	'attr_case': 'leave',        # values are 'lower', 'upper'
 	'attr_quotes': 'double',     # values are 'single', 'double'
 	
 	'tag_nl': 'decide',          # each tag on new line, values are True, False, 'decide'
@@ -155,12 +155,12 @@ def pad_string(text, pad):
 			
 	return result
 
-def is_snippet(abbr, doc_type = 'html'):
+def is_snippet(abbr, syntax = 'html'):
 	"""
 	Check is passed abbreviation is a snippet
 	@return bool
 	"""
-	return get_snippet(doc_type, abbr) and True or False
+	return get_snippet(syntax, abbr) and True or False
 
 def is_ends_with_tag(text):
 	"""
@@ -185,7 +185,7 @@ def filter_node_name(name):
 	@type name: str
 	@return: str
 	"""
-	return re.sub(r'(.+)\!$', '\\1')
+	return re.sub(r'(.+)\!$', '\\1', name)
 
 def get_abbreviation(syntax, abbr):
 	"""
@@ -321,7 +321,7 @@ def process_parsed_node(node, syntax, parent):
 	@type parent: Tag
 	"""
 	t_node = transform_tree_node(node, syntax)
-	parent.addChild(t_node)
+	parent.add_child(t_node)
 		
 	# set repeating element to the topmost node
 	root = parent
@@ -515,7 +515,7 @@ def parse_into_tree(abbr, syntax='html'):
 	# try to parse abbreviation
 	try:
 		abbr_tree = zen_parser.parse(abbr)
-		tree_root = Tag({}, syntax)
+		tree_root = Tag(None, syntax)
 		abbr_tree = preprocess_parsed_tree(abbr_tree, syntax)
 	except zen_parser.ZenInvalidAbbreviation:
 		return None
@@ -609,7 +609,7 @@ def apply_filters(tree, syntax, profile, additional_filters=None):
 	@return: ZenNode
 	"""
 	profile = process_profile(profile)
-	_filters = profile.filters
+	_filters = profile['filters']
 	if not _filters:
 		_filters = zen_resources.get_subset(syntax, 'filters') or basic_filters
 		
@@ -757,26 +757,33 @@ class Tag(object):
 	 	@param syntax: Tag type (html, xml)
 	 	@type syntax: str
 		"""
-		abbr = None
-		if node.name:
-			abbr = get_abbreviation(syntax, filter_node_name(node.name))
-			if abbr and abbr.type == 'zen-reference':
-				abbr = get_abbreviation(type, filter_node_name(abbr.value))
-		
-		self.name = abbr and abbr.value.name or node.name
-		self.real_name = node.name
-		self.count = node.count or 1
-		self.__abbr = abbr
+		self.name = None
+		self.real_name = None
+		self.count = 1
+		self.__abbr = None
 		self.syntax = syntax
 		self.__content = ''
 		self.__paste_content = ''
-		self.repeat_by_lines = node.is_repeating
+		self.repeat_by_lines = False
 		self.parent = None
 		self.children = []
 		self.attributes = []
 		self.__attr_hash = {}
 		
-		self.set_content(node.text)
+		if node:
+			abbr = None
+			if node.name:
+				abbr = get_abbreviation(syntax, filter_node_name(node.name))
+				if abbr and abbr.type == 'zen-reference':
+					abbr = get_abbreviation(syntax, filter_node_name(abbr.value))
+					
+			self.name = abbr and abbr.value['name'] or node.name
+			self.real_name = node.name
+			self.count = node.count
+			self.set_content(node.text)
+			self.__abbr = abbr
+			self.repeat_by_lines = node.is_repeating
+		
 		
 		# add default attributes
 		if self.__abbr:
@@ -826,9 +833,16 @@ class Tag(object):
 		"""
 		Copy attributes from parsed node
 		"""
-		if node and node.attributes:
-			for attr in node.attributes:
-				self.add_attribute(attr.name, attr.value)
+		attrs = None
+		if node:
+			if hasattr(node, 'attributes'):
+				attrs = node.attributes
+			elif 'attributes' in node:
+				attrs = node['attributes']
+			
+		if attrs:
+			for attr in attrs:
+				self.add_attribute(attr['name'], attr['value'])
 	
 	def has_tags_in_content(self):
 		"""
@@ -879,18 +893,9 @@ class Tag(object):
 	
 class Snippet(Tag):
 	def __init__(self, node, syntax='html'):
-		self.name = filter_node_name(node.name)
-		self.real_name = node.name
-		self.count = node.count
-		self.children = []
-		self.repeat_by_lines = node.is_repeating
+		super(Snippet, self).__init__(node, syntax)
 		self.attributes = {'id': get_caret_placeholder(), 'class': get_caret_placeholder()}
 		self.value = replace_unescaped_symbol(get_snippet(syntax, self.name), '|', get_caret_placeholder())
-		self.parent = None
-		self.syntax = syntax
-		
-		self.set_content(node.text or '');
-		self.copy_attributes(node)		
 	
 	def is_block(self):
 		return True
