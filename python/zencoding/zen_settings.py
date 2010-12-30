@@ -24,6 +24,7 @@ zen_settings = {
 	
 	'css': {
 		'extends': 'common',
+		'filters': 'html,css',
 		'snippets': {
 			"@i": "@import url(|);",
 			"@m": "@media print {\n\t|\n}",

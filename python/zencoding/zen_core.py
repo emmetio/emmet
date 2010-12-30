@@ -160,7 +160,7 @@ def is_snippet(abbr, syntax = 'html'):
 	Check is passed abbreviation is a snippet
 	@return bool
 	"""
-	return get_snippet(syntax, abbr) and True or False
+	return get_snippet(syntax, filter_node_name(abbr)) and True or False
 
 def is_ends_with_tag(text):
 	"""

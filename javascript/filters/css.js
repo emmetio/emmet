@@ -12,7 +12,7 @@
 			
 			// CSS properties are always snippets
 			if (item.type == 'snippet' && re_important.test(item.real_name)) {
-				item.start = item.start.replace(/;$/, ' !important;');
+				item.start = item.start.replace(/(;?)$/, ' !important$1');
 			}
 			
 			process(item, profile);
