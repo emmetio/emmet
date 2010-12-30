@@ -240,6 +240,9 @@ def get_abbreviation(syntax, name):
 	@param name: Abbreviation name
 	@type name: str
 	"""
+	if name is None:
+		return False
+	
 	return get_resource(syntax, 'abbreviations', name) \
 		or get_resource(syntax, 'abbreviations', name.replace('-', ':'))
 
@@ -251,6 +254,9 @@ def get_snippet(syntax, name):
 	@param name: Snippet name
 	@type name: str
 	"""
+	if name is None:
+		return False
+	
 	return get_resource(syntax, 'snippets', name) \
 		or get_resource(syntax, 'snippets', name.replace('-', ':'))
 

@@ -18,4 +18,4 @@ zen_resources.set_vocabulary(zen_settings, zen_resources.VOC_SYSTEM)
 #print(zen_resources.get_variable('lang'))
 
 #print(expandAbbr('p.name+p+a'))
-print(expandAbbr('span[title]', 'xsl'))
+print(expandAbbr('span>{Hello world}'))

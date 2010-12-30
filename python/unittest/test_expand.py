@@ -74,6 +74,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
 		self.assertEqual('<ul id="nav"><li class="pre1"></li><li class="pre2"></li><li class="pre3"></li><li class="post1"></li><li class="post2"></li><li class="post3"></li></ul>', expandAbbr('ul#nav>li.pre$*3+li.post$*3'));
 		self.assertEqual('<div class="sample1"></div><div class="sample2"></div><div class="sample3"></div>', expandAbbr('.sample$*3'))
+		self.assertEqual('<ul id="nav"><li>text</li><li>text</li><li>text</li></ul>', expandAbbr('ul#nav>li{text}*3'));
 		
 	def testShortTags(self):
 		self.assertEqual('<blockquote><p></p></blockquote>', expandAbbr('bq>p'))
@@ -132,12 +133,22 @@ class Test(unittest.TestCase):
 		self.assertEqual('<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>', expandAbbr('div>span*3', 'html', 'xhtml'))
 		self.assertEqual('<span>|</span><span>|</span>', expandAbbr('span*2', 'html', 'xhtml'))
 		self.assertEqual('<span>|</span>\n<span>|</span>\n<span>|</span>', expandAbbr('span*3', 'html', 'xhtml'))
+		self.assertEqual('<span>|hello world</span><span>hello |world</span>', expandAbbr('span{hello world}+span{hello |world}', 'html', 'xhtml'))
 		
 	def testGroups(self):
-		self.assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'))
-		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>((ul#nav>li*3)+(div.subnav>p)+(div.othernav))+div#footer'))
-		self.assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'))
+		self.assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'));
+		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>((ul#nav>li*3)+(div.subnav>p)+(div.othernav))+div#footer'));
+		self.assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'));
+		self.assertEqual('<ul><li class="pre1"></li><li class="pre2"></li><li class="item1"><a href=""></a></li><li class="item2"><a href=""></a></li><li class="item3"><a href=""></a></li><li class="item4"><a href=""></a></li><li class="post1"></li><li class="post2"></li></ul>', expandAbbr('ul>li.pre$*2+(li.item$*4>a)+li.post$*2'));
 		self.assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
+		
+	def testEscaping(self):
+		self.assertEqual('<xsl:apply-templates select="\\$item \\| other"/>', zen.escape_text('<xsl:apply-templates select="$item | other"/>'))
+		self.assertEqual('<xsl:apply-templates select="item \\\\\\\\\\| other"/>', zen.escape_text('<xsl:apply-templates select="item \\\\| other"/>'))
+		
+	def testUnescaping(self):
+		self.assertEqual('<xsl:apply-templates select="$item | other"/>', zen.unescape_text('<xsl:apply-templates select="\\$item \\| other"/>'))
+		self.assertEqual('<xsl:apply-templates select="item \\\\| other"/>', zen.unescape_text('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'))
 	
 	def testExtract(self):
 		abbr = 'ul#nav>li.$$item$$$*3>a+span'
@@ -165,6 +176,12 @@ class Test(unittest.TestCase):
 	
 	def testDollarSign(self):
 		self.assertEqual('$db->connect()\n\t$$$more dollaz1', expandAbbr('dol'));
+		
+	def testTextNodes(self):
+		self.assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello world}'));
+		self.assertEqual('<span>Hello world</span>', expandAbbr('span{Hello world}'));
+		self.assertEqual('<span>Hello world</span>', expandAbbr('span>{Hello}+{ world}'));
+		self.assertEqual('<span>Click <a href="/url/">here</a> for more info</span>', expandAbbr('span>{Click }+(a[href=/url/]{here})+{ for more info}'));
 
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testAbbreviations']
