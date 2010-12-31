@@ -257,7 +257,7 @@
 		this.real_name = node.name;
 		this.count = node.count || 1;
 		this._abbr = abbr;
-		this.syntax = syntax;
+		this.syntax = type;
 		this._content = '';
 		this._paste_content = '';
 		this.repeat_by_lines = node.is_repeating;
@@ -917,14 +917,14 @@
 			if (!(args instanceof Array))
 				args = Array.prototype.slice.call(arguments, 1);
 				
-			try {
-				if (name in this.actions)
-					return this.actions[name].apply(this, args);
-			} catch(e){
-				if (window && window.console)
-					console.error(e);
-				return false; 
-			}
+			if (name in this.actions)
+				return this.actions[name].apply(this, args);
+//			try {
+//			} catch(e){
+//				if (window && window.console)
+//					console.error(e);
+//				return false; 
+//			}
 		},
 		
 		expandAbbreviation: function(abbr, type, profile) {
