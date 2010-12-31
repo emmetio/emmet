@@ -173,6 +173,8 @@
 	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
 	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
 	
+	addShortcut('Ctrl+N', 'Select Next Item');
+	
 	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	return {
