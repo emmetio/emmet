@@ -174,6 +174,7 @@
 	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
 	
 	addShortcut('Ctrl+N', 'Select Next Item');
+	addShortcut('Ctrl+Shift+N', 'Select Previous Item');
 	
 	addShortcut('Enter', 'Insert Formatted Line Break');
 	
