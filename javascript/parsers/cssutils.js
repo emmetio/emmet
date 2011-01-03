@@ -15,14 +15,27 @@
 		return stop_chars.indexOf(token.type) != -1;
 	}
 	
-	function cssToken(type, value, start, end) {
+	/**
+	 * Calculates newline width at specified position in content
+	 * @param {String} content
+	 * @param {Number} pos
+	 * @return {Number}
+	 */
+	function calculateNlLength(content, pos) {
+		return content.charAt(pos) == '\r' && content.charAt(pos + 1) == '\n' ? 2 : 1;
+	}
+	
+	function cssToken(type, value, pos, ix) {
+		value = value || '';
 		return {
 			type: type || '',
-			value: value || '',
+			value: value,
+			charstart: pos,
+			charend: pos + value.length,
 			/** Reference token index that starts current token */
-			ref_start_ix: typeof start == 'undefined' ? -1 : start,
+			ref_start_ix: ix,
 			/** Reference token index that ends current token */
-			ref_end_ix: typeof end == 'undefined' ? -1 : end
+			ref_end_ix: ix
 		}
 	}
 	
@@ -30,90 +43,92 @@
 	return {
 		/**
 		 * Parses CSS and optimizes parsed chunks
-		 * @see CSSUtils#optimize 
+		 * @see CSSUtils#optimize
+		 * @param {String} source CSS source code fragment
+		 * @param {Number} offset Offset of CSS fragment inside whole document
+		 * @return {Array}
 		 */
-		parse: function(source) {
-			return this.optimize(CSSEX.lex(source));
+		parse: function(source, offset) {
+			return this.optimize(CSSEX.lex(source), offset || 0, source);
 		},
 		
 		/**
 		 * Optimizes parsed CSS tokens: combines selector chunks, complex values
 		 * into a single chunk
 		 * @param {Array} tokens Tokens produced by <code>CSSEX.lex()</code>
+		 * @param {Number} offset CSS rule offset in source code (character index)
+		 * @param {String} Original CSS source code
 		 * @return {Array} Optimized tokens  
 		 */
-		optimize: function(tokens) {
-			var result = [], token, next_token,
-				in_selector = false,
+		optimize: function(tokens, offset, content) {
+			offset = offset || 0;
+			var result = [], token, i, il, _o = 0,
 				in_rules = false,
 				in_value = false,
-				/** @type {cssToken} */
-				selector_token,
-				/** @type {cssToken} */
-				value_token,
-				stop_chars = '{};';
+				acc_type,
+				acc_tokens = {
+					/** @type {cssToken} */
+					selector: null,
+					/** @type {cssToken} */
+					value: null
+				};
 				
-			for (var i = 0, il = tokens.length; i < il; i++) {
+			function addToken(token, type) {
+				if (type && type in acc_tokens) {
+					if (!acc_tokens[type]) {
+						acc_tokens[type] = cssToken(type, token.value, offset + token.charstart, i);
+						result.push(acc_tokens[type]);
+					} else {
+						acc_tokens[type].value += token.value;
+						acc_tokens[type].charend += token.value.length;
+						acc_tokens[type].ref_end_ix = i;
+					}
+				} else {
+					result.push(cssToken(token.type, token.value, offset + token.charstart, i));
+				}
+			}
+				
+			for (i = 0, il = tokens.length; i < il; i++) {
 				token = tokens[i];
-				if (token.type == 'line') continue;
+				acc_type = null;
+				
+				if (token.type == 'line') {
+					offset += _o;
+					offset += content ? calculateNlLength(content, offset) : 1;
+					_o = 0;
+					continue;
+				}
+				
+				_o = token.charend;
 				
 				if (token.type != 'white') {
 					if (token.type == '{') {
-						in_selector = false;
 						in_rules = true;
-						result.push(cssToken(token.type, token.value, i, i));
+						acc_tokens.selector = null;
 					} else if (in_rules) {
-						if (token.type == 'identifier') {
-							if (!in_value) {
-								result.push(cssToken('property', token.value, i, i));
-							} else {
-								if (!value_token) {
-									value_token = cssToken('value', '', i, i);
-									result.push(value_token);
-								}
-								value_token.value += token.value;
-								value_token.ref_end_ix = i;
-							}
-						} else if (token.type == ':') {
+						if (token.type == ':') {
 							in_value = true;
-							result.push(cssToken(token.type, token.value, i, i));
 						} else if (token.type == ';') {
 							in_value = false;
-							value_token = null;
-							result.push(cssToken(token.type, token.value, i, i));
+							acc_tokens.value = null;
 						}  else if (token.type == '}') {
 							in_value = in_rules = false;
-							value_token = null;
-							result.push(cssToken(token.type, token.value, i, i));
-						} else if (value_token) {
-							value_token.value += token.value;
-							value_token.ref_end_ix = i;
+							acc_tokens.value = null;
+						} else if ((token.type == 'identifier' && in_value) || acc_tokens.value) {
+							acc_type = 'value';
 						}
-					} else if (in_selector) {
-						selector_token.value += token.value;
-						selector_token.ref_end_ix += i;
+					} else if (acc_tokens.selector || (!in_rules && !isStopChar(token))) {
+						// start selector token
+						acc_type = 'selector';
 					}
 					
-					if (!in_selector && !in_rules && !isStopChar(token)) {
-						// start selector token
-						in_selector = true;
-						selector_token = cssToken('selector', token.value, i, i);
-						result.push(selector_token);
-					}
+					addToken(token, acc_type);
 				} else {
 					// whitespace token, decide where it should be
-					next_token = tokens[i + 1];
-					if (next_token && isStopChar(next_token)) {
-						continue;
-					}
+					if (i < il - 1 && isStopChar(tokens[i + 1])) continue;
 					
-					if (in_selector) {
-						selector_token.value += token.value;
-						selector_token.ref_end_ix = i;
-					} else if (value_token) {
-						value_token.value += token.value;
-						value_token.ref_end_ix = i;
-					}
+					if (acc_tokens.selector || acc_tokens.value)
+						addToken(token, acc_tokens.selector ? 'selector' : 'value');
 				}
 			}
 			
@@ -123,5 +138,5 @@
 		extractRule: function(content, pos) {
 			
 		}
-	}
+	};
 })();
