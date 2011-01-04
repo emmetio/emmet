@@ -31,49 +31,15 @@
 	 * @param {zen_editor} editor
 	 */
 	function findNextHTMLItem(editor) {
-		var content = String(editor.getContent()),
-			c_len = content.length,
-			tag,
-			tag_def,
-			rng,
-			sel = editor.getSelectionRange(),
-			sel_start = Math.min(sel.start, sel.end),
-			sel_end = Math.max(sel.start, sel.end);
-			
-		// find tag under caret
-		var search_pos = sel_start;
-		tag = findOpeningTagFromPosition(content, sel_start);
-		
-		if (tag && sel_start >= tag[0] && sel_start <= tag[1]) {
-			tag_def = content.substring(tag[0], tag[1]);
-			rng = getRangeForNextItemInHTML(tag_def, tag[0], sel_start, sel_end);
-				
-			if (rng) {
-				editor.createSelection(rng[0], rng[1]);
-				return true;
+		var is_first = true;
+		return findItem(editor, false, function(content, search_pos){
+			if (is_first) {
+				is_first = false;
+				return findOpeningTagFromPosition(content, search_pos);
+			} else {
+				return getOpeningTagFromPosition(content, search_pos);
 			}
-		}
-		
-		// if we're here then no selection in tag under cursor,
-		// search right until we find opening tag
-		while (search_pos < c_len) {
-			if ( (tag = getOpeningTagFromPosition(content, search_pos)) ) {
-				// found something that looks like opening tag
-				tag_def = content.substring(tag[0], tag[1]);
-				rng = getRangeForNextItemInHTML(tag_def, tag[0], sel_start, sel_end);
-					
-				if (rng) {
-					editor.createSelection(rng[0], rng[1]);
-					return true;
-				} else {
-					search_pos = tag[1];
-				}
-			}
-			
-			search_pos++;
-		}
-		
-		return false;
+		}, getRangeForNextItemInHTML);
 	}
 	
 	/**
@@ -81,35 +47,7 @@
 	 * @param {zen_editor} editor
 	 */
 	function findPrevHTMLItem(editor) {
-		var content = String(editor.getContent()),
-			c_len = content.length,
-			tag,
-			tag_def,
-			rng,
-			sel = editor.getSelectionRange(),
-			sel_start = Math.min(sel.start, sel.end),
-			sel_end = Math.max(sel.start, sel.end);
-			
-		// find tag under caret
-		var search_pos = sel_start;
-		
-		// search left until we find opening tag
-		while (search_pos >= 0) {
-			if ( (tag = getOpeningTagFromPosition(content, search_pos)) ) {
-				// found something that looks like opening tag
-				tag_def = content.substring(tag[0], tag[1]);
-				rng = getRangeForPrevItemInHTML(tag_def, tag[0], sel_start, sel_end);
-					
-				if (rng) {
-					editor.createSelection(rng[0], rng[1]);
-					return true;
-				}
-			}
-			
-			search_pos--;
-		}
-		
-		return false;
+		return findItem(editor, true, getOpeningTagFromPosition, getRangeForPrevItemInHTML);
 	}
 	
 	/**
@@ -123,8 +61,7 @@
 	 */
 	function getRangeForNextItemInHTML(tag, offset, sel_start, sel_end) {
 		var tokens = parseTagDef(tag, offset),
-			next_sel_start = -1,
-			next_sel_end = -1;
+			next = [];
 				
 		// search for token that is right to selection
 		for (var i = 0, il = tokens.length; i < il; i++) {
@@ -133,53 +70,22 @@
 			if (token.type in known_xml_types) {
 				// check token position
 				pos_test = token.start >= sel_start;
-				if (token.type == 'xml-attribute' && isQuote(token.content.charAt(0))) {
+				if (token.type == 'xml-attribute' && isQuote(token.content.charAt(0)))
 					pos_test = token.start + 1 >= sel_start && token.end -1 != sel_end;
-				}
 				
 				if (!pos_test) continue;
 				
 				// found token that should be selected
 				if (token.type == 'xml-attname') {
-					if (sel_end <= token.end)
-						next_sel_start = token.start;
-					
-					for (var j = i + 1; j < il; j++) {
-						/** @type {tagDef} */
-						var _t = tokens[j];
-						if (_t.type == 'xml-attribute') {
-							next_sel_end = _t.end;
-							if (next_sel_start == -1) {
-								next_sel_start = _t.start;
-								
-								if (isQuote(_t.content.charAt(0)))
-									next_sel_start++;
-								if (isQuote(_t.content.charAt(_t.content.length - 1)))
-									next_sel_end--;
-							}	
-							break;
-						} else if (_t.type == 'xml-attname') {
-							// moved to next attribute, adjust selection
-							next_sel_start = _t.start;
-							next_sel_end = _t.end;
-						}
-					}
-						
-					if (next_sel_start != -1 && next_sel_end != -1) {
-						return [next_sel_start, next_sel_end];
-					}
+					next = handleFullAttributeHTML(tokens, i, sel_end <= token.end ? token.start : -1);
+					if (next) return next;
 				} else if (token.end > sel_end) {
-					next_sel_start = token.start;
-					next_sel_end = token.end;
+					next = [token.start, token.end];
 					
-					if (token.type == 'xml-attribute') {
-						if (isQuote(token.content.charAt(0)))
-							next_sel_start++;
-						if (isQuote(token.content.charAt(token.content.length - 1)))
-							next_sel_end--;
-					}
+					if (token.type == 'xml-attribute')
+						next = handleQuotesHTML(token.content, next);
 					
-					return [next_sel_start, next_sel_end];
+					return next;
 				}
 			}
 		}
@@ -198,8 +104,7 @@
 	 */
 	function getRangeForPrevItemInHTML(tag, offset, sel_start, sel_end) {
 		var tokens = parseTagDef(tag, offset),
-			next_sel_start = -1,
-			next_sel_end = -1;
+			next;
 				
 		// search for token that is left to the selection
 		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
@@ -216,43 +121,15 @@
 				
 				// found token that should be selected
 				if (token.type == 'xml-attname') {
-					next_sel_start = token.start;
-					
-					for (var j = i + 1; j < il; j++) {
-						/** @type {tagDef} */
-						var _t = tokens[j];
-						if (_t.type == 'xml-attribute') {
-							next_sel_end = _t.end;
-							if (next_sel_start == -1) {
-								next_sel_start = _t.start;
-								
-								if (isQuote(_t.content.charAt(0)))
-									next_sel_start++;
-								if (isQuote(_t.content.charAt(_t.content.length - 1)))
-									next_sel_end--;
-							}	
-							break;
-						} else if (_t.type == 'xml-attname') {
-							// moved to next attribute, adjust selection
-							next_sel_end = token.end;
-						}
-					}
-						
-					if (next_sel_start != -1 && next_sel_end != -1) {
-						return [next_sel_start, next_sel_end];
-					}
+					next = handleFullAttributeHTML(tokens, i, token.start);
+					if (next) return next;
 				} else {
-					next_sel_start = token.start;
-					next_sel_end = token.end;
+					next = [token.start, token.end];
 					
-					if (token.type == 'xml-attribute') {
-						if (isQuote(token.content.charAt(0)))
-							next_sel_start++;
-						if (isQuote(token.content.charAt(token.content.length - 1)))
-							next_sel_end--;
-					}
+					if (token.type == 'xml-attribute')
+						next = handleQuotesHTML(token.content, next);
 					
-					return [next_sel_start, next_sel_end];
+					return next;
 				}
 			}
 		}
@@ -286,7 +163,7 @@
 				i += t.value.length;
 			}
 		} catch (e) {
-			if (e != StopIteration) throw e;
+			if (e != 'StopIteration') throw e;
 		}
 		
 		return result;
@@ -339,7 +216,7 @@
 			item,
 			item_def,
 			rng,
-			loop = 20, // endless loop protection
+			loop = 100000, // endless loop protection
 			prev_range = [-1, -1],
 			sel = editor.getSelectionRange(),
 			sel_start = Math.min(sel.start, sel.end),
@@ -524,6 +401,33 @@
 		return null;
 	}
 	
+	function handleFullAttributeHTML(tokens, i, start) {
+		for (var j = i + 1, il = tokens.length; j < il; j++) {
+			/** @type {tagDef} */
+			var _t = tokens[j];
+			if (_t.type == 'xml-attribute') {
+				if (start == -1)
+					return handleQuotesHTML(_t.content, [_t.start, _t.end]);
+				else
+					return [start, _t.end];
+			} else if (_t.type == 'xml-attname') {
+				// moved to next attribute, adjust selection
+				return [_t.start, tokens[i].end];
+			}
+		}
+			
+		return null;
+	}
+	
+	function handleQuotesHTML(attr, r) {
+		if (isQuote(attr.charAt(0)))
+			r[0]++;
+		if (isQuote(attr.charAt(attr.length - 1)))
+			r[1]--;
+			
+		return r;
+	}
+	
 	function handleCSSSpecialCase(text, start, end, offset) {
 		text = text.substring(start - offset, end - offset);
 		var m;
@@ -536,13 +440,17 @@
 		return [start, end];
 	}
 	
-	zen_coding.registerAction('select_next_item', findNextCSSItem);
-	zen_coding.registerAction('select_previous_item', findPrevCSSItem);
-	zen_coding.registerAction('extract_css', function(editor){
-		var content = editor.getContent(),
-			result = CSSUtils.extractRule(editor.getContent(), editor.getCaretPos());
-			
-		console.log(result);
-		console.log(content.substr(result[1], result[0].length));
+	zen_coding.registerAction('select_next_item', function(/* zen_editor */ editor){
+		if (editor.getSyntax() == 'css')
+			return findNextCSSItem(editor);
+		else
+			return findNextHTMLItem(editor);
+	});
+	
+	zen_coding.registerAction('select_previous_item', function(/* zen_editor */ editor){
+		if (editor.getSyntax() == 'css')
+			return findPrevCSSItem(editor);
+		else
+			return findPrevHTMLItem(editor);
 	});
 })();
