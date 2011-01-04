@@ -1,6 +1,7 @@
 /**
- * Actions that use stream parses and tokenizers:
+ * Actions that use stream parsers and tokenizers:
  * -- Search for next/previuos items in HTML
+ * -- Search for next/previuos items in CSS
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
@@ -11,7 +12,7 @@
  * @include "parsexml.js"
  * @include "tokenize.js"
  * @include "sex.js"
- * @include "cssutils.js"
+ * @include "parserutils.js"
  */
 (function(){
 	var start_tag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
@@ -60,12 +61,12 @@
 	 * <code>null</code> otherwise
 	 */
 	function getRangeForNextItemInHTML(tag, offset, sel_start, sel_end) {
-		var tokens = parseTagDef(tag, offset),
+		var tokens = ParserUtils.parseHTML(tag, offset),
 			next = [];
 				
 		// search for token that is right to selection
 		for (var i = 0, il = tokens.length; i < il; i++) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var token = tokens[i], pos_test;
 			if (token.type in known_xml_types) {
 				// check token position
@@ -103,12 +104,12 @@
 	 * <code>null</code> otherwise
 	 */
 	function getRangeForPrevItemInHTML(tag, offset, sel_start, sel_end) {
-		var tokens = parseTagDef(tag, offset),
+		var tokens = ParserUtils.parseHTML(tag, offset),
 			next;
 				
 		// search for token that is left to the selection
 		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var token = tokens[i], pos_test;
 			if (token.type in known_xml_types) {
 				// check token position
@@ -135,38 +136,6 @@
 		}
 		
 		return null;
-	}
-	
-	function tagDef(pos, obj) {
-		return {
-			type: obj.style, 
-			content: obj.content,
-			start: pos,
-			end: pos + obj.content.length
-		};
-	}
-	
-	/**
-	 * Parses tag definiton, saving each token's position
-	 * @param {String} tag Tag to parse
-	 * @param {Number} offset Index offset
-	 * @return {tagDef[]}
-	 */
-	function parseTagDef(tag, offset) {
-		var tokens = XMLParser.make(tag),
-			result = [],
-			t, i = 0;
-			
-		try {
-			while (t = tokens.next()) {
-				result.push(tagDef(offset + i, t));
-				i += t.value.length;
-			}
-		} catch (e) {
-			if (e != 'StopIteration') throw e;
-		}
-		
-		return result;
 	}
 	
 	/**
@@ -250,11 +219,11 @@
 	}
 	
 	function findNextCSSItem(editor) {
-		return findItem(editor, false, CSSUtils.extractRule, getRangeForNextItemInCSS);
+		return findItem(editor, false, ParserUtils.extractCSSRule, getRangeForNextItemInCSS);
 	}
 	
 	function findPrevCSSItem(editor) {
-		return findItem(editor, true, CSSUtils.extractRule, getRangeForPrevItemInCSS);
+		return findItem(editor, true, ParserUtils.extractCSSRule, getRangeForPrevItemInCSS);
 	}
 	
 	/**
@@ -267,7 +236,7 @@
 	 * <code>null</code> otherwise
 	 */
 	function getRangeForNextItemInCSS(rule, offset, sel_start, sel_end) {
-		var tokens = CSSUtils.parse(rule, offset), pos_test,
+		var tokens = ParserUtils.parseCSS(rule, offset), pos_test,
 			next = [];
 			
 		/**
@@ -280,7 +249,7 @@
 				
 		// search for token that is right to selection
 		for (var i = 0, il = tokens.length; i < il; i++) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var token = tokens[i], pos_test;
 			if (token.type in known_css_types) {
 				// check token position
@@ -331,7 +300,7 @@
 	 * <code>null</code> otherwise
 	 */
 	function getRangeForPrevItemInCSS(rule, offset, sel_start, sel_end) {
-		var tokens = CSSUtils.parse(rule, offset),
+		var tokens = ParserUtils.parseCSS(rule, offset),
 			next = [];
 				
 		/**
@@ -344,7 +313,7 @@
 			
 		// search for token that is left to the selection
 		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var token = tokens[i], pos_test;
 			if (token.type in known_css_types) {
 				// check token position
@@ -387,7 +356,7 @@
 	
 	function handleFullRuleCSS(tokens, i, start) {
 		for (var j = i + 1, il = tokens.length; j < il; j++) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var _t = tokens[j];
 			if ((_t.type == 'value' && start == -1) || _t.type == 'identifier') {
 				return [_t.start, _t.end];
@@ -403,7 +372,7 @@
 	
 	function handleFullAttributeHTML(tokens, i, start) {
 		for (var j = i + 1, il = tokens.length; j < il; j++) {
-			/** @type {tagDef} */
+			/** @type {ParserUtils.token} */
 			var _t = tokens[j];
 			if (_t.type == 'xml-attribute') {
 				if (start == -1)
@@ -440,6 +409,7 @@
 		return [start, end];
 	}
 	
+	// XXX register actions 
 	zen_coding.registerAction('select_next_item', function(/* zen_editor */ editor){
 		if (editor.getSyntax() == 'css')
 			return findNextCSSItem(editor);

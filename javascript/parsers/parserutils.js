@@ -8,7 +8,7 @@
  * @link http://chikuyonok.ru
  * 
  * @include "sex.js"
- */var CSSUtils = (function() {
+ */var ParserUtils = (function() {
 	
 	function isStopChar(token) {
 		var stop_chars = '{};:';
@@ -63,7 +63,7 @@
 		return optimized;
 	}
 	
-	function cssToken(type, value, pos, ix) {
+	function makeToken(type, value, pos, ix) {
 		value = value || '';
 		return {
 			type: type || '',
@@ -77,17 +77,40 @@
 		}
 	}
 	
-	
 	return {
 		/**
 		 * Parses CSS and optimizes parsed chunks
-		 * @see CSSUtils#optimize
+		 * @see ParserUtils#optimizeCSS
 		 * @param {String} source CSS source code fragment
 		 * @param {Number} offset Offset of CSS fragment inside whole document
 		 * @return {Array}
 		 */
-		parse: function(source, offset) {
-			return this.optimize(CSSEX.lex(source), offset || 0, source);
+		parseCSS: function(source, offset) {
+			return this.optimizeCSS(CSSEX.lex(source), offset || 0, source);
+		},
+		
+		/**
+		 * Parses HTML and optimizes parsed chunks
+		 * @param {String} source HTML source code fragment
+		 * @param {Number} offset Offset of HTML fragment inside whole document
+		 * @return {Array}
+		 */
+		parseHTML: function(tag, offset) {
+			var tokens = XMLParser.make(tag),
+				result = [],
+				t, i = 0;
+				
+			try {
+				while (t = tokens.next()) {
+//					result.push(tagDef(offset + i, t));
+					result.push(makeToken(t.style, t.content, offset + i, 0));
+					i += t.value.length;
+				}
+			} catch (e) {
+				if (e != 'StopIteration') throw e;
+			}
+			
+			return result;
 		},
 		
 		/**
@@ -98,16 +121,16 @@
 		 * @param {String} Original CSS source code
 		 * @return {Array} Optimized tokens  
 		 */
-		optimize: function(tokens, offset, content) {
+		optimizeCSS: function(tokens, offset, content) {
 			offset = offset || 0;
 			var result = [], token, i, il, _o = 0,
 				in_rules = false,
 				in_value = false,
 				acc_type,
 				acc_tokens = {
-					/** @type {cssToken} */
+					/** @type {makeToken} */
 					selector: null,
-					/** @type {cssToken} */
+					/** @type {makeToken} */
 					value: null
 				},
 				orig_tokens = [];
@@ -115,7 +138,7 @@
 			function addToken(token, type) {
 				if (type && type in acc_tokens) {
 					if (!acc_tokens[type]) {
-						acc_tokens[type] = cssToken(type, token.value, offset + token.charstart, i);
+						acc_tokens[type] = makeToken(type, token.value, offset + token.charstart, i);
 						result.push(acc_tokens[type]);
 					} else {
 						acc_tokens[type].content += token.value;
@@ -123,7 +146,7 @@
 						acc_tokens[type].ref_end_ix = i;
 					}
 				} else {
-					result.push(cssToken(token.type, token.value, offset + token.charstart, i));
+					result.push(makeToken(token.type, token.value, offset + token.charstart, i));
 				}
 			}
 				
@@ -131,7 +154,7 @@
 				token = tokens[i];
 				acc_type = null;
 				
-				orig_tokens.push(cssToken(token.type, token.value, offset + token.charstart));
+				orig_tokens.push(makeToken(token.type, token.value, offset + token.charstart));
 				
 				if (token.type == 'line') {
 					offset += _o;
@@ -182,7 +205,7 @@
 		 * @param {String} content CSS source code
 		 * @param {Number} pos Character position where to start source code extraction
 		 */
-		extractRule: function(content, pos, is_backward) {
+		extractCSSRule: function(content, pos, is_backward) {
 			var result = '', 
 				c_len = content.length,
 				offset = pos, 
@@ -233,6 +256,10 @@
 			}
 			
 			return null;
-		}
+		},
+		
+		token: makeToken
 	};
 })();
+
+zen_coding.parser_utils = ParserUtils;
