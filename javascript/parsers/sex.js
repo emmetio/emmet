@@ -1,3 +1,7 @@
+/**
+ * @author Stoyan Stefanov
+ * @link https://github.com/stoyan/etc/tree/master/cssex
+ */
 var CSSEX = (function () {
      
     var walker, tokens = [], isOp, isNameChar, isDigit;
