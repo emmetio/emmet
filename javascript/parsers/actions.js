@@ -339,7 +339,8 @@
 			item,
 			item_def,
 			rng,
-			loop = 1000, // endless loop protection
+			loop = 20, // endless loop protection
+			prev_range = [-1, -1],
 			sel = editor.getSelectionRange(),
 			sel_start = Math.min(sel.start, sel.end),
 			sel_end = Math.max(sel.start, sel.end);
@@ -347,7 +348,13 @@
 		var search_pos = sel_start;
 		while (search_pos >= 0 && search_pos < c_len && loop > 0) {
 			loop--;
-			if ( (item = extract_fn(content, search_pos)) ) {
+			if ( (item = extract_fn(content, search_pos, is_backward)) ) {
+				if (prev_range[0] == item[0] && prev_range[1] == item[1]) {
+					break;
+				}
+				
+				prev_range[0] = item[0];
+				prev_range[1]== item[1];
 				item_def = content.substring(item[0], item[1]);
 				rng = range_fn(item_def, item[0], sel_start, sel_end);
 					
@@ -384,30 +391,14 @@
 	 */
 	function getRangeForNextItemInCSS(rule, offset, sel_start, sel_end) {
 		var tokens = CSSUtils.parse(rule, offset), pos_test,
-			next_sel_start = -1,
-			next_sel_end = -1;
+			next = [];
 			
 		/**
 		 * Same range is used inside complex value processor
 		 * @return {Boolean}
 		 */
-		function checkSameRange() {
-			var result = next_sel_start == sel_start && next_sel_end == sel_end;
-			if (result) {
-				/** @type {String} */
-				var c = rule.substring(sel_start - offset, sel_end - offset), m;
-				// handle special case with url() value
-				if (m = c.match(/^url\(['"]?/)) {
-					next_sel_start += m[0].length;
-					if (m = c.match(/['"]?\)$/))
-						next_sel_end -= m[0].length;
-					return false;
-				} else {
-					next_sel_start = next_sel_end = -1;
-				}
-			}
-			
-			return result;
+		function checkSameRange(r) {
+			return r[0] == sel_start && r[1] == sel_end;
 		}
 				
 		// search for token that is right to selection
@@ -424,49 +415,28 @@
 				
 				// found token that should be selected
 				if (token.type == 'identifier') {
-					if (sel_end <= token.end)
-						next_sel_start = token.start;
+					var rule_sel = handleFullRuleCSS(tokens, i, sel_end <= token.end ? token.start : -1);
+					if (rule_sel) return rule_sel;
 					
-					for (var j = i + 1; j < il; j++) {
-						/** @type {tagDef} */
-						var _t = tokens[j];
-						if (_t.type == 'value' && next_sel_start == -1) {
-							next_sel_start = _t.start;
-							next_sel_end = _t.end;
-							break;
-						}
-						else if (_t.type == ';') {
-							next_sel_end = _t.end;
-							if (next_sel_start == -1) {
-								next_sel_start = _t.start;
-							}	
-							break;
-						} else if (_t.type == 'identifier' || _t.type == '}') {
-							// moved to next attribute or rule end
-							next_sel_end = _t.start - 1;
-						}
-					}
-						
-					if (next_sel_start != -1 && next_sel_end != -1) {
-						return [next_sel_start, next_sel_end];
-					}
 				} else if (token.type == 'value' && sel_end > token.start && token.ref_start_ix != token.ref_end_ix) {
 					// looks like a complex value
 					var children = token.children;
 					for (var j = 0, jl = children.length; j < jl; j++) {
 						if (children[j][0] >= sel_start) {
-							next_sel_start = children[j][0];
-							next_sel_end = children[j][1];
+							next = [children[j][0], children[j][1]];
+							if (checkSameRange(next)) {
+								var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
+								if (!checkSameRange(rule_sel))
+									return rule_sel;
+								else
+									continue;
+							}
 							
-							if (!checkSameRange()) 
-								return [next_sel_start, next_sel_end];
+							return next;
 						}
 					}
 				} else if (token.end > sel_end) {
-					next_sel_start = token.start;
-					next_sel_end = token.end;
-					
-					return [next_sel_start, next_sel_end];
+					return [token.start, token.end];
 				}
 			}
 		}
@@ -485,15 +455,14 @@
 	 */
 	function getRangeForPrevItemInCSS(rule, offset, sel_start, sel_end) {
 		var tokens = CSSUtils.parse(rule, offset),
-			next_sel_start = -1,
-			next_sel_end = -1;
+			next = [];
 				
 		/**
 		 * Same range is used inside complex value processor
 		 * @return {Boolean}
 		 */
-		function checkSameRange() {
-			return next_sel_start == sel_start && next_sel_end == sel_end;
+		function checkSameRange(r) {
+			return r[0] == sel_start && r[1] == sel_end;
 		}
 			
 		// search for token that is left to the selection
@@ -510,72 +479,61 @@
 				
 				// found token that should be selected
 				if (token.type == 'identifier') {
-					next_sel_start = token.start;
-					
-					for (var j = i + 1; j < il; j++) {
-						/** @type {tagDef} */
-						var _t = tokens[j];
-						if (_t.type == 'value' && next_sel_start == -1) {
-							next_sel_start = _t.start;
-							next_sel_end = _t.end;
-							break;
-						}
-						else if (_t.type == ';') {
-							next_sel_end = _t.end;
-							if (next_sel_start == -1) {
-								next_sel_start = _t.start;
-							}	
-							break;
-						} else if (_t.type == 'identifier' || _t.type == '}') {
-							// moved to next attribute or rule end
-							next_sel_end = _t.start - 1;
-						}
-					}
-						
-					if (next_sel_start != -1 && next_sel_end != -1) {
-						return [next_sel_start, next_sel_end];
-					}
+					var rule_sel = handleFullRuleCSS(tokens, i, token.start);
+					if (rule_sel) return rule_sel;
 				} else if (token.type == 'value' && token.ref_start_ix != token.ref_end_ix) {
 					// looks like a complex value
 					var children = token.children;
 					for (var j = children.length - 1; j >= 0; j--) {
 						if (children[j][0] < sel_start) {
-							next_sel_start = children[j][0];
-							next_sel_end = children[j][1];
+							// create array copy
+							next = [children[j][0], children[j][1]]; 
 							
-							var c = rule.substring(next_sel_start - offset, next_sel_end - offset), m;
-							// handle special case with url() value
-							if (m = c.match(/^url\(['"]?/)) {
-								next_sel_start += m[0].length;
-								if (m = c.match(/['"]?\)$/))
-									next_sel_end -= m[0].length;
-									
-								if (checkSameRange()) {
-									next_sel_start = children[j][0];
-									next_sel_end = children[j][1];
-								}
-							}
-							
-							return [next_sel_start, next_sel_end];
+							var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
+							return !checkSameRange(rule_sel) ? rule_sel : next;
 						}
 					}
 					
 					// if we are here than we already traversed trough all
 					// child tokens, select full value
-					next_sel_start = token.start;
-					next_sel_end = token.end;
-					if (!checkSameRange()) 
-						return [next_sel_start, next_sel_end];
+					next = [token.start, token.end];
+					if (!checkSameRange(next)) 
+						return next;
 				} else {
-					next_sel_start = token.start;
-					next_sel_end = token.end;
-					
-					return [next_sel_start, next_sel_end];
+					return [token.start, token.end];
 				}
 			}
 		}
 		
 		return null;
+	}
+	
+	function handleFullRuleCSS(tokens, i, start) {
+		for (var j = i + 1, il = tokens.length; j < il; j++) {
+			/** @type {tagDef} */
+			var _t = tokens[j];
+			if ((_t.type == 'value' && start == -1) || _t.type == 'identifier') {
+				return [_t.start, _t.end];
+			} else if (_t.type == ';') {
+				return [start == -1 ? _t.start : start, _t.end];
+			} else if (_t.type == '}') {
+				return [start == -1 ? _t.start : start, _t.start - 1];
+			}
+		}
+		
+		return null;
+	}
+	
+	function handleCSSSpecialCase(text, start, end, offset) {
+		text = text.substring(start - offset, end - offset);
+		var m;
+		if (m = text.match(/^url\(['"]?/)) {
+			start += m[0].length;
+			if (m = text.match(/['"]?\)$/))
+				end -= m[0].length;
+		}
+		
+		return [start, end];
 	}
 	
 	zen_coding.registerAction('select_next_item', findNextCSSItem);

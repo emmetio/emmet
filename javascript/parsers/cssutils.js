@@ -182,7 +182,7 @@
 		 * @param {String} content CSS source code
 		 * @param {Number} pos Character position where to start source code extraction
 		 */
-		extractRule: function(content, pos) {
+		extractRule: function(content, pos, is_backward) {
 			var result = '', 
 				c_len = content.length,
 				offset = pos, 
@@ -194,7 +194,8 @@
 				if (ch == '{') {
 					brace_pos = offset;
 					break;
-				} else if (ch == '}') {
+				}
+				else if (ch == '}' && !is_backward) {
 					offset++;
 					break;
 				}
