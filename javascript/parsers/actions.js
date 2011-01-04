@@ -327,24 +327,25 @@
 	}
 	
 	/**
-	 * Find next HTML item
+	 * Find item
 	 * @param {zen_editor} editor
+	 * @param {String} is_backward Search backward (search forward otherwise)
 	 * @param {Function} extract_fn Function that extracts item content
 	 * @param {Function} range_rn Function that search for next token range
 	 */
-	function findNextItem(editor, extract_fn, range_fn) {
+	function findItem(editor, is_backward, extract_fn, range_fn) {
 		var content = String(editor.getContent()),
 			c_len = content.length,
 			item,
 			item_def,
 			rng,
-			loop = 5,
+			loop = 1000, // endless loop protection
 			sel = editor.getSelectionRange(),
 			sel_start = Math.min(sel.start, sel.end),
 			sel_end = Math.max(sel.start, sel.end);
 			
 		var search_pos = sel_start;
-		while (search_pos < c_len && loop > 0) {
+		while (search_pos >= 0 && search_pos < c_len && loop > 0) {
 			loop--;
 			if ( (item = extract_fn(content, search_pos)) ) {
 				item_def = content.substring(item[0], item[1]);
@@ -354,18 +355,22 @@
 					editor.createSelection(rng[0], rng[1]);
 					return true;
 				} else {
-					search_pos = item[1];
+					search_pos = item[is_backward ? 0 : 1];
 				}
 			}
 			
-			search_pos++;
+			search_pos += is_backward ? -1 : 1;
 		}
 		
 		return false;
 	}
 	
 	function findNextCSSItem(editor) {
-		return findNextItem(editor, CSSUtils.extractRule, getRangeForNextItemInCSS);
+		return findItem(editor, false, CSSUtils.extractRule, getRangeForNextItemInCSS);
+	}
+	
+	function findPrevCSSItem(editor) {
+		return findItem(editor, true, CSSUtils.extractRule, getRangeForPrevItemInCSS);
 	}
 	
 	/**
@@ -469,8 +474,112 @@
 		return null;
 	}
 	
+	/**
+	 * Returns range for item to be selected in CSS rule before current caret position
+	 * @param {String} rule CSS rule declaration
+	 * @param {Number} offset Rule's position index inside content
+	 * @param {Number} sel_start Start index of user selection
+	 * @param {Number} sel_end End index of user selection
+	 * @return {Array} Returns array with two indexes if next item was found, 
+	 * <code>null</code> otherwise
+	 */
+	function getRangeForPrevItemInCSS(rule, offset, sel_start, sel_end) {
+		var tokens = CSSUtils.parse(rule, offset),
+			next_sel_start = -1,
+			next_sel_end = -1;
+				
+		/**
+		 * Same range is used inside complex value processor
+		 * @return {Boolean}
+		 */
+		function checkSameRange() {
+			return next_sel_start == sel_start && next_sel_end == sel_end;
+		}
+			
+		// search for token that is left to the selection
+		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
+			/** @type {tagDef} */
+			var token = tokens[i], pos_test;
+			if (token.type in known_css_types) {
+				// check token position
+				pos_test = token.start < sel_start;
+				if (token.type == 'value' && token.ref_start_ix != token.ref_end_ix) // respect complex values
+					pos_test = token.start <= sel_start;
+				
+				if (!pos_test) continue;
+				
+				// found token that should be selected
+				if (token.type == 'identifier') {
+					next_sel_start = token.start;
+					
+					for (var j = i + 1; j < il; j++) {
+						/** @type {tagDef} */
+						var _t = tokens[j];
+						if (_t.type == 'value' && next_sel_start == -1) {
+							next_sel_start = _t.start;
+							next_sel_end = _t.end;
+							break;
+						}
+						else if (_t.type == ';') {
+							next_sel_end = _t.end;
+							if (next_sel_start == -1) {
+								next_sel_start = _t.start;
+							}	
+							break;
+						} else if (_t.type == 'identifier' || _t.type == '}') {
+							// moved to next attribute or rule end
+							next_sel_end = _t.start - 1;
+						}
+					}
+						
+					if (next_sel_start != -1 && next_sel_end != -1) {
+						return [next_sel_start, next_sel_end];
+					}
+				} else if (token.type == 'value' && token.ref_start_ix != token.ref_end_ix) {
+					// looks like a complex value
+					var children = token.children;
+					for (var j = children.length - 1; j >= 0; j--) {
+						if (children[j][0] < sel_start) {
+							next_sel_start = children[j][0];
+							next_sel_end = children[j][1];
+							
+							var c = rule.substring(next_sel_start - offset, next_sel_end - offset), m;
+							// handle special case with url() value
+							if (m = c.match(/^url\(['"]?/)) {
+								next_sel_start += m[0].length;
+								if (m = c.match(/['"]?\)$/))
+									next_sel_end -= m[0].length;
+									
+								if (checkSameRange()) {
+									next_sel_start = children[j][0];
+									next_sel_end = children[j][1];
+								}
+							}
+							
+							return [next_sel_start, next_sel_end];
+						}
+					}
+					
+					// if we are here than we already traversed trough all
+					// child tokens, select full value
+					next_sel_start = token.start;
+					next_sel_end = token.end;
+					if (!checkSameRange()) 
+						return [next_sel_start, next_sel_end];
+				} else {
+					next_sel_start = token.start;
+					next_sel_end = token.end;
+					
+					return [next_sel_start, next_sel_end];
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	zen_coding.registerAction('select_next_item', findNextCSSItem);
-	zen_coding.registerAction('select_previous_item', findPrevHTMLItem);
+	zen_coding.registerAction('select_previous_item', findPrevCSSItem);
 	zen_coding.registerAction('extract_css', function(editor){
 		var content = editor.getContent(),
 			result = CSSUtils.extractRule(editor.getContent(), editor.getCaretPos());
