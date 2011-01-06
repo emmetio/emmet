@@ -1,5 +1,5 @@
 /**
- * Actions that use stream parsers and tokenizers:
+ * Actions that use stream parsers and tokenizers for traversing:
  * -- Search for next/previuos items in HTML
  * -- Search for next/previuos items in CSS
  * 
