@@ -74,7 +74,7 @@
 				if (token.type == 'xml-attribute' && isQuote(token.content.charAt(0)))
 					pos_test = token.start + 1 >= sel_start && token.end -1 != sel_end;
 				
-				if (!pos_test) continue;
+				if (!pos_test && !(sel_start == sel_end && token.end > sel_start)) continue;
 				
 				// found token that should be selected
 				if (token.type == 'xml-attname') {
@@ -253,10 +253,14 @@
 			var token = tokens[i], pos_test;
 			if (token.type in known_css_types) {
 				// check token position
-				pos_test = token.start >= sel_start;
-				if (token.type == 'value') // respect complex values
-					pos_test = pos_test || sel_start >= token.start && token.end >= sel_end;
-					
+				if (sel_start == sel_end)
+					pos_test = token.end > sel_start;
+				else {
+					pos_test = token.start >= sel_start;
+					if (token.type == 'value') // respect complex values
+						pos_test = pos_test || sel_start >= token.start && token.end >= sel_end;
+				}
+				
 				if (!pos_test) continue;
 				
 				// found token that should be selected
@@ -264,11 +268,11 @@
 					var rule_sel = handleFullRuleCSS(tokens, i, sel_end <= token.end ? token.start : -1);
 					if (rule_sel) return rule_sel;
 					
-				} else if (token.type == 'value' && sel_end > token.start && token.ref_start_ix != token.ref_end_ix) {
+				} else if (token.type == 'value' && sel_end > token.start && token.children) {
 					// looks like a complex value
 					var children = token.children;
 					for (var j = 0, jl = children.length; j < jl; j++) {
-						if (children[j][0] >= sel_start) {
+						if (children[j][0] >= sel_start || (sel_start == sel_end && children[j][1] > sel_start)) {
 							next = [children[j][0], children[j][1]];
 							if (checkSameRange(next)) {
 								var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
