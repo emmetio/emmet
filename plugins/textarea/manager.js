@@ -175,7 +175,7 @@
 	
 	addShortcut('Ctrl+N', 'Select Next Item');
 	addShortcut('Ctrl+Shift+N', 'Select Previous Item');
-	addShortcut('Ctrl+E', 'Extract CSS');
+	addShortcut('Alt+R', 'Reflect CSS Value');
 	
 	addShortcut('Enter', 'Insert Formatted Line Break');
 	

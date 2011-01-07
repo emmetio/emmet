@@ -106,8 +106,9 @@ var zen_editor = {
 	 * @param {String} value Content you want to paste
 	 * @param {Number} [start] Start index of editor's content
 	 * @param {Number} [end] End index of editor's content
+	 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
 	 */
-	replaceContent: function(value, start, end) {},
+	replaceContent: function(value, start, end, no_indent) {},
 	
 	/**
 	 * Returns editor's content

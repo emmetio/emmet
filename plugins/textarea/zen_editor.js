@@ -300,15 +300,17 @@ var zen_editor = (function(){
 		 * @param {String} value Content you want to paste
 		 * @param {Number} [start] Start index of editor's content
 		 * @param {Number} [end] End index of editor's content
+		 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
 		 */
-		replaceContent: function(value, start, end) {
+		replaceContent: function(value, start, end, no_indent) {
 			var content = getContent(),
 				caret_pos = getCaretPos(),
 				has_start = typeof(start) !== 'undefined',
 				has_end = typeof(end) !== 'undefined';
 				
 			// indent new value
-			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			if (!no_indent)
+				value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
 			var tabstop_res = handleTabStops(value);
