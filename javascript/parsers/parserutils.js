@@ -163,7 +163,10 @@
 					continue;
 				}
 				
-				_o = token.charend;
+//				_o = token.charend;
+				// use charstart and length because of incorrect charend 
+				// computation for whitespace
+				_o = token.charstart + token.value.length;
 				
 				if (token.type != 'white') {
 					if (token.type == '{') {
@@ -261,5 +264,3 @@
 		token: makeToken
 	};
 })();
-
-zen_coding.parser_utils = ParserUtils;
