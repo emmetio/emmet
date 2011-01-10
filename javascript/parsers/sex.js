@@ -99,7 +99,7 @@ var CSSEX = (function () {
     }
     function getConf() {
         return {
-            char: walker.chnum,
+            'char': walker.chnum,
             line: walker.linenum
         };
     }
@@ -109,7 +109,7 @@ var CSSEX = (function () {
     function tokener(value, type, conf) {
         var w = walker, c = conf || {};
         tokens.push({
-            charstart: isset(c.char)    ? c.char    : w.chnum,
+            charstart: isset(c['char']) ? c['char'] : w.chnum,
             charend:   isset(c.charend) ? c.charend : w.chnum,
             linestart: isset(c.line)    ? c.line    : w.linenum,
             lineend:   isset(c.lineend) ? c.lineend : w.linenum,
@@ -122,7 +122,7 @@ var CSSEX = (function () {
     function error(m, config) { 
         var w = walker,
             conf = config || {},
-            c = isset(conf.char) ? conf.char : w.chnum,
+            c = isset(conf['char']) ? conf['char'] : w.chnum,
             l = isset(conf.line) ? conf.line : w.linenum;
         return {
             name: "ParseError",
@@ -162,7 +162,7 @@ var CSSEX = (function () {
         
         if (cnext !== '*') {
             // oops, not a comment, just a /
-            conf.charend = conf.char;
+            conf.charend = conf['char'];
             conf.lineend = conf.line;
             return tokener(token, token, conf);
         }
@@ -243,7 +243,7 @@ var CSSEX = (function () {
         // .2px or .classname?
         if (point && nondigit) {
             // meh, NaN, could be a class name, so it's an operator for now
-            conf.charend = conf.char;
+            conf.charend = conf['char'];
             conf.lineend = conf.line;
             return tokener(token, '.', conf);    
         }
@@ -279,7 +279,7 @@ var CSSEX = (function () {
             return;
         } 
         
-        conf.charend = conf.char + 1;
+        conf.charend = conf['char'] + 1;
         conf.lineend = conf.line;    
         tokener(token, token, conf);
     }
