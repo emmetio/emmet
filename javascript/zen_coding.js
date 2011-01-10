@@ -900,7 +900,7 @@
 		 * <code>zen_editor</code> instance.
 		 */
 		registerAction: function(name, fn) {
-			this.actions[name] = fn;
+			this.actions[name.toLowerCase()] = fn;
 		},
 		
 		/**
@@ -917,6 +917,7 @@
 			if (!(args instanceof Array))
 				args = Array.prototype.slice.call(arguments, 1);
 				
+			name = name.toLowerCase();
 			if (name in this.actions)
 				return this.actions[name].apply(this, args);
 //			try {
