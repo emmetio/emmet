@@ -6,13 +6,15 @@
  * &lt;textarea&gt; element.
  * @example
  * var textarea = document.getElemenetsByTagName('textarea')[0];
- * editor.setContext(textarea);
+ * zen_editor.setContext(textarea);
  * //now you are ready to use editor object
- * editor.getSelectionRange() 
+ * zen_editor.getSelectionRange() 
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * 
  * @include "../../javascript/zen_coding.js"
+ * @include "../codemirror/shortcut.js"
  */
 var zen_editor = (function(){
 	/** @param {Element} Source element */
@@ -27,8 +29,7 @@ var zen_editor = (function(){
 			pretty_break: false
 		},
 		
-		/** Zen Coding parameter name/value regexp for getting options from element */
-		re_param = /\bzc\-(\w+)\-(\w+)/g,
+		keyboard_shortcuts = {},
 		
 		/** @type {default_options} Current options */
 		options = null;
@@ -165,6 +166,7 @@ var zen_editor = (function(){
 	 */
 	function getOptionsFromContext() {
 		var param_str = target.className || '',
+			re_param = /\bzc\-(\w+)\-(\w+)/g,
 			m,
 			result = copyOptions(options);
 			
@@ -181,6 +183,10 @@ var zen_editor = (function(){
 		}
 		
 		return result;
+	}
+	
+	function getOption(name) {
+		return getOptionsFromContext()[name];
 	}
 	
 	function copyOptions(opt) {
@@ -237,7 +243,131 @@ var zen_editor = (function(){
 		return result;
 	}
 	
+	/**
+	 * Returns normalized action name
+	 * @param {String} name Action name (like 'Expand Abbreviation')
+	 * @return Normalized name for coding (like 'expand_abbreviation')
+	 */
+	function normalizeActionName(name) {
+		return name
+			.replace(/(^\s+|\s+$)/g, '') // remove trailing spaces
+			.replace(/[\s\\\/]+/g, '_')
+			.replace(/\./g, '')
+			.toLowerCase();
+	}
+	
+	/**
+	 * Bind shortcut to Zen Coding action
+	 * @param {String} keystroke
+	 * @param {String} label
+	 * @param {String} action_name
+	 */
+	function addShortcut(keystroke, label, action_name) {
+		keyboard_shortcuts[keystroke.toLowerCase()] = {
+			compiled: shortcut.compile(keystroke),
+			label: label,
+			action: normalizeActionName(action_name || label)
+		};
+	}
+	
+	function stopEvent(evt) {
+		evt.cancelBubble = true;
+		evt.returnValue = false;
+
+		if (evt.stopPropagation) {
+			evt.stopPropagation();
+			evt.preventDefault();
+		}
+	}
+	
+	/**
+	 * Runs actions called by user
+	 * @param {Event} evt Event object
+	 */
+	function runAction(evt) {
+		evt = evt || window.event;
+		
+		/** @type {Element} */
+		var target_elem = evt.target || evt.srcElement,
+			key_code = evt.keyCode || evt.which,
+			action_name;
+			
+		if (target_elem && target_elem.nodeType == 1 && target_elem.nodeName == 'TEXTAREA') {
+			zen_editor.setContext(target_elem);
+			
+			// test if occured event corresponds to one of the defined shortcut
+			var sh, name, result;
+			for (var s in keyboard_shortcuts) if (keyboard_shortcuts.hasOwnProperty(s)) {
+				sh = keyboard_shortcuts[s];
+				if (shortcut.test(sh.compiled, evt)) {
+					action_name = sh.action;
+					switch (action_name) {
+						case 'expand_abbreviation':
+							if (key_code == 9) {
+								if (getOption('use_tab'))
+									action_name = 'expand_abbreviation_with_tab';
+								else
+									// user pressed Tab key but it's forbidden in 
+									// Zen Coding: bubble up event
+									return true;
+							}
+							break;
+						case 'insert_formatted_line_break':
+							if (key_code == 13 && !getOption('pretty_break')) {
+								// user pressed Enter but it's forbidden in 
+								// Zen Coding: bubble up event
+								return true;
+							}
+							break;
+					}
+					
+					zen_coding.runAction(action_name, [zen_editor]);
+					stopEvent(evt);
+					return false;
+				}
+			}
+		}
+			
+		// allow event bubbling
+		return true;
+	}
+	
+	var doc = document, 
+		key_event = window.opera ? 'keypress' : 'keydown';
+		
+	//Attach the function with the event
+	if (doc.addEventListener) doc.addEventListener(key_event, runAction, false);
+	else if(doc.attachEvent) ele.attachEvent('on' + key_event, runAction);
+	else dov['on' + key_event] = func;
+	
 	options = copyOptions();
+	
+	addShortcut('Meta+E', 'Expand Abbreviation');
+	addShortcut('Tab', 'Expand Abbreviation');
+	addShortcut('Meta+D', 'Balance Tag Outward', 'match_pair_outward');
+	addShortcut('Shift+Meta+D', 'Balance Tag inward', 'match_pair_inward');
+	addShortcut('Shift+Meta+A', 'Wrap with Abbreviation');
+	addShortcut('Ctrl+Alt+RIGHT', 'Next Edit Point');
+	addShortcut('Ctrl+Alt+LEFT', 'Previous Edit Point', 'prev_edit_point');
+	addShortcut('Meta+L', 'Select Line');
+	addShortcut('Meta+Shift+M', 'Merge Lines');
+	addShortcut('Meta+/', 'Toggle Comment');
+	addShortcut('Meta+J', 'Split/Join Tag');
+	addShortcut('Meta+K', 'Remove Tag');
+	addShortcut('Meta+Y', 'Evaluate Math Expression');
+	
+	addShortcut('Ctrl+UP', 'Increment number by 1');
+	addShortcut('Ctrl+DOWN', 'Decrement number by 1');
+	addShortcut('Alt+UP', 'Increment number by 0.1');
+	addShortcut('Alt+DOWN', 'Decrement number by 0.1');
+	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
+	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
+	
+	addShortcut('Alt+Right', 'Select Next Item');
+	addShortcut('Alt+Left', 'Select Previous Item');
+	addShortcut('Alt+R', 'Reflect CSS Value');
+	
+	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	return {
 		setContext: function(elem) {
@@ -324,15 +454,6 @@ var zen_editor = (function(){
 				tabstop_res[1] = tabstop_res[2] = value.length + start;
 			}
 			
-			
-//			var new_pos = value.indexOf(caret_placeholder);
-//			if (new_pos != -1) {
-//				caret_pos = (start || 0) + new_pos;
-//				value = value.split(caret_placeholder).join('');
-//			} else {
-//				caret_pos = value.length + (start || 0);
-//			}
-			
 			try {
 				if (has_start && has_end) {
 					content = content.substring(0, start) + value + content.substring(end);
@@ -342,7 +463,6 @@ var zen_editor = (function(){
 				
 				target.value = content;
 				this.createSelection(tabstop_res[1], tabstop_res[2]);
-//				this.setCaretPos(caret_pos);
 			} catch(e){}
 		},
 		
@@ -359,6 +479,9 @@ var zen_editor = (function(){
 		getSyntax: function(){
 			var syntax = this.getOption('syntax'),
 				caret_pos = this.getCaretPos();
+				
+			if (!zen_resources.hasSyntax(syntax))
+				syntax = 'html';
 				
 			if (syntax == 'html') {
 				// get the context tag
@@ -381,6 +504,41 @@ var zen_editor = (function(){
 		},
 		
 		/**
+		 * Ask user to enter something
+		 * @param {String} title Dialog title
+		 * @return {String} Entered data
+		 * @since 0.65
+		 */
+		prompt: function(title) {
+			return prompt(title);
+		},
+		
+		/**
+		 * Returns current selection
+		 * @return {String}
+		 * @since 0.65
+		 */
+		getSelection: function() {
+			var sel = getSelectionRange();
+			if (sel) {
+				try {
+					return getContent().substring(sel.start, sel.end);
+				} catch(e) {}
+			}
+			
+			return '';
+		},
+		
+		/**
+		 * Returns current editor's file path
+		 * @return {String}
+		 * @since 0.65 
+		 */
+		getFilePath: function() {
+			return location.href;
+		},
+		
+		/**
 		 * Custom editor method: set default options (like syntax, tabs, 
 		 * etc.) for editor
 		 * @param {Object} opt
@@ -394,8 +552,109 @@ var zen_editor = (function(){
 		 * @param {String} name Option name
 		 * @return {String} 
 		 */
-		getOption: function(name) {
-			return getOptionsFromContext()[name];
+		getOption: getOption,
+		
+		addShortcut: addShortcut,
+		
+		/**
+		 * Removes shortcut binding
+		 * @param {String} keystroke
+		 */
+		unbindShortcut: function(keystroke) {
+			keystroke = keystroke.toLowerCase();
+			if (keystroke in keyboard_shortcuts)
+				delete keyboard_shortcuts[keystroke];
+		},
+				
+		/**
+		 * Returns array of binded actions and their keystrokes
+		 * @return {Array}
+		 */
+		getShortcuts: function() {
+			var result = [], lp;
+			
+			for (var p in keyboard_shortcuts) if (keyboard_shortcuts.hasOwnProperty(p)) {
+				lp = p.toLowerCase();
+				
+				// skip some internal bindings
+				if (lp == 'tab' || lp == 'enter')
+					continue;
+					
+				result.push({
+					keystroke: shortcut.format(p),
+					compiled: keyboard_shortcuts[p].compiled,
+					label: keyboard_shortcuts[p].label,
+					action: keyboard_shortcuts[p].action
+				});
+			}
+			
+			return result;
+		},
+		
+		getInfo: function() {
+			var message = 'This textareas on this page are powered by Zen Coding project: ' +
+					'a set of tools for fast HTML coding.\n\n' +
+					'Available shortcuts:\n';
+					
+			var sh = this.getShortcuts(),
+				actions = [];
+				
+			for (var i = 0; i < sh.length; i++) {
+				actions.push(sh[i].keystroke + ' — ' + sh[i].label)
+			}
+			
+			message += actions.join('\n') + '\n\n';
+			message += 'More info on http://code.google.com/p/zen-coding/';
+			
+			return message;
+		},
+		
+		/**
+		 * Show info window about Zen Coding
+		 */
+		showInfo: function() {
+			alert(this.getInfo());
+		},
+		
+		/**
+		 * Setup editor. Pass object with values defined in 
+		 * <code>default_options</code>
+		 */
+		setup: function(opt) {
+			this.setOptions(opt);
+		},
+		
+		// expose some core Zen Coding objects
+		
+		/**
+		 * Returns core Zen Codind object
+		 */
+		getCore: function() {
+			return zen_coding;
+		},
+		
+		/**
+		 * Returns Zen Coding resource manager. You can add new snippets and 
+		 * abbreviations with this manager, as well as modify ones.<br><br>
+		 * 
+		 * Zen Coding stores settings in two separate vocabularies: 'system' 
+		 * and 'user'. The ultimate solution to add new abbreviations and
+		 * snippets is to setup a 'user' vocabulary, like this:
+		 * 
+		 * @example
+		 * var my_settings = {
+		 * 	html: {
+		 * 		abbreviations: {
+		 * 			'tag': '<div class="mytag">'
+		 * 		}
+		 * 	}
+		 * };
+		 * zen_editor.getResourceManager().setVocabulary(my_settings, 'user')
+		 * 
+		 * @see zen_resources.js
+		 */
+		getResourceManager: function() {
+			return zen_resources;
 		}
 	}
 })();

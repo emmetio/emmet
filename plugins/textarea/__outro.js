@@ -1,2 +1,2 @@
-	
+return zen_editor;	
 })();
