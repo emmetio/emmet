@@ -65,11 +65,5 @@ function zc_manager(action_name) {
 	}
 	
 	zen_editor.setContext(ed);
-	if (action_name == 'wrap_with_abbreviation') {
-		var abbr = inputText('Enter Abbreviation', 'div');
-		if (abbr)
-			return zen_coding.runAction(action_name, zen_editor, abbr);
-	} else {
-		return zen_coding.runAction(action_name, zen_editor);
-	}
+	return zen_coding.runAction(action_name, zen_editor);
 }

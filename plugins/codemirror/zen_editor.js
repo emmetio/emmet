@@ -22,13 +22,6 @@
 var zen_editor = (function(){
 	/** @type {CodeMirror} */
 	var mirror,
-		know_syntaxes = {
-			'html': 1,
-			'css': 1,
-			'xml': 1,
-			'xml': 1,
-			'haml': 1
-		},
 		
 		/** Actions aliases */
 		aliases = {
@@ -128,7 +121,7 @@ var zen_editor = (function(){
 			if (shortcut.test(sh.compiled, evt)) {
 				evt.preventDefault();
 				name = aliases[sh.action] || sh.action;
-				result = zen_coding.runAction(aliases[sh.action] || sh.action, [zen_editor]);
+				result = zen_coding.runAction(name, [zen_editor]);
 				return (name == 'expand_abbreviation') ? result : true;
 			}
 		}
@@ -206,6 +199,10 @@ var zen_editor = (function(){
 	addShortcut('Alt+DOWN', 'Decrement number by 0.1');
 	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
 	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
+	
+	addShortcut('Alt+Right', 'Select Next Item');
+	addShortcut('Alt+Left', 'Select Previous Item');
+	addShortcut('Alt+R', 'Reflect CSS Value');
 	
 	return {
 		/**
@@ -378,10 +375,9 @@ var zen_editor = (function(){
 			var syntax = mirror.options.syntax ||  '',
 				caret_pos = this.getCaretPos();
 				
-			if (!(syntax in know_syntaxes)) {
+			if (!zen_resources.hasSyntax(syntax))
 				syntax = 'html';
-			}
-			
+				
 			if (syntax == 'html') {
 				// get the context tag
 				var pair = zen_coding.html_matcher.getTags(this.getContent(), caret_pos);
@@ -445,7 +441,7 @@ var zen_editor = (function(){
 		 * @since 0.65 
 		 */
 		getFilePath: function() {
-			return '';
+			return location.href;
 		},
 		
 		shortcut: addShortcut,
@@ -476,6 +472,7 @@ var zen_editor = (function(){
 					
 				result.push({
 					keystroke: shortcut.format(p), 
+					compiled: shortcuts[p].compiled,
 					label: shortcuts[p].label,
 					action: shortcuts[p].action
 				});

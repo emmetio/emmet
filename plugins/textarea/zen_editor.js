@@ -338,7 +338,7 @@ var zen_editor = (function(){
 	//Attach the function with the event
 	if (doc.addEventListener) doc.addEventListener(key_event, runAction, false);
 	else if(doc.attachEvent) ele.attachEvent('on' + key_event, runAction);
-	else dov['on' + key_event] = func;
+	else doc['on' + key_event] = func;
 	
 	options = copyOptions();
 	

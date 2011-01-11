@@ -21,6 +21,12 @@
 		<file name="zen_actions.js"/>
 		<file name="html_matcher.js"/>
 		<file name="base64.js"/>
+			
+		<file name="parsers/parsexml.js"/>
+		<file name="parsers/sex.js"/>
+		<file name="parsers/parserutils.js"/>
+		<file name="parsers/actions.js"/>
+		<file name="parsers/traverse-actions.js"/>
 	</filelist>
 	
 	<target name="init">

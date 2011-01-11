@@ -30,9 +30,8 @@
 				<include name="*.js"/>
 			</fileset>
 			<filelist dir="${textarea.source}">
+				<file name="../codemirror/shortcut.js"/>
 				<file name="zen_editor.js"/>
-				<file name="shortcut.js"/>
-				<file name="manager.js"/>
 				<file name="__outro.js"/>
 			</filelist>
 		</concat>

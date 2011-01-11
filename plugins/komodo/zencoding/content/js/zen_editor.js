@@ -178,8 +178,9 @@ var zen_editor = {
 	 * @param {String} value Content you want to paste
 	 * @param {Number} [start] Start index of editor's content
 	 * @param {Number} [end] End index of editor's content
+	 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
 	 */
-	replaceContent: function(value, start, end) {
+	replaceContent: function(value, start, end, no_indent) {
 		var content = this.getContent(),
 			caret_pos = this.getCaretPos(),
 			caret_placeholder = zen_coding.getCaretPlaceholder(),
@@ -187,8 +188,10 @@ var zen_editor = {
 			has_end = typeof(end) !== 'undefined';
 			
 		// indent new value
-		var line_padding = (this.getCurrentLine().match(/^(\s+)/) || [''])[0];
-		value = zen_coding.padString(value, line_padding);
+		if (!no_indent) {
+			var line_padding = (this.getCurrentLine().match(/^(\s+)/) || [''])[0];
+			value = zen_coding.padString(value, line_padding);
+		}
 		
 		// find new caret position
 		var new_pos = value.indexOf(caret_placeholder);
@@ -261,5 +264,71 @@ var zen_editor = {
 	 */
 	getProfileName: function() {
 		return 'xhtml';
+	},
+	
+	/**
+	 * Ask user to enter something
+	 * @param {String} title Dialog title
+	 * @return {String} Entered data
+	 * @since 0.65
+	 */
+	prompt: function(title) {
+		return ko.dialogs.prompt(title);
+	},
+	
+	/**
+	 * Returns current selection
+	 * @return {String}
+	 * @since 0.65
+	 */
+	getSelection: function() {
+		var sel = getSelectionRange();
+		if (sel) {
+			try {
+				return getContent().substring(sel.start, sel.end);
+			} catch(e) {}
+		}
+		
+		return '';
+	},
+	
+	/**
+	 * Returns current editor's file path
+	 * @return {String}
+	 * @since 0.65 
+	 */
+	getFilePath: function() {
+		return ko.views.manager.currentView.document.file.URI;
+	},
+	
+	/**
+	 * Returns core Zen Codind object
+	 */
+	getCore: function() {
+		return zen_coding;
+	},
+	
+	/**
+	 * Returns Zen Coding resource manager. You can add new snippets and 
+	 * abbreviations with this manager, as well as modify ones.<br><br>
+	 * 
+	 * Zen Coding stores settings in two separate vocabularies: 'system' 
+	 * and 'user'. The ultimate solution to add new abbreviations and
+	 * snippets is to setup a 'user' vocabulary, like this:
+	 * 
+	 * @example
+	 * var my_settings = {
+	 * 	html: {
+	 * 		abbreviations: {
+	 * 			'tag': '<div class="mytag">'
+	 * 		}
+	 * 	}
+	 * };
+	 * zen_editor.getResourceManager().setVocabulary(my_settings, 'user')
+	 * 
+	 * @see zen_resources.js
+	 */
+	getResourceManager: function() {
+		return zen_resources;
 	}
 };

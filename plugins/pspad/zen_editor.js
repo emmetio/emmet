@@ -20,14 +20,6 @@
 var zen_editor = (function(){
 	var context = null;
 	
-	var know_syntaxes = {
-		'html': 1,
-		'css': 1,
-		'xml': 1,
-		'xml': 1,
-		'haml': 1
-	};
-	
 	/**
 	 * Find start and end index of text line for <code>from</code> index
 	 * @param {String} text 
@@ -167,14 +159,15 @@ var zen_editor = (function(){
 		 * @param {Number} [start] Start index of editor's content
 		 * @param {Number} [end] End index of editor's content
 		 */
-		replaceContent: function(value, start, end) {
+		replaceContent: function(value, start, end, no_indent) {
 			var caret_pos = this.getCaretPos(),
 				caret_placeholder = zen_coding.getCaretPlaceholder(),
 				has_start = typeof(start) !== 'undefined',
 				has_end = typeof(end) !== 'undefined';
 				
 			// indent new value
-			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			if (!no_indent)
+				value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
 			var new_pos = value.indexOf(caret_placeholder);
@@ -227,9 +220,8 @@ var zen_editor = (function(){
 			// guess syntax by file name
 			if (m) {
 				syntax = m[1].toLowerCase();
-				if (!(syntax in know_syntaxes)) {
+				if (!zen_resources.hasSyntax(syntax))
 					syntax = 'html';
-				}
 			}
 			
 			if (syntax == 'html') {
@@ -251,6 +243,41 @@ var zen_editor = (function(){
 		 */
 		getProfileName: function() {
 			return 'xhtml';
+		},
+		
+		/**
+		 * Ask user to enter something
+		 * @param {String} title Dialog title
+		 * @return {String} Entered data
+		 * @since 0.65
+		 */
+		prompt: function(title) {
+			return inputText(title);
+		},
+		
+		/**
+		 * Returns current selection
+		 * @return {String}
+		 * @since 0.65
+		 */
+		getSelection: function() {
+			var sel = getSelectionRange();
+			if (sel) {
+				try {
+					return getContent().substring(sel.start, sel.end);
+				} catch(e) {}
+			}
+			
+			return '';
+		},
+		
+		/**
+		 * Returns current editor's file path
+		 * @return {String}
+		 * @since 0.65 
+		 */
+		getFilePath: function() {
+			return context.fileName();
 		}
 	};
 })();

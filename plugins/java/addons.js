@@ -2,6 +2,8 @@
  * Short-hand functions for Java wrapper
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * 
+ * @include "../../javascript/zen_resources.js"
  */
 
 /**
@@ -22,9 +24,7 @@
  * Removes all user defined settings
  */
 function resetUserSettings() {
-	delete zen_coding.user_resources;
-	zen_coding.user_resources = {};
-	zen_coding.resetVariables();
+	zen_resources.setVocabulary({}, 'user');
 }
 
 /**
@@ -35,28 +35,21 @@ function resetUserSettings() {
  * @param {String} value
  */
 function addUserResource(syntax, type, abbr, value) {
-	var storage = zen_coding.user_resources;
-	if (!(syntax in storage))
-		storage[syntax] = {};
+	var voc = zen_resources.getVocabulary('user') || {};
+	if (!(syntax in voc))
+		voc[syntax] = {};
 		
-	if (!(type in storage[syntax])) {
-		storage[syntax][type] = {};
-	}
+	if (!(type in voc[syntax]))
+		voc[syntax][type] = {};
+		
+	voc[syntax][type][abbr] = value;
 	
-	var obj = storage[syntax][type];
-	
-	if (type == 'abbreviations') {
-		obj[abbr] = zen_coding.settings_parser.parseAbbreviation(abbr, value);
-		obj[abbr].__ref = value;
-	} else {
-		obj[abbr] = value;
-	}
+	zen_resources.setVocabulary(voc, 'user');
 }
 
 function hasZenCodingVariable(name) {
 	return !!zen_coding.getVariable(name);
 }
-
 
 function tryBoolean(val) {
 	var str_val = String(val || '').toLowerCase();
