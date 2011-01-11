@@ -168,8 +168,9 @@
 	 */
 	function getOpeningTagFromPosition(html, pos) {
 		var m;
-		if (html.charAt(pos) == '<' && (m = html.substring(pos, html.length).match(start_tag)))
+		if (html.charAt(pos) == '<' && (m = html.substring(pos, html.length).match(start_tag))) {
 			return [pos, pos + m[0].length];
+		}
 	}
 	
 	function isQuote(ch) {
@@ -212,7 +213,7 @@
 					editor.createSelection(rng[0], rng[1]);
 					return true;
 				} else {
-					search_pos = item[is_backward ? 0 : 1];
+					search_pos = is_backward ? item[0] : item[1] - 1;
 				}
 			}
 			
