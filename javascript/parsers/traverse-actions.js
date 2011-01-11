@@ -85,6 +85,10 @@
 					
 					if (token.type == 'xml-attribute')
 						next = handleQuotesHTML(token.content, next);
+						
+					if (sel_start == next[0] && sel_end == next[1])
+						// in case of empty attribute
+						continue;
 					
 					return next;
 				}
@@ -200,7 +204,7 @@
 				}
 				
 				prev_range[0] = item[0];
-				prev_range[1]== item[1];
+				prev_range[1] = item[1];
 				item_def = content.substring(item[0], item[1]);
 				rng = range_fn(item_def, item[0], sel_start, sel_end);
 					
