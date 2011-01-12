@@ -363,8 +363,8 @@ var zen_editor = (function(){
 	addShortcut('Ctrl+Alt+UP', 'Increment number by 10');
 	addShortcut('Ctrl+Alt+DOWN', 'Decrement number by 10');
 	
-	addShortcut('Alt+Right', 'Select Next Item');
-	addShortcut('Alt+Left', 'Select Previous Item');
+	addShortcut('Meta+.', 'Select Next Item');
+	addShortcut('Meta+,', 'Select Previous Item');
 	addShortcut('Alt+R', 'Reflect CSS Value');
 	
 	addShortcut('Enter', 'Insert Formatted Line Break');
