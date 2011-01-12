@@ -409,7 +409,7 @@
 	function handleCSSSpecialCase(text, start, end, offset) {
 		text = text.substring(start - offset, end - offset);
 		var m;
-		if (m = text.match(/^url\(['"]?/)) {
+		if (m = text.match(/^[\w\-]+\(['"]?/)) {
 			start += m[0].length;
 			if (m = text.match(/['"]?\)$/))
 				end -= m[0].length;
