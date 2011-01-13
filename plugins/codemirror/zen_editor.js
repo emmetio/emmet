@@ -202,7 +202,7 @@ var zen_editor = (function(){
 	
 	addShortcut('Meta+.', 'Select Next Item');
 	addShortcut('Meta+,', 'Select Previous Item');
-	addShortcut('Alt+R', 'Reflect CSS Value');
+	addShortcut('Meta+B', 'Reflect CSS Value');
 	
 	return {
 		/**
