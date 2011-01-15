@@ -690,6 +690,11 @@ var zen_settings = {
 		}
 	},
 	
+	'xml': {
+		'extends': 'html',
+		'filters': 'html'
+	},
+	
 	'xsl': {
 		'extends': 'html',
 		'filters': 'html, xsl',

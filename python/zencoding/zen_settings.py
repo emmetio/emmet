@@ -697,6 +697,11 @@ zen_settings = {
 		}
 	},
 	
+	'xml': {
+		'extends': 'html',
+		'filters': 'html'
+	},
+	
 	'xsl': {
 		'extends': 'common,html',
 		'filters': 'html, xsl',
