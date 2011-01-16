@@ -340,30 +340,56 @@ function nextEditPoint(editor) {
 }
 
 /**
- * Inserts newline character with proper indentation
- * @param {zen_editor} editor Editor instance
- * @param {String} mode Syntax mode (only 'html' is implemented)
+ * Inserts newline character with proper indentation in specific positions only.
+ * @param {zen_editor} editor
+ * @return {Boolean} Returns <code>true</code> if line break was inserted 
  */
-function insertFormattedNewline(editor, mode) {
-	mode = String(mode || 'html');
+function insertFormattedNewlineOnly(editor) {
 	var caret_pos = editor.getCaretPos(),
+		content = String(editor.getContent()),
 		nl = zen_coding.getNewline(),
-		pad = zen_coding.getVariable('indentation');
+		pad = zen_coding.getVariable('indentation'),
+		syntax = String(editor.getSyntax());
 		
-	switch (mode) {
-		case 'html':
-			// let's see if we're breaking newly created tag
-			var pair = zen_coding.html_matcher.getTags(String(editor.getContent()), editor.getCaretPos(), String(editor.getProfileName()));
-			
-			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
-				editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, caret_pos);
-			} else {
-				editor.replaceContent(nl, caret_pos);
+	if (syntax == 'html') {
+		// let's see if we're breaking newly created tag
+		var pair = zen_coding.html_matcher.getTags(content, caret_pos, String(editor.getProfileName()));
+		
+		if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
+			editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, caret_pos);
+			return true;
+		}
+	} else if (syntax == 'css') {
+		if (caret_pos && content.charAt(caret_pos - 1) == '{') {
+			// defining rule set
+			var ins_value = nl + pad + zen_coding.getCaretPlaceholder() + nl,
+				has_close_brace = caret_pos < content.length && content.charAt(caret_pos) == '}';
+				
+			var user_close_brace = zen_coding.getVariable('close_css_brace');
+			if (user_close_brace) {
+				// user defined how close brace should look like
+				ins_value += zen_coding.replaceVariables(user_close_brace);
+			} else if (!has_close_brace) {
+				ins_value += '}';
 			}
-			break;
-		default:
-			editor.replaceContent(nl, caret_pos);
+			
+			editor.replaceContent(ins_value, caret_pos, caret_pos + (has_close_brace ? 1 : 0));
+			return true;
+		}
 	}
+		
+	return false;
+}
+
+/**
+ * Inserts newline character with proper indentation. This action is used in
+ * editors that doesn't have indentation control (like textarea element) to 
+ * provide proper indentation
+ * @param {zen_editor} editor Editor instance
+ */
+function insertFormattedNewline(editor) {
+	if (!insertFormattedNewlineOnly(editor))
+		editor.replaceContent(zen_coding.getNewline(), editor.getCaretPos());
 }
 
 /**
@@ -1053,6 +1079,7 @@ zen_coding.registerAction('wrap_with_abbreviation', wrapWithAbbreviation);
 zen_coding.registerAction('prev_edit_point', prevEditPoint);
 zen_coding.registerAction('next_edit_point', nextEditPoint);
 zen_coding.registerAction('insert_formatted_line_break', insertFormattedNewline);
+zen_coding.registerAction('insert_formatted_line_break_only', insertFormattedNewlineOnly);
 zen_coding.registerAction('select_line', selectLine);
 zen_coding.registerAction('matching_pair', goToMatchingPair);
 zen_coding.registerAction('merge_lines', mergeLines);
