@@ -361,6 +361,13 @@ function insertFormattedNewlineOnly(editor) {
 		}
 	} else if (syntax == 'css') {
 		if (caret_pos && content.charAt(caret_pos - 1) == '{') {
+			// look ahead for a closing brace
+			for (var i = caret_pos, il = content.length, ch; i < il; i++) {
+				ch = content.charAt(i);
+				if (ch == '}') return false;
+				if (ch == '{') break;
+			}
+			
 			// defining rule set
 			var ins_value = nl + pad + zen_coding.getCaretPlaceholder() + nl,
 				has_close_brace = caret_pos < content.length && content.charAt(caret_pos) == '}';
@@ -388,8 +395,30 @@ function insertFormattedNewlineOnly(editor) {
  * @param {zen_editor} editor Editor instance
  */
 function insertFormattedNewline(editor) {
-	if (!insertFormattedNewlineOnly(editor))
-		editor.replaceContent(zen_coding.getNewline(), editor.getCaretPos());
+	if (!insertFormattedNewlineOnly(editor)) {
+		var cur_padding = getCurrentLinePadding(editor),
+			content = String(editor.getContent()),
+			caret_pos = editor.getCaretPos(),
+			c_len = content.length,
+			nl = zen_coding.getNewline();
+			
+		// check out next line padding
+		var line_range = editor.getCurrentLineRange(),
+			next_padding = '';
+			
+		for (var i = line_range.end + 1, ch; i < c_len; i++) {
+			ch = content.charAt(i);
+			if (ch == ' ' || ch == '\t')
+				next_padding += ch;
+			else
+				break;
+		}
+		
+		if (next_padding.length > cur_padding.length)
+			editor.replaceContent(nl + next_padding, caret_pos, caret_pos, true);
+		else
+			editor.replaceContent(nl, caret_pos);
+	}
 }
 
 /**
