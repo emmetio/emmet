@@ -118,7 +118,7 @@
 		 * into a single chunk
 		 * @param {Array} tokens Tokens produced by <code>CSSEX.lex()</code>
 		 * @param {Number} offset CSS rule offset in source code (character index)
-		 * @param {String} Original CSS source code
+		 * @param {String} content Original CSS source code
 		 * @return {Array} Optimized tokens  
 		 */
 		optimizeCSS: function(tokens, offset, content) {
