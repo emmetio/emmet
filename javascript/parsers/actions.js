@@ -9,8 +9,8 @@
  */
  
 /**
- * Reflect CSS value: takes rule's value under caret pastes it for the same rules
- * with verdor prefixes
+ * Reflect CSS value: takes rule's value under caret and pastes it for the same 
+ * rules with vendor prefixes
  * @param {zen_editor} editor
  */
 function reflectCSSValue(editor) {
