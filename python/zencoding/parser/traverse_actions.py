@@ -61,7 +61,7 @@ def get_range_for_next_item_in_html(tag, offset, sel_start, sel_end):
 	for i, token in enumerate(tokens):
 		if token['type'] in known_xml_types:
 			# check token position
-			pos_test = token.start >= sel_start
+			pos_test = token['start'] >= sel_start
 			if token['type'] == 'xml-attribute' and is_quote(token['content'][0]):
 				pos_test = token['start'] + 1 >= sel_start and token['end'] -1 != sel_end
 			
@@ -356,3 +356,35 @@ def handle_full_rule_css(tokens, i, start):
 			return [start == -1 and t['start'] or start, t['start'] - 1]
 		
 	return None
+
+def handle_full_attribute_html(tokens, i, start):
+	for t in tokens[i+1:]:
+		if t['type'] == 'xml-attribute':
+			if start == -1:
+				return handle_quotes_html(t['content'], [t['start'], t['end']])
+			else:
+				return [start, t['end']]
+		elif t['type'] == 'xml-attname':
+			# moved to next attribute, adjust selection
+			return [t['start'], tokens[i]['end']]
+		
+	return None
+
+def handle_quotes_html(attr, r):
+	if is_quote(attr[0]):
+		r[0] += 1
+	if is_quote(attr[-1]):
+		r[1] -= 1
+		
+	return r
+
+def handle_css_special_case(text, start, end, offset):
+	text = text[start - offset:end - offset]
+	m = re.match(r'^[\w\-]+\([\'"]?')
+	if m:
+		start += len(m.group(0))
+		m = re.search(r'[\'"]?\)$')
+		if m:
+			end -= len(m.group(0))
+	
+	return [start, end]
