@@ -9,6 +9,7 @@ Created on Jan 21, 2011
 '''
 import re
 import utils
+import zencoding
 
 start_tag = re.compile('^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*)\s*(\/?)>')
 known_xml_types = ['xml-tagname','xml-attname', 'xml-attribute']
@@ -388,3 +389,17 @@ def handle_css_special_case(text, start, end, offset):
 			end -= len(m.group(0))
 	
 	return [start, end]
+
+@zencoding.action 
+def select_next_item(editor):
+	if editor.get_syntax() == 'css':
+		return find_next_css_item(editor)
+	else:
+		return find_next_html_item(editor)
+
+@zencoding.action	
+def select_previous_item(editor):
+	if editor.get_syntax() == 'css':
+		return find_prev_css_item(editor)
+	else:
+		return find_prev_html_item(editor)
