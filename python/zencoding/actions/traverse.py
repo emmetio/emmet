@@ -22,7 +22,7 @@ def find_next_html_item(editor):
 	"""
 	is_first = [True]
 	
-	def fn(content, search_pos):
+	def fn(content, search_pos, is_backward=False):
 		if is_first[0]:
 			is_first[0] = False
 			return find_opening_tag_from_position(content, search_pos)
@@ -108,7 +108,8 @@ def get_range_for_prev_item_in_html(tag, offset, sel_start, sel_end):
 	tokens = parser_utils.parse_html(tag, offset)
 			
 	# search for token that is left to the selection
-	for i, token in tokens:
+	for i in range(len(tokens) - 1, -1, -1):
+		token = tokens[i]
 		if token['type'] in known_xml_types:
 			# check token position
 			pos_test = token['start'] < sel_start
@@ -150,7 +151,7 @@ def find_opening_tag_from_position(html, pos):
 	
 	return None
 
-def get_opening_tag_from_position(html, pos):
+def get_opening_tag_from_position(html, pos, is_backward=False):
 	"""
 	@param html: Where to search tag
 	@type html: str
@@ -312,7 +313,8 @@ def get_range_for_prev_item_in_css(rule, offset, sel_start, sel_end):
 		return r[0] == sel_start and r[1] == sel_end
 		
 	# search for token that is left to the selection
-	for i, token in enumerate(tokens):
+	for i in range(len(tokens) - 1, -1, -1):
+		token = tokens[i]
 		if token['type'] in known_css_types:
 			# check token position
 			pos_test = token['start'] < sel_start
@@ -381,10 +383,10 @@ def handle_quotes_html(attr, r):
 
 def handle_css_special_case(text, start, end, offset):
 	text = text[start - offset:end - offset]
-	m = re.match(r'^[\w\-]+\([\'"]?')
+	m = re.match(r'^[\w\-]+\([\'"]?', text)
 	if m:
 		start += len(m.group(0))
-		m = re.search(r'[\'"]?\)$')
+		m = re.search(r'[\'"]?\)$', text)
 		if m:
 			end -= len(m.group(0))
 	

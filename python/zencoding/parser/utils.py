@@ -22,7 +22,7 @@ def calculate_nl_length(content, pos):
 	@param pos: int
 	@return: int
 	"""
-	if content[pos] == '\r' and char_at(content, pos + 1) == '\n':
+	if char_at(content, pos) == '\r' and char_at(content, pos + 1) == '\n':
 		return 2
 		
 	return 1
