@@ -7,23 +7,13 @@ Created on Jun 19, 2009
 '''
 import unittest
 import sys
-from zencoding import zen_core as zen
-from zencoding import zen_resources
-from zencoding.zen_settings import zen_settings
+import zencoding.utils
 
-zen.set_caret_placeholder('|')
-zen_resources.set_vocabulary(zen_settings, zen_resources.VOC_SYSTEM)
-
-def expandAbbr(abbr, doc_type='html', profile_name='plain'):
-	return zen.expand_abbreviation(abbr, doc_type, profile_name)
-
-def extractAbbr(line):
-	return zen.extract_abbreviation(line)
+zencoding.utils.set_caret_placeholder('|')
 
 
 def wrap(abbr, content):
-	return zen.wrap_with_abbreviation(abbr, content)
-
+	return zencoding.wrap_with_abbreviation(abbr, content)
 
 class Test(unittest.TestCase):
 	

@@ -41,7 +41,7 @@ def filter(name=None, filter_func=None):
 		else:
 			# @zencoding.filter('somename') or @zencoding.filter(name='somename')
 			def dec(func):
-				return action(name, func)
+				return filter(name, func)
 			return dec
 	elif name != None and filter_func != None:
 		# zencoding.filter('somename', somefunc)
@@ -67,7 +67,7 @@ def run_action(name, *args, **kwargs):
 	 zencoding.run_actions('expand_abbreviation', zen_editor)
 	 zencoding.run_actions('wrap_with_abbreviation', zen_editor, 'div')  
 	"""
-	from zencoding.actions import *
+	import_pack('zencoding.actions')
 	if name in __actions:
 		__actions[name](*args, **kwargs)
 		
@@ -79,8 +79,7 @@ def run_filters(tree, profile, filter_list):
 	@param filter_list: str, list
 	@return: ZenNode
 	"""
-	from zencoding.filters import *
-	
+	import_pack('zencoding.filters')
 	profile = utils.process_profile(profile)
 		
 	if isinstance(filter_list, basestring):
@@ -93,6 +92,8 @@ def run_filters(tree, profile, filter_list):
 			
 	return tree
 
+def import_pack(name):
+	__import__(name, globals(), locals(), ['*'], -1)
 
 def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	"""
@@ -100,4 +101,39 @@ def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	@type abbr: str
 	@return: str
 	"""
-	return utils.expand_abbreviation(abbr, syntax, profile_name)
+	tree_root = utils.parse_into_tree(abbr, syntax)
+	if tree_root:
+		tree = utils.rollout_tree(tree_root)
+		utils.apply_filters(tree, syntax, profile_name, tree_root.filters)
+		return utils.replace_variables(tree.to_string())
+	
+	return ''
+
+def wrap_with_abbreviation(abbr, text, syntax='html', profile='plain'):
+	"""
+	Wraps passed text with abbreviation. Text will be placed inside last
+	expanded element
+	@param abbr: Abbreviation
+	@type abbr: str
+	
+	@param text: Text to wrap
+	@type text: str
+	
+	@param syntax: Document type (html, xml, etc.)
+	@type syntax: str
+	
+	@param profile: Output profile's name.
+	@type profile: str
+	@return {String}
+	"""
+	tree_root = utils.parse_into_tree(abbr, syntax)
+	if tree_root:
+		repeat_elem = tree_root.multiply_elem or tree_root.last
+		repeat_elem.set_paste_content(text)
+		repeat_elem.repeat_by_lines = bool(tree_root.multiply_elem)
+		
+		tree = utils.rollout_tree(tree_root)
+		utils.apply_filters(tree, syntax, profile, tree_root.filters)
+		return utils.replace_variables(tree.to_string())
+	
+	return None

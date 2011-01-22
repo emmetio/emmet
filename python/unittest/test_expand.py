@@ -4,9 +4,8 @@ Created on Jun 19, 2009
 @author: sergey
 '''
 import unittest
-
-from zencoding import zen_core as zen
-from zencoding import zen_resources
+import zencoding.utils
+import zencoding.resources
 
 my_zen_settings = {
 	'html': {
@@ -16,14 +15,14 @@ my_zen_settings = {
 	}
 }
 
-zen.set_caret_placeholder('|')
-zen_resources.set_vocabulary(my_zen_settings, zen_resources.VOC_USER)
+zencoding.utils.set_caret_placeholder('|')
+zencoding.resources.set_vocabulary(my_zen_settings, zencoding.resources.VOC_USER)
 
 def expandAbbr(abbr, syntax='html', profile_name='plain'):
-	return zen.expand_abbreviation(abbr, syntax, profile_name)
+	return zencoding.expand_abbreviation(abbr, syntax, profile_name)
 
 def extractAbbr(line):
-	return zen.extract_abbreviation(line)
+	return zencoding.utils.extract_abbreviation(line)
 
 class Test(unittest.TestCase):
 	
@@ -114,11 +113,11 @@ class Test(unittest.TestCase):
 		self.assertEqual('<bq><p></p></bq>', expandAbbr('bq>p', 'foo'))
 	
 	def testTagHit(self):
-		self.assertEqual(True, zen.is_inside_tag('hello<div>world', 7))
-		self.assertEqual(True, zen.is_inside_tag('hello<br />world', 7))
-		self.assertEqual(True, zen.is_inside_tag('hello</p>world', 7))
-		self.assertEqual(False, zen.is_inside_tag('hello<div>world', 10))
-		self.assertEqual(False, zen.is_inside_tag('hello<div>world', 1))
+		self.assertEqual(True, zencoding.utils.is_inside_tag('hello<div>world', 7))
+		self.assertEqual(True, zencoding.utils.is_inside_tag('hello<br />world', 7))
+		self.assertEqual(True, zencoding.utils.is_inside_tag('hello</p>world', 7))
+		self.assertEqual(False, zencoding.utils.is_inside_tag('hello<div>world', 10))
+		self.assertEqual(False, zencoding.utils.is_inside_tag('hello<div>world', 1))
 		
 	def testFormatting(self):
 		self.assertEqual('<blockquote>\n\t<p>|</p>\n</blockquote>', expandAbbr('bq>p', 'html', 'xhtml'));
@@ -141,22 +140,22 @@ class Test(unittest.TestCase):
 		self.assertEqual('<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>', expandAbbr('div>(i+b)*2+(span+em)*3'));
 		
 	def testEscaping(self):
-		self.assertEqual('<xsl:apply-templates select="\\$item \\| other"/>', zen.escape_text('<xsl:apply-templates select="$item | other"/>'))
-		self.assertEqual('<xsl:apply-templates select="item \\\\\\\\\\| other"/>', zen.escape_text('<xsl:apply-templates select="item \\\\| other"/>'))
+		self.assertEqual('<xsl:apply-templates select="\\$item \\| other"/>', zencoding.utils.escape_text('<xsl:apply-templates select="$item | other"/>'))
+		self.assertEqual('<xsl:apply-templates select="item \\\\\\\\\\| other"/>', zencoding.utils.escape_text('<xsl:apply-templates select="item \\\\| other"/>'))
 		
 	def testUnescaping(self):
-		self.assertEqual('<xsl:apply-templates select="$item | other"/>', zen.unescape_text('<xsl:apply-templates select="\\$item \\| other"/>'))
-		self.assertEqual('<xsl:apply-templates select="item \\\\| other"/>', zen.unescape_text('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'))
+		self.assertEqual('<xsl:apply-templates select="$item | other"/>', zencoding.utils.unescape_text('<xsl:apply-templates select="\\$item \\| other"/>'))
+		self.assertEqual('<xsl:apply-templates select="item \\\\| other"/>', zencoding.utils.unescape_text('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'))
 	
 	def testExtract(self):
 		abbr = 'ul#nav>li.$$item$$$*3>a+span'
 		abbr2 = 'table>tr>td[colspan=2 title="Hello world"]>span'
 		
-		self.assertEqual(abbr, zen.extract_abbreviation(abbr));
-		self.assertEqual(abbr, zen.extract_abbreviation('<p>' +  abbr))
-		self.assertEqual(abbr, zen.extract_abbreviation('hello ' + abbr))
-		self.assertEqual(abbr2, zen.extract_abbreviation('<div>' + abbr2))
-		self.assertEqual(abbr2, zen.extract_abbreviation('hello ' + abbr2))
+		self.assertEqual(abbr, zencoding.utils.extract_abbreviation(abbr));
+		self.assertEqual(abbr, zencoding.utils.extract_abbreviation('<p>' +  abbr))
+		self.assertEqual(abbr, zencoding.utils.extract_abbreviation('hello ' + abbr))
+		self.assertEqual(abbr2, zencoding.utils.extract_abbreviation('<div>' + abbr2))
+		self.assertEqual(abbr2, zencoding.utils.extract_abbreviation('hello ' + abbr2))
 	
 	def testShortNotation(self):
 		self.assertEqual('<div id="content"></div>', expandAbbr('#content'))
