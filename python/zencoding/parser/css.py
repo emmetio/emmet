@@ -89,15 +89,14 @@ def get_conf():
 		'line': __walker.linenum
 	}
 
-def tokener(value, token_type=None, conf=None):
+def tokener(value, token_type=None, c={}):
 	"creates token objects and pushes them to a list"
 	w = __walker
-	c = conf or {}
 	__tokens.append({
-		'charstart': 'char' in c and c['char'] or w.chnum,
-		'charend':   'charend' in c and c['charend'] or w.chnum,
-		'linestart': 'line' in c and c['line'] or w.linenum,
-		'lineend':   'lineend' in c and c['lineend'] or w.linenum,
+		'charstart': c.get('char', w.chnum),
+		'charend':   c.get('charend', w.chnum),
+		'linestart': c.get('line', w.linenum),
+		'lineend':   c.get('lineend', w.linenum),
 		'value':     value,
 		'type':      token_type or value
 	})
