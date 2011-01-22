@@ -60,7 +60,7 @@ def expand_abbreviation(editor, syntax=None, profile_name=None):
 	content = ''
 		
 	if abbr:
-		content = zencoding.utils.expand_abbreviation(abbr, syntax, profile_name)
+		content = zencoding.expand_abbreviation(abbr, syntax, profile_name)
 		if content:
 			editor.replace_content(content, caret_pos - len(abbr), caret_pos)
 			return True
@@ -84,6 +84,7 @@ def expand_abbreviation_with_tab(editor, syntax, profile_name='xhtml'):
 	
 	return True 
 
+@zencoding.action
 def match_pair(editor, direction='out', syntax=None):
 	"""
 	Find and select HTML tag pair
@@ -198,7 +199,7 @@ def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 	padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
 	new_content = content[start_offset:end_offset]
-	result = zencoding.utils.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
+	result = zencoding.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
 	
 	if result:
 		editor.replace_content(result, start_offset, end_offset)
@@ -911,6 +912,7 @@ def find_expression_bounds(editor, fn):
 	
 	return expr_end > expr_start and (expr_start + 1, expr_end) or None
 
+@zencoding.action
 def increment_number(editor, step):
 	"""
 	Extract number from current caret position of the <code>editor</code> and

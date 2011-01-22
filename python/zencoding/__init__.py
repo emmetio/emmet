@@ -1,8 +1,11 @@
 import utils
 import re
+import os
+import imp
 
 __actions = {}
 __filters = {}
+__imported = []
 
 def action(name=None, action_func=None):
 	"Decorator for Zen Coding actions"
@@ -67,9 +70,11 @@ def run_action(name, *args, **kwargs):
 	 zencoding.run_actions('expand_abbreviation', zen_editor)
 	 zencoding.run_actions('wrap_with_abbreviation', zen_editor, 'div')  
 	"""
-	import_pack('zencoding.actions')
+	import zencoding.actions
 	if name in __actions:
-		__actions[name](*args, **kwargs)
+		return __actions[name](*args, **kwargs)
+	
+	return False
 		
 def run_filters(tree, profile, filter_list):
 	"""
@@ -79,7 +84,8 @@ def run_filters(tree, profile, filter_list):
 	@param filter_list: str, list
 	@return: ZenNode
 	"""
-	import_pack('zencoding.filters')
+	import zencoding.filters
+	
 	profile = utils.process_profile(profile)
 		
 	if isinstance(filter_list, basestring):
@@ -91,9 +97,6 @@ def run_filters(tree, profile, filter_list):
 			tree = __filters[name](tree, profile)
 			
 	return tree
-
-def import_pack(name):
-	__import__(name, globals(), locals(), ['*'], -1)
 
 def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	"""
