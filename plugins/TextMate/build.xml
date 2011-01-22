@@ -26,7 +26,7 @@
 
 	<target name="build_textmate_macros" depends="textmate_init">
 		<textmate_sre_macro title="Wrap with Abbreviation" action="wrap_with_abbreviation" key="@A" uid-base="wrap-abbr"/>
-		<textmate_s_macro title="Balance Tag" action="match_pair" key="@d" uid-base="balance-outward"/>
+		<textmate_s_macro title="Balance Tag" action="match_pair_outward" key="@d" uid-base="balance-outward"/>
 		<textmate_sre_macro title="Update Image Size" action="update_image_size" key="^i" uid-base="image-size"/>
 		<textmate_sre_macro title="Split or Join Tag" action="split_join_tag" key="@k" uid-base="split-join-tag"/>
 		<textmate_sre_macro title="Toggle Comment" action="toggle_comment" key="@/" uid-base="toggle-comment"/>
@@ -34,6 +34,9 @@
 		<textmate_sre_macro title="Encode or Decode image to data:url" action="encode_decode_base64" key="@I" uid-base="encode-decode-image"/>
 		<textmate_sre_macro title="Increment number by 1" action="increment_number" args="1" key="^" uid-base="increment_number-1"/>
 		<textmate_sre_macro title="Decrement number by 1" action="increment_number" args="-1" key="^" uid-base="decrement_number-1"/>
+		
+		<textmate_s_macro title="Select Next Item" key="@]" action="select_next_item" uid-base="sel-next"/>
+		<textmate_s_macro title="Select Previous Item" key="@[" action="select_previous_item" uid-base="sel-prev"/>
 	</target>
 	
 	<target name="install_textmate_bundle" depends="textmate_bundle">
@@ -47,7 +50,7 @@
 	<macrodef name="textmate_sre_macro" description="TextMate's default search and replace macro">
 		<attribute name="title" />
 		<attribute name="action" />
-		<attribute name="uid-base" />
+		<attribute name="uid-base" default="@action" />
 		<attribute name="replace-module" default="applescript.py" />
 		<attribute name="key" default="" />
 		<attribute name="args" default="" />
@@ -71,7 +74,7 @@
 	<macrodef name="textmate_s_macro" description="TextMate's default search macro">
 		<attribute name="title" />
 		<attribute name="action" />
-		<attribute name="uid-base" />
+		<attribute name="uid-base" default="@action" />
 		<attribute name="key" default="" />
 		<attribute name="args" default="" />
 		<attribute name="filename" default="@{title}" />

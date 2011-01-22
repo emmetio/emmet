@@ -34,7 +34,7 @@ class ZenEditor():
 		<code>before</code> using any Zen Coding action.
 		@param context: context object
 		"""
-		self._content = sys.stdin.read()
+		self._content = sys.stdin.read().decode('utf-8')
 		
 	def get_selection_range(self):
 		"""
@@ -43,10 +43,18 @@ class ZenEditor():
 		"""
 		line_num = int(os.getenv('TM_INPUT_START_LINE', os.getenv('TM_LINE_NUMBER', 1)))
 		head_lines = self.get_content().splitlines(True)[0:line_num - 1]
-		head_len = len(''.join(head_lines))
-		start, end = self.get_current_line_range()
+		head_len = len(u''.join(head_lines))
 		
-		return start + head_len, end + head_len
+		cur_pos = int(os.getenv('TM_INPUT_START_COLUMN', os.getenv('TM_COLUMN_NUMBER', 1))) - 1
+		
+		# we need to expand tabbed indentation in order to correctly 
+		# calculate precise caret position
+		m = re.match(r'\t+', self.get_current_line())
+		if m:
+			tab_size = int(os.getenv('TM_TAB_SIZE', 1))
+			cur_pos -= len(m.group(0)) * (tab_size - 1)
+		
+		return head_len + cur_pos, head_len + cur_pos + len(self.get_selection())
 	
 	
 	def create_selection(self, start, end=None):
@@ -94,9 +102,9 @@ class ZenEditor():
 		Returns content of current line
 		@return: str
 		"""
-		return os.getenv('TM_CURRENT_LINE', '')
+		return os.getenv('TM_CURRENT_LINE', '').decode('utf-8')
 	
-	def replace_content(self, value, start=None, end=None):
+	def replace_content(self, value, start=None, end=None, no_indent=False):
 		"""
 		Replace editor's content or it's part (from <code>start</code> to 
 		<code>end</code> index). If <code>value</code> contains 
@@ -203,8 +211,7 @@ class ZenEditor():
 		return re.sub(zen.get_caret_placeholder(), get_ix, text)
 	
 	def get_selection(self):
-		start, end = self.get_selection_range()
-		return self.get_content()[start:end] if start != end else ''
+		return os.getenv('TM_SELECTED_TEXT', '')
 	
 	def get_file_path(self):
 		"""
@@ -212,4 +219,4 @@ class ZenEditor():
 		@return: str
 		@since: 0.65 
 		"""
-		return os.getenv('TM_FILEPATH', None)
+		return os.getenv('TM_FILEPATH', None).decode('utf-8')

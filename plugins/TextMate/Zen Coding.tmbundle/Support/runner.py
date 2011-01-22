@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from zencoding import zen_core as zen_coding
-from zen_editor import ZenEditor
+import zencoding
+from zencoding.actions import *
 import sys
+from zen_editor import ZenEditor
 
 editor = ZenEditor()
 try:
@@ -11,4 +12,4 @@ try:
 except:
 	args = []
 	
-zen_coding.run_action(sys.argv[1], editor, *args)
+zencoding.run_action(sys.argv[1], editor, *args)
