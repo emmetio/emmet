@@ -8,11 +8,14 @@ This layer describes all available Zen Coding actions, like
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 """
+import zencoding
 from zencoding import zen_core as zen_coding
 from zencoding import html_matcher, zen_file
 from zen_core import char_at, ZenError
 import re
 import base64
+
+repr(zencoding)
 
 mime_types = {
 	'gif': 'image/gif',
@@ -40,6 +43,7 @@ def find_abbreviation(editor):
 	cur_line_start, cur_line_end = editor.get_current_line_range()
 	return zen_coding.extract_abbreviation(editor.get_content()[cur_line_start:start])
 
+@zencoding.action
 def expand_abbreviation(editor, syntax=None, profile_name=None):
 	"""
 	Find from current caret position and expand abbreviation in editor
@@ -66,6 +70,7 @@ def expand_abbreviation(editor, syntax=None, profile_name=None):
 	
 	return False
 
+@zencoding.action
 def expand_abbreviation_with_tab(editor, syntax, profile_name='xhtml'):
 	"""
 	A special version of <code>expandAbbreviation</code> function: if it can't
@@ -129,9 +134,11 @@ def match_pair(editor, direction='out', syntax=None):
 	else:
 		return False
 
+@zencoding.action
 def match_pair_inward(editor):
 	return match_pair(editor, 'in')
 	
+@zencoding.action
 def match_pair_outward(editor):
 	return match_pair(editor, 'out')
 
@@ -158,6 +165,7 @@ def narrow_to_non_space(text, start, end):
 		
 	return start, end
 
+@zencoding.action
 def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 	"""
 	Wraps content with abbreviation
@@ -286,6 +294,7 @@ def find_new_edit_point(editor, inc=1, offset=0):
 	
 	return next_point
 
+@zencoding.action
 def prev_edit_point(editor):
 	"""
 	Move caret to previous edit point
@@ -305,6 +314,7 @@ def prev_edit_point(editor):
 	
 	return False
 
+@zencoding.action
 def next_edit_point(editor):
 	"""
 	Move caret to next edit point
@@ -318,6 +328,7 @@ def next_edit_point(editor):
 	
 	return False
 
+@zencoding.action
 def insert_formatted_newline(editor, mode='html'):
 	"""
 	Inserts newline character with proper indentation
@@ -343,6 +354,7 @@ def insert_formatted_newline(editor, mode='html'):
 		
 	return True
 
+@zencoding.action
 def select_line(editor):
 	"""
 	Select line under cursor
@@ -353,6 +365,7 @@ def select_line(editor):
 	editor.create_selection(start, end)
 	return True
 
+@zencoding.action
 def go_to_matching_pair(editor):
 	"""
 	Moves caret to matching opening or closing tag
@@ -382,7 +395,7 @@ def go_to_matching_pair(editor):
 	
 	return False
 				
-
+@zencoding.action
 def merge_lines(editor):
 	"""
 	Merge lines spanned by user selection. If there's no selection, tries to find
@@ -408,6 +421,7 @@ def merge_lines(editor):
 	
 	return False
 
+@zencoding.action
 def toggle_comment(editor):
 	"""
 	Toggle comment on current editor's selection or HTML tag/CSS rule
@@ -556,6 +570,7 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 	
 	return False
 
+@zencoding.action
 def split_join_tag(editor, profile_name=None):
 	"""
 	Splits or joins tag, e.g. transforms it into a short notation and vice versa:
@@ -632,6 +647,7 @@ def get_line_bounds(text, pos):
 		
 	return start, end
 
+@zencoding.action
 def remove_tag(editor):
 	"""
 	Gracefully removes tag under cursor
@@ -675,6 +691,7 @@ def starts_with(token, text, pos=0):
 	"""
 	return text[pos] == token[0] and text[pos:pos + len(token)] == token
 	
+@zencoding.action
 def encode_decode_base64(editor):
 	"""
 	Encodes/decodes image under cursor to/from base64
@@ -831,6 +848,7 @@ def _replace_or_append(img_tag, attr_name, attr_value):
 		return re.sub(r'\s*(\/?>)$', ' %s="%s" \\1' % (attr_name, attr_value), img_tag)
 
 
+@zencoding.action
 def update_image_size(editor):
 	"""
 	Updates <img> tag's width and height attributes
@@ -951,24 +969,31 @@ def increment_number(editor, step):
 	
 	return False
 
+@zencoding.action
 def increment_number_by_1(editor):
 	return increment_number(editor, 1)
 
+@zencoding.action
 def decrement_number_by_1(editor):
 	return increment_number(editor, -1)
 
+@zencoding.action
 def increment_number_by_10(editor):
 	return increment_number(editor, 10)
 
+@zencoding.action
 def decrement_number_by_10(editor):
 	return increment_number(editor, -10)
 
+@zencoding.action
 def increment_number_by_01(editor):
 	return increment_number(editor, 0.1)
 
+@zencoding.action
 def decrement_number_by_01(editor):
 	return increment_number(editor, -0.1)
 
+@zencoding.action
 def evaluate_math_expression(editor):
 	"""
 	Evaluates simple math expresison under caret
