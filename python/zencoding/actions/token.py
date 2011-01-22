@@ -10,7 +10,9 @@ import zencoding.parser.utils as parser_utils
 import re
 import math
 from zencoding.utils import prettify_number
+import zencoding
 
+@zencoding.action
 def reflect_css_value(editor):
 	"""
 	Reflect CSS value: takes rule's value under caret and pastes it for the same 
@@ -94,12 +96,12 @@ def get_reflected_css_name(name):
 	if name == 'opacity' or name == 'filter':
 		return re.compile(vendor_prefix + '(?:opacity|filter)$')
 	
-	m = re.match(r'^border-radius-(top|bottom)(left|right)')
+	m = re.match(r'^border-radius-(top|bottom)(left|right)', name)
 	if m:
 		# Mozilla-style border radius
 		return re.compile(vendor_prefix + '(?:%s|border-%s-%s-radius)$' % (name, m.group(1), m.group(2)) )
 	
-	m = re.match(r'^border-(top|bottom)-(left|right)-radius')
+	m = re.match(r'^border-(top|bottom)-(left|right)-radius', name)
 	if m: 
 		return re.compile(vendor_prefix + '(?:%s|border-radius-%s%s)$'  % (name, m.group(1), m.group(2)) );
 	
