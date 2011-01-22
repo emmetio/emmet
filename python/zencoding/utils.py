@@ -25,8 +25,9 @@ Created on Apr 17, 2009
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
 import re
-import zen_resources 
-import zen_parser
+import zencoding
+import zencoding.resources as zen_resources
+import zencoding.parser.abbreviation as zen_parser
 import copy
 
 newline = '\n'
@@ -285,28 +286,6 @@ def rollout_tree(tree, parent=None):
 					
 	return parent
 
-def run_filters(tree, profile, filter_list):
-	"""
-	Runs filters on tree
-	@type tree: ZenNode
-	@param profile: str, object
-	@param filter_list: str, list
-	@return: ZenNode
-	"""
-	import filters
-	
-	profile = process_profile(profile)
-		
-	if isinstance(filter_list, basestring):
-		filter_list = re.split(r'[\|,]', filter_list)
-		
-	for name in filter_list:
-		name = name.strip()
-		if name and name in filters.filter_map:
-			tree = filters.filter_map[name](tree, profile)
-			
-	return tree
-
 def transform_tree_node(node, syntax='html'):
 	"""
 	Transforms abbreviation into a primary internal tree. This tree should'n 
@@ -428,25 +407,6 @@ def process_profile(profile):
 		_profile = profiles['plain']
 		
 	return _profile
-
-	
-def run_action(name, *args, **kwargs):
-	"""
-	 Runs Zen Coding action. For list of available actions and their
-	 arguments see zen_actions.py file.
-	 @param name: Action name 
-	 @type name: str 
-	 @param args: Additional arguments. It may be array of arguments
-	 or inline arguments. The first argument should be <code>zen_editor</code> instance
-	 @type args: list
-	 @example
-	 zen_coding.run_actions('expand_abbreviation', zen_editor)
-	 zen_coding.run_actions('wrap_with_abbreviation', zen_editor, 'div')  
-	"""
-	import zen_actions
-	
-	if hasattr(zen_actions, name):
-		return getattr(zen_actions, name)(*args, **kwargs)
 
 def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	"""
@@ -634,7 +594,7 @@ def apply_filters(tree, syntax, profile, additional_filters=None):
 		# looks like unknown syntax, apply basic filters
 		_filters = basic_filters
 		
-	return run_filters(tree, profile, _filters)
+	return zencoding.run_filters(tree, profile, _filters)
 
 def replace_counter(text, value):
 	"""
@@ -706,6 +666,17 @@ def get_profile(name):
 	Get profile by it's name. If profile wasn't found, returns 'plain' profile
 	"""
 	return profiles[name] if name in profiles else profiles['plain']
+
+def prettify_number(num, fraction=2):
+	"""
+	Make decimal number look good: convert it to fixed precision end remove
+	traling zeroes 
+	@type num: int
+	@param fracion: Fraction numbers
+	@type fracion: int
+	@return: str
+	"""
+	return re.sub(r'\.?0+$', '', ('%.' + str(fraction) +'f') % num)
 
 def get_image_size(stream):
 	"""

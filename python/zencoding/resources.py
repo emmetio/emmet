@@ -6,7 +6,7 @@
 '''
 import re
 import types
-from zen_settings import zen_settings
+from zencoding.zen_settings import zen_settings
 import imp
 import os.path
 

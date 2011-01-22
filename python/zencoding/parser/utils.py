@@ -2,8 +2,7 @@
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
-from parser import CSSEX
-from parser import XML
+from zencoding.parser import css, xml
 import re
 
 def is_stop_char(token):
@@ -84,7 +83,7 @@ def parse_css(source, offset=0):
 	@type offset: int
 	@return: list
 	"""
-	return optimize_css(CSSEX.lex(source), offset, source)
+	return optimize_css(css.parse(source), offset, source)
 
 def parse_html(tag, offset=0):
 	"""
@@ -95,7 +94,7 @@ def parse_html(tag, offset=0):
 	@type offset: int
 	@return: list
 	"""
-	tokens = XML.parse(tag)
+	tokens = xml.parse(tag)
 	result = []
 	i = 0
 	loop = 1000 # infinite loop protection
@@ -109,7 +108,7 @@ def parse_html(tag, offset=0):
 			else:
 				result.append(make_token(t['style'], t['content'], offset + i, 0))
 				i += len(t['value'])
-	except XML.StopIteration:
+	except xml.StopIteration:
 		pass
 	
 	return result

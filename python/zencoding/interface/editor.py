@@ -8,10 +8,10 @@ This interface is used by <i>zen_actions.py</i> for performing different
 actions like <b>Expand abbreviation</b>
 
 @example
-import zen_editor
-zen_editor.set_context(obj);
+from zencoding.interface.editor import ZenEditor
+editor = ZenEditor(context)
 //now you are ready to use editor object
-zen_editor.get_selection_range();
+editor.get_selection_range();
 
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru

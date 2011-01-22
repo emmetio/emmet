@@ -7,12 +7,11 @@ content that indicates lists: numbers, #, *, -, etc.
 @link http://chikuyonok.ru
 '''
 import re
-
-alias = 't'
-"Filter name alias (if not defined, ZC will use module name)"
+import zencoding
 
 re_indicators = re.compile(r'^([\s|\u00a0])?[\d|#|\-|\*|\u2022]+\.?\s*')
 
+@zencoding.filter('t')
 def process(tree, profile):
 	for item in tree.children:
 		if item.content:

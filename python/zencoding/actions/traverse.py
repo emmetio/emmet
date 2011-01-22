@@ -8,8 +8,8 @@ Created on Jan 21, 2011
 @author: sergey
 '''
 import re
-import utils
 import zencoding
+import zencoding.parser.utils as parser_utils
 
 start_tag = re.compile('^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*)\s*(\/?)>')
 known_xml_types = ['xml-tagname','xml-attname', 'xml-attribute']
@@ -55,7 +55,7 @@ def get_range_for_next_item_in_html(tag, offset, sel_start, sel_end):
 	
 	@return List with two indexes if next item was found, None otherwise
 	"""
-	tokens = utils.parse_html(tag, offset)
+	tokens = parser_utils.parse_html(tag, offset)
 	next = []
 			
 	# search for token that is right to selection
@@ -105,7 +105,7 @@ def get_range_for_prev_item_in_html(tag, offset, sel_start, sel_end):
 	
 	@return List with two indexes if next item was found, None otherwise
 	"""
-	tokens = utils.parse_html(tag, offset)
+	tokens = parser_utils.parse_html(tag, offset)
 			
 	# search for token that is left to the selection
 	for i, token in tokens:
@@ -216,10 +216,10 @@ def find_item(editor, is_backward, extract_fn, range_fn):
 	return False
 
 def find_next_css_item(editor):
-	return find_item(editor, False, utils.extract_css_rule, get_range_for_next_item_in_css)
+	return find_item(editor, False, parser_utils.extract_css_rule, get_range_for_next_item_in_css)
 
 def find_prev_css_item(editor):
-	return find_item(editor, True, utils.extract_css_rule, get_range_for_prev_item_in_css)
+	return find_item(editor, True, parser_utils.extract_css_rule, get_range_for_prev_item_in_css)
 
 
 def get_range_for_next_item_in_css(rule, offset, sel_start, sel_end):
@@ -240,7 +240,7 @@ def get_range_for_next_item_in_css(rule, offset, sel_start, sel_end):
     
     @return: List with two indexes if next item was found, None otherwise
 	"""
-	tokens = utils.parse_css(rule, offset)
+	tokens = parser_utils.parse_css(rule, offset)
 	next = []
 		
 	def check_same_range(r):
@@ -304,7 +304,7 @@ def get_range_for_prev_item_in_css(rule, offset, sel_start, sel_end):
     
     @return: List with two indexes if next item was found, None otherwise
 	"""
-	tokens = utils.parse_css(rule, offset)
+	tokens = parser_utils.parse_css(rule, offset)
 	next = []
 			
 	def check_same_range(r):

@@ -8,6 +8,7 @@ child elements
 @link http://chikuyonok.ru
 '''
 import re
+import zencoding
 
 tags = {
 	'xsl:variable': 1,
@@ -23,6 +24,7 @@ def trim_attribute(node):
 	"""
 	node.start = re_attr.sub('', node.start)
 
+@zencoding.filter('xsl')
 def process(tree, profile):
 	for item in tree.children:
 		if item.type == 'tag' and item.name.lower() in tags and item.children:

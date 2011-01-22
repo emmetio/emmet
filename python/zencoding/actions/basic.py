@@ -8,14 +8,11 @@ This layer describes all available Zen Coding actions, like
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 """
-import zencoding
-from zencoding import zen_core as zen_coding
-from zencoding import html_matcher, zen_file
-from zen_core import char_at, ZenError
-import re
+import zencoding.utils
+import zencoding.html_matcher as html_matcher
+import zencoding.interface.file as zen_file
 import base64
-
-repr(zencoding)
+import re
 
 mime_types = {
 	'gif': 'image/gif',
@@ -41,7 +38,7 @@ def find_abbreviation(editor):
 	
 	# search for new abbreviation from current caret position
 	cur_line_start, cur_line_end = editor.get_current_line_range()
-	return zen_coding.extract_abbreviation(editor.get_content()[cur_line_start:start])
+	return zencoding.utils.extract_abbreviation(editor.get_content()[cur_line_start:start])
 
 @zencoding.action
 def expand_abbreviation(editor, syntax=None, profile_name=None):
@@ -63,7 +60,7 @@ def expand_abbreviation(editor, syntax=None, profile_name=None):
 	content = ''
 		
 	if abbr:
-		content = zen_coding.expand_abbreviation(abbr, syntax, profile_name)
+		content = zencoding.utils.expand_abbreviation(abbr, syntax, profile_name)
 		if content:
 			editor.replace_content(content, caret_pos - len(abbr), caret_pos)
 			return True
@@ -83,7 +80,7 @@ def expand_abbreviation_with_tab(editor, syntax, profile_name='xhtml'):
 	@type profile_name: str
 	"""
 	if not expand_abbreviation(editor, syntax, profile_name):
-		editor.replace_content(zen_coding.get_variable('indentation'), editor.get_caret_pos())
+		editor.replace_content(zencoding.utils.get_variable('indentation'), editor.get_caret_pos())
 	
 	return True 
 
@@ -201,7 +198,7 @@ def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 	padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
 	new_content = content[start_offset:end_offset]
-	result = zen_coding.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
+	result = zencoding.utils.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
 	
 	if result:
 		editor.replace_content(result, start_offset, end_offset)
@@ -225,13 +222,13 @@ def unindent_text(text, pad):
 	@type text: str
 	@type pad: str
 	"""
-	lines = zen_coding.split_by_lines(text)
+	lines = zencoding.utils.split_by_lines(text)
 	
 	for i,line in enumerate(lines):
 		if line.startswith(pad):
 			lines[i] = line[len(pad):]
 	
-	return zen_coding.get_newline().join(lines)
+	return zencoding.utils.get_newline().join(lines)
 
 def get_current_line_padding(editor):
 	"""
@@ -274,9 +271,9 @@ def find_new_edit_point(editor, inc=1, offset=0):
 		
 	while cur_point < max_len and cur_point > 0:
 		cur_point += inc
-		cur_char = char_at(content, cur_point)
-		next_char = char_at(content, cur_point + 1)
-		prev_char = char_at(content, cur_point - 1)
+		cur_char = zencoding.utils.char_at(content, cur_point)
+		next_char = zencoding.utils.char_at(content, cur_point + 1)
+		prev_char = zencoding.utils.char_at(content, cur_point - 1)
 		
 		if cur_char in '"\'':
 			if next_char == cur_char and prev_char == '=':
@@ -338,15 +335,15 @@ def insert_formatted_newline(editor, mode='html'):
 	@type mode: str
 	"""
 	caret_pos = editor.get_caret_pos()
-	nl = zen_coding.get_newline()
-	pad = zen_coding.get_variable('indentation')
+	nl = zencoding.utils.get_newline()
+	pad = zencoding.utils.get_variable('indentation')
 		
 	if mode == 'html':
 		# let's see if we're breaking newly created tag
 		pair = html_matcher.get_tags(editor.get_content(), editor.get_caret_pos(), editor.get_profile_name())
 		
 		if pair[0] and pair[1] and pair[0]['type'] == 'tag' and pair[0]['end'] == caret_pos and pair[1]['start'] == caret_pos:
-			editor.replace_content(nl + pad + zen_coding.get_caret_placeholder() + nl, caret_pos)
+			editor.replace_content(nl + pad + zencoding.utils.get_caret_placeholder() + nl, caret_pos)
 		else:
 			editor.replace_content(nl, caret_pos)
 	else:
@@ -413,7 +410,7 @@ def merge_lines(editor):
 	if start != end:
 		# got range, merge lines
 		text = editor.get_content()[start:end]
-		lines = map(lambda s: re.sub(r'^\s+', '', s), zen_coding.split_by_lines(text))
+		lines = map(lambda s: re.sub(r'^\s+', '', s), zencoding.utils.split_by_lines(text))
 		text = re.sub(r'\s{2,}', ' ', ''.join(lines))
 		editor.replace_content(text, start, end)
 		editor.create_selection(start, start + len(text))
@@ -564,7 +561,7 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 	# replace editor content
 	if new_content is not None:
 		d = caret_pos[0] - range_start
-		new_content = new_content[0:d] + zen_coding.get_caret_placeholder() + new_content[d:]
+		new_content = new_content[0:d] + zencoding.utils.get_caret_placeholder() + new_content[d:]
 		editor.replace_content(unindent(editor, new_content), range_start, range_end)
 		return True
 	
@@ -582,8 +579,8 @@ def split_join_tag(editor, profile_name=None):
 	@type profile_name: str
 	"""
 	caret_pos = editor.get_caret_pos()
-	profile = zen_coding.get_profile(profile_name or editor.get_profile_name())
-	caret = zen_coding.get_caret_placeholder()
+	profile = zencoding.utils.get_profile(profile_name or editor.get_profile_name())
+	caret = zencoding.utils.get_caret_placeholder()
 
 	# find tag at current position
 	pair = html_matcher.get_tags(editor.get_content(), caret_pos, profile_name or editor.get_profile_name())
@@ -608,8 +605,8 @@ def split_join_tag(editor, profile_name=None):
 			
 			editor.replace_content(new_content, pair[0].start, pair[1].end)
 		else: # split tag
-			nl = zen_coding.get_newline()
-			pad = zen_coding.get_variable('indentation')
+			nl = zencoding.utils.get_newline()
+			pad = zencoding.utils.get_variable('indentation')
 			
 			# define tag content depending on profile
 			tag_content = profile['tag_nl'] is True and nl + pad + caret + nl or caret
@@ -657,11 +654,11 @@ def remove_tag(editor):
 	content = editor.get_content()
 		
 	# search for tag
-	pair = html_matcher.get_tags(content, caret_pos, editor.get_profile_name())
+	pair = zencoding.html_matcher.get_tags(content, caret_pos, editor.get_profile_name())
 	if pair and pair[0]:
 		if not pair[1]:
 			# simply remove unary tag
-			editor.replace_content(zen_coding.get_caret_placeholder(), pair[0].start, pair[0].end)
+			editor.replace_content(zencoding.utils.get_caret_placeholder(), pair[0].start, pair[0].end)
 		else:
 			tag_content_range = narrow_to_non_space(content, pair[0].end, pair[1].start)
 			start_line_bounds = get_line_bounds(content, tag_content_range[0])
@@ -669,7 +666,7 @@ def remove_tag(editor):
 			tag_content = content[tag_content_range[0]:tag_content_range[1]]
 				
 			tag_content = unindent_text(tag_content, start_line_pad)
-			editor.replace_content(zen_coding.get_caret_placeholder() + tag_content, pair[0].start, pair[1].end)
+			editor.replace_content(zencoding.utils.get_caret_placeholder() + tag_content, pair[0].start, pair[1].end)
 		
 		return True
 	else:
@@ -747,17 +744,17 @@ def encode_to_base64(editor, img_path, pos):
 	default_mime_type = 'application/octet-stream'
 		
 	if editor_file is None:
-		raise ZenError("You should save your file before using this action")
+		raise zencoding.utils.ZenError("You should save your file before using this action")
 	
 	
 	# locate real image path
 	real_img_path = zen_file.locate_file(editor_file, img_path)
 	if real_img_path is None:
-		raise ZenError("Can't find %s file" % img_path)
+		raise zencoding.utils.ZenError("Can't find %s file" % img_path)
 	
 	b64 = base64.b64encode(zen_file.read(real_img_path))
 	if not b64:
-		raise ZenError("Can't encode file content to base64")
+		raise zencoding.utils.ZenError("Can't encode file content to base64")
 	
 	
 	b64 = 'data:' + (mime_types[zen_file.get_ext(real_img_path)] or default_mime_type) + ';base64,' + b64
@@ -784,7 +781,7 @@ def decode_from_base64(editor, data, pos):
 		
 	abs_path = zen_file.create_path(editor.get_file_path(), file_path)
 	if not abs_path:
-		raise ZenError("Can't save file")
+		raise zencoding.utils.ZenError("Can't save file")
 	
 	
 	zen_file.save(abs_path, base64.b64decode( re.sub(r'^data\:.+?;.+?,', '', data) ))
@@ -859,7 +856,7 @@ def update_image_size(editor):
 	caret_pos = editor.get_caret_pos()
 		
 	if editor_file is None:
-		raise ZenError("You should save your file before using this action")
+		raise zencoding.utils.ZenError("You should save your file before using this action")
 	
 	image = _find_image(editor)
 	if image:
@@ -868,13 +865,13 @@ def update_image_size(editor):
 		if m:
 			src = zen_file.locate_file(editor.get_file_path(), m.group(2))
 			if not src:
-				raise ZenError("Can't locate file %s" % m.group(2))
+				raise zencoding.utils.ZenError("Can't locate file %s" % m.group(2))
 			
 			stream = zen_file.read(src)
 			if not stream:
-				raise ZenError("Can't read file %s" % src)
+				raise zencoding.utils.ZenError("Can't read file %s" % src)
 			
-			size = zen_coding.get_image_size(zen_file.read(src))
+			size = zencoding.utils.get_image_size(zen_file.read(src))
 			if size:
 				new_tag = _replace_or_append(image['tag'], 'width', size['width'])
 				new_tag = _replace_or_append(new_tag, 'height', size['height'])
@@ -882,25 +879,13 @@ def update_image_size(editor):
 				# try to preserve caret position
 				if caret_pos < image['start'] + len(new_tag):
 					relative_pos = caret_pos - image['start']
-					new_tag = new_tag[:relative_pos] + zen_coding.get_caret_placeholder() + new_tag[relative_pos:]
+					new_tag = new_tag[:relative_pos] + zencoding.utils.get_caret_placeholder() + new_tag[relative_pos:]
 				
 				editor.replace_content(new_tag, image['start'], image['end'])
 				return True
 				
 	return False
 				
-				
-def prettify_number(num, fraction=2):
-	"""
-	Make decimal number look good: convert it to fixed precision end remove
-	traling zeroes 
-	@type num: int
-	@param fracion: Fraction numbers
-	@type fracion: int
-	@return: str
-	"""
-	return re.sub(r'\.?0+$', '', ('%.' + str(fraction) +'f') % num)
-
 def find_expression_bounds(editor, fn):
 	"""
 	Find expression bounds in current editor at caret position. 
@@ -960,7 +945,7 @@ def increment_number(editor, step):
 	if r:
 		try:
 			num = content[r[0]:r[1]]
-			num = prettify_number(float(num) + float(step))
+			num = zencoding.utils.prettify_number(float(num) + float(step))
 			editor.replace_content(num, r[0], r[1]);
 			editor.create_selection(r[0], r[0] + len(num))
 			return True
@@ -1010,7 +995,7 @@ def evaluate_math_expression(editor):
 		expr = re.sub(r'([\d\.\-]+)\\([\d\.\-]+)', 'round($1/$2)', content[r[0]:r[1]]) 
 		
 		try:
-			result = prettify_number(eval(expr))
+			result = zencoding.utils.prettify_number(eval(expr))
 			editor.replace_content(result, r[0], r[1])
 			editor.set_caret_pos(r[0] + len(result))
 			return True

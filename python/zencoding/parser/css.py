@@ -274,7 +274,7 @@ def tokenize():
 
 	raise CSSEXError("Unrecognized character")
 
-def lex(source):
+def parse(source):
 	"""
 	Parse CSS source
 	@type source: str

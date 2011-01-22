@@ -6,12 +6,12 @@ Output abbreviation on a single line (i.e. no line breaks)
 @link http://chikuyonok.ru
 '''
 import re
-
-alias = 's'
+import zencoding
 
 re_nl = re.compile(r'[\n\r]')
 re_pad = re.compile(r'^\s+')
 
+@zencoding.filter('s')
 def process(tree, profile):
 	for item in tree.children:
 		if item.type == 'tag':

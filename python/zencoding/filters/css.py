@@ -7,9 +7,11 @@ Process CSS properties: replaces snippets, augumented with ! char, with
 @link http://chikuyonok.ru
 '''
 import re
+import zencoding
 
 re_important = re.compile(r'(.+)\!$')
 
+@zencoding.filter('css')
 def process(tree, profile):
 	for item in tree.children:
 		# CSS properties are always snippets

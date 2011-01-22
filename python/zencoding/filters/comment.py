@@ -6,10 +6,8 @@ Comment important tags (with 'id' and 'class' attributes)
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
-from zencoding import zen_core as zen_coding
-
-alias = 'c'
-"Filter name alias (if not defined, ZC will use module name)"
+import zencoding
+import zencoding.utils as utils
 
 def add_comments(node, i):
 	
@@ -20,7 +18,7 @@ def add_comments(node, i):
 	"""
 	id_attr = node.get_attribute('id')
 	class_attr = node.get_attribute('class')
-	nl = zen_coding.get_newline()
+	nl = utils.get_newline()
 		
 	if id_attr or class_attr:
 		comment_str = ''
@@ -32,9 +30,10 @@ def add_comments(node, i):
 		node.end = node.end.replace('>', '>' + nl + padding + '<!-- /' + comment_str + ' -->', 1)
 		
 		# replace counters
-		node.start = zen_coding.replace_counter(node.start, i + 1)
-		node.end = zen_coding.replace_counter(node.end, i + 1)
+		node.start = utils.replace_counter(node.start, i + 1)
+		node.end = utils.replace_counter(node.end, i + 1)
 
+@zencoding.filter('c')
 def process(tree, profile):
 	if profile['tag_nl'] is False:
 		return tree

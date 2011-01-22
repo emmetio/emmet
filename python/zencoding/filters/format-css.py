@@ -8,12 +8,11 @@ padding:0; -> padding: 0;
 @link http://chikuyonok.ru
 '''
 import re
-
-alias = 'fc'
-"Filter name alias (if not defined, ZC will use module name)"
+import zencoding
 
 re_css_prop = re.compile(r'([\w\-]+\s*:)\s*')
 
+@zencoding.filter('fc')
 def process(tree, profile):
 	for item in tree.children:
 		# CSS properties are always snippets 

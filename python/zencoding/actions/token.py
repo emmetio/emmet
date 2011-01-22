@@ -3,10 +3,10 @@ Created on Jan 21, 2011
 
 @author: sergey
 '''
-import utils
+import zencoding.parser.utils as parser_utils
 import re
 import math
-from zencoding.zen_actions import prettify_number
+from zencoding.utils import prettify_number
 
 def reflect_css_value(editor):
 	"""
@@ -20,13 +20,13 @@ def reflect_css_value(editor):
 	content = editor.get_content()
 	caret_pos = editor.get_caret_pos()
 	sel_start, sel_end = editor.get_selection_range()
-	css = utils.extract_css_rule(content, caret_pos)
+	css = parser_utils.extract_css_rule(content, caret_pos)
 		
 	if not css or caret_pos < css[0] or caret_pos > css[1]:
 		# no matching CSS rule or caret outside rule bounds
 		return False
 		
-	tokens = utils.parse_css(content[css[0]:css[1]], css[0])
+	tokens = parser_utils.parse_css(content[css[0]:css[1]], css[0])
 	token_ix = find_token_from_position(tokens, caret_pos, 'identifier')
 	
 	if token_ix != -1:

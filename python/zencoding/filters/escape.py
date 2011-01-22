@@ -7,9 +7,7 @@ Filter for escaping unsafe XML characters: <, >, &
 @link http://chikuyonok.ru
 '''
 import re
-
-alias = 'e'
-"Filter name alias (if not defined, ZC will use module name)"
+import zencoding
 
 char_map = {
 	'<': '&lt;',
@@ -22,6 +20,7 @@ re_chars = re.compile(r'[<>&]')
 def escape_chars(text):
 	return re_chars.sub(lambda m: char_map[m.group(0)], text)
 
+@zencoding.filter('e')
 def process(tree, profile=None):
 	for item in tree.children:
 		item.start = escape_chars(item.start)

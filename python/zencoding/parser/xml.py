@@ -348,6 +348,7 @@ def tokenize_xml(source, start_state=None):
 	return Tokenizer(source, start_state or in_text)
 
 def parse(source):
+	"Parse HTML source"
 	if isinstance(source, basestring):
 		source = StringStream(source)
 	
