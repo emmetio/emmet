@@ -1,10 +1,13 @@
-#Sat Jan 22 17:22:43 MSK 2011
+#Sat Jan 22 18:44:38 MSK 2011
 eclipse.preferences.version=1
 encoding//plugins/TextMate/Zen\ Coding.tmbundle/Support/expand_abbreviation.py=utf-8
 encoding//plugins/TextMate/Zen\ Coding.tmbundle/Support/runner.py=utf-8
 encoding//plugins/TextMate/Zen\ Coding.tmbundle/Support/zen_editor.py=utf-8
 encoding//python/unittest/test_wrapping.py=utf-8
+encoding//python/zencoding/actions/__init__.py=utf-8
 encoding//python/zencoding/actions/basic.py=utf-8
+encoding//python/zencoding/actions/token.py=utf-8
+encoding//python/zencoding/filters/__init__.py=utf-8
 encoding//python/zencoding/filters/comment.py=utf-8
 encoding//python/zencoding/filters/css.py=utf-8
 encoding//python/zencoding/filters/escape.py=utf-8
