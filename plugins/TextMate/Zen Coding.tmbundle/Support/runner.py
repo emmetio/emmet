@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import zencoding
-from zencoding.actions import *
 import sys
+from zencoding.actions import *
 from zen_editor import ZenEditor
+import reflect
 
 editor = ZenEditor()
 try:

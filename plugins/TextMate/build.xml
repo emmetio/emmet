@@ -37,6 +37,7 @@
 		
 		<textmate_s_macro title="Select Next Item" key="@]" action="select_next_item" uid-base="sel-next"/>
 		<textmate_s_macro title="Select Previous Item" key="@[" action="select_previous_item" uid-base="sel-prev"/>
+		<textmate_sre_macro title="Reflect CSS Value" key="^@r" action="reflect_css_value_textmate" uid-base="reflect-css"/>
 	</target>
 	
 	<target name="install_textmate_bundle" depends="textmate_bundle">

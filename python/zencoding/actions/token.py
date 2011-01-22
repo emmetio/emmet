@@ -22,9 +22,18 @@ def reflect_css_value(editor):
 	if editor.get_syntax() != 'css':
 		return False
 	
+	result = do_css_refelction(editor)
+	if result:
+		sel_start, sel_end = editor.get_selection_range()
+		editor.replace_content(result['data'], result['start'], result['end'], True)
+		editor.create_selection(result['caret'], result['caret'] + sel_end - sel_start)
+		return True
+	
+	return False
+
+def do_css_refelction(editor):
 	content = editor.get_content()
 	caret_pos = editor.get_caret_pos()
-	sel_start, sel_end = editor.get_selection_range()
 	css = parser_utils.extract_css_rule(content, caret_pos)
 		
 	if not css or caret_pos < css[0] or caret_pos > css[1]:
@@ -67,12 +76,14 @@ def reflect_css_value(editor):
 				if v['value']['start'] < caret_pos:
 					caret_pos += len(value) - v['value']['end'] + v['value']['start']
 				
-			editor.replace_content(data, offset, values[-1]['value']['end'], True)
-			editor.create_selection(caret_pos, caret_pos + sel_end - sel_start)
-			
-			return True
+			return {
+				'data': data,
+				'start': offset,
+				'end': values[-1]['value']['end'],
+				'caret': caret_pos
+			}
 	
-	return False
+	return None
 
 def get_base_css_name(name):
 	"""
