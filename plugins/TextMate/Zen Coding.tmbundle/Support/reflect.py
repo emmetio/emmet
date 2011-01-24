@@ -3,7 +3,7 @@ Special version of Reflect CSS value for TextMate
 """
 import zencoding
 import zencoding.actions.token as token_actions
-from zencoding.actions.basic import unindent
+from zencoding.utils import unindent
 
 @zencoding.action
 def reflect_css_value_textmate(editor):
@@ -26,6 +26,7 @@ def reflect_css_value_textmate(editor):
 			marker = '${0:' + result['data'][caret_pos:caret_pos + sel_end - sel_start] + '}'
 			
 		data = result['data'][0:caret_pos] + marker + result['data'][caret_pos + sel_end - sel_start:]
+		
 		editor.replace_content(unindent(editor, data), result['start'], result['end'], True)
 		return True
 	

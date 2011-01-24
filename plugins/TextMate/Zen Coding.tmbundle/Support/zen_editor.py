@@ -24,10 +24,6 @@ class ZenEditor():
 		zen.set_newline(os.getenv('TM_LINE_ENDING', zen.get_newline()))		
 		self.set_context(context)
 
-	def _get_selected_text(self):
-		"Returns selected text"
-		return os.getenv('TM_SELECTED_TEXT', '')
-	
 	def set_context(self, context=None):
 		"""
 		Setup underlying editor context. You should call this method 
@@ -65,7 +61,7 @@ class ZenEditor():
 		"""
 		self.set_caret_pos(start)
 		if end is not None:
-			selected_text = self.get_content()[start:end]
+			selected_text = self.get_content()[start:end].encode('utf-8')
 			# copy selected text to Mac OS' pasteboard to use it 
 			# as a part of macros sequence for 'find next' action
 			subprocess.Popen(['pbcopy', '-pboard', 'find'], stdin=subprocess.PIPE).communicate(selected_text)
@@ -79,7 +75,7 @@ class ZenEditor():
 		print('%s, %s' % (start, end))
 		"""
 		start = int(os.getenv('TM_INPUT_START_LINE_INDEX', os.getenv('TM_LINE_INDEX', 0)))
-		return start, start + len(self._get_selected_text())
+		return start, start + len(self.get_selection())
 	
 	def get_caret_pos(self):
 		""" Returns current caret position """
@@ -134,7 +130,7 @@ class ZenEditor():
 		if end is None: end = len(self.get_content())
 		self.create_selection(start, end)
 		
-		value = self.add_placeholders(value)
+		value = self.add_placeholders(value).encode('utf-8')
 		
 		fp = open(self.apple_script, 'w')
 		fp.write('tell application "TextMate" to insert "%s" with as snippet' % (value.replace('\\', '\\\\').replace('"', '\\"'),))
@@ -205,13 +201,13 @@ class ZenEditor():
 		
 		def get_ix(m):
 			_ix[0] += 1
-			return '$%s' % _ix[0]
+			return '${%s}' % _ix[0]
 		
 		text = re.sub(r'\$(?![\d\{])', '\\$', text)
 		return re.sub(zen.get_caret_placeholder(), get_ix, text)
 	
 	def get_selection(self):
-		return os.getenv('TM_SELECTED_TEXT', '')
+		return os.getenv('TM_SELECTED_TEXT', '').decode('utf-8')
 	
 	def get_file_path(self):
 		"""

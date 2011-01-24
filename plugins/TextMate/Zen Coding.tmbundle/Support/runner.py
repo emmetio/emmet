@@ -3,7 +3,6 @@
 
 import zencoding
 import sys
-from zencoding.actions import *
 from zen_editor import ZenEditor
 import reflect
 
