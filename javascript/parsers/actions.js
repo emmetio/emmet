@@ -67,7 +67,7 @@ function reflectCSSValue(editor) {
 				}
 			}
 			
-			editor.replaceContent(data, offset, values[values.length - 1].value.end, true);
+			editor.replaceContent(unindent(editor, data), offset, values[values.length - 1].value.end);
 			editor.createSelection(caret_pos, caret_pos + sel.end - sel.start);
 			
 			return true;
