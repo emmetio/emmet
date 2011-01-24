@@ -11,7 +11,8 @@ input to “Entire Document”
 '''
 import os
 import sys
-import zencoding.zen_core as zen
+import zencoding
+import zencoding.utils as zen
 import subprocess
 import re
 
@@ -31,6 +32,12 @@ class ZenEditor():
 		@param context: context object
 		"""
 		self._content = sys.stdin.read().decode('utf-8')
+		
+		# setup variables 
+		for k, v in os.environ.items():
+			m = re.match(r'^zc_var_(.+)', k.lower())
+			if m:
+				zen.set_variable(m.group(1), v)
 		
 	def get_selection_range(self):
 		"""
@@ -169,7 +176,7 @@ class ZenEditor():
 		Returns current output profile name (@see zen_coding#setup_profile)
 		@return {String}
 		"""
-		return 'xhtml'
+		return os.getenv('ZC_PROFILE', 'xhtml')
 	
 	def run_applescript(self):
 		"""
@@ -215,4 +222,4 @@ class ZenEditor():
 		@return: str
 		@since: 0.65 
 		"""
-		return os.getenv('TM_FILEPATH', None).decode('utf-8')
+		return os.getenv('TM_FILEPATH', '').decode('utf-8')
