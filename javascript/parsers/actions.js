@@ -16,9 +16,20 @@
 function reflectCSSValue(editor) {
 	if (editor.getSyntax() != 'css') return false;
 	
+	result = doCSSReflection(editor);
+	if (result) {
+		var sel = editor.getSelectionRange();
+		editor.replaceContent(result.data, result.start, result.end, true);
+		editor.createSelection(result.caret, result.caret + sel.end - sel.start);
+		return true;
+	}
+	
+	return false;
+}
+
+function doCSSReflection(editor) {
 	var content = String(editor.getContent()),
 		caret_pos = editor.getCaretPos(),
-		sel = editor.getSelectionRange(),
 		css = ParserUtils.extractCSSRule(content, caret_pos),
 		v;
 		
@@ -54,28 +65,31 @@ function reflectCSSValue(editor) {
 		if (values.length) {
 			var data = content.substring(values[0].value.start, values[values.length - 1].value.end),
 				offset = values[0].value.start,
-				value = value_token.content;
+				value = value_token.content,
+				rv;
 				
 			for (var i = values.length - 1; i >= 0; i--) {
 				v = values[i].value;
-				data = replaceSubstring(data, v.start - offset, v.end - offset, 
-					getReflectedValue(cur_prop, value, values[i].name.content, v.content));
+				rv = getReflectedValue(cur_prop, value, values[i].name.content, v.content);
+				data = replaceSubstring(data, v.start - offset, v.end - offset, rv);
 					
 				// also calculate new caret position
 				if (v.start < caret_pos) {
-					caret_pos += value.length - v.end + v.start;
+					caret_pos += rv.length - v.content.length;
 				}
 			}
 			
-			editor.replaceContent(unindent(editor, data), offset, values[values.length - 1].value.end);
-			editor.createSelection(caret_pos, caret_pos + sel.end - sel.start);
-			
-			return true;
+			return {
+				'data': data,
+				'start': offset,
+				'end': values[values.length - 1].value.end,
+				'caret': caret_pos
+			};
 		}
 	}
-	
-	return false;
 }
+
+zen_coding.actions.doCSSReflection = doCSSReflection;
 
 /**
  * Removes vendor prefix from CSS property
