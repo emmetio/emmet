@@ -25,7 +25,7 @@ def reflect_css_value(editor):
 	result = do_css_refelction(editor)
 	if result:
 		sel_start, sel_end = editor.get_selection_range()
-		editor.replace_content(result['data'], result['start'], result['end'], True)
+		editor.replace_content(zencoding.utils.unindent(editor, result['data']), result['start'], result['end'])
 		editor.create_selection(result['caret'], result['caret'] + sel_end - sel_start)
 		return True
 	

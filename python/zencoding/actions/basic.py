@@ -196,55 +196,16 @@ def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 			
 	start_offset, end_offset = narrow_to_non_space(content, start_offset, end_offset)
 	line_bounds = get_line_bounds(content, start_offset)
-	padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
+	padding = zencoding.utils.get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
 	new_content = content[start_offset:end_offset]
-	result = zencoding.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
+	result = zencoding.wrap_with_abbreviation(abbr, zencoding.utils.unindent_text(new_content, padding), syntax, profile_name)
 	
 	if result:
 		editor.replace_content(result, start_offset, end_offset)
 		return True
 	
 	return False
-
-def unindent(editor, text):
-	"""
-	Unindent content, thus preparing text for tag wrapping
-	@param editor: Editor instance
-	@type editor: ZenEditor
-	@param text: str
-	@return str
-	"""
-	return unindent_text(text, get_current_line_padding(editor))
-
-def unindent_text(text, pad):
-	"""
-	Removes padding at the beginning of each text's line
-	@type text: str
-	@type pad: str
-	"""
-	lines = zencoding.utils.split_by_lines(text)
-	
-	for i,line in enumerate(lines):
-		if line.startswith(pad):
-			lines[i] = line[len(pad):]
-	
-	return zencoding.utils.get_newline().join(lines)
-
-def get_current_line_padding(editor):
-	"""
-	Returns padding of current editor's line
-	@return str
-	"""
-	return get_line_padding(editor.get_current_line())
-
-def get_line_padding(line):
-	"""
-	Returns padding of current editor's line
-	@return str
-	"""
-	m = re.match(r'^(\s+)', line)
-	return m and m.group(0) or ''
 
 def find_new_edit_point(editor, inc=1, offset=0):
 	"""
@@ -563,7 +524,7 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 	if new_content is not None:
 		d = caret_pos[0] - range_start
 		new_content = new_content[0:d] + zencoding.utils.get_caret_placeholder() + new_content[d:]
-		editor.replace_content(unindent(editor, new_content), range_start, range_end)
+		editor.replace_content(zencoding.utils.unindent(editor, new_content), range_start, range_end)
 		return True
 	
 	return False
@@ -663,10 +624,10 @@ def remove_tag(editor):
 		else:
 			tag_content_range = narrow_to_non_space(content, pair[0].end, pair[1].start)
 			start_line_bounds = get_line_bounds(content, tag_content_range[0])
-			start_line_pad = get_line_padding(content[start_line_bounds[0]:start_line_bounds[1]])
+			start_line_pad = zencoding.utils.get_line_padding(content[start_line_bounds[0]:start_line_bounds[1]])
 			tag_content = content[tag_content_range[0]:tag_content_range[1]]
 				
-			tag_content = unindent_text(tag_content, start_line_pad)
+			tag_content = zencoding.utils.unindent_text(tag_content, start_line_pad)
 			editor.replace_content(zencoding.utils.get_caret_placeholder() + tag_content, pair[0].start, pair[1].end)
 		
 		return True

@@ -618,6 +618,45 @@ def unescape_text(text):
 	"""
 	return re.sub(r'\\(.)', r'\1', text)
 
+def unindent(editor, text):
+	"""
+	Unindent content, thus preparing text for tag wrapping
+	@param editor: Editor instance
+	@type editor: ZenEditor
+	@param text: str
+	@return str
+	"""
+	return unindent_text(text, get_current_line_padding(editor))
+
+def unindent_text(text, pad):
+	"""
+	Removes padding at the beginning of each text's line
+	@type text: str
+	@type pad: str
+	"""
+	lines = zencoding.utils.split_by_lines(text)
+	
+	for i,line in enumerate(lines):
+		if line.startswith(pad):
+			lines[i] = line[len(pad):]
+	
+	return get_newline().join(lines)
+
+def get_current_line_padding(editor):
+	"""
+	Returns padding of current editor's line
+	@return str
+	"""
+	return get_line_padding(editor.get_current_line())
+
+def get_line_padding(line):
+	"""
+	Returns padding of current editor's line
+	@return str
+	"""
+	m = re.match(r'^(\s+)', line)
+	return m and m.group(0) or ''
+
 def get_profile(name):
 	"""
 	Get profile by it's name. If profile wasn't found, returns 'plain' profile
