@@ -11,5 +11,8 @@ try:
 	args = sys.argv[2:]
 except:
 	args = []
-	
-zencoding.run_action(sys.argv[1], editor, *args)
+
+try:	
+	zencoding.run_action(sys.argv[1], editor, *args)
+except zencoding.utils.ZenError:
+	print(sys.exc_info()[1])
