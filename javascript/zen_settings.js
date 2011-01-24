@@ -247,7 +247,7 @@ var zen_settings = {
 			"bg": "background:|;",
 			"bg+": "background:#FFF url(|) 0 0 no-repeat;",
 			"bg:n": "background:none;",
-			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|x.png');",
+			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1:x}.png',sizingMethod='${2:crop}');",
 			"bgc": "background-color:#FFF;",
 			"bgi": "background-image:url(|);",
 			"bgi:n": "background-image:none;",
