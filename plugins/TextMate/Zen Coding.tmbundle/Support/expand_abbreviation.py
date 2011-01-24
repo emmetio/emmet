@@ -29,4 +29,4 @@ if abbr:
 	if cur_line_pad:
 		result = zencoding.utils.pad_string(result, cur_line_pad.group(1))
 		
-	sys.stdout.write(editor.add_placeholders(result) + cur_line[cur_index:])
+	sys.stdout.write(editor.add_placeholders(result) + zencoding.utils.escape_text(cur_line[cur_index:]))
