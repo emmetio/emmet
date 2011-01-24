@@ -68,18 +68,19 @@ def do_css_refelction(editor):
 			offset = values[0]['value']['start']
 			value = value_token['content']
 				
+			values.reverse()
 			for v in values:
-				data = replace_substring(data, v['value']['start'] - offset, v['value']['end'] - offset, 
-					get_reflected_value(cur_prop, value, v['name']['content'], v['value']['content']))
+				rv = get_reflected_value(cur_prop, value, v['name']['content'], v['value']['content'])
+				data = replace_substring(data, v['value']['start'] - offset, v['value']['end'] - offset, rv)
 					
 				# also calculate new caret position
 				if v['value']['start'] < caret_pos:
-					caret_pos += len(value) - v['value']['end'] + v['value']['start']
+					caret_pos += len(rv) - len(v['value']['content'])
 				
 			return {
 				'data': data,
 				'start': offset,
-				'end': values[-1]['value']['end'],
+				'end': values[0]['value']['end'],
 				'caret': caret_pos
 			}
 	
