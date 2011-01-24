@@ -185,7 +185,8 @@ def replace_variables(text, vars=None):
 			if vars and m.group(1) in vars:
 				return vars[m.group(1)]
 			else:
-				return zen_resources.get_variable(m.group(1))
+				var = zen_resources.get_variable(m.group(1))
+				return var if var is not None else m.group(0)
 		
 	return re.sub(re_var, _repl, text)
 
@@ -594,7 +595,7 @@ def upgrade_tabstops(node):
 		return re.sub(r'\d+', str(num + max_tabstop), m.group(0), 1)
 	
 	for prop in props:
-		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+):[^\}]+\}', _replace, node.__getattribute__(prop)))
+		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}', _replace, node.__getattribute__(prop)))
 		
 	globals()['max_tabstop'] += max_num[0] + 1
 		
