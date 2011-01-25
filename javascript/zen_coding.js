@@ -261,6 +261,7 @@
 		this._content = '';
 		this._paste_content = '';
 		this.repeat_by_lines = node.is_repeating;
+		this.is_repeating = node && node.count > 1;
 		this.parent = null;
 		this.has_implicit_name = node.has_implict_name;
 		
@@ -401,6 +402,7 @@
 		this.children = [];
 		this._content = node.text || '';
 		this.repeat_by_lines = node.is_repeating;
+		this.is_repeating = node && node.count > 1;
 		this.attributes = {'id': getCaretPlaceholder(), 'class': getCaretPlaceholder()};
 		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
@@ -458,6 +460,7 @@
 		this.real_name = tag.real_name;
 		this.children = [];
 		this.counter = 1;
+		this.is_repeating = tag.is_repeating;
 		this.has_implicit_name = this.type == 'tag' && tag.has_implicit_name;
 		
 		// create deep copy of attribute list so we can change
@@ -1314,6 +1317,24 @@
 					}
 				}
 			}
+		},
+		
+		/**
+		 * Returns context-aware node counter
+		 * @param {node} ZenNode
+		 * @return {Number}
+		 */
+		getCounterForNode: function(node) {
+			// find nearest repeating parent
+			var counter = node.counter;
+			if (!node.is_repeating) {
+				while (node = node.parent) {
+					if (node.is_repeating)
+						return node.counter;
+				}
+			}
+			
+			return counter;
 		}
 	}
 })();

@@ -30,8 +30,9 @@ def add_comments(node, i):
 		node.end = node.end.replace('>', '>' + nl + padding + '<!-- /' + comment_str + ' -->', 1)
 		
 		# replace counters
-		node.start = utils.replace_counter(node.start, i + 1)
-		node.end = utils.replace_counter(node.end, i + 1)
+		counter = zencoding.utils.get_counter_for_node(node)
+		node.start = utils.replace_counter(node.start, counter)
+		node.end = utils.replace_counter(node.end, counter)
 
 @zencoding.filter('c')
 def process(tree, profile):

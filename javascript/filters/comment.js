@@ -22,8 +22,9 @@
 			node.end = node.end.replace(/>/, '>' + nl + padding + '<!-- /' + comment_str + ' -->');
 			
 			// replace counters
-			node.start = zen_coding.replaceCounter(node.start, i + 1);
-			node.end = zen_coding.replaceCounter(node.end, i + 1);
+			var counter = zen_coding.getCounterForNode(node);
+			node.start = zen_coding.replaceCounter(node.start, counter);
+			node.end = zen_coding.replaceCounter(node.end, counter);
 		}
 	}
 	

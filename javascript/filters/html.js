@@ -154,9 +154,10 @@
 				: processSnippet(item, profile, level);
 			
 			// replace counters
-			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, item.counter));
-			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, item.counter));
-			item.content = zen_coding.unescapeText(zen_coding.replaceCounter(item.content, item.counter));
+			var counter = zen_coding.getCounterForNode(item);
+			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, counter));
+			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, counter));
+			item.content = zen_coding.unescapeText(zen_coding.replaceCounter(item.content, counter));
 			
 			tabstops += zen_coding.upgradeTabstops(item, tabstops) + 1;
 			

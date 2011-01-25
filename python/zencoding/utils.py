@@ -726,6 +726,23 @@ def get_image_size(stream):
 			'height': -1
 		}
 
+def get_counter_for_node(node):
+	"""
+	Returns context-aware node counter
+	@type node: ZenNode
+	@return: int
+	"""
+	# find nearest repeating parent
+	counter = node.counter
+	if not node.is_repeating:
+		while node:
+			if node.is_repeating:
+				return node.counter
+			
+			node = node.parent
+			
+	return counter
+
 class Tag(object):
 	def __init__(self, node, syntax='html'):
 		"""
@@ -742,6 +759,7 @@ class Tag(object):
 		self.__content = ''
 		self.__paste_content = ''
 		self.repeat_by_lines = False
+		self.is_repeating = False
 		self.parent = None
 		self.children = []
 		self.attributes = []
@@ -763,6 +781,7 @@ class Tag(object):
 			self.set_content(node.text)
 			self.__abbr = abbr
 			self.repeat_by_lines = node.is_repeating
+			self.is_repeating = node.count > 1
 		
 		
 		# add default attributes
@@ -897,6 +916,7 @@ class ZenNode(object):
 		self.children = [];
 		self.counter = 1
 		self.has_implicit_name = tag.has_implicit_name
+		self.is_repeating = tag.is_repeating
 		
 		# create deep copy of attribute list so we can change
 		# their values in runtime without affecting other nodes

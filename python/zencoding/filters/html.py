@@ -146,9 +146,10 @@ def process(tree, profile, level=0):
 			process_snippet(item, profile, level)
 	
 		# replace counters
-		item.start = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.start, item.counter))
-		item.end = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.end, item.counter))
-		item.content = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.content, item.counter));
+		counter = zencoding.utils.get_counter_for_node(item)
+		item.start = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.start, counter))
+		item.end = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.end, counter))
+		item.content = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.content, counter));
 		zencoding.utils.upgrade_tabstops(item)
 		
 		process(item, profile, level + 1)

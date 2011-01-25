@@ -150,8 +150,9 @@
 				: processSnippet(item, profile, level);
 			
 			// replace counters
-			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, item.counter));
-			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, item.counter));
+			var counter = zen_coding.getCounterForNode(item);
+			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, counter));
+			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, counter));
 			
 			process(item, profile, level + 1);
 		}
