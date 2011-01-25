@@ -893,11 +893,11 @@ class Tag(object):
 class Snippet(Tag):
 	def __init__(self, node, syntax='html'):
 		super(Snippet, self).__init__(node, syntax)
-		self.attributes = [
-			{'name': 'id', 'value': get_caret_placeholder()},
-			{'name': 'class', 'value': get_caret_placeholder()}
-		]
 		self.value = replace_unescaped_symbol(get_snippet(syntax, self.name), '|', get_caret_placeholder())
+		
+		self.add_attribute('id', get_caret_placeholder())
+		self.add_attribute('class', get_caret_placeholder())
+		self.copy_attributes(node)
 	
 	def is_block(self):
 		return True

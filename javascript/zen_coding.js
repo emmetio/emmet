@@ -403,11 +403,13 @@
 		this._content = node.text || '';
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
-		this.attributes = {'id': getCaretPlaceholder(), 'class': getCaretPlaceholder()};
+		this.attributes = [];
 		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
 		this.syntax = type;
 		
+		this.addAttribute('id', getCaretPlaceholder());
+		this.addAttribute('class', getCaretPlaceholder());
 		this.copyAttributes(node);
 	}
 	

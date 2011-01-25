@@ -74,6 +74,16 @@ def process_snippet(item, profile, level=0):
 	item.start = _replace(item.start, zencoding.utils.pad_string(start, padding))
 	item.end = _replace(item.end, zencoding.utils.pad_string(end, padding))
 	
+	# replace variables ID and CLASS
+	def cb(m):
+		if m.group(1) == 'id' or m.group(1) == 'class':
+			return item.get_attribute(m.group(1))
+		else:
+			return m.group(0)
+	
+	item.start = zencoding.utils.replace_variables(item.start, cb)
+	item.end = zencoding.utils.replace_variables(item.end, cb)
+	
 	return item
 
 def has_block_sibling(item):
