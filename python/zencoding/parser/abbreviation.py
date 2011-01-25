@@ -311,6 +311,7 @@ class TreeNode(object):
 		self.text = None
 		self.attributes = []
 		self.is_repeating = False
+		self.has_implicit_name = False
 		
 	def add_child(self, child=None):
 		"""
@@ -354,6 +355,7 @@ class TreeNode(object):
 				self.name, self.attributes = parse_attributes(name)
 				if not self.name:
 					self.name = 'div'
+					self.has_implicit_name = True
 		
 		# validate name
 		if self.name and not re_valid_name.match(self.name):

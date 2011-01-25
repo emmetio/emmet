@@ -748,6 +748,7 @@ class Tag(object):
 		self.__attr_hash = {}
 		self.multiply_elem = None
 		self.last = None
+		self.has_implicit_name = node is not None and node.has_implicit_name
 		
 		if node:
 			abbr = None
@@ -895,6 +896,7 @@ class ZenNode(object):
 		self.real_name = tag.real_name
 		self.children = [];
 		self.counter = 1
+		self.has_implicit_name = tag.has_implicit_name
 		
 		# create deep copy of attribute list so we can change
 		# their values in runtime without affecting other nodes
@@ -920,6 +922,10 @@ class ZenNode(object):
 		@type tag: ZenNode
 		"""
 		tag.parent = self
+		
+		# check for implicit name
+		if tag.has_implicit_name and self.is_inline():
+			tag.name = 'span'
 		
 		if self.children:
 			last_child = self.children[-1]

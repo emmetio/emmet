@@ -22,6 +22,7 @@
 		this.text = null;
 		this.attributes = [];
 		this.is_repeating = false;
+		this.has_implict_name = false;
 	}
 	
 	TreeNode.prototype = {
@@ -76,6 +77,7 @@
 				if (name) {
 					var attr_result = parseAttributes(name);
 					this.name = attr_result[0] || 'div';
+					this.has_implict_name = !attr_result[0];
 					this.attributes = attr_result[1];
 				}
 			}

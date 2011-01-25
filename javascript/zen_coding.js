@@ -262,6 +262,7 @@
 		this._paste_content = '';
 		this.repeat_by_lines = node.is_repeating;
 		this.parent = null;
+		this.has_implicit_name = node.has_implict_name;
 		
 		this.setContent(node.text);
 		
@@ -457,6 +458,7 @@
 		this.real_name = tag.real_name;
 		this.children = [];
 		this.counter = 1;
+		this.has_implicit_name = this.type == 'tag' && tag.has_implicit_name;
 		
 		// create deep copy of attribute list so we can change
 		// their values in runtime without affecting other nodes
@@ -496,6 +498,11 @@
 		 */
 		addChild: function(tag) {
 			tag.parent = this;
+			
+			// check for implicit name
+			if (tag.has_implicit_name && this.isInline())
+				tag.name = 'span';
+			
 			var last_child = this.children[this.children.length - 1];
 			if (last_child) {
 				tag.previousSibling = last_child;
