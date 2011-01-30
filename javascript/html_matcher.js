@@ -236,7 +236,7 @@
 							break;
 						}
 					} else if (hasMatch('<!--')) { // found comment
-						ix += check_str.search('-->') + 3;
+						ix += check_str.search('-->') + 2;
 					}
 				} else if (ch == '-' && hasMatch('-->')) {
 					// looks like cursor was inside comment with invalid HTML

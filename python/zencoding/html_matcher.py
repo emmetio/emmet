@@ -260,7 +260,7 @@ def _find_pair(html, start_ix, mode='xhtml', action=make_range):
 							closing_tag = tmp_tag;
 							break
 					elif has_match('<!--'): # found comment
-						ix += check_str.find('-->') + 3
+						ix += check_str.find('-->') + 2
 						continue
 			elif ch == '-' and has_match('-->'):
 				# looks like cursor was inside comment with invalid HTML
