@@ -2,4 +2,5 @@
 /_project_src
 *.pyc
 /_docs
-.DS_Store
+/ant-tools
+/plugins/codemirror/CodeMirror
