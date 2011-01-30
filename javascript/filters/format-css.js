@@ -11,7 +11,7 @@
 			
 			// CSS properties are always snippets 
 			if (item.type == 'snippet') {
-				item.start = item.start.replace(/([\w\-]+\s*:)\s*/, '$1 ');
+				item.start = item.start.replace(/([\w\-]+\s*:)(?!:)\s*/, '$1 ');
 			}
 			
 			process(item, profile);

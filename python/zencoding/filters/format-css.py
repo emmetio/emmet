@@ -10,7 +10,7 @@ padding:0; -> padding: 0;
 import re
 import zencoding
 
-re_css_prop = re.compile(r'([\w\-]+\s*:)\s*')
+re_css_prop = re.compile(r'([\w\-]+\s*:)(?!:)\s*')
 
 @zencoding.filter('fc')
 def process(tree, profile):
