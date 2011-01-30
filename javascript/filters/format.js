@@ -154,6 +154,8 @@
 					
 				} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
 					item.start = getNewline() + padding + item.start;
+				} else if (item.isInline() && item.hasBlockChildren()) {
+					item.end = getNewline() + padding + item.end;
 				}
 				
 				item.padding = padding + getIndentation();

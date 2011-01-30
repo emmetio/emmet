@@ -11,7 +11,6 @@ of abbreviation.
 @link http://chikuyonok.ru
 """
 import re
-import zencoding
 import zencoding.utils
 
 child_token = '${child}'
@@ -152,6 +151,8 @@ def process_tag(item, profile, level=0):
 			
 		elif item.is_inline() and has_block_sibling(item) and not is_very_first_child(item):
 			item.start = get_newline() + padding + item.start
+		elif item.is_inline() and item.has_block_children():
+			item.end = get_newline() + padding + item.end
 		
 		item.padding = padding + get_indentation()
 	
