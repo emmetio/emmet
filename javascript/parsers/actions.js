@@ -16,15 +16,313 @@
 function reflectCSSValue(editor) {
 	if (editor.getSyntax() != 'css') return false;
 	
-	result = doCSSReflection(editor);
-	if (result) {
+	return compoundUpdate(editor, doCSSReflection(editor));
+}
+
+function compoundUpdate(editor, data) {
+	if (data) {
 		var sel = editor.getSelectionRange();
-		editor.replaceContent(result.data, result.start, result.end, true);
-		editor.createSelection(result.caret, result.caret + sel.end - sel.start);
+		editor.replaceContent(data.data, data.start, data.end, true);
+		editor.createSelection(data.caret, data.caret + sel.end - sel.start);
 		return true;
 	}
 	
 	return false;
+}
+
+/**
+ * Update image size: reads image from image/CSS rule under caret
+ * and updates dimentions inside tag/rule
+ * @param {zen_editor} editor
+ */
+function updateImageSize(editor) {
+	var result;
+	if (String(editor.getSyntax()) == 'css') {
+		result = updateImageSizeCSS(editor);
+	} else {
+		result = updateImageSizeHTML(editor);
+	}
+	
+	return compoundUpdate(editor, result);
+}
+
+/**
+ * Updates image size of &lt;img src=""&gt; tag
+ * @param {zen_editor} editor
+ */
+function updateImageSizeHTML(editor) {
+	var offset = editor.getCaretPos();
+		
+	var image = findImage(editor);
+	if (image) {
+		var re = /\bsrc=(["'])(.+?)\1/i, m, src;
+		if (m = re.exec(image.tag))
+			src = m[2];
+		
+		if (src) {
+			var size = getImageSizeForSource(editor, src);
+			if (size) {
+				var new_tag = replaceOrAppend(image.tag, 'width', size.width);
+				new_tag = replaceOrAppend(new_tag, 'height', size.height);
+				
+				return {
+					'data': new_tag,
+					'start': image.start,
+					'end': image.end,
+					'caret': offset
+				};
+			}
+		}
+	}
+	
+	return null;
+}
+
+/**
+ * Search for insertion point for new CSS properties
+ * @param {ParserUtils.token[]} tokens
+ * @param {Number} start_ix Token index where to start searching
+ */
+function findCSSInsertionPoint(tokens, start_ix) {
+	var ins_point, 
+		ins_ix = -1, 
+		need_col = false;
+		
+	for (var i = start_ix, il = tokens.length; i < il; i++) {
+		var t = tokens[i];
+		if (t.type == 'value') {
+			ins_point = t;
+			ins_ix = i;
+			// look ahead fo rule termination
+			if (tokens[i + 1] && tokens[i + 1].type == ';') {
+				ins_point = tokens[i + 1];
+				ins_ix += 1;
+			} else {
+				need_col = true;
+			}
+			break;
+		}
+	}
+	
+	return {
+		token: ins_point,
+		ix: ins_ix,
+		need_col: need_col
+	};
+}
+
+/**
+ * Updates image size of CSS rule
+ * @param {zen_editor} editor
+ */
+function updateImageSizeCSS(editor) {
+	var caret_pos = editor.getCaretPos(),
+		content = String(editor.getContent()),
+		rule = ParserUtils.extractCSSRule(content, caret_pos, true);
+		
+	
+	if (rule) {
+		var css = ParserUtils.parseCSS(content.substring(rule[0], rule[1]), rule[0]),
+			cur_token = findTokenFromPosition(css, caret_pos, 'identifier'),
+			value = findValueToken(css, cur_token + 1),
+			m;
+			
+		if (!value) return false;
+		
+		// find inserion point
+		var ins_point = findCSSInsertionPoint(css, cur_token);
+			
+		if (m = /url\((["']?)(.+?)\1\)/i.exec(value.content)) {
+			var size = getImageSizeForSource(editor, m[2]);
+			if (size) {
+				var wh = {width: null, height: null},
+					updates = [],
+					styler = learnCSSStyle(css, cur_token);
+					
+				for (var i = 0, il = css.length; i < il; i++) {
+					if (css[i].type == 'identifier' && css[i].content in wh)
+						wh[css[i].content] = i;
+				}
+				
+				function update(name, val) {
+					var v;
+					if (wh[name] !== null && (v = findValueToken(css, wh[name] + 1))) {
+						updates.push([v.start, v.end, val + 'px']);
+					} else {
+						updates.push([ins_point.token.end, ins_point.token.end, styler(name, val + 'px')]);
+					}
+				}
+				
+				update('width', size.width);
+				update('height', size.height);
+				
+				if (updates.length) {
+					updates.sort(function(a, b){return a[0] - b[0]});
+					
+					// some editors do not provide easy way to replace multiple code 
+					// fragments so we have to squash all replace operations into one
+					var data = content.substring(updates[0][0], updates[updates.length - 1][1]),
+						offset = updates[0][0];
+						
+					for (var i = updates.length - 1; i >= 0; i--) {
+						var u = updates[i];
+						data = replaceSubstring(data, u[0] - offset, u[1] - offset, u[2]);
+							
+						// also calculate new caret position
+						if (u[0] < caret_pos)
+							caret_pos += u[2].length - u[1] + u[0];
+					}
+					
+					if (ins_point.need_col)
+						data = replaceSubstring(data, ins_point.token.end - offset, ins_point.token.end - offset, ';');
+					
+					return {
+						'data': data,
+						'start': offset,
+						'end': updates[updates.length - 1][1],
+						'caret': caret_pos
+					};
+					
+				}
+			}
+		}
+	}
+		
+	return false;
+}
+
+/**
+ * Learns formatting style from parsed tokens
+ * @param {ParserUtils.token[]} tokens List of tokens
+ * @param {Number} pos Identifier token position, from which style should be learned
+ * @returns {Function} Function with <code>(name, value)</code> arguments that will create
+ * CSS rule based on learned formatting
+ */
+function learnCSSStyle(tokens, pos) {
+	var prefix = '', glue = '', i, il;
+	
+	// use original tokens instead of optimized ones
+	pos = tokens[pos].ref_start_ix;
+	tokens = tokens.__original;
+	
+	// learn prefix
+	for (i = pos - 1; i >= 0; i--) {
+		if (tokens[i].type == 'white') {
+			prefix = tokens[i].content + prefix;
+		} else if (tokens[i].type == 'line') {
+			prefix = tokens[i].content + prefix;
+			break;
+		} else {
+			break;
+		}
+	}
+	
+	// learn glue
+	for (i = pos + 1, il = tokens.length; i < il; i++) {
+		if (tokens[i].type == 'white' || tokens[i].type == ':')
+			glue += tokens[i].content;
+		else break;
+	}
+	
+	if (glue.indexOf(':') == -1)
+		glue = ':';
+	
+	return function(name, value) {
+		return prefix + name + glue + value + ';';
+	};
+}
+
+/**
+ * Returns image dimentions for source
+ * @param {zen_editor} editor
+ * @param {String} src Image source (path or data:url)
+ */
+function getImageSizeForSource(editor, src) {
+	var f_content;
+	if (src) {
+		// check if it is data:url
+		if (startsWith('data:', src)) {
+			f_content = base64.decode( src.replace(/^data\:.+?;.+?,/, '') );
+		} else {
+			var abs_path = zen_file.locateFile(editor.getFilePath(), src);
+			if (abs_path === null) {
+				throw "Can't find " + src + ' file';
+			}
+			
+			f_content = String(zen_file.read(abs_path));
+		}
+		
+		return zen_coding.getImageSize(f_content);
+	}
+}
+
+/**
+ * Find image tag under caret
+ * @param {zen_editor} editor
+ * @return Image tag and its indexes inside editor source
+ */
+function findImage(editor) {
+	var caret_pos = editor.getCaretPos(),
+		content = String(editor.getContent()),
+		content_len = content.length,
+		start_ix = -1,
+		end_ix = -1;
+	
+	// find the beginning of the tag
+	do {
+		if (caret_pos < 0)
+			break;
+		if (content.charAt(caret_pos) == '<') {
+			if (content.substring(caret_pos, caret_pos + 4).toLowerCase() == '<img') {
+				// found the beginning of the image tag
+				start_ix = caret_pos;
+				break;
+			} else {
+				// found some other tag
+				return null;
+			}
+		}
+	} while(caret_pos--);
+	
+	// find the end of the tag 
+	caret_pos = editor.getCaretPos();
+	do {
+		if (caret_pos >= content_len)
+			break;
+			
+		if (content.charAt(caret_pos) == '>') {
+			end_ix = caret_pos + 1;
+			break;
+		}
+	} while(caret_pos++);
+	
+	if (start_ix != -1 && end_ix != -1)
+		
+		return {
+			start: start_ix,
+			end: end_ix,
+			tag: content.substring(start_ix, end_ix)
+		};
+	
+	return null;
+}
+
+/**
+ * Replaces or adds attribute to the tag
+ * @param {String} img_tag
+ * @param {String} attr_name
+ * @param {String} attr_value
+ */
+function replaceOrAppend(img_tag, attr_name, attr_value) {
+	if (img_tag.toLowerCase().indexOf(attr_name) != -1) {
+		// attribute exists
+		var re = new RegExp(attr_name + '=([\'"])(.*?)([\'"])', 'i');
+		return img_tag.replace(re, function(str, p1, p2){
+			return attr_name + '=' + p1 + attr_value + p1;
+		});
+	} else {
+		return img_tag.replace(/\s*(\/?>)$/, ' ' + attr_name + '="' + attr_value + '" $1');
+	}
 }
 
 function doCSSReflection(editor) {
@@ -211,3 +509,4 @@ function findTokenFromPosition(tokens, pos, type) {
 }
 
 zen_coding.registerAction('reflect_css_value', reflectCSSValue);
+zen_coding.registerAction('update_image_size', updateImageSize);

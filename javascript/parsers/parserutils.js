@@ -133,6 +133,7 @@
 					/** @type {makeToken} */
 					value: null
 				},
+				nl_size,
 				orig_tokens = [];
 				
 			function addToken(token, type) {
@@ -154,14 +155,21 @@
 				token = tokens[i];
 				acc_type = null;
 				
-				orig_tokens.push(makeToken(token.type, token.value, offset + token.charstart));
-				
 				if (token.type == 'line') {
+					nl_size = content ? calculateNlLength(content, offset) : 1;
+					var tok_value = nl_size == 1 ? '\n' : '\r\n';
 					offset += _o;
-					offset += content ? calculateNlLength(content, offset) : 1;
+					
+					orig_tokens.push(makeToken(token.type, tok_value, offset));
+					
+					result.push(makeToken(token.type, tok_value, offset, i));
+					offset += nl_size;
 					_o = 0;
+					
 					continue;
 				}
+				
+				orig_tokens.push(makeToken(token.type, token.value, offset + token.charstart));
 				
 //				_o = token.charend;
 				// use charstart and length because of incorrect charend 

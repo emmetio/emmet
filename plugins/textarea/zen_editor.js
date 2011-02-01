@@ -355,6 +355,7 @@ var zen_editor = (function(){
 	addShortcut('Meta+J', 'Split/Join Tag');
 	addShortcut('Meta+K', 'Remove Tag');
 	addShortcut('Meta+Y', 'Evaluate Math Expression');
+	addShortcut('Ctrl+I', 'Update image size');
 	
 	addShortcut('Ctrl+UP', 'Increment number by 1');
 	addShortcut('Ctrl+DOWN', 'Decrement number by 1');
