@@ -160,13 +160,20 @@ def optimize_css(tokens, offset, content):
 		token = tokens[i]
 		acc_type = None
 		
-		orig_tokens.append(make_token(token['type'], token['value'], offset + token['charstart']))
-		
 		if token['type'] == 'line':
+			nl_size = content and calculate_nl_length(content, offset) or 1
+			tok_value = nl_size == 1 and '\n' or '\r\n'
 			offset += _o
-			offset += content and calculate_nl_length(content, offset) or 1
+			
+			orig_tokens.append(make_token(token['type'], tok_value, offset))
+			
+			result.append(make_token(token['type'], tok_value, offset, i))
+			offset += nl_size
 			_o = 0
+			
 			continue
+		
+		orig_tokens.append(make_token(token['type'], token['value'], offset + token['charstart']))
 		
 		# use charstart and length because of incorrect charend 
 		# computation for whitespace

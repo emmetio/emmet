@@ -19,20 +19,9 @@ function reflectCSSValue(editor) {
 	return compoundUpdate(editor, doCSSReflection(editor));
 }
 
-function compoundUpdate(editor, data) {
-	if (data) {
-		var sel = editor.getSelectionRange();
-		editor.replaceContent(data.data, data.start, data.end, true);
-		editor.createSelection(data.caret, data.caret + sel.end - sel.start);
-		return true;
-	}
-	
-	return false;
-}
-
 /**
  * Update image size: reads image from image/CSS rule under caret
- * and updates dimentions inside tag/rule
+ * and updates dimensions inside tag/rule
  * @param {zen_editor} editor
  */
 function updateImageSize(editor) {
@@ -44,6 +33,17 @@ function updateImageSize(editor) {
 	}
 	
 	return compoundUpdate(editor, result);
+}
+
+function compoundUpdate(editor, data) {
+	if (data) {
+		var sel = editor.getSelectionRange();
+		editor.replaceContent(data.data, data.start, data.end, true);
+		editor.createSelection(data.caret, data.caret + sel.end - sel.start);
+		return true;
+	}
+	
+	return false;
 }
 
 /**
