@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>TEATextActions</key>
+	<dict>
+		<key>Balanced Tag</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>match_pair_outward</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^b</string>
+			<key>submenu</key>
+			<string>Select</string>
+		</dict>
+		<key>Balanced Tag (Inward)</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>match_pair_inward</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$B</string>
+			<key>submenu</key>
+			<string>Select</string>
+		</dict>
+		<key>Expand Abbreviation</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>expand_abbreviation</string>
+			</dict>
+			<key>shortcut</key>
+			<string></string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Format: Emphasize</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapText</string>
+			<key>options</key>
+			<dict>
+				<key>format</key>
+				<string>html</string>
+				<key>prefix</key>
+				<string>em</string>
+				<key>query_user</key>
+				<false/>
+				<key>suffix</key>
+				<string>/em</string>
+				<key>wrap_lines</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^~i</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Format: Strong</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapText</string>
+			<key>options</key>
+			<dict>
+				<key>format</key>
+				<string>html</string>
+				<key>prefix</key>
+				<string>strong</string>
+				<key>query_user</key>
+				<false/>
+				<key>suffix</key>
+				<string>/strong</string>
+				<key>wrap_lines</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^~b</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Indent New Line</key>
+		<dict>
+			<key>action</key>
+			<string>TEAInsertSnippet</string>
+			<key>options</key>
+			<dict>
+				<key>maintain_selection</key>
+				<true/>
+				<key>snippet</key>
+				<string>
+	$SELECTED_TEXT
+</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$
+</string>
+			<key>submenu</key>
+			<string>General</string>
+		</dict>
+		<key>Insert Linebreak</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapText</string>
+			<key>options</key>
+			<dict>
+				<key>format</key>
+				<string>text</string>
+				<key>prefix</key>
+				<string></string>
+				<key>query_user</key>
+				<false/>
+				<key>suffix</key>
+				<string>&lt;br /&gt;</string>
+				<key>wrap_lines</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^
+</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Line</key>
+		<dict>
+			<key>action</key>
+			<string>TEAGoto</string>
+			<key>options</key>
+			<dict>
+				<key>discard_indent</key>
+				<false/>
+				<key>regex</key>
+				<false/>
+				<key>source</key>
+				<string>line</string>
+				<key>trim</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^l</string>
+			<key>submenu</key>
+			<string>Select</string>
+		</dict>
+		<key>Line Contents</key>
+		<dict>
+			<key>action</key>
+			<string>TEAGoto</string>
+			<key>options</key>
+			<dict>
+				<key>discard_indent</key>
+				<true/>
+				<key>regex</key>
+				<false/>
+				<key>source</key>
+				<string>line</string>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>shortcut</key>
+			<string>^~l</string>
+			<key>submenu</key>
+			<string>Select</string>
+		</dict>
+		<key>Trim Line(s)</key>
+		<dict>
+			<key>action</key>
+			<string>TEATrim</string>
+			<key>options</key>
+			<dict>
+				<key>alternate</key>
+				<string>line</string>
+				<key>discard_empty</key>
+				<false/>
+				<key>input</key>
+				<string>selected_lines</string>
+				<key>respect_indent</key>
+				<true/>
+				<key>trim</key>
+				<string>both</string>
+			</dict>
+			<key>shortcut</key>
+			<string></string>
+			<key>submenu</key>
+			<string>General</string>
+		</dict>
+		<key>Update &lt;img&gt; Size</key>
+		<dict>
+			<key>action</key>
+			<string>TEAUpdateImageSize</string>
+			<key>shortcut</key>
+			<string>@I</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Word</key>
+		<dict>
+			<key>action</key>
+			<string>TEAGoto</string>
+			<key>options</key>
+			<dict>
+				<key>discard_indent</key>
+				<false/>
+				<key>regex</key>
+				<false/>
+				<key>source</key>
+				<string>word</string>
+				<key>trim</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^w</string>
+			<key>submenu</key>
+			<string>Select</string>
+		</dict>
+		<key>Wrap Selected Lines In Tag</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapText</string>
+			<key>options</key>
+			<dict>
+				<key>format</key>
+				<string>html</string>
+				<key>prefix</key>
+				<string>li</string>
+				<key>query_user</key>
+				<true/>
+				<key>suffix</key>
+				<string>/li</string>
+				<key>wrap_lines</key>
+				<true/>
+			</dict>
+			<key>shortcut</key>
+			<string>@$^W</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Wrap Selection In Link</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapInLink</string>
+			<key>options</key>
+			<dict>
+				<key>fallback</key>
+				<string>http://</string>
+				<key>snippet</key>
+				<string>&lt;a href="$URL"&gt;$SELECTED_TEXT&lt;/a&gt;</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$L</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Wrap Selection In Tag</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapText</string>
+			<key>options</key>
+			<dict>
+				<key>format</key>
+				<string>html</string>
+				<key>prefix</key>
+				<string>p</string>
+				<key>query_user</key>
+				<true/>
+				<key>suffix</key>
+				<string>/p</string>
+				<key>wrap_lines</key>
+				<false/>
+			</dict>
+			<key>shortcut</key>
+			<string>^$W</string>
+			<key>submenu</key>
+			<string>HTML</string>
+		</dict>
+		<key>Wrap With Abbreviation</key>
+		<dict>
+			<key>action</key>
+			<string>TEAWrapWithAbbreviation</string>
+			<key>shortcut</key>
+			<string>^A</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Next Edit Point</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>next_edit_point</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^~</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Previous Edit Point</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>prev_edit_point</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^~</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Merge Lines</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>merge_lines</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^m</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Remove tag</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>remove_tag</string>
+			</dict>
+			<key>shortcut</key>
+			<string>@$K</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Split/Join tag</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>split_join_tag</string>
+			</dict>
+			<key>shortcut</key>
+			<string>@$J</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Toggle comment</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>toggle_comment</string>
+			</dict>
+			<key>shortcut</key>
+			<string>@\</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
