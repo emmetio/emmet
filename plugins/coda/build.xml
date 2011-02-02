@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Coda plugin" basedir="../../">
+	<description>Coda plugin builder</description>
+
+	<property file="build.properties"/>
+	<property file="${zencoding_plugins_source}/coda/build.properties"/>
+
+	<target name="coda_bundle" depends="coda_init">
+		<copy todir="${coda.build_dir}">
+			<fileset dir="${tea-coda.source}">
+				<exclude name="src/Support/Library/zencoding/**/*.*"/>
+			</fileset>
+		</copy>
+		<copy todir="${coda.build_dir}/src/Support/Library" overwrite="true">
+			<filelist dir="${coda.source}">
+				<file name="zen_editor.py"/>
+			</filelist>
+		</copy>
+		<copy todir="${coda.build_dir}/src/Support/Library/zencoding">
+			<fileset dir="${zencoding_python}/zencoding">
+				<exclude name="**/*.pyc"/>
+			</fileset>
+		</copy>
+		<copy todir="${coda.build_dir}/src/Contents/Resources/English.lproj">
+			<filelist dir="${coda.source}">
+				<file name="TextActions.plist"/>
+			</filelist>
+		</copy>
+		<copy todir="${coda.build_dir}/src/Support/Scripts" overwrite="true">
+			<fileset dir="${coda.source}">
+				<include name="*.py"/>
+				<exclude name="zen_editor.py"/>
+			</fileset>
+		</copy>
+		
+		<echo>Coda plugin done</echo>
+	</target>
+
+	<target name="coda_init">
+		<!-- <delete dir="${coda.build_dir}"/> -->
+		<mkdir dir="${coda.build_dir}"/>
+	</target>
+</project>
