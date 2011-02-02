@@ -29,7 +29,7 @@
 		<textmate_s_macro title="Balance Tag" action="match_pair_outward" key="@d" uid-base="balance-outward"/>
 		<textmate_sre_macro title="Update Image Size" action="update_image_size" key="^i" uid-base="image-size"/>
 		<textmate_sre_macro title="Split or Join Tag" action="split_join_tag" key="@k" uid-base="split-join-tag"/>
-		<textmate_sre_macro title="Toggle Comment" action="toggle_comment" key="@/" uid-base="toggle-comment"/>
+		<textmate_sre_macro title="Toggle Comment" action="toggle_comment" key="@\" uid-base="toggle-comment"/>
 		<textmate_sre_macro title="Remove Tag" action="remove_tag" key="@K" uid-base="remove-tag"/>
 		<textmate_sre_macro title="Encode or Decode image to data:url" action="encode_decode_base64" key="@I" uid-base="encode-decode-image"/>
 		<textmate_sre_macro title="Increment number by 1" action="increment_number" args="1" key="^" uid-base="increment_number-1"/>

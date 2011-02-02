@@ -38,16 +38,20 @@ class ZenEditor():
 			m = re.match(r'^zc_var_(.+)', k.lower())
 			if m:
 				zen.set_variable(m.group(1), v)
+				
+	def _get_head_len(self, line_num):
+		head_lines = self.get_content().splitlines(True)[0:line_num - 1]
+		return len(u''.join(head_lines))
+	
+	def _get_current_line_num(self):
+		return int(os.getenv('TM_INPUT_START_LINE', os.getenv('TM_LINE_NUMBER', 1)))
 		
 	def get_selection_range(self):
 		"""
 		Returns character indexes of selected text
 		@return: list of start and end indexes
 		"""
-		line_num = int(os.getenv('TM_INPUT_START_LINE', os.getenv('TM_LINE_NUMBER', 1)))
-		head_lines = self.get_content().splitlines(True)[0:line_num - 1]
-		head_len = len(u''.join(head_lines))
-		
+		head_len = self._get_head_len(self._get_current_line_num())
 		cur_pos = int(os.getenv('TM_INPUT_START_COLUMN', os.getenv('TM_COLUMN_NUMBER', 1))) - 1
 		
 		# we need to expand tabbed indentation in order to correctly 
@@ -81,8 +85,8 @@ class ZenEditor():
 		start, end = zen_editor.get_current_line_range();
 		print('%s, %s' % (start, end))
 		"""
-		start = int(os.getenv('TM_INPUT_START_LINE_INDEX', os.getenv('TM_LINE_INDEX', 0)))
-		return start, start + len(self.get_selection())
+		start = self._get_head_len(self._get_current_line_num())
+		return start, start + len(self.get_current_line())
 	
 	def get_caret_pos(self):
 		""" Returns current caret position """
