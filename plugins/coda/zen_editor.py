@@ -97,6 +97,22 @@ class ZenEditor():
 		"""
 		text, rng = tea.get_line(self._context)
 		return text
+	
+	def _find_placeholder(self, text):
+		"Search for unescaped placeholder in text and return its index"
+		i = 0
+		il = len(text)
+		while i < il:
+			ch = text[i]
+			if ch == '\\':
+				i += 1
+			elif ch == '$' and zencoding.utils.char_at(text, i + 1) == '0':
+				return i
+			
+			i += 1
+			
+		return None
+		
 
 	def replace_content(self, value, start=None, end=None, no_indent=False):
 		"""
@@ -129,10 +145,10 @@ class ZenEditor():
 		if not no_indent:
 			value = zencoding.utils.pad_string(value, get_line_padding(self.get_current_line()))
 		
-		cursor_loc = value.find('$0')
-		if cursor_loc != -1:
+		cursor_loc = self._find_placeholder(value)
+		if cursor_loc is not None:
 			select_range = tea.new_range(cursor_loc + rng.location, 0)
-			value = value.replace('$0', '')
+			value = value[:cursor_loc] + value[cursor_loc + 2:]
 			tea.insert_text_and_select(self._context, value, rng, select_range)
 		else:
 			tea.insert_text(self._context, value, rng)
@@ -229,5 +245,5 @@ class ZenEditor():
 			else:
 				return ''
 		
-		text = re.sub(r'\$', '\\$', text)
+#		text = re.sub(r'\$', '\\$', text)
 		return re.sub(zencoding.utils.get_caret_placeholder(), get_ix, text)
