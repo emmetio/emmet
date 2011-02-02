@@ -315,6 +315,14 @@ def get_elements_collection(resource, name):
 		return res[name]
 	else:
 		return {}
+	
+def has_syntax(syntax):
+	"""
+	Check if there are resources for specified syntax
+	@type syntax: str
+	@returns: bool
+	"""
+	return syntax in get_vocabulary(VOC_USER) or syntax in get_vocabulary(VOC_SYSTEM)
 
 class Entry:
 	"""
