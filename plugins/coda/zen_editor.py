@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 '''
 High-level editor interface that communicates with underlying editor (like
 Espresso, Coda, etc.) or browser.
@@ -16,11 +19,11 @@ zen_editor.get_selection_range();
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
+from zencoding import html_matcher
+from zencoding.utils import get_line_padding
+import re
 import tea_actions as tea
 import zencoding.utils
-from zencoding import html_matcher
-from zencoding.actions.basic import get_line_padding
-import re
 
 class ZenEditor():
 	def __init__(self, context=None):
