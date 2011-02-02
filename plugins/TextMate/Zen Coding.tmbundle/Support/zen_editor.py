@@ -205,7 +205,7 @@ class ZenEditor():
 		if output[0] == '2' or not output[1]:
 			return None
 		else:
-			return output[1]
+			return output[1].decode('utf-8')
 		
 	def add_placeholders(self, text):
 		_ix = [zen.max_tabstop]
