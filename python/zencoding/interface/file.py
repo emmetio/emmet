@@ -41,7 +41,7 @@ def locate_file(editor_file, file_name):
 			break
 		
 		previous_parent = parent
-		parent = os.path.dirname(editor_file)
+		parent = os.path.dirname(parent)
 	
 	return result
 
@@ -55,6 +55,7 @@ def create_path(parent, file_name):
 	@return: str
 	"""
 	result = ''
+	file_name = file_name.lstrip('/')
 	
 	if os.path.exists(parent):
 		if os.path.isfile(parent):
