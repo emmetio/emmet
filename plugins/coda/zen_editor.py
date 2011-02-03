@@ -22,22 +22,27 @@ zen_editor.get_selection_range();
 from zencoding import html_matcher
 from zencoding.utils import get_line_padding, char_at
 import re
+import subprocess
+import os
 import tea_actions as tea
 import zencoding.utils
 
 class ZenEditor():
-	def __init__(self, context=None):
+	def __init__(self, context=None, bundle=None):
 		self._context = None
+		self._bundle = None
 		if context:
-			self.set_context(context)
+			self.set_context(context, bundle)
 
-	def set_context(self, context):
+	def set_context(self, context, bundle):
 		"""
 		Setup underlying editor context. You should call this method
 		<code>before</code> using any Zen Coding action.
 		@param context: context object
 		"""
 		self._context = context
+		self._bundle = bundle
+		tea.log(bundle.bundlePath())
 		zencoding.utils.set_newline(tea.get_line_ending(context))
 		zencoding.utils.set_variable('indentation', tea.get_indentation_string(context))
 
@@ -258,7 +263,9 @@ class ZenEditor():
 		@param title: Popup title
 		@return: str
 		"""
-		args = ['CocoaDialog', 'standard-inputbox', '--title', title, '‑‑no‑newline']
+		cocoa_dlg = os.path.join(self._bundle.bundlePath(), 'Support/Library/CocoaDialog.app/Contents/MacOS/CocoaDialog')
+		tea.log(cocoa_dlg)
+		args = [cocoa_dlg, 'standard-inputbox', '--title', title, '‑‑no‑newline']
 		p = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
 		
 		output = p[0].splitlines()
