@@ -16,6 +16,9 @@
 				<file name="zen_editor.py"/>
 			</filelist>
 		</copy>
+		<copy todir="${coda.build_dir}/src/Support/Library/CocoaDialog.app">
+			<fileset dir="${zencoding_plugins_source}/CocoaDialog.app"/>
+		</copy>
 		<copy todir="${coda.build_dir}/src/Support/Library/zencoding">
 			<fileset dir="${zencoding_python}/zencoding">
 				<exclude name="**/*.pyc"/>

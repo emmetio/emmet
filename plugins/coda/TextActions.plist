@@ -42,7 +42,7 @@
 				<string>expand_abbreviation</string>
 			</dict>
 			<key>shortcut</key>
-			<string></string>
+			<string>^e</string>
 			<key>submenu</key>
 			<string>Zen Coding</string>
 		</dict>
@@ -194,7 +194,7 @@
 			<key>submenu</key>
 			<string>General</string>
 		</dict>
-		<key>Update &lt;img&gt; Size</key>
+		<key>Update Image Size</key>
 		<dict>
 			<key>action</key>
 			<string>TEAUpdateImageSize</string>
@@ -320,6 +320,34 @@
 			<key>submenu</key>
 			<string>Zen Coding</string>
 		</dict>
+		<key>Select Next Item</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>select_next_item</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^@</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Select Previous Item</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>select_previous_item</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^@</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
 		<key>Merge Lines</key>
 		<dict>
 			<key>action</key>
@@ -334,7 +362,7 @@
 			<key>submenu</key>
 			<string>Zen Coding</string>
 		</dict>
-		<key>Remove tag</key>
+		<key>Remove Tag</key>
 		<dict>
 			<key>action</key>
 			<string>TEAZenActions</string>
@@ -348,7 +376,7 @@
 			<key>submenu</key>
 			<string>Zen Coding</string>
 		</dict>
-		<key>Split/Join tag</key>
+		<key>Split/Join Tag</key>
 		<dict>
 			<key>action</key>
 			<string>TEAZenActions</string>
@@ -362,7 +390,7 @@
 			<key>submenu</key>
 			<string>Zen Coding</string>
 		</dict>
-		<key>Toggle comment</key>
+		<key>Toggle Comment</key>
 		<dict>
 			<key>action</key>
 			<string>TEAZenActions</string>
@@ -375,6 +403,132 @@
 			<string>@\</string>
 			<key>submenu</key>
 			<string>Zen Coding</string>
+		</dict>
+		<key>Evaluate Math Expression</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>evaluate_math_expression</string>
+			</dict>
+			<key>shortcut</key>
+			<string>@y</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Reflect CSS Value</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>reflect_css_value</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^r</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Encode/Decode image to data:URI</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>encode_decode_base64</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$i</string>
+			<key>submenu</key>
+			<string>Zen Coding</string>
+		</dict>
+		<key>Increment Number By 1</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>increment_number_by_1</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Decrement Number By 1</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>decrement_number_by_1</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Increment Number By 0.1</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>increment_number_by_01</string>
+			</dict>
+			<key>shortcut</key>
+			<string>~</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Decrement Number By 0.1</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>decrement_number_by_01</string>
+			</dict>
+			<key>shortcut</key>
+			<string>~</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Increment Number By 10</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>increment_number_by_10</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$</string>
+			<key>submenu</key>
+			<string>Numbers</string>
+		</dict>
+		<key>Decrement Number By 10</key>
+		<dict>
+			<key>action</key>
+			<string>TEAZenActions</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>decrement_number_by_10</string>
+			</dict>
+			<key>shortcut</key>
+			<string>^$</string>
+			<key>submenu</key>
+			<string>Numbers</string>
 		</dict>
 	</dict>
 </dict>

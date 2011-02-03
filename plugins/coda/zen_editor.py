@@ -20,7 +20,7 @@ zen_editor.get_selection_range();
 @link http://chikuyonok.ru
 '''
 from zencoding import html_matcher
-from zencoding.utils import get_line_padding
+from zencoding.utils import get_line_padding, char_at
 import re
 import tea_actions as tea
 import zencoding.utils
@@ -98,22 +98,71 @@ class ZenEditor():
 		text, rng = tea.get_line(self._context)
 		return text
 	
-	def _find_placeholder(self, text):
-		"Search for unescaped placeholder in text and return its index"
+	def preprocess_text(self, text):
+		"""
+		Preprocess text before pasting: remove all placeholders and find
+		new caret position 
+		"""
+		text = self.add_placeholders(text)
+		sel_start = None
+		sel_end = None
+		
+		
+		# remove all $N and ${N:value} entries
 		i = 0
 		il = len(text)
+		
+		cut_ranges = []
+		
 		while i < il:
 			ch = text[i]
 			if ch == '\\':
 				i += 1
-			elif ch == '$' and zencoding.utils.char_at(text, i + 1) == '0':
-				return i
+			elif ch == '$':
+				# looks like it's a placeholder
+				if char_at(text, i + 1).isdigit():
+					# cosume all digits
+					j = i + 1
+					while j < il:
+						if not char_at(text, j).isdigit():
+							cut_ranges.append([i, j, ''])
+							if sel_start is None:
+								sel_start = sel_end = i
+							i = j - 1
+							break
+						j += 1
+						
+				if char_at(text, i + 1) == '{':
+					# placeholder with value: ${0:val}
+					braces = 0
+					j = i + 1
+					value_start = None
+					while j < il:
+						ch = char_at(text, j)
+						if ch == ':' and value_start is None:
+							value_start = j
+						elif ch == '{':
+							braces += 1
+						elif ch == '}':
+							braces -= 1
+							if not braces:
+								cut_ranges.append([i, j + 1, text[(value_start or i) + 1:j]])
+								if sel_start is None:
+									sel_start = i
+									sel_end = i + len(cut_ranges[-1][2])
+								i = j - 1
+								break
+						j += 1
 			
 			i += 1
 			
-		return None
+		# cut out text ranges
+		if cut_ranges:
+			cut_ranges.reverse()
+			text = u"".join([text[:r[0]] + r[2] + text[r[1]:] for r in cut_ranges])
 		
-
+		return sel_start, sel_end, text
+	
 	def replace_content(self, value, start=None, end=None, no_indent=False):
 		"""
 		Replace editor's content or it's part (from <code>start</code> to
@@ -145,10 +194,10 @@ class ZenEditor():
 		if not no_indent:
 			value = zencoding.utils.pad_string(value, get_line_padding(self.get_current_line()))
 		
-		cursor_loc = self._find_placeholder(value)
-		if cursor_loc is not None:
-			select_range = tea.new_range(cursor_loc + rng.location, 0)
-			value = value[:cursor_loc] + value[cursor_loc + 2:]
+		sel_start, sel_end, value = self.preprocess_text(value)
+		
+		if sel_start is not None:
+			select_range = tea.new_range(sel_start + rng.location, sel_end - sel_start)
 			tea.insert_text_and_select(self._context, value, rng, select_range)
 		else:
 			tea.insert_text(self._context, value, rng)
