@@ -42,7 +42,6 @@ class ZenEditor():
 		"""
 		self._context = context
 		self._bundle = bundle
-		tea.log(bundle.bundlePath())
 		zencoding.utils.set_newline(tea.get_line_ending(context))
 		zencoding.utils.set_variable('indentation', tea.get_indentation_string(context))
 
@@ -264,7 +263,6 @@ class ZenEditor():
 		@return: str
 		"""
 		cocoa_dlg = os.path.join(self._bundle.bundlePath(), 'Support/Library/CocoaDialog.app/Contents/MacOS/CocoaDialog')
-		tea.log(cocoa_dlg)
 		args = [cocoa_dlg, 'standard-inputbox', '--title', title, '‑‑no‑newline']
 		p = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
 		
