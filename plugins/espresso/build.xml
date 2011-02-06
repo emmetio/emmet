@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Espresso plugin" basedir="../../">
+	<description>Espresso plugin builder</description>
+
+	<property file="build.properties"/>
+	<property file="${zencoding_plugins_source}/espresso/build.properties"/>
+
+	<target name="espresso_bundle" depends="espresso_init">
+		<copy todir="${espresso.build_dir}">
+			<fileset dir="${tea-espresso.source}">
+				<exclude name="src/Support/Library/zencoding/**/*.*"/>
+			</fileset>
+		</copy>
+		<copy todir="${espresso.src_build_dir}/Support/Library" overwrite="true">
+			<filelist dir="${espresso.source}">
+				<file name="zen_editor.py"/>
+				<file name="zen_settings_loader.py"/>
+			</filelist>
+		</copy>
+		<copy todir="${espresso.src_build_dir}/TextActions" overwrite="true">
+			<fileset dir="${espresso.source}/TextActions"/>
+		</copy>
+		<copy todir="${espresso.src_build_dir}/Support/Library/CocoaDialog.app">
+			<fileset dir="${zencoding_plugins_source}/CocoaDialog.app"/>
+		</copy>
+		<copy todir="${espresso.src_build_dir}/Support/Library/zencoding">
+			<fileset dir="${zencoding_python}/zencoding">
+				<exclude name="**/*.pyc"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${espresso.src_build_dir}/Support/Scripts" overwrite="true">
+			<fileset dir="${espresso.source}">
+				<include name="*.py"/>
+				<exclude name="zen_editor.py"/>
+				<exclude name="zen_settings_loader.py"/>
+			</fileset>
+		</copy>
+		
+		<echo>Espresso plugin done</echo>
+	</target>
+
+	<target name="espresso_init">
+		<!-- <delete dir="${espresso.build_dir}"/> -->
+		<mkdir dir="${espresso.build_dir}"/>
+	</target>
+</project>

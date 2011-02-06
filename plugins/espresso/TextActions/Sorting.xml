@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<action-sort-instructions>
+	<sort-template>
+		<selector>actions.text.important</selector>
+		<selector>actions.text.generic</selector>
+		<selector>actions.text.whitespace</selector>
+		<selector>actions.text.lines</selector>
+		<selector>actions.text.selection</selector>
+		<selector>actions.text.sorting</selector>
+		<selector>actions.text.formatting</selector>
+		<selector>actions.text.HTML</selector>
+		<selector>actions.text.entities</selector>
+		<selector>tea.conversion</selector>
+		<selector>tea.insertion</selector>
+		<selector>tea.zen</selector>
+		<selector>tea.taghandling</selector>
+		<selector>tea.wrapping</selector>
+		<selector>tea.footer</selector>
+		<selector>actions.snippets</selector>
+		<selector>*</selector>
+	</sort-template>
+</action-sort-instructions>

@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<action-recipes>
+	<!-- These actions are mainly for formatting text or code -->
+	
+	<action id="com.onecrayon.TextActions.InsertIndentedLine" category="actions.text.formatting/tea.insertion">
+		<class>TEAforEspresso</class>
+		<title>Indent New Line</title>
+		<key-equivalent>control shift enter</key-equivalent>
+		<setup>
+			<action>insert_snippet</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string><![CDATA[
+	${1:$EDITOR_SELECTION}$0
+]]></string>
+					
+					<key>python, python *</key>
+					<string><![CDATA[
+	${1:$EDITOR_SELECTION}$0]]></string>
+					
+					<key>undo_name</key>
+					<string>Insert Indented Line</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.InsertText.Linebreak" category="actions.text.formatting/tea.insertion">
+		<class>TEAforEspresso</class>
+		<title>Insert Linebreak(s)</title>
+		<key-equivalent>control enter</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&lt;br /></string>
+					
+					<key>suffix_selection</key>
+					<true/>
+					
+					<key>php string.double, php string.double quote.end</key>
+					<string>\n</string>
+					
+					<key>python string, python string end</key>
+					<string>\n</string>
+					
+					<key>markdown, markdown structural, markdown stylistic</key>
+					<string><![CDATA[$TOUCH  
+]]></string>
+					
+					<key>undo_name</key>
+					<string>Insert Linebreak(s)</string>
+					
+					<!-- Syntax-specific overrides -->
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.InsertText.Tab" category="actions.text.formatting/tea.insertion">
+		<class>TEAforEspresso</class>
+		<title>Insert Tab In Tab Stop</title>
+		<key-equivalent>option tab</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>	$TOUCH</string>
+					
+					<key>undo_name</key>
+					<string>Insert Tab</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.FormatText.Em" category="actions.text.formatting">
+		<class>TEAforEspresso</class>
+		<title>Emphasize</title>
+		<key-equivalent>command shift i</key-equivalent>
+		<setup>
+			<action>selections_to_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&lt;em>$EDITOR_SELECTION&lt;/em></string>
+					
+					<key>undo_name</key>
+					<string>Emphasize</string>
+					
+					<!-- Syntax-specific overrides -->
+					<key>markdown, markdown structural, markdown stylistic</key>
+					<string>*$EDITOR_SELECTION*</string>
+					
+					<key>textile</key>
+					<string>_$EDITOR_SELECTION_</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.FormatText.Strong" category="actions.text.formatting">
+		<class>TEAforEspresso</class>
+		<title>Strong</title>
+		<key-equivalent>command b</key-equivalent>
+		<setup>
+			<action>selections_to_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&lt;strong>$EDITOR_SELECTION&lt;/strong></string>
+					
+					<key>undo_name</key>
+					<string>Strong</string>
+					
+					<!-- Syntax-specific overrides -->
+					<key>markdown, markdown structural, markdown stylistic</key>
+					<string>**$EDITOR_SELECTION**</string>
+					
+					<key>textile</key>
+					<string>*$EDITOR_SELECTION*</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+</action-recipes>

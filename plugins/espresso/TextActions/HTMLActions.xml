@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<action-recipes>
+	<!-- These actions are mainly useful for HTML or CSS -->
+	
+	<!-- Entities menu -->
+	
+	<action id="com.onecrayon.TextActions.ConvertToNamedEntities" category="actions.text.HTML/actions.text.entities/tea.conversion">
+		<class>TEAforEspresso</class>
+		<title>Convert To Named Entities</title>
+		<key-equivalent>option &amp;</key-equivalent>
+		<setup>
+			<action>encode_unicode</action>
+			<options>
+				<dict>
+					<key>type</key>
+					<string>named</string>
+					
+					<key>undo_name</key>
+					<string>Convert To Named Entities</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.ConvertToNumericEntities" category="actions.text.HTML/actions.text.entities/tea.conversion">
+		<class>TEAforEspresso</class>
+		<title>Convert To Numeric Entities</title>
+		<setup>
+			<action>encode_unicode</action>
+			<options>
+				<dict>
+					<key>type</key>
+					<string>numeric</string>
+					
+					<key>undo_name</key>
+					<string>Convert To Numeric Entities</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.XMLEntities.NonBreakingSpace" category="actions.text.HTML/actions.text.entities/tea.insertion/1">
+		<class>TEAforEspresso</class>
+		<title>Insert Non-Breaking Space</title>
+		<key-equivalent>control shift space</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&amp;nbsp;</string>
+					
+					<key>suffix_selection</key>
+					<true/>
+					
+					<key>undo_name</key>
+					<string>Insert Non-Breaking Space</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.XMLEntities.Ampersand" category="actions.text.HTML/actions.text.entities/tea.insertion/2">
+		<class>TEAforEspresso</class>
+		<title>Insert &amp;</title>
+		<key-equivalent>control shift 7</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&amp;amp;</string>
+					
+					<key>suffix_selection</key>
+					<true/>
+					
+					<key>undo_name</key>
+					<string>Insert Entity</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+
+	<action id="com.onecrayon.TextActions.XMLEntities.AngleBracketLeft" category="actions.text.HTML/actions.text.entities/tea.insertion/3">
+		<class>TEAforEspresso</class>
+		<title>Insert &lt;</title>
+		<key-equivalent>control shift ,</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&amp;lt;</string>
+					
+					<key>suffix_selection</key>
+					<true/>
+					
+					<key>undo_name</key>
+					<string>Insert Entity</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+
+	<action id="com.onecrayon.TextActions.XMLEntities.AngleBracketRight" category="actions.text.HTML/actions.text.entities/tea.insertion/4">
+		<class>TEAforEspresso</class>
+		<title>Insert &gt;</title>
+		<key-equivalent>control shift .</key-equivalent>
+		<setup>
+			<action>insert_text</action>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&amp;gt;</string>
+					
+					<key>suffix_selection</key>
+					<true/>
+					
+					<key>undo_name</key>
+					<string>Insert Entity</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<!-- Wrapping actions -->
+	
+	<!--<action id="com.onecrayon.TextActions.InsertSnippet.HTMLtag" category="actions.text.HTML/tea.insertion">
+		<class>TEAforEspresso</class>
+		<title>Insert Tag</title>
+		<key-equivalent>control W</key-equivalent>
+		<setup>
+			<action>insert_snippet</action>
+			<selection-context>none</selection-context>
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&lt;${1:p}>$2&lt;/${1/\s.*//}>$0</string>
+				</dict>
+			</options>
+		</setup>
+	</action>-->
+	
+	<action id="com.onecrayon.TextActions.WrapInSnippet.tag" category="actions.text.HTML/tea.wrapping">
+		<class>TEAforEspresso</class>
+		<title>Wrap Selection In Tag</title>
+		<key-equivalent>control shift W</key-equivalent>
+		<setup>
+			<action>selections_to_snippets</action>
+			<!-- <selection-context>one</selection-context> -->
+			<options>
+				<dict>
+					<key>first_snippet</key>
+					<string>&lt;${1:p}>$EDITOR_SELECTION&lt;/${1/\s.*//}>$0</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.WrapLinesInSnippet.tag" category="actions.text.HTML/tea.wrapping">
+		<class>TEAforEspresso</class>
+		<title>Wrap Selected Lines In Tag</title>
+		<key-equivalent>command control shift w</key-equivalent>
+		<setup>
+			<action>selected_lines_to_snippets</action>
+			<!-- <selection-context>one</selection-context> -->
+			<options>
+				<dict>
+					<key>first_snippet</key>
+					<string>&lt;${1:li}>$EDITOR_SELECTION&lt;/${1/\s.*//}></string>
+					
+					<key>following_snippet</key>
+					<string>&lt;$1>$EDITOR_SELECTION&lt;/${1/\s.*//}></string>
+					
+					<key>final_append</key>
+					<string>$0</string>
+					
+					<key>undo_name</key>
+					<string>Wrap Selected Lines In Tag</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<action id="com.onecrayon.TextActions.WrapSelectionInLink" category="actions.text.HTML/tea.wrapping">
+		<class>TEAforEspresso</class>
+		<title>Wrap Selection In Link</title>
+		<key-equivalent>control shift l</key-equivalent>
+		<setup>
+			<action>insert_url_snippet</action>
+			<!-- <selection-context>one</selection-context> -->
+			<options>
+				<dict>
+					<key>default</key>
+					<string>&lt;a href="${1:$URL}"${2: title="$3"}>$EDITOR_SELECTION&lt;/a>$0</string>
+					
+					<key>fallback_url</key>
+					<string>http://</string>
+					
+					<key>undo_name</key>
+					<string>Wrap Selection In Link</string>
+					
+					<!-- Syntax-specific overrides -->
+					<key>markdown, markdown structural, markdown stylistic</key>
+					<string>[$EDITOR_SELECTION](${1:$URL})$0</string>
+					
+					<key>textile</key>
+					<string>"$EDITOR_SELECTION":${1:$URL}$0</string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+	<!-- Miscellaneous actions -->
+	
+	<action id="com.onecrayon.TextActions.HTMLTagDocLookup" category="actions.text.HTML/tea.footer">
+		<class>TEAforEspresso</class>
+		<title>Documentation For Tag</title>
+		<key-equivalent>command shift h</key-equivalent>
+		<setup>
+			<action>visit_url</action>
+			<syntax-context>tag.html, tag.html *</syntax-context>
+			<options>
+				<dict>
+					<key>input</key>
+					<string>word</string>
+					
+					<key>default</key>
+					<string><![CDATA[http://google.com/search?q=$EDITOR_SELECTION+site%3Ahttp%3A%2F%2Fhtmlhelp.com%2Freference%2Fhtml40%2F]]></string>
+					
+
+					<key>entity.name</key>
+					<string><![CDATA[http://google.com/search?q=$EDITOR_SELECTION+site%3Ahttp%3A%2F%2Fhtmlhelp.com%2Freference%2Fhtml40%2F&btnI=745]]></string>
+				</dict>
+			</options>
+		</setup>
+	</action>
+	
+</action-recipes>
