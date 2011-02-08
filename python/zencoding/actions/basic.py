@@ -712,7 +712,7 @@ def encode_to_base64(editor, img_path, pos):
 	# locate real image path
 	real_img_path = zen_file.locate_file(editor_file, img_path)
 	if real_img_path is None:
-		raise zencoding.utils.ZenError("Can't find %s file" % img_path)
+		raise zencoding.utils.ZenError("Can't find '%s' file" % img_path)
 	
 	b64 = base64.b64encode(zen_file.read(real_img_path))
 	if not b64:

@@ -45,7 +45,7 @@ def compound_update(editor, data):
 	if data:
 		text = data['data']
 		
-#		sel_start, sel_end = editor.get_selection_range()
+		sel_start, sel_end = editor.get_selection_range()
 		
 		# try to preserve caret position
 		if data['caret'] < data['start'] + len(text):
@@ -53,8 +53,9 @@ def compound_update(editor, data):
 			if relative_pos >= 0:
 				text = text[:relative_pos] + zencoding.utils.get_caret_placeholder() + text[relative_pos:]
 		
-		editor.replace_content(zencoding.utils.unindent(editor, text), data['start'], data['end'])
-#		editor.create_selection(data['caret'], data['caret'] + sel_end - sel_start)
+		editor.replace_content(text, data['start'], data['end'], True)
+#		editor.replace_content(zencoding.utils.unindent(editor, text), data['start'], data['end'])
+		editor.create_selection(data['caret'], data['caret'] + sel_end - sel_start)
 		return True
 	
 	return False
@@ -110,7 +111,7 @@ def get_image_size_for_source(editor, src):
 			
 			abs_src = zen_file.locate_file(editor_file, src)
 			if not abs_src:
-				raise zencoding.utils.ZenError("Can't locate file %s" % abs_src)
+				raise zencoding.utils.ZenError("Can't locate '%s' file" % src)
 			
 			f_content = zen_file.read(abs_src)
 		
@@ -254,9 +255,9 @@ def update_image_size_css(editor):
 					
 					# some editors do not provide easy way to replace multiple code 
 					# fragments so we have to squash all replace operations into one
-					data = content[updates[0][0]:updates[-1][1]]
 					offset = updates[0][0]
 					offset_end = updates[-1][1]
+					data = content[offset:offset_end]
 					
 					updates.reverse()
 					for u in updates:
