@@ -27,6 +27,7 @@ import re
 import os
 import subprocess
 import urllib
+from Foundation import *
 
 class ZenEditor():
 	def __init__(self, context=None, action_obj=None):
@@ -135,7 +136,6 @@ class ZenEditor():
 		@param end: End index of editor's content
 		@type end: int
 		"""
-		tea.log('replacing substring %s:%s' % (start, end))
 		if start is None: start = 0
 		if end is None: end = len(self.get_content())
 		
@@ -174,8 +174,6 @@ class ZenEditor():
 		Returns current output profile name (@see zen_coding#setup_profile)
 		@return {String}
 		"""
-		tea.log(os.getenv('ZC_PROFILE', 'not found'))
-		
 		
 #		forced_profile = zen.get_variable('profile')
 #		if forced_profile:
@@ -209,7 +207,6 @@ class ZenEditor():
 		if output[0] == '2' or not output[1]:
 			return None
 		else:
-			tea.log('got data %s' % output[1].decode('utf-8'))
 			return output[1].decode('utf-8')
 		
 	def get_selection(self):
@@ -227,12 +224,12 @@ class ZenEditor():
 		@return: str
 		@since: 0.65 
 		"""
-		path = '%s' % self._context.documentContext().fileURL()
+		path = str(self._context.documentContext().fileURL().absoluteURL())
 		file_uri = urllib.unquote(path or '')
 		# remove protocol
 		file_uri = re.sub(r'^\w+://\w+', '', file_uri)
 		
-		return file_uri or None
+		return file_uri.decode('utf-8') if file_uri else None
 	
 	def add_placeholders(self, text):
 		_ix = [zencoding.utils.max_tabstop]
