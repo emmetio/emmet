@@ -639,6 +639,7 @@
 		 */
 		pasteContent: function(text, had_var) {
 			had_var = had_var || 0;
+			var symbol = '$#';
 			var fn = function(str, p1) {
 				if (p1 == 'output') {
 					had_var = 1;
@@ -648,12 +649,20 @@
 				return str;
 			};
 			
+			var fn2 = function() {
+				had_var = 1;
+				return [symbol, text];
+			}
+			
 			for (var i = 0, il = this.attributes.length; i < il; i++) {
 				var a = this.attributes[i];
 				a.value = replaceVariables(a.value, fn);
+				a.value = replaceUnescapedSymbol(a.value, symbol, fn2);
 			}
 			
 			this.content = replaceVariables(this.content, fn);
+			this.content = replaceUnescapedSymbol(this.content, symbol, fn2);
+			
 			if (this.hasChildren()) {
 				for (var i = 0, il = this.children.length; i < il; i++) {
 					had_var = this.children[i].pasteContent(text, had_var);

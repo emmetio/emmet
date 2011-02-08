@@ -1063,6 +1063,8 @@ class ZenNode(object):
 		@return: Is text was pasted as ${output} variable (int)
 		"""
 		_had_var = [had_var]
+		symbol = '$#'
+		
 		def fn(m):
 			if m.group(1) and m.group(1) == 'output':
 				_had_var[0] = 1
@@ -1070,10 +1072,16 @@ class ZenNode(object):
 			
 			return m.group(0)
 		
+		def fn2(*args, **kwargs):
+			_had_var[0] = 1
+			return (symbol, text)
+		
 		for a in self.attributes:
 			a['value'] = replace_variables(a['value'], fn)
+			a['value'] = replace_unescaped_symbol(a['value'], symbol, fn2)
 			
 		self.content = replace_variables(self.content, fn)
+		self.content = replace_unescaped_symbol(self.content, symbol, fn2)
 		if self.has_children():
 			for child in self.children:
 				_had_var[0] = child.paste_content(text, _had_var[0])
