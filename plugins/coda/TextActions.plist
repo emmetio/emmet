@@ -197,11 +197,16 @@
 		<key>Update Image Size</key>
 		<dict>
 			<key>action</key>
-			<string>TEAUpdateImageSize</string>
+			<string>TEAZenActions</string>
 			<key>shortcut</key>
 			<string>@I</string>
+			<key>options</key>
+			<dict>
+				<key>action</key>
+				<string>update_image_size</string>
+			</dict>
 			<key>submenu</key>
-			<string>HTML</string>
+			<string>Zen Coding</string>
 		</dict>
 		<key>Word</key>
 		<dict>
