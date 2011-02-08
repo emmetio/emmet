@@ -25,7 +25,7 @@ def reflect_css_value(editor):
 	if editor.get_syntax() != 'css':
 		return False
 	
-	return compound_update(editor, do_css_refelction(editor))
+	return compound_update(editor, do_css_reflection(editor))
 
 @zencoding.action
 def update_image_size(editor):
@@ -318,7 +318,7 @@ def learn_css_style(tokens, pos):
 	return lambda name, value: "%s%s%s%s;" % (prefix, name, glue, value)
 	
 
-def do_css_refelction(editor):
+def do_css_reflection(editor):
 	content = editor.get_content()
 	caret_pos = editor.get_caret_pos()
 	css = parser_utils.extract_css_rule(content, caret_pos)
