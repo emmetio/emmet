@@ -463,6 +463,7 @@
 		this.children = [];
 		this.counter = 1;
 		this.is_repeating = tag.is_repeating;
+		this.repeat_by_lines = tag.repeat_by_lines;
 		this.has_implicit_name = this.type == 'tag' && tag.has_implicit_name;
 		
 		// create deep copy of attribute list so we can change
@@ -1251,17 +1252,20 @@
 		 */
 		upgradeTabstops: function(node, offset) {
 			var max_num = 0,
-				props = ['start', 'end', 'content'];
-				
-			for (var i = 0, il = props.length; i < il; i++) {
-				node[props[i]] = node[props[i]].replace(/\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}/g, function(str, p1, p2){
-					var num = parseInt(p1 || p2, 10);
-					if (num > max_num)
-						max_num = num;
+				props = ['start', 'end', 'content'],
+				escape_fn = function(ch){ return '\\' + ch; },
+				tabstop_fn = function(i, num, value) {
+					num = parseInt(num);
+					if (num > max_num) max_num = num;
 						
-					return str.replace(/\d+/, num + offset);
-				});
-			}
+					if (value)
+						return '${' + (num + offset) + ':' + value + '}';
+					else
+						return '$' + (num + offset);
+				};
+				
+			for (var i = 0, il = props.length; i < il; i++)
+				node[props[i]] = this.processTextBeforePaste(node[props[i]], escape_fn, tabstop_fn);
 			
 			return max_num;
 		},
@@ -1338,14 +1342,89 @@
 		getCounterForNode: function(node) {
 			// find nearest repeating parent
 			var counter = node.counter;
-			if (!node.is_repeating) {
+			if (!node.is_repeating && !node.repeat_by_lines) {
 				while (node = node.parent) {
-					if (node.is_repeating)
+					if (node.is_repeating || node.repeat_by_lines)
 						return node.counter;
 				}
 			}
 			
 			return counter;
+		},
+		
+		/**
+		 * Process text that should be pasted into editor: clear escaped text and
+		 * handle tabstops
+		 * @param {String} text
+		 * @param {Function} escape_fn Handle escaped character. Must return
+		 * replaced value
+		 * @param {Function} tabstop_fn Callback function that will be called on every
+		 * tabstob occurance, passing <b>index</b>, <code>number</code> and 
+		 * <b>value</b> (if exists) arguments. This function must return 
+		 * replacement value
+		 * @return {String} 
+		 */
+		processTextBeforePaste: function(text, escape_fn, tabstop_fn) {
+			var i = 0, il = text.length, start_ix, _i,
+				str_builder = [];
+				
+			var nextWhile = function(ix, fn) {
+				while (ix < il) if (!fn(text.charAt(ix++))) break;
+				return ix - 1;
+			};
+			
+			while (i < il) {
+				var ch = text.charAt(i);
+				if (ch == '\\' && i + 1 < il) {
+					// handle escaped character
+					str_builder.push(escape_fn(text.charAt(i + 1)));
+					i += 2;
+					continue;
+				} else if (ch == '$') {
+					// looks like a tabstop
+					var next_ch = text.charAt(i + 1) || '';
+					_i = i;
+					if (this.isNumeric(next_ch)) {
+						// $N placeholder
+						start_ix = i + 1;
+						i = nextWhile(start_ix, this.isNumeric);
+						if (start_ix < i) {
+							str_builder.push(tabstop_fn(_i, text.substring(start_ix, i)));
+							continue;
+						}
+					} else if (next_ch == '{') {
+						// ${N:value} or ${N} placeholder
+						var brace_count = 1;
+						start_ix = i + 2;
+						i = nextWhile(start_ix, this.isNumeric);
+						
+						if (i > start_ix) {
+							if (text.charAt(i) == '}') {
+								str_builder.push(tabstop_fn(_i, text.substring(start_ix, i)));
+								i++; // handle closing brace
+								continue;
+							} else if (text.charAt(i) == ':') {
+								var val_start = i + 2;
+								i = nextWhile(val_start, function(c) {
+									if (c == '{') brace_count++;
+									else if (c == '}') brace_count--;
+									return !!brace_count;
+								});
+								str_builder.push(tabstop_fn(_i, text.substring(start_ix, val_start - 2), text.substring(val_start - 1, i)));
+								i++; // handle closing brace
+								continue;
+							}
+						}
+					}
+					i = _i;
+				}
+				
+				// push current character to stack
+				str_builder.push(ch);
+				i++;
+			}
+			
+			return str_builder.join('');
 		}
 	}
 })();

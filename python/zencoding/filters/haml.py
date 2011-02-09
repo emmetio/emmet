@@ -9,6 +9,7 @@ Filter that produces HAML tree
 import zencoding.utils
 
 child_token = '${child}'
+tabstops = [0]
 	
 def make_attributes_string(tag, profile):
 	"""
@@ -139,6 +140,7 @@ def process(tree, profile, level=0):
 	if level == 0:
 		# preformat tree
 		tree = zencoding.run_filters(tree, profile, '_format')
+		tabstops[0] = 0
 		
 	for item in tree.children:
 		if item.type == 'tag':
@@ -150,6 +152,9 @@ def process(tree, profile, level=0):
 		counter = zencoding.utils.get_counter_for_node(item)
 		item.start = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.start, counter))
 		item.end = zencoding.utils.unescape_text(zencoding.utils.replace_counter(item.end, counter))
+		
+		tabstops[0] += zencoding.utils.upgrade_tabstops(item, tabstops[0]) + 1
+		
 		process(item, profile, level + 1)
 		
 	return tree

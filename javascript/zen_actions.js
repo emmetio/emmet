@@ -193,7 +193,7 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 		end_offset = narrowed_sel[1];
 	}
 	
-	var new_content = content.substring(start_offset, end_offset),
+	var new_content = zen_coding.escapeText(content.substring(start_offset, end_offset)),
 		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), syntax, profile_name);
 	
 	if (result) {

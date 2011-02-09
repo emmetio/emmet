@@ -29,6 +29,7 @@ import zencoding
 import zencoding.resources as zen_resources
 import zencoding.parser.abbreviation as zen_parser
 import copy
+from zencoding.parser.utils import char_at
 
 newline = '\n'
 "Newline symbol"
@@ -61,9 +62,6 @@ default_profile = {
 
 basic_filters = 'html';
 "Filters that will be applied for unknown syntax"
-
-max_tabstop = 0
-"Maximum tabstop index for current session"
 
 def char_at(text, pos):
 	"""
@@ -578,7 +576,7 @@ def replace_counter(text, value):
 	
 	return replace_unescaped_symbol(text, symbol, replace_func)
 
-def upgrade_tabstops(node):
+def upgrade_tabstops(node, offset=0):
 	"""
 	Upgrades tabstops in zen node in order to prevent naming conflicts
 	@type node: ZenNode
@@ -588,16 +586,19 @@ def upgrade_tabstops(node):
 	"""
 	max_num = [0]
 	props = ('start', 'end', 'content')
+	escape_fn = lambda ch: '\\' + ch
 	
-	def _replace(m):
-		num = int(m.group(1) or m.group(2))
+	def tabstop_fn(i, num, value=None):
+		num = int(num)
 		if num > max_num[0]: max_num[0] = num
-		return re.sub(r'\d+', str(num + max_tabstop), m.group(0), 1)
+			
+		if value is not None:
+			return '${%s:%s}' % (num + offset, value)
+		else:
+			return '$%s' % (num + offset,)
 	
 	for prop in props:
-		node.__setattr__(prop, re.sub(r'\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}', _replace, node.__getattribute__(prop)))
-		
-	globals()['max_tabstop'] += max_num[0] + 1
+		node.__setattr__(prop, process_text_before_paste(node.__getattribute__(prop), escape_fn, tabstop_fn))
 		
 	return max_num[0]
 
@@ -742,6 +743,82 @@ def get_counter_for_node(node):
 			node = node.parent
 			
 	return counter
+
+def process_text_before_paste(text, escape_fn, tabstop_fn):
+	"""
+	Process text that should be pasted into editor: clear escaped text and
+	handle tabstops
+	
+	@type text: str
+	@param escape_fn: Handle escaped character. Must return replaced value
+	@type escape_fn: function
+	@param tabstop_fn: Callback function that will be called on every
+	tabstob occurance, passing <b>index</b>, <code>number</code> and 
+	<b>value</b> (if exists) arguments. This function must return 
+	replacement value
+	@type tabstop_fn: function
+	@returns: str 
+	"""
+	i = 0
+	il = len(text)
+	str_builder = []
+		
+	def next_while(ix, fn):
+		while ix < il:
+			if not fn(char_at(text, ix)): break
+			ix += 1
+		
+		return ix
+	
+	while i < il:
+		ch = text[i]
+		if ch == '\\' and i + 1 < il:
+			# handle escaped character
+			str_builder.append(escape_fn(text[i + 1]))
+			i += 2
+			continue
+		elif ch == '$':
+			# looks like a tabstop
+			next_ch = char_at(text, i + 1)
+			_i = i
+			if next_ch.isdigit():
+				# $N placeholder
+				start_ix = i + 1
+				i = next_while(start_ix, lambda n: n.isdigit())
+				if start_ix < i:
+					str_builder.append(tabstop_fn(_i, text[start_ix:i]))
+					continue
+			elif next_ch == '{':
+				# ${N:value} or ${N} placeholder
+				brace_count = [1]
+				start_ix = i + 2
+				i = next_while(start_ix, lambda n: n.isdigit())
+				
+				if i > start_ix:
+					if char_at(text, i) == '}':
+						str_builder.append(tabstop_fn(_i, text[start_ix, i]))
+						i += 1 # handle closing brace
+						continue
+					elif char_at(text, i) == ':':
+						val_start = i + 2
+						
+						def fn(c):
+							if c == '{': brace_count[0] += 1
+							elif c == '}': brace_count[0] -= 1
+							return bool(brace_count[0])
+						
+						i = next_while(val_start, fn)
+						str_builder.append(tabstop_fn(_i, text[start_ix:val_start - 2], text[val_start - 1:i]))
+						i += 1 # handle closing brace
+						continue
+			i = _i
+		
+		# push current character to stack
+		str_builder.append(ch)
+		i += 1
+	
+	
+	return ''.join(str_builder)
 
 class Tag(object):
 	def __init__(self, node, syntax='html'):

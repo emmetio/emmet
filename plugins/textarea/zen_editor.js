@@ -208,39 +208,32 @@ var zen_editor = (function(){
 	 * if there's no selection)
 	 */
 	function handleTabStops(text) {
-		var re_tabstop = /(\$\d+|\$\{\d+:[^\}]+\})/g,
-			result = ['', -1, -1],
+		var selection_len = 0,
 			caret_pos = text.indexOf(caret_placeholder),
-			is_found = false;
+			placeholders = {};
 			
 		// find caret position
 		if (caret_pos != -1) {
 			text = text.split(caret_placeholder).join('');
+		} else {
+			caret_pos = text.length;
 		}
-			
-		result[0] = text.replace(re_tabstop, function(str, p1){
-			if (!is_found) {
-				is_found = true;
-				
-				result[1] = text.indexOf(p1);
-				if (caret_pos != -1 && result[1] > caret_pos) { // placeholder too far
-					result[1] = result[2] = caret_pos;
-					return '';
-				} else {
-					p1 = p1.replace(/^\$\d+|^\$\{\d+:|\}$/g, '');
-					result[2] = result[1] + p1.length;
-					return p1;
-				}
-				
-			} else {
-				return '';
-			}
-		});
 		
-		if (result[1] == -1)
-			result[1] = result[2] = caret_pos;
-			
-		return result;
+		text = zen_coding.processTextBeforePaste(text, 
+			function(ch){ return ch; }, 
+			function(i, num, val) {
+				if (val) placeholders[num] = val;
+				
+				if (i < caret_pos) {
+					caret_pos = i;
+					if (val)
+						selection_len = val.length;
+				}
+					
+				return placeholders[num] || '';
+			});
+		
+		return [text, caret_pos, caret_pos + selection_len];
 	}
 	
 	/**
