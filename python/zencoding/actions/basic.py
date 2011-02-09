@@ -198,7 +198,7 @@ def wrap_with_abbreviation(editor, abbr=None, syntax=None, profile_name=None):
 	line_bounds = get_line_bounds(content, start_offset)
 	padding = zencoding.utils.get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
-	new_content = content[start_offset:end_offset]
+	new_content = zencoding.utils.escape_text(content[start_offset:end_offset])
 	result = zencoding.wrap_with_abbreviation(abbr, zencoding.utils.unindent_text(new_content, padding), syntax, profile_name)
 	
 	if result:
