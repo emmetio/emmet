@@ -735,9 +735,9 @@ def get_counter_for_node(node):
 	"""
 	# find nearest repeating parent
 	counter = node.counter
-	if not node.is_repeating:
+	if not node.is_repeating and not node.repeat_by_lines:
 		while node:
-			if node.is_repeating:
+			if node.is_repeating or node.repeat_by_lines:
 				return node.counter
 			
 			node = node.parent
@@ -994,6 +994,7 @@ class ZenNode(object):
 		self.counter = 1
 		self.has_implicit_name = tag.has_implicit_name
 		self.is_repeating = tag.is_repeating
+		self.repeat_by_lines = tag.repeat_by_lines
 		
 		# create deep copy of attribute list so we can change
 		# their values in runtime without affecting other nodes
