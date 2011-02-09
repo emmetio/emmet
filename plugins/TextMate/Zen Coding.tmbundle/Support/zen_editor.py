@@ -208,13 +208,12 @@ class ZenEditor():
 			return output[1].decode('utf-8')
 		
 	def add_placeholders(self, text):
-		_ix = [zen.max_tabstop]
+		_ix = [1000]
 		
 		def get_ix(m):
 			_ix[0] += 1
 			return '${%s}' % _ix[0]
 		
-		text = re.sub(r'\$(?![\d\{])', '\\$', text)
 		return re.sub(zen.get_caret_placeholder(), get_ix, text)
 	
 	def get_selection(self):
