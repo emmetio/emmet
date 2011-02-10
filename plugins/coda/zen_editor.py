@@ -108,64 +108,22 @@ class ZenEditor():
 		new caret position 
 		"""
 		text = self.add_placeholders(text)
-		sel_start = None
-		sel_end = None
+		selection = [None, None]
+		placeholders = {}
 		
+		def tabstop_fn(i, num, value=None):
+			if selection[0] is None:
+				selection[0] = i
+				selection[1] = i + len(value) if value else i
+				
+			if value:
+				placeholders[num] = value
+				
+			return placeholders[num] if placeholders.has_key(num) else ''
+					
+		text = zencoding.utils.process_text_before_paste(text, lambda ch: ch, tabstop_fn)
 		
-		# remove all $N and ${N:value} entries
-		i = 0
-		il = len(text)
-		
-		cut_ranges = []
-		
-		while i < il:
-			ch = text[i]
-			if ch == '\\':
-				i += 1
-			elif ch == '$':
-				# looks like it's a placeholder
-				if char_at(text, i + 1).isdigit():
-					# cosume all digits
-					j = i + 1
-					while j < il:
-						if not char_at(text, j).isdigit():
-							cut_ranges.append([i, j, ''])
-							if sel_start is None:
-								sel_start = sel_end = i
-							i = j - 1
-							break
-						j += 1
-						
-				if char_at(text, i + 1) == '{':
-					# placeholder with value: ${0:val}
-					braces = 0
-					j = i + 1
-					value_start = None
-					while j < il:
-						ch = char_at(text, j)
-						if ch == ':' and value_start is None:
-							value_start = j
-						elif ch == '{':
-							braces += 1
-						elif ch == '}':
-							braces -= 1
-							if not braces:
-								cut_ranges.append([i, j + 1, text[(value_start or i) + 1:j]])
-								if sel_start is None:
-									sel_start = i
-									sel_end = i + len(cut_ranges[-1][2])
-								i = j - 1
-								break
-						j += 1
-			
-			i += 1
-			
-		# cut out text ranges
-		if cut_ranges:
-			cut_ranges.reverse()
-			text = u"".join([text[:r[0]] + r[2] + text[r[1]:] for r in cut_ranges])
-		
-		return sel_start, sel_end, text
+		return selection[0], selection[1], text
 	
 	def replace_content(self, value, start=None, end=None, no_indent=False):
 		"""

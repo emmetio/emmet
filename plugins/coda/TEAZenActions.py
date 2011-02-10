@@ -29,6 +29,6 @@ def act(controller, bundle, options):
 		tea.say(context, 'Error while performing Zen Coding action', sys.exc_info()[1].value)
 	except:
 		msg_writer = SimpleWriter()
-		msg = traceback.print_tb(file=msg_writer)
+		msg = traceback.print_exc(file=msg_writer)
 		tea.say(context, 'Runtime error', msg_writer.get())
 		
