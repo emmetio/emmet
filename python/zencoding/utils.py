@@ -567,10 +567,10 @@ def replace_counter(text, value):
 			# it's a variable, skip it
 			return False
 		
-		# replace sequense of $ symbols with padded number  
+		# replace sequence of $ symbols with padded number  
 		j = pos + 1
 		if j < len(text):
-			while tx[j] == '$' and char_at(tx, j + 1) != '{': j += 1
+			while char_at(tx, j) == '$' and char_at(tx, j + 1) != '{': j += 1
 		
 		return (tx[pos:j], value.zfill(j - pos))
 	
@@ -796,7 +796,7 @@ def process_text_before_paste(text, escape_fn, tabstop_fn):
 				
 				if i > start_ix:
 					if char_at(text, i) == '}':
-						str_builder.append(tabstop_fn(_i, text[start_ix, i]))
+						str_builder.append(tabstop_fn(_i, text[start_ix:i]))
 						i += 1 # handle closing brace
 						continue
 					elif char_at(text, i) == ':':
