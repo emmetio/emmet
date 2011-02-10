@@ -232,11 +232,11 @@ class ZenEditor():
 		return file_uri.decode('utf-8') if file_uri else None
 	
 	def add_placeholders(self, text):
-		_ix = [zencoding.utils.max_tabstop]
+		_ix = [1000]
 		
 		def get_ix(m):
 			_ix[0] += 1
-			return '$%s' % _ix[0]
+			return '${%s}' % _ix[0]
 		
-		text = re.sub(r'\$(?![\d\{])', '\\$', text)
+#		text = re.sub(r'\$(?![\d\{])', '\\$', text)
 		return re.sub(zencoding.utils.get_caret_placeholder(), get_ix, text)
