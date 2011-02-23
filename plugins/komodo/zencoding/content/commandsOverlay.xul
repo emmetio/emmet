@@ -39,11 +39,6 @@
         desc="Zen Coding: Previous Edit Point"
         oncommand="zen_controller.runAction('prev_edit_point');"/>
       <broadcaster
-        id="cmd_zencoding_prev_edit_point"
-        key="key_cmd_zencoding_prev_edit_point"
-        desc="Zen Coding: Previous Edit Point"
-        oncommand="zen_controller.runAction('prev_edit_point');"/>
-      <broadcaster
         id="cmd_zencoding_merge_lines"
         key="key_cmd_zencoding_merge_lines"
         desc="Zen Coding: Merge Lines"
@@ -63,6 +58,56 @@
         key="key_cmd_zencoding_toggle_comment"
         desc="Zen Coding: Toggle Comment"
         oncommand="zen_controller.runAction('toggle_comment');"/>
+      <broadcaster
+        id="cmd_zencoding_evaluate_math"
+        key="key_cmd_zencoding_evaluate_math"
+        desc="Zen Coding: Evaluate Math Expresison"
+        oncommand="zen_controller.runAction('evaluate_math_expression');"/>
+      <broadcaster
+        id="cmd_zencoding_increment_1"
+        key="key_cmd_zencoding_increment_1"
+        desc="Zen Coding: Increment Number By 1"
+        oncommand="zen_controller.runAction('increment_number_by_1');"/>
+      <broadcaster
+        id="cmd_zencoding_decrement_1"
+        key="key_cmd_zencoding_decrement_1"
+        desc="Zen Coding: Decrement Number By 1"
+        oncommand="zen_controller.runAction('decrement_number_by_1');"/>
+      <broadcaster
+        id="cmd_zencoding_increment_01"
+        key="key_cmd_zencoding_increment_01"
+        desc="Zen Coding: Increment Number By 0.1"
+        oncommand="zen_controller.runAction('increment_number_by_01');"/>
+      <broadcaster
+        id="cmd_zencoding_decrement_01"
+        key="key_cmd_zencoding_decrement_01"
+        desc="Zen Coding: Decrement Number By 0.1"
+        oncommand="zen_controller.runAction('decrement_number_by_01');"/>
+      <broadcaster
+        id="cmd_zencoding_increment_10"
+        key="key_cmd_zencoding_increment_10"
+        desc="Zen Coding: Increment Number By 10"
+        oncommand="zen_controller.runAction('increment_number_by_10');"/>
+      <broadcaster
+        id="cmd_zencoding_decrement_10"
+        key="key_cmd_zencoding_decrement_10"
+        desc="Zen Coding: Decrement Number By 10"
+        oncommand="zen_controller.runAction('decrement_number_by_10');"/>
+      <broadcaster
+        id="cmd_zencoding_select_next_item"
+        key="key_cmd_zencoding_select_next_item"
+        desc="Zen Coding: Select Next Item"
+        oncommand="zen_controller.runAction('select_next_item');"/>
+      <broadcaster
+        id="cmd_zencoding_select_previous_item"
+        key="key_cmd_zencoding_select_previous_item"
+        desc="Zen Coding: Select Previous Item"
+        oncommand="zen_controller.runAction('select_previous_item');"/>
+      <broadcaster
+        id="cmd_zencoding_reflect_css_value"
+        key="key_cmd_zencoding_reflect_css_value"
+        desc="Zen Coding: Reflect CSS Value"
+        oncommand="zen_controller.runAction('reflect_css_value');"/>
    </broadcasterset>
 
 </overlay>

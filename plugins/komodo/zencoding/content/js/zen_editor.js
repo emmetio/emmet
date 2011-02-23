@@ -26,6 +26,7 @@ var zen_editor = {
 	},
 
 	_charsToByte: function(chars) {
+		return  ko.stringutils.bytelength( this.getContent().substring(0, chars) );
 		var old_pos = this.scimoz.currentPos,
 			_c = chars,
 			bytes = null;
@@ -114,6 +115,7 @@ var zen_editor = {
 	 * zen_editor.createSelection(15);
 	 */
 	createSelection: function(start, end) {
+//		alert('create selection at ' + start + ', ' + end);
 		start = this._charsToByte(start);
 		end = this._charsToByte(end);
 		this.scimoz.setSel(start, end);
@@ -142,7 +144,8 @@ var zen_editor = {
 	 * @return {Number|null}
 	 */
 	getCaretPos: function(){
-		return this._bytesToChar(this.scimoz.currentPos);
+		var sel = this.getSelectionRange();
+		return Math.min(sel.start, sel.end);
 	},
 
 	/**
@@ -199,13 +202,16 @@ var zen_editor = {
 		}
 
 		var data = this.handleTabStops(value);
+		
 
 		this.context.setFocus();
 		this.scimoz.beginUndoAction();
 		this.scimoz.targetStart = this._charsToByte(start);
 		this.scimoz.targetEnd = this._charsToByte(end);
-		
 		this.scimoz.replaceTarget(0, '');
+		
+//		alert('replace content with ' + data[0]);
+		this.setCaretPos(start);
 		ko.abbrev.insertAbbrevSnippet(this.createSnippet(data[0], no_indent), this.context);
 		this.scimoz.endUndoAction();
 	},
@@ -279,7 +285,7 @@ var zen_editor = {
 	 * @since 0.65
 	 */
 	getSelection: function() {
-		var sel = getSelectionRange();
+		var sel = this.getSelectionRange();
 		if (sel) {
 			try {
 				return getContent().substring(sel.start, sel.end);

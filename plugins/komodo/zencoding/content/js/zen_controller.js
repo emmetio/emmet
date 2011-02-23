@@ -10,9 +10,12 @@
 		runAction: function(name) {
 			try {
 				zen_editor.setContext(ko.views.manager.currentView);
-				return zen_coding.runAction(name, zen_editor);
+				var args = [zen_editor];
+				if (arguments.length > 1)
+					args = args.concat(Array.prototype.slice.call(arguments, 1));
+				return zen_coding.runAction(name, args);
 			} catch(e) {
-				alert(e);
+				alert('Error while running Zen Coding action: ' + e.message);
 			}
 		}
 	}
