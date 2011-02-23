@@ -1,34 +1,35 @@
 /**
- * High-level editor interface that communicates with underlying editor (like 
+ * High-level editor interface that communicates with underlying editor (like
  * TinyMCE, CKEditor, etc.) or browser.
  * Basically, you should call <code>zen_editor.setContext(obj)</code> method to
  * set up undelying editor context before using any other method.
- * 
- * This interface is used by <i>zen_actions.js</i> for performing different 
- * actions like <b>Expand abbreviation</b>  
- * 
+ *
+ * This interface is used by <i>zen_actions.js</i> for performing different
+ * actions like <b>Expand abbreviation</b>
+ *
  * @example
  * var textarea = document.getElemenetsByTagName('textarea')[0];
  * zen_editor.setContext(textarea);
  * //now you are ready to use editor object
  * zen_editor.getSelectionRange();
- * 
+ *
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
 var zen_editor = {
 	context: null,
 	scimoz: null,
-	
+
 	_bytesToChar: function(bytes) {
-		return this.scimoz.getTextRange(0, bytes).length;
+		return ko.stringutils.charIndexFromPosition(this.getContent(), bytes);
+//		return this.scimoz.getTextRange(0, bytes).length;
 	},
-	
+
 	_charsToByte: function(chars) {
 		var old_pos = this.scimoz.currentPos,
 			_c = chars,
 			bytes = null;
-			
+
 		if (_c) {
 			// find correct pos
 			do {
@@ -37,29 +38,29 @@ var zen_editor = {
 					break;
 			} while(_c--);
 		}
-			
+
 		this.scimoz.gotoPos(_c);
 		while (chars > this._bytesToChar(this.scimoz.currentPos)) {
 			this.scimoz.charRight();
 		}
-		
+
 		bytes = this.scimoz.currentPos;
-		
+
 		// revert position
 		this.scimoz.gotoPos(old_pos);
-		
+
 		return bytes;
 	},
-	
+
 	/**
-	 * Setup underlying editor context. You should call this method 
+	 * Setup underlying editor context. You should call this method
 	 * <code>before</code> using any Zen Coding action.
 	 * @param {Object} context
 	 */
 	setContext: function(context) {
 		this.context = context;
 		this.scimoz = context.scintilla.scimoz;
-		
+
 		var indentation = zen_coding.getVariable('indentation');
 		if (this.scimoz.useTabs) {
 			indentation = '\t';
@@ -67,45 +68,48 @@ var zen_editor = {
 			indentation = zen_coding.repeatString(' ', this.scimoz.indent);
 		}
 		zen_coding.setVariable('indentation', indentation);
-		
+
 		switch (this.scimoz.eOLMode) {
 			case 0: // windows
 				zen_coding.setNewline('\r\n');
 				break;
-			case 1: // mac os classic 
+			case 1: // mac os classic
 				zen_coding.setNewline('\r');
 				break;
-			default: // unix 
+			default: // unix
 				zen_coding.setNewline('\n');
 		}
 	},
-	
+
 	/**
 	 * Returns character indexes of selected text: object with <code>start</code>
-	 * and <code>end</code> properties. If there's no selection, should return 
+	 * and <code>end</code> properties. If there's no selection, should return
 	 * object with <code>start</code> and <code>end</code> properties referring
 	 * to current caret position
 	 * @return {Object}
 	 * @example
 	 * var selection = zen_editor.getSelectionRange();
-	 * alert(selection.start + ', ' + selection.end); 
+	 * alert(selection.start + ', ' + selection.end);
 	 */
 	getSelectionRange: function() {
+
+//		alert(this.scimoz.selectionStart + ', ' + ko.stringutils.charIndexFromPosition(this.getContent(), this.scimoz.selectionStart) + ', ' + this._bytesToChar(this.scimoz.selectionStart));
+
 		return {
 			start: this._bytesToChar(this.scimoz.selectionStart),
 			end: this._bytesToChar(this.scimoz.selectionEnd)
 		};
 	},
-	
+
 	/**
 	 * Creates selection from <code>start</code> to <code>end</code> character
-	 * indexes. If <code>end</code> is ommited, this method should place caret 
+	 * indexes. If <code>end</code> is ommited, this method should place caret
 	 * and <code>start</code> index
 	 * @param {Number} start
 	 * @param {Number} [end]
 	 * @example
 	 * zen_editor.createSelection(10, 40);
-	 * 
+	 *
 	 * //move caret to 15th character
 	 * zen_editor.createSelection(15);
 	 */
@@ -114,7 +118,7 @@ var zen_editor = {
 		end = this._charsToByte(end);
 		this.scimoz.setSel(start, end);
 	},
-	
+
 	/**
 	 * Returns current line's start and end indexes as object with <code>start</code>
 	 * and <code>end</code> properties
@@ -126,13 +130,13 @@ var zen_editor = {
 	getCurrentLineRange: function() {
 		var line = this.scimoz.lineFromPosition(this.getCaretPos());
 		var result = {
-			start: this._bytesToChar(this.scimoz.positionFromLine(line)), 
+			start: this._bytesToChar(this.scimoz.positionFromLine(line)),
 			end: this._bytesToChar(this.scimoz.getLineEndPosition(line))
 		};
-		
+
 		return result;
 	},
-	
+
 	/**
 	 * Returns current caret position
 	 * @return {Number|null}
@@ -140,7 +144,7 @@ var zen_editor = {
 	getCaretPos: function(){
 		return this._bytesToChar(this.scimoz.currentPos);
 	},
-	
+
 	/**
 	 * Set new caret position
 	 * @param {Number} pos Caret position
@@ -150,7 +154,7 @@ var zen_editor = {
 		this.scimoz.currentPos = pos;
 		this.scimoz.anchor = pos;
 	},
-	
+
 	/**
 	 * Returns content of current line
 	 * @return {String}
@@ -159,22 +163,22 @@ var zen_editor = {
 		var range = this.getCurrentLineRange();
 		return this.getContent().substring(range.start, range.end);
 	},
-	
+
 	/**
-	 * Replace editor's content or it's part (from <code>start</code> to 
-	 * <code>end</code> index). If <code>value</code> contains 
-	 * <code>caret_placeholder</code>, the editor will put caret into 
+	 * Replace editor's content or it's part (from <code>start</code> to
+	 * <code>end</code> index). If <code>value</code> contains
+	 * <code>caret_placeholder</code>, the editor will put caret into
 	 * this position. If you skip <code>start</code> and <code>end</code>
-	 * arguments, the whole target's content will be replaced with 
-	 * <code>value</code>. 
-	 * 
+	 * arguments, the whole target's content will be replaced with
+	 * <code>value</code>.
+	 *
 	 * If you pass <code>start</code> argument only,
-	 * the <code>value</code> will be placed at <code>start</code> string 
-	 * index of current content. 
-	 * 
+	 * the <code>value</code> will be placed at <code>start</code> string
+	 * index of current content.
+	 *
 	 * If you pass <code>start</code> and <code>end</code> arguments,
-	 * the corresponding substring of current target's content will be 
-	 * replaced with <code>value</code>. 
+	 * the corresponding substring of current target's content will be
+	 * replaced with <code>value</code>.
 	 * @param {String} value Content you want to paste
 	 * @param {Number} [start] Start index of editor's content
 	 * @param {Number} [end] End index of editor's content
@@ -186,38 +190,39 @@ var zen_editor = {
 			caret_placeholder = zen_coding.getCaretPlaceholder(),
 			has_start = typeof(start) !== 'undefined',
 			has_end = typeof(end) !== 'undefined';
-			
-		// indent new value
-		if (!no_indent) {
-			var line_padding = (this.getCurrentLine().match(/^(\s+)/) || [''])[0];
-			value = zen_coding.padString(value, line_padding);
-		}
-		
-		// find new caret position
-		var new_pos = value.indexOf(caret_placeholder);
-		if (new_pos != -1) {
-			caret_pos = (start || 0) + new_pos;
-			value = value.split(caret_placeholder).join('');
-		} else {
-			caret_pos = value.length + (start || 0);
-		}
-		
+
 		if (!has_start && !has_end) {
 			start = 0;
 			end = content.length;
 		} else if (!has_end) {
 			end = start;
 		}
-		
+
+		var data = this.handleTabStops(value);
+
 		this.context.setFocus();
 		this.scimoz.beginUndoAction();
 		this.scimoz.targetStart = this._charsToByte(start);
 		this.scimoz.targetEnd = this._charsToByte(end);
-		this.scimoz.replaceTarget(value.length, value);
-		this.setCaretPos(caret_pos);
+		
+		this.scimoz.replaceTarget(0, '');
+		ko.abbrev.insertAbbrevSnippet(this.createSnippet(data[0], no_indent), this.context);
 		this.scimoz.endUndoAction();
 	},
-	
+
+	createSnippet: function(text, no_indent) {
+		return {
+			type: 'snippet',
+			name: 'zen-snippet',
+			parent: { name: 'zen-parent' },
+			set_selection: false,
+			indent_relative: !no_indent,
+			value: text,
+			hasAttribute: function(name) { return (name in this); },
+			getStringAttribute: function(name) { return ('' + this[name]); }
+		}
+	},
+
 	/**
 	 * Returns editor's content
 	 * @return {String}
@@ -225,26 +230,18 @@ var zen_editor = {
 	getContent: function(){
 		return this.scimoz.text;
 	},
-	
+
 	/**
 	 * Returns current editor's syntax mode
 	 * @return {String}
 	 */
 	getSyntax: function(){
-		var know_syntaxes = {
-			'html': 1,
-			'css': 1,
-			'xml': 1,
-			'xml': 1,
-			'haml': 1
-		};
 		var syntax = this.context.document.language.toLowerCase(),
 			caret_pos = this.getCaretPos();
-		
-		if (!(syntax in know_syntaxes)) {
+
+		if (!zen_coding.resource_manager.hasSyntax(syntax))
 			syntax = 'html';
-		}
-		
+
 		if (syntax == 'html') {
 			// get the context tag
 			var pair = zen_coding.html_matcher.getTags(this.getContent(), caret_pos);
@@ -254,10 +251,10 @@ var zen_editor = {
 					syntax = 'css';
 			}
 		}
-		
+
 		return syntax;
 	},
-	
+
 	/**
 	 * Returns current output profile name (@see zen_coding#setupProfile)
 	 * @return {String}
@@ -265,7 +262,7 @@ var zen_editor = {
 	getProfileName: function() {
 		return 'xhtml';
 	},
-	
+
 	/**
 	 * Ask user to enter something
 	 * @param {String} title Dialog title
@@ -275,7 +272,7 @@ var zen_editor = {
 	prompt: function(title) {
 		return ko.dialogs.prompt(title);
 	},
-	
+
 	/**
 	 * Returns current selection
 	 * @return {String}
@@ -288,34 +285,74 @@ var zen_editor = {
 				return getContent().substring(sel.start, sel.end);
 			} catch(e) {}
 		}
-		
+
 		return '';
 	},
-	
+
 	/**
 	 * Returns current editor's file path
 	 * @return {String}
-	 * @since 0.65 
+	 * @since 0.65
 	 */
 	getFilePath: function() {
 		return ko.views.manager.currentView.document.file.URI;
 	},
-	
+
+	/**
+	 * Handle tab-stops (like $1 or ${1:label}) inside text: find first tab-stop,
+	 * marks it as selection, remove the rest. If tab-stop wasn't found, search
+	 * for caret placeholder and use it as selection
+	 * @param {String} text
+	 * @return {Array} Array with new text and selection indexes (['...', -1,-1]
+	 * if there's no selection)
+	 */
+	handleTabStops: function(text) {
+		var selection_len = 0,
+			caret_pos = text.indexOf(zen_coding.getCaretPlaceholder()),
+			placeholders = {};
+
+		// find caret position
+		if (caret_pos != -1) {
+			text = text.split(zen_coding.getCaretPlaceholder()).join('[[%tabstop:]]');
+		} else {
+			caret_pos = text.length;
+		}
+
+		text = zen_coding.processTextBeforePaste(text,
+			function(ch){ return ch; },
+			function(i, num, val) {
+				if (val) placeholders[num] = val;
+
+				if (i < caret_pos) {
+					caret_pos = i;
+					if (val)
+						selection_len = val.length;
+				}
+
+				if (placeholders[num])
+					return '[[%tabstop' + num + ':' + placeholders[num] + ']]';
+				else
+					return '[[%tabstop' + num + ':]]';
+			});
+
+		return [text, caret_pos, caret_pos + selection_len];
+	},
+
 	/**
 	 * Returns core Zen Codind object
 	 */
 	getCore: function() {
 		return zen_coding;
 	},
-	
+
 	/**
-	 * Returns Zen Coding resource manager. You can add new snippets and 
+	 * Returns Zen Coding resource manager. You can add new snippets and
 	 * abbreviations with this manager, as well as modify ones.<br><br>
-	 * 
-	 * Zen Coding stores settings in two separate vocabularies: 'system' 
+	 *
+	 * Zen Coding stores settings in two separate vocabularies: 'system'
 	 * and 'user'. The ultimate solution to add new abbreviations and
 	 * snippets is to setup a 'user' vocabulary, like this:
-	 * 
+	 *
 	 * @example
 	 * var my_settings = {
 	 * 	html: {
@@ -325,10 +362,10 @@ var zen_editor = {
 	 * 	}
 	 * };
 	 * zen_editor.getResourceManager().setVocabulary(my_settings, 'user')
-	 * 
+	 *
 	 * @see zen_resources.js
 	 */
 	getResourceManager: function() {
-		return zen_resources;
+		return zen_coding.resource_manager;
 	}
 };

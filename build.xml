@@ -29,6 +29,10 @@
 		<file name="parsers/traverse-actions.js"/>
 	</filelist>
 	
+	<fileset dir="${zencoding_javascript_filters}" id="javascript.filters">
+		<include name="*.js"/>
+	</fileset>
+	
 	<target name="init">
 		<mkdir dir="${zencoding_build_dir}"/>
 		<mkdir dir="${zencoding_plugins}"/>
@@ -44,9 +48,7 @@
         <mkdir dir="${zencoding_plugins}/java"/>
     	<concat destfile="${zencoding_plugins}/java/zencoding.js">
     		<filelist refid="javascript.files" />
-    		<fileset dir="${zencoding_javascript_filters}">
-    			<include name="*.js"/>
-    		</fileset>
+    		<fileset refid="javascript.filters" />
     		<fileset dir="${zencoding_plugins_source}/java">
     			<include name="*.js"/>
     		</fileset>
