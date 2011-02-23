@@ -257,7 +257,7 @@
 				var selector = '';
 				while (offset >= 0) {
 					ch = content.charAt(offset);
-					if (ch == '{' || ch == '}') break;
+					if (ch == '{' || ch == '}' || ch == '>') break;
 					offset--;
 				}
 				
