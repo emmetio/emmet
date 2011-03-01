@@ -25,9 +25,7 @@
 				<file name="__intro.js"/>
 			</filelist>
 			<filelist refid="javascript.files"/>
-			<fileset dir="${zencoding_javascript_filters}">
-				<include name="*.js"/>
-			</fileset>
+			<fileset refid="javascript.filters"/>
 			<filelist dir="${pspad.source}">
 				<file name="__outro.js"/>
 				<file name="zen_editor.js"/>

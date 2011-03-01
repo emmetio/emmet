@@ -14,6 +14,20 @@ function Init() {
 	addMenuItem('Remove Tag', menu_name, 'zc_removeTag', 'Ctrl+\'');
 	addMenuItem('Split/Join Tag', menu_name, 'zc_splitJoinTag', 'Ctrl+Alt+\'');
 	addMenuItem('Toggle Comment', menu_name, 'zc_toggleComment', 'Ctrl+Alt+;');
+	
+	// v0.7
+	addMenuItem('Evaluate Math Expression', menu_name, 'zc_evaluateMath', 'Ctrl+y');
+	addMenuItem('Increment number by 1', menu_name, 'zc_incrementBy1', 'Ctrl+up');
+	addMenuItem('Decrement number by 1', menu_name, 'zc_decrementBy1', 'Ctrl+down');
+	addMenuItem('Increment number by 0.1', menu_name, 'zc_incrementBy01', 'Alt+up');
+	addMenuItem('Decrement number by 0.1', menu_name, 'zc_decrementBy01', 'Alt+down');
+	addMenuItem('Increment number by 10', menu_name, 'zc_incrementBy10', 'Ctrl+Alt+up');
+	addMenuItem('Decrement number by 10', menu_name, 'zc_decrementBy10', 'Ctrl+Alt+down');
+	
+	addMenuItem('Select Next Item', menu_name, 'zc_selectNextItem', 'Ctrl+.');
+	addMenuItem('Select Previous Item', menu_name, 'zc_selectPrevItem', 'Ctrl+Shift+.');
+	// CSS parser doesn't work on WSH yet
+//	addMenuItem('Reflect CSS Value', menu_name, 'zc_reflectCSS', 'Ctrl+Shift+B');
 }
 
 function zc_expandAbbreviation() {
@@ -54,6 +68,46 @@ function zc_splitJoinTag() {
 
 function zc_toggleComment() {
 	return zc_manager('toggle_comment');
+}
+
+function zc_evaluateMath() {
+	return zc_manager('evaluate_math_expression');
+}
+
+function zc_incrementBy1() {
+	return zc_manager('increment_number_by_1');
+}
+
+function zc_decrementBy1() {
+	return zc_manager('decrement_number_by_1');
+}
+
+function zc_incrementBy01() {
+	return zc_manager('increment_number_by_01');
+}
+
+function zc_decrementBy01() {
+	return zc_manager('decrement_number_by_01');
+}
+
+function zc_incrementBy10() {
+	return zc_manager('increment_number_by_10');
+}
+
+function zc_decrementBy10() {
+	return zc_manager('decrement_number_by_10');
+}
+
+function zc_selectNextItem() {
+	return zc_manager('select_next_item');
+}
+
+function zc_selectPrevItem() {
+	return zc_manager('select_previous_item');
+}
+
+function zc_reflectCSS() {
+	return zc_manager('reflect_css_value');
 }
 
 function zc_manager(action_name) {
