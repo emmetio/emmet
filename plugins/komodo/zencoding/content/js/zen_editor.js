@@ -266,7 +266,7 @@ var zen_editor = {
 	 * @return {String}
 	 */
 	getProfileName: function() {
-		return 'xhtml';
+		return zen_coding.getVariable('profile') || 'xhtml';
 	},
 
 	/**
