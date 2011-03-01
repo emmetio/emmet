@@ -1,3 +1,5 @@
+UPDATE: please use this plugin http://sourceforge.net/projects/npppythonscript/files/
+
 ==Installation==
 
 1. Copy contents of this archive into Notepad++ 'plugins' folder (basically, it's C:\Program Files\Notepad++\plugins\)
@@ -25,3 +27,12 @@ in 'includes' folder of this plugin.
 
 More info (in Russian):
 http://sieukrem.habrahabr.ru/blog/86626/
+
+==Known issues in v0.7==
+
+I don't know how to write up and down key codes in order to make increment/decrement 
+number action useful so I commented them out. Also, looks like CSS parsing doesn't
+work with WSH so I have to investigate this problem.
+
+Anyway, I think it will be the last release of Zen Coding for NP++ as JS plugin,
+users should switch to Python version: http://sourceforge.net/projects/npppythonscript/files/ 

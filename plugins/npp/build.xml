@@ -27,8 +27,8 @@
 	<target name="build_npp_plugin" depends="npp_init">
 		<concat destfile="${npp.build_dir}/NppScripting/includes/Zen Coding.js">
 			<filelist dir="${npp.source}">				<file name="__intro.js"/>			</filelist>
-			<filelist dir="${zencoding_javascript}">				<file name="zen_settings.js"/>				<file name="zen_coding.js"/>				<file name="zen_actions.js"/>				<file name="html_matcher.js"/>			</filelist>
-			<fileset dir="${zencoding_javascript_filters}">				<include name="*.js"/>			</fileset>
+			<filelist refid="javascript.files"/>
+			<fileset refid="javascript.filters"/>
 			<filelist dir="${npp.source}">
 				<file name="__outro.js"/>
 				<file name="zen_editor.js"/>

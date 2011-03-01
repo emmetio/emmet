@@ -99,3 +99,20 @@ addMenuItem('Toggle Comment', 'toggle_comment', 'Alt+/');
 addMenuItem('Split/Join Tag', 'split_join_tag', 'Ctrl+\'');
 addMenuItem('Remove Tag', 'remove_tag', 'Ctrl+Shift+\'');
 
+// v0.7
+addMenuItem('Evaluate Math Expression', 'evaluate_math_expression', 'Ctrl+Y');
+
+// don't know how up & down key codes should be written so I commented out this section
+//addMenuItem('Increment number by 1', 'increment_number_by_1', 'Ctrl+Up');
+//addMenuItem('Decrement number by 1', 'decrement_number_by_1', 'Ctrl+down');
+//addMenuItem('Increment number by 0.1', 'increment_number_by_01', 'Alt+UP');
+//addMenuItem('Decrement number by 0.1', 'decrement_number_by_01', 'Alt+DOWN');
+//addMenuItem('Increment number by 10', 'increment_number_by_10', 'Ctrl+Alt+UP');
+//addMenuItem('Decrement number by 10', 'decrement_number_by_10', 'Ctrl+Alt+DOWN');
+
+addMenuItem('Select Next Item', 'select_next_item', 'Ctrl+.');
+addMenuItem('Select Previous Item', 'select_previous_item', 'Ctrl+,');
+
+// problems in CSS parser in WSH, nede to investigate
+//addMenuItem('Reflect CSS Value', 'reflect_css_value', 'Ctrl+Shift+B');
+

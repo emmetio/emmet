@@ -15,18 +15,12 @@
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * 
+ * @include "../../javascript/zen_coding.js"
  */
 
 var zen_editor = (function(){
 	var context = null;
-	
-	var know_syntaxes = {
-		'html': 1,
-		'css': 1,
-		'xml': 1,
-		'xml': 1,
-		'haml': 1
-	};
 	
 	/**
 	 * Find start and end index of text line for <code>from</code> index
@@ -146,6 +140,44 @@ var zen_editor = (function(){
 		return (str.match(/^(\s+)/) || [''])[0];
 	}
 	
+	/**
+	 * Handle tab-stops (like $1 or ${1:label}) inside text: find first tab-stop,
+	 * marks it as selection, remove the rest. If tab-stop wasn't found, search
+	 * for caret placeholder and use it as selection
+	 * @param {String} text
+	 * @return {Array} Array with new text and selection indexes (['...', -1,-1] 
+	 * if there's no selection)
+	 */
+	function handleTabStops(text) {
+		var selection_len = 0,
+			caret_placeholder = zen_coding.getCaretPlaceholder(),
+			caret_pos = text.indexOf(caret_placeholder),
+			placeholders = {};
+			
+		// find caret position
+		if (caret_pos != -1) {
+			text = text.split(caret_placeholder).join('');
+		} else {
+			caret_pos = text.length;
+		}
+		
+		text = zen_coding.processTextBeforePaste(text, 
+			function(ch){ return ch; }, 
+			function(i, num, val) {
+				if (val) placeholders[num] = val;
+				
+				if (i < caret_pos) {
+					caret_pos = i;
+					if (val)
+						selection_len = val.length;
+				}
+					
+				return placeholders[num] || '';
+			});
+		
+		return [text, caret_pos, caret_pos + selection_len];
+	}
+	
 	return {
 		/**
 		 * Setup underlying editor context. You should call this method 
@@ -246,42 +278,41 @@ var zen_editor = (function(){
 		 * @param {Number} [start] Start index of editor's content
 		 * @param {Number} [end] End index of editor's content
 		 */
-		replaceContent: function(value, start, end) {
-			var caret_pos = this.getCaretPos(),
+		replaceContent: function(value, start, end, no_indent) {
+			var content = this.getContent(),
+				caret_pos = this.getCaretPos(),
 				caret_placeholder = zen_coding.getCaretPlaceholder(),
 				has_start = typeof(start) !== 'undefined',
 				has_end = typeof(end) !== 'undefined';
 				
 			// indent new value
-			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			if (!no_indent)
+				value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
-			var new_pos = value.indexOf(caret_placeholder);
-			if (new_pos != -1) {
-				caret_pos = (start || 0) + new_pos;
-				value = value.split(caret_placeholder).join('');
-				
-				// adjust caret position by line count
-//				var lines = zen_coding.splitByLines(value.substring(0, new_pos));
-//				caret_pos += lines.length - 1;
+			var tabstop_res = handleTabStops(value);
+			value = tabstop_res[0];
+			
+			start = start || 0;
+			if (tabstop_res[1] !== -1) {
+				tabstop_res[1] += start;
+				tabstop_res[2] += start;
 			} else {
-				caret_pos = value.length + (start || 0);
-				
-				// adjust caret position by line count
-//				var lines = zen_coding.splitByLines(value);
-//				caret_pos += lines.length - 1;
+				tabstop_res[1] = tabstop_res[2] = value.length + start;
 			}
 			
-			if (!has_start && !has_end) {
-				start = 0;
-				end = content.length;
-			} else if (!has_end) {
-				end = start;
-			}
-			
-			this.createSelection(start, end);
-			context.selection = value;
-			this.setCaretPos(caret_pos);
+			try {
+				if (!has_start && !has_end) {
+	                start = 0;
+	                end = content.length;
+	            } else if (!has_end) {
+	                end = start;
+	            }
+	             
+	            this.createSelection(start, end);
+	            context.selection = value;
+				this.createSelection(tabstop_res[1], tabstop_res[2]);
+			} catch(e){}
 		},
 		
 		/**
@@ -300,9 +331,8 @@ var zen_editor = (function(){
 			var syntax = (Editor.langs[context.lang] || '').toLowerCase(),
 				caret_pos = this.getCaretPos();
 				
-			if (!(syntax in know_syntaxes)) {
+			if (!zen_coding.getResourceManager().hasSyntax(syntax))
 				syntax = 'html';
-			}
 			
 			if (syntax == 'html') {
 				// get the context tag
@@ -322,7 +352,23 @@ var zen_editor = (function(){
 		 * @return {String}
 		 */
 		getProfileName: function() {
-			return 'xhtml';
+			return zen_coding.getVariable('profile') || 'xhtml';
+		},
+		
+		/**
+		 * Returns current selection
+		 * @return {String}
+		 * @since 0.65
+		 */
+		getSelection: function() {
+			var sel = this.getSelectionRange();
+			if (sel) {
+				try {
+					return this.getContent().substring(sel.start, sel.end);
+				} catch(e) {}
+			}
+			
+			return '';
 		}
 	};
 })();
