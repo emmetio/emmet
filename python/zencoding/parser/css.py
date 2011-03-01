@@ -64,7 +64,7 @@ class Walker(object):
 		self.ch = self.line[self.chnum]
 		return self.ch
 
-__walker = Walker()
+_walker = Walker()
 __tokens = []
 
 # utility helpers
@@ -85,13 +85,13 @@ def is_op(ch, matchattr=None):
 
 def get_conf():
 	return {
-		'char': __walker.chnum,
-		'line': __walker.linenum
+		'char': _walker.chnum,
+		'line': _walker.linenum
 	}
 
 def tokener(value, token_type=None, c={}):
 	"creates token objects and pushes them to a list"
-	w = __walker
+	w = _walker
 	__tokens.append({
 		'charstart': c.get('char', w.chnum),
 		'charend':   c.get('charend', w.chnum),
@@ -107,7 +107,7 @@ class CSSEXError(Exception):
 	def __init__(self, value, conf=None):
 		self.value = value
 		self.conf = conf or {}
-		self.w = __walker
+		self.w = _walker
 
 	def __str__(self):
 		c = 'char' in self.conf and self.conf['char'] or self.w.chnum
@@ -118,19 +118,19 @@ class CSSEXError(Exception):
 # token handlers follow for:
 # white space, comment, string, identifier, number, operator
 def white():
-	c = __walker.ch
+	c = _walker.ch
 	token = ''
 	conf = get_conf()
 
 	while c == " " or c == "\t":
 		token += c
-		c = __walker.next_char()
+		c = _walker.next_char()
 
 
 	tokener(token, 'white', conf)
 
 def comment():
-	w = __walker
+	w = _walker
 	c = w.ch
 	token = c
 	conf = get_conf()
@@ -153,7 +153,7 @@ def comment():
 	tokener(token, 'comment', conf)
 
 def str():
-	w = __walker
+	w = _walker
 	c = w.ch
 	q = c
 	token = c
@@ -184,7 +184,7 @@ def str():
 	tokener(token, 'string', conf)
 
 def identifier(pre=None):
-	w = __walker
+	w = _walker
 	c = w.ch
 	conf = get_conf()
 	token = pre and pre + c or c
@@ -198,7 +198,7 @@ def identifier(pre=None):
 	tokener(token, 'identifier', conf)
 
 def num():
-	w = __walker
+	w = _walker
 	c = w.ch
 	conf = get_conf()
 	token = c
@@ -228,7 +228,7 @@ def num():
 	tokener(token, 'number', conf)
 
 def op():
-	w = __walker
+	w = _walker
 	c = w.ch
 	conf = get_conf()
 	token = c
@@ -246,7 +246,7 @@ def op():
 
 # call the appropriate handler based on the first character in a token suspect
 def tokenize():
-	ch = __walker.ch
+	ch = _walker.ch
 
 	if ch == " " or ch == "\t":
 		return white()
@@ -268,7 +268,7 @@ def tokenize():
 
 	if ch == "\n":
 		tokener("line")
-		__walker.next_char()
+		_walker.next_char()
 		return
 
 	raise CSSEXError("Unrecognized character")
@@ -278,9 +278,9 @@ def parse(source):
 	Parse CSS source
 	@type source: str
 	"""
-	__walker.init(source)
+	_walker.init(source)
 	globals()['__tokens'] = []
-	while __walker.ch is not False:
+	while _walker.ch is not False:
 		tokenize()
 
 	return __tokens

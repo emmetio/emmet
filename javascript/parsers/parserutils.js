@@ -9,6 +9,7 @@
  * 
  * @include "sex.js"
  */var ParserUtils = (function() {
+	var css_stop_chars = '{}/\\<>';
 	
 	function isStopChar(token) {
 		var stop_chars = '{};:';
@@ -257,7 +258,7 @@
 				var selector = '';
 				while (offset >= 0) {
 					ch = content.charAt(offset);
-					if (ch == '{' || ch == '}' || ch == '>') break;
+					if (css_stop_chars.indexOf(ch) != -1) break;
 					offset--;
 				}
 				

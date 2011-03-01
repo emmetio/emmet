@@ -253,7 +253,7 @@ def extract_css_rule(content, pos, is_backward=False):
 		selector = ''
 		while offset >= 0:
 			ch = content[offset]
-			if ch == '{' or ch == '}': break
+			if ch in '{}/\\<>': break
 			offset -= 1
 		
 		# also trim whitespace
