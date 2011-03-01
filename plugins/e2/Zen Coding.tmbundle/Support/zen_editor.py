@@ -2,19 +2,17 @@
 # -*- coding: utf-8 -*-
 
 '''
-High-level editor interface that communicates with TextMate editor.
-In order to work correctly, you should set set the commands 
-input to “Entire Document”
+High-level editor interface that communicates with e2 editor.
  
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
 import os
 import sys
-import zencoding.zen_core as zen
+import zencoding
 import subprocess
 import re
-import hessian
+import hessian_ipc
 
 class ZenEditor():
 	def __init__(self, context=None):
@@ -26,12 +24,12 @@ class ZenEditor():
 		<code>before</code> using any Zen Coding action.
 		@param context: context object
 		"""
-		self.context = hessian.Hessian()
+		self.context = hessian_ipc.Hessian()
 		self.editor = self.context.GetActiveEditor()
 		
 		if self.context.IsSoftTabs():
-			indent = zen.repeat_string(' ', self.context.GetTabWidth());
-			zen.set_variable('indentation', indent);
+			indent = ' ' * self.context.GetTabWidth()
+			zencoding.utils.set_variable('indentation', indent)
 		
 	def get_selection_range(self):
 		"""
@@ -89,7 +87,7 @@ class ZenEditor():
 		line_id = self.editor.GetCurrentLine()
 		return self.editor.GetLineText(line_id)
 	
-	def replace_content(self, value, start=None, end=None):
+	def replace_content(self, value, start=None, end=None, no_indent=False):
 		"""
 		Replace editor's content or it's part (from <code>start</code> to 
 		<code>end</code> index). If <code>value</code> contains 
@@ -137,13 +135,14 @@ class ZenEditor():
 		@return: str
 		"""
 		scope = self.editor.GetScope()
+		cur_scope = scope[1] if len(scope) > 1 else scope[0] 
 		default_type = 'html'
 		doc_type = None
 		try:
-			if 'xsl' in scope[0]:
+			if 'xsl' in cur_scope:
 				doc_type = 'xsl'
 			else:
-				doc_type = re.findall(r'\bhtml|css|xml|haml\b', scope[0])[-1]
+				doc_type = re.findall(r'\bcss|xml|haml\b', cur_scope)[-1]
 		except:
 			doc_type = default_type
 		
@@ -153,10 +152,10 @@ class ZenEditor():
 	
 	def get_profile_name(self):
 		"""
-		Returns current output profile name (@see zen_coding#setup_profile)
+		Returns current output profile name (@see zencoding.utils.setup_profile())
 		@return {String}
 		"""
-		return 'xhtml'
+		return zencoding.utils.get_variable('profile') or 'xhtml'
 	
 	def prompt(self, title):
 		"""
@@ -178,16 +177,11 @@ class ZenEditor():
 			return '$%s' % _ix[0]
 		
 		text = re.sub(r'\$', '\\$', text)
-		return re.sub(zen.get_caret_placeholder(), get_ix, text)
-	
+		return re.sub(zencoding.utils.get_caret_placeholder(), get_ix, text)
+
 	def get_selection(self):
-		"""
-		Returns current selection
-		@return: str
-		@since: 0.65
-		"""
-		start, end = self.get_selection_range()
-		return self.get_content()[start:end] if start != end else ''
+		sel_start, sel_end = self.get_selection_range()
+		return self.get_content()[sel_start:sel_end]
 	
 	def get_file_path(self):
 		"""
@@ -195,4 +189,4 @@ class ZenEditor():
 		@return: str
 		@since: 0.65 
 		"""
-		return os.getenv('TM_FILEPATH', None)
+		return os.getenv('TM_FILEPATH', '').decode('utf-8')
