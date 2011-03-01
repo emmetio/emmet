@@ -30,7 +30,7 @@ except zencoding.utils.ZenError:
         <key>name</key>
         <string>@TITLE@</string>
         <key>output</key>
-        <string>showAsTooltip</string>
+        <string>discard</string>
         <key>scope</key>
         <string></string>
         <key>uuid</key>
