@@ -112,7 +112,5 @@ addMenuItem('Evaluate Math Expression', 'evaluate_math_expression', 'Ctrl+Y');
 
 addMenuItem('Select Next Item', 'select_next_item', 'Ctrl+.');
 addMenuItem('Select Previous Item', 'select_previous_item', 'Ctrl+,');
-
-// problems in CSS parser in WSH, nede to investigate
-//addMenuItem('Reflect CSS Value', 'reflect_css_value', 'Ctrl+Shift+B');
+addMenuItem('Reflect CSS Value', 'reflect_css_value', 'Ctrl+Shift+B');
 

@@ -26,8 +26,7 @@ function Init() {
 	
 	addMenuItem('Select Next Item', menu_name, 'zc_selectNextItem', 'Ctrl+.');
 	addMenuItem('Select Previous Item', menu_name, 'zc_selectPrevItem', 'Ctrl+Shift+.');
-	// CSS parser doesn't work on WSH yet
-//	addMenuItem('Reflect CSS Value', menu_name, 'zc_reflectCSS', 'Ctrl+Shift+B');
+	addMenuItem('Reflect CSS Value', menu_name, 'zc_reflectCSS', 'Ctrl+Shift+B');
 }
 
 function zc_expandAbbreviation() {
