@@ -135,6 +135,7 @@ def optimize_css(tokens, offset, content):
 	result = ExtList()
 	_o = 0
 	i = 0
+	delta = 0
 	in_rules = False
 	in_value = False
 	acc_tokens = {
@@ -147,33 +148,33 @@ def optimize_css(tokens, offset, content):
 	def add_token(token, type):
 		if type and type in acc_tokens:
 			if not acc_tokens[type]:
-				acc_tokens[type] = make_token(type, token['value'], offset + token['charstart'], i)
+				acc_tokens[type] = make_token(type, token['value'], offset + delta + token['charstart'], i)
 				result.append(acc_tokens[type])
 			else:
 				acc_tokens[type]['content'] += token['value']
 				acc_tokens[type]['end'] += len(token['value'])
 				acc_tokens[type]['ref_end_ix'] = i
 		else:
-			result.append(make_token(token['type'], token['value'], offset + token['charstart'], i))
+			result.append(make_token(token['type'], token['value'], offset + delta + token['charstart'], i))
 		
 	for i, token in enumerate(tokens):
 		token = tokens[i]
 		acc_type = None
 		
 		if token['type'] == 'line':
-			nl_size = content and calculate_nl_length(content, offset) or 1
+			delta += _o
+			nl_size = content and calculate_nl_length(content, delta) or 1
 			tok_value = nl_size == 1 and '\n' or '\r\n'
-			offset += _o
 			
-			orig_tokens.append(make_token(token['type'], tok_value, offset))
+			orig_tokens.append(make_token(token['type'], tok_value, offset + delta))
 			
-			result.append(make_token(token['type'], tok_value, offset, i))
-			offset += nl_size
+			result.append(make_token(token['type'], tok_value, offset + delta, i))
+			delta += nl_size
 			_o = 0
 			
 			continue
 		
-		orig_tokens.append(make_token(token['type'], token['value'], offset + token['charstart']))
+		orig_tokens.append(make_token(token['type'], token['value'], offset + delta + token['charstart']))
 		
 		# use charstart and length because of incorrect charend 
 		# computation for whitespace

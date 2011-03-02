@@ -127,6 +127,7 @@
 			var result = [], token, i, il, _o = 0,
 				in_rules = false,
 				in_value = false,
+				delta = 0,
 				acc_type,
 				acc_tokens = {
 					/** @type {makeToken} */
@@ -140,7 +141,7 @@
 			function addToken(token, type) {
 				if (type && type in acc_tokens) {
 					if (!acc_tokens[type]) {
-						acc_tokens[type] = makeToken(type, token.value, offset + token.charstart, i);
+						acc_tokens[type] = makeToken(type, token.value, offset + delta + token.charstart, i);
 						result.push(acc_tokens[type]);
 					} else {
 						acc_tokens[type].content += token.value;
@@ -148,29 +149,29 @@
 						acc_tokens[type].ref_end_ix = i;
 					}
 				} else {
-					result.push(makeToken(token.type, token.value, offset + token.charstart, i));
+					result.push(makeToken(token.type, token.value, offset + delta + token.charstart, i));
 				}
 			}
-				
+			
 			for (i = 0, il = tokens.length; i < il; i++) {
 				token = tokens[i];
 				acc_type = null;
 				
 				if (token.type == 'line') {
-					nl_size = content ? calculateNlLength(content, offset) : 1;
+					delta += _o;
+					nl_size = content ? calculateNlLength(content, delta) : 1;
+					
 					var tok_value = nl_size == 1 ? '\n' : '\r\n';
-					offset += _o;
+					orig_tokens.push(makeToken(token.type, tok_value, offset + delta));
 					
-					orig_tokens.push(makeToken(token.type, tok_value, offset));
-					
-					result.push(makeToken(token.type, tok_value, offset, i));
-					offset += nl_size;
+					result.push(makeToken(token.type, tok_value, offset + delta, i));
+					delta += nl_size;
 					_o = 0;
 					
 					continue;
 				}
 				
-				orig_tokens.push(makeToken(token.type, token.value, offset + token.charstart));
+				orig_tokens.push(makeToken(token.type, token.value, offset + delta + token.charstart));
 				
 //				_o = token.charend;
 				// use charstart and length because of incorrect charend 
