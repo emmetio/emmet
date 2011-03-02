@@ -347,9 +347,12 @@ var zen_editor = (function(){
 	addShortcut('Meta+/', 'Toggle Comment');
 	addShortcut('Meta+J', 'Split/Join Tag');
 	addShortcut('Meta+K', 'Remove Tag');
-	addShortcut('Meta+Y', 'Evaluate Math Expression');
 	addShortcut('Ctrl+I', 'Update image size');
 	
+	addShortcut('Enter', 'Insert Formatted Line Break');
+	
+	// v0.7
+	addShortcut('Meta+Y', 'Evaluate Math Expression');
 	addShortcut('Ctrl+UP', 'Increment number by 1');
 	addShortcut('Ctrl+DOWN', 'Decrement number by 1');
 	addShortcut('Alt+UP', 'Increment number by 0.1');
@@ -359,9 +362,7 @@ var zen_editor = (function(){
 	
 	addShortcut('Meta+.', 'Select Next Item');
 	addShortcut('Meta+,', 'Select Previous Item');
-	addShortcut('Meta+B', 'Reflect CSS Value');
-	
-	addShortcut('Enter', 'Insert Formatted Line Break');
+	addShortcut('Meta+Shift+B', 'Reflect CSS Value');
 	
 	return {
 		setContext: function(elem) {
