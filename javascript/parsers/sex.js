@@ -50,7 +50,7 @@ var CSSEX = (function () {
         nextChar: function () {
             var me = this;
             me.chnum += 1;
-            while (typeof me.line[me.chnum] === 'undefined') {
+            while (me.line.charAt(me.chnum) === '') {
                 if (this.nextLine() === false) {
                     me.ch = false;
                     return false; // end of source
@@ -59,8 +59,11 @@ var CSSEX = (function () {
                 me.ch = '\n';
                 return '\n';
             }
-            me.ch = me.line[me.chnum];
+            me.ch = me.line.charAt(me.chnum);
             return me.ch;
+        },
+        peek: function() {
+            return this.line.charAt(this.chnum + 1);
         }
     };
 
@@ -212,6 +215,34 @@ var CSSEX = (function () {
         w.nextChar();
         tokener(token, 'string', conf);
     }
+    
+    function brace() {
+        var w = walker,
+            c = w.ch,
+            depth = 0,
+            token = c,
+            cnext,
+            conf = getConf();
+    
+        c = w.nextChar();
+    
+        while (c !== ')' && !depth) {
+        	if (c === '(') {
+        		depth++;
+        	} else if (c === ')') {
+        		depth--;
+        	} else if (c === false) {
+        		throw error("Unterminated brace", conf);
+        	}
+        	
+        	token += c;
+            c = w.nextChar();
+        }
+        
+        token += c;
+        w.nextChar();
+        tokener(token, 'brace', conf);
+    }
 
     function identifier(pre) {
         var w = walker,
@@ -221,6 +252,10 @@ var CSSEX = (function () {
             
         c = w.nextChar();
     
+        if (pre) { // adjust token position
+        	conf['char'] -= pre.length;
+        }
+        
         while (isNameChar(c) || isDigit(c)) {
             token += c;
             c = w.nextChar();
@@ -301,6 +336,10 @@ var CSSEX = (function () {
         if (ch === '"' || ch === "'") {
             return str();
         }
+        
+        if (ch === '(') {
+            return brace();
+        }
     
         if (ch === '-' || ch === '.' || isDigit(ch)) { // tricky - char: minus (-1px) or dash (-moz-stuff)
             return num();
@@ -319,7 +358,7 @@ var CSSEX = (function () {
             walker.nextChar();
             return;
         }
-    
+        
         throw error("Unrecognized character");
     }
 
