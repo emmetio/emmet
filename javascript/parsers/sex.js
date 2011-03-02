@@ -221,7 +221,6 @@ var CSSEX = (function () {
             c = w.ch,
             depth = 0,
             token = c,
-            cnext,
             conf = getConf();
     
         c = w.nextChar();

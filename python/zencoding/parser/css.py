@@ -183,6 +183,30 @@ def str():
 	w.next_char()
 	tokener(token, 'string', conf)
 
+def brace():
+	w = _walker
+	c = w.ch
+	depth = 0
+	token = c
+	conf = get_conf()
+
+	c = w.next_char()
+
+	while c != ')' and not depth:
+		if c == '(':
+			depth += 1
+		elif c == ')':
+			depth -= 1
+		elif c is False:
+			raise CSSEXError("Unterminated brace", conf)
+
+		token += c
+		c = w.next_char()
+
+	token += c
+	w.next_char()
+	tokener(token, 'brace', conf)
+
 def identifier(pre=None):
 	w = _walker
 	c = w.ch
@@ -190,6 +214,9 @@ def identifier(pre=None):
 	token = pre and pre + c or c
 
 	c = w.next_char()
+
+	if pre: # adjust token position
+		conf['char'] -= len(pre)
 
 	while is_name_char(c) or c.isdigit():
 		token += c
@@ -256,6 +283,9 @@ def tokenize():
 
 	if ch == '"' or ch == "'":
 		return str()
+	
+	if ch == '(':
+		return brace()
 
 	if ch == '-' or ch == '.' or ch.isdigit(): # tricky - char: minus (-1px) or dash (-moz-stuff)
 		return num()
@@ -297,6 +327,6 @@ def to_source(tokens):
 			src += '\n'
 		else:
 			src += t['value']
-			
+
 	return src
 
