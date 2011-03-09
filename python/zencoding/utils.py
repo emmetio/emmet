@@ -125,6 +125,8 @@ def set_newline(char):
 	"""
 	global newline
 	newline = char
+	set_variable('newline', char)
+	set_variable('nl', char)
 
 def pad_string(text, pad):
 	"""

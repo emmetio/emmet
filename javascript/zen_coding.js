@@ -1099,6 +1099,8 @@
 		
 		setNewline: function(str) {
 			newline = str;
+			this.setVariable('newline', str);
+			this.setVariable('nl', str);
 		},
 		
 		/**

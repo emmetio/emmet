@@ -14,7 +14,11 @@ var zen_settings = {
 		'charset': 'UTF-8',
 		
 		/** Inner element indentation */
-		'indentation': '\t'
+		'indentation': '\t',
+		
+		// newline variables, useful for wrapping
+		'newline': '\n',
+		'nl': '\n'
 	},
 	
 	'css': {

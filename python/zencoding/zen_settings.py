@@ -14,7 +14,11 @@ zen_settings = {
 		'profile': 'xhtml',
 		
 #		Inner element indentation
-		'indentation': '\t'
+		'indentation': '\t',
+		
+		# newline variables, useful for wrapping
+		'newline': '\n',
+		'nl': '\n'
 	},
 	
 	# common settings are used for quick injection of user-defined snippets
