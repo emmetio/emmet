@@ -196,6 +196,20 @@ def filter_node_name(name):
 	"""
 	return re.sub(r'(.+)\!$', '\\1', name or '')
 
+def has_output_placeholder(text):
+	"""
+	Test if text contains output placeholder $#
+	@param text: str
+	@return: bool
+	"""
+	for i, ch in enumerate(text):
+		if ch == '\\': # escaped char
+			continue;
+		elif ch == '$' and char_at(text, i + 1) == '#':
+			return True
+		
+	return False
+
 def get_abbreviation(syntax, abbr):
 	"""
 	Returns abbreviation value from data set
@@ -1123,53 +1137,66 @@ class ZenNode(object):
 	def __str__(self):
 		return self.to_string()
 	
-	def paste_content(self, text, had_var=0):
+	def has_output_placeholder(self):
+		"""
+		Test if current element contains output placeholder (aka $#)
+		@return: bool
+		"""
+		if has_output_placeholder(self.content):
+			return True
+		else:
+			# search inside attributes
+			for a in self.attributes:
+				if has_output_placeholder(a['value']):
+					return True
+		return False
+	
+	def find_elements_with_output_placeholder(self, _arr=None):
+		"""
+		Recursively search for elements with output placeholders (aka $#)
+		inside current element (not included in result)
+		@param _arr: list
+		@return: Array of elements with output placeholders.  
+		"""
+		_arr = _arr or []
+		for child in self.children:
+			if child.has_output_placeholder():
+				_arr.append(child)
+			
+			child.find_elements_with_output_placeholder(_arr)
+			
+		return _arr
+	
+	def paste_content(self, text):
 		"""
 		Paste content in context of current node. Pasting is a special case
 		of recursive adding content in node. 
-		This function will try to find ${output} variable inside node's 
+		This function will try to find $# placeholder inside node's 
 		attributes and text content and replace in with <code>text</code>.
-		If it doesn't find ${output} variable, it will put <code>text</code>
+		If it doesn't find $# placeholder, it will put <code>text</code>
 		value as the deepest child content
 		
 		@param text: Test to paste
 		@type text: str
-		@param had_var: Flag indicating that previous function run
-		(basically, on node's parent) had replaced ${output} variable (1),
-		pasted as node content (2) or did nothing (0)
-		@type had_var: int
-		@return: Is text was pasted as ${output} variable (int)
 		"""
-		_had_var = [had_var]
 		symbol = '$#'
-		
-		def fn(m):
-			if m.group(1) and m.group(1) == 'output':
-				_had_var[0] = 1
-				return text
+		items = []
+		replace_fn = lambda *args, **kwargs: [symbol, text]
 			
-			return m.group(0)
-		
-		def fn2(*args, **kwargs):
-			_had_var[0] = 1
-			return (symbol, text)
-		
-		for a in self.attributes:
-			a['value'] = replace_variables(a['value'], fn)
-			a['value'] = replace_unescaped_symbol(a['value'], symbol, fn2)
+		if self.has_output_placeholder():
+			items.append(self)
 			
-		self.content = replace_variables(self.content, fn)
-		self.content = replace_unescaped_symbol(self.content, symbol, fn2)
-		if self.has_children():
-			for child in self.children:
-				_had_var[0] = child.paste_content(text, _had_var[0])
-				if _had_var[0] == 2: return _had_var[0]
-		elif _had_var[0] == 0:
-			# put text as node content
-			self.content += text
-			return 2
+		items += self.find_elements_with_output_placeholder()
 		
-		return _had_var[0]
+		if items:
+			for item in items:
+				item.content = replace_unescaped_symbol(item.content, symbol, replace_fn)
+				for a in item.attributes:
+					a['value'] = replace_unescaped_symbol(a['value'], symbol, replace_fn)
+		else:
+			# no placeholders found, add content to the deepest child
+			child = self.find_deepest_child() or self
+			child.content += text
 		
 class ZenError(Exception):
 	"""

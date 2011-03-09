@@ -238,6 +238,25 @@
 	}
 	
 	/**
+	 * Test if text contains output placeholder $#
+	 * @param {String} text
+	 * @return {Boolean}
+	 */
+	function hasOutputPlaceholder(/* String */ text) {
+		for (var i = 0, il = text.length; i < il; i++) {
+			var ch = text.charAt(i);
+			if (ch == '\\') { // escaped char
+				i++;
+				continue;
+			} else if (ch == '$' && text.charAt(i + 1) == '#') {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Tag
 	 * @class
 	 * @param {zen_parser.TreeNode} node Parsed tree node
@@ -626,58 +645,78 @@
 		},
 		
 		/**
+		 * Test if current element contains output placeholder (aka $#)
+		 * @return {Boolean}
+		 */
+		hasOutputPlaceholder: function() {
+			if (hasOutputPlaceholder(this.content)) {
+				return true;
+			} else {
+				// search inside attributes
+				for (var i = 0, il = this.attributes.length; i < il; i++) {
+					if (hasOutputPlaceholder(this.attributes[i].value))
+						return true;
+				}
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Recursively search for elements with output placeholders (aka $#)
+		 * inside current element (not included in result)
+		 * @param {Array} _arr
+		 * @return {Array} Array of elements with output placeholders.  
+		 */
+		findElementsWithOutputPlaceholder: function(_arr) {
+			_arr = _arr || [];
+			for (var i = 0, il = this.children.length; i < il; i++) {
+				if (this.children[i].hasOutputPlaceholder()) {
+					_arr.push(this.children[i]);
+				}
+				this.children[i].findElementsWithOutputPlaceholder(_arr);
+			}
+			return _arr;
+		},
+		
+		/**
 		 * Paste content in context of current node. Pasting is a special case
 		 * of recursive adding content in node. 
-		 * This function will try to find ${output} variable inside node's 
+		 * This function will try to find $# placeholder inside node's 
 		 * attributes and text content and replace in with <code>text</code>.
-		 * If it doesn't find ${output} variable, it will put <code>text</code>
+		 * If it doesn't find $# placeholder, it will put <code>text</code>
 		 * value as the deepest child content
-		 * @param {String} text Test to paste
-		 * @param {Number} [had_var] Flag indicating that previous function run
-		 * (basically, on node's parent) had replaced ${output} variable (1),
-		 * pasted as node content (2) or did nothing (0)
-		 * @return {Number} Is text was pasted as ${output} variable
+		 * @param {String} text Text to paste
 		 */
-		pasteContent: function(text, had_var) {
-			had_var = had_var || 0;
-			var symbol = '$#';
-			var fn = function(str, p1) {
-				if (p1 == 'output') {
-					had_var = 1;
-					return text;
-				}
+		pasteContent: function(text) {
+			var symbol = '$#',
+				r = [symbol, text],
+				replace_fn = function() {return r;},
+				/** @type {ZenNode[]} */
+				items = [];
 				
-				return str;
-			};
+			if (this.hasOutputPlaceholder())
+				items.push(this);
+				
+			items = items.concat(this.findElementsWithOutputPlaceholder());
 			
-			var fn2 = function() {
-				had_var = 1;
-				return [symbol, text];
-			}
-			
-			for (var i = 0, il = this.attributes.length; i < il; i++) {
-				var a = this.attributes[i];
-				a.value = replaceVariables(a.value, fn);
-				a.value = replaceUnescapedSymbol(a.value, symbol, fn2);
-			}
-			
-			this.content = replaceVariables(this.content, fn);
-			this.content = replaceUnescapedSymbol(this.content, symbol, fn2);
-			
-			if (this.hasChildren()) {
-				for (var i = 0, il = this.children.length; i < il; i++) {
-					had_var = this.children[i].pasteContent(text, had_var);
-					if (had_var === 2) return had_var;
+			if (items.length) {
+				for (var i = 0, il = items.length; i < il; i++) {
+					/** @type {ZenNode} */
+					var item = items[i];
+					item.content = replaceUnescapedSymbol(item.content, symbol, replace_fn);
+					for (var j = 0, jl = item.attributes.length; j < jl; j++) {
+						var a = item.attributes[j];
+						a.value = replaceUnescapedSymbol(a.value, symbol, replace_fn);
+					}
 				}
-			} else if (had_var == 0) {
-				// put text as node content
-				this.content += text;
-				return 2;
+			} else {
+				// no placeholders found, add content to the deepest child
+				var child = this.findDeepestChild() || this;
+				child.content += text;
 			}
-			
-			return had_var;
 		}
-	}
+	};
 	
 	/**
 	 * Roll outs basic Zen Coding tree into simplified, DOM-like tree.
