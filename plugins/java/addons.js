@@ -92,3 +92,36 @@ function setupOutputProfile(name, profile_obj, editor) {
 function addUserVariable(name, value) {
 	zen_coding.setVariable(name, value);
 }
+
+function previewWrapWithAbbreviation(editor, abbr) {
+	var syntax = String(editor.getSyntax());
+	var profile_name = String(editor.getProfileName());
+	abbr = String(abbr);
+	
+	var range = editor.getSelectionRange(),
+		start_offset = range.start,
+		end_offset = range.end,
+		content = String(editor.getContent());
+		
+		
+	if (!abbr)
+		return null;
+	
+	if (start_offset == end_offset) {
+		// no selection, find tag pair
+		range = zen_coding.html_matcher(content, start_offset, profile_name);
+		
+		if (!range || range[0] == -1) // nothing to wrap
+			return null;
+		
+		var narrowed_sel = narrowToNonSpace(content, range[0], range[1]);
+		
+		start_offset = narrowed_sel[0];
+		end_offset = narrowed_sel[1];
+	}
+	
+	var new_content = zen_coding.escapeText(content.substring(start_offset, end_offset)),
+		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), syntax, profile_name);
+	
+	return result || null;
+}
