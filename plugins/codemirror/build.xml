@@ -2,7 +2,7 @@
 <project name="CodeMirror plugin" basedir="../../">
 	<description>CodeMirror plugin building routines</description>
 	
-	<import file="${webtasks_path}"/>
+	<import file="${basedir}/ant-tools/webtasks.xml"/>
 
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/codemirror/build.properties"/>
