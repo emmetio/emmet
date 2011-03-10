@@ -388,6 +388,15 @@ def toggle_comment(editor):
 	"""
 	syntax = editor.get_syntax()
 	if syntax == 'css':
+		# in case out editor is good enough and can recognize syntax from 
+		# current token, we have to make sure that cursor is not inside
+		# 'style' attribute of html element
+		caret_pos = editor.get_caret_pos()
+		pair = html_matcher.get_tags(editor.get_content(),caret_pos)
+		if pair and pair[0] and pair[0].type == 'tag' and pair[0].start <= caret_pos and pair[0].end >= caret_pos:
+			syntax = 'html'
+	
+	if syntax == 'css':
 		return toggle_css_comment(editor)
 	else:
 		return toggle_html_comment(editor)

@@ -496,7 +496,20 @@ function mergeLines(editor) {
  * @param {zen_editor} editor
  */
 function toggleComment(editor) {
-	switch (String(editor.getSyntax())) {
+	var syntax = String(editor.getSyntax());
+	if (syntax == 'css') {
+		// in case out editor is good enough and can recognize syntax from 
+		// current token, we have to make sure that cursor is not inside
+		// 'style' attribute of html element
+		var caret_pos = editor.getCaretPos();
+		var pair = zen_coding.html_matcher.getTags(String(editor.getContent()), caret_pos);
+		if (pair && pair[0] && pair[0].type == 'tag' && 
+				pair[0].start <= caret_pos && pair[0].end >= caret_pos) {
+			syntax = 'html';
+		}
+	}
+	
+	switch (syntax) {
 		case 'css':
 			return toggleCSSComment(editor);
 		default:
