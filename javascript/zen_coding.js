@@ -1114,13 +1114,21 @@
 		 */
 		wrapWithAbbreviation: function(abbr, text, type, profile) {
 			type = type || 'html';
-			var tree_root = this.parseIntoTree(abbr, type);
+			var tree_root = this.parseIntoTree(abbr, type),
+				pasted = false;
+				
 			if (tree_root) {
-				var repeat_elem = tree_root.multiply_elem || tree_root.last;
-				repeat_elem.setPasteContent(text);
-				repeat_elem.repeat_by_lines = !!tree_root.multiply_elem;
+				if (tree_root.multiply_elem) {
+					// we have a repeating element, put content in
+					tree_root.multiply_elem.setPasteContent(text);
+					tree_root.multiply_elem.repeat_by_lines = pasted = true;
+				}
 				
 				var tree = rolloutTree(tree_root);
+				
+				if (!pasted) 
+					tree.pasteContent(text);
+				
 				this.applyFilters(tree, type, profile, tree_root.filters);
 				return replaceVariables(tree.toString());
 			}

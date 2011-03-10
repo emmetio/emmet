@@ -130,12 +130,20 @@ def wrap_with_abbreviation(abbr, text, syntax='html', profile='plain'):
 	@return {String}
 	"""
 	tree_root = utils.parse_into_tree(abbr, syntax)
+	pasted = False
+	
 	if tree_root:
-		repeat_elem = tree_root.multiply_elem or tree_root.last
-		repeat_elem.set_paste_content(text)
-		repeat_elem.repeat_by_lines = bool(tree_root.multiply_elem)
+		if tree_root.multiply_elem:
+			# we have a repeating element, put content in
+			tree_root.multiply_elem.set_paste_content(text)
+			tree_root.multiply_elem.repeat_by_lines = pasted = True
+			
 		
 		tree = utils.rollout_tree(tree_root)
+		
+		if not pasted:
+			tree.paste_content(text)
+		
 		utils.apply_filters(tree, syntax, profile, tree_root.filters)
 		return utils.replace_variables(tree.to_string())
 	

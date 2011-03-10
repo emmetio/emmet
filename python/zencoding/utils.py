@@ -93,7 +93,7 @@ def split_by_lines(text, remove_empty=False):
 
 def create_profile(options):
 	"""
-	Create profile by adding default values for passed optoin set
+	Create profile by adding default values for passed option set
 	@param options: Profile options
 	@type options: dict
 	"""
