@@ -431,6 +431,7 @@ def extract_abbreviation(text):
 	"""
 	cur_offset = len(text)
 	start_index = -1
+	group_count = 0
 	brace_count = 0
 	text_count = 0
 	
@@ -446,11 +447,24 @@ def extract_abbreviation(text):
 		if ch == ']':
 			brace_count += 1
 		elif ch == '[':
+			if brace_count == 0: #  unexpected brace
+				start_index = cur_offset + 1
+				break
 			brace_count -= 1
 		elif ch == '}':
 			text_count += 1
 		elif ch == '{':
+			if text_count == 0: #  unexpected brace
+				start_index = cur_offset + 1
+				break
 			text_count -= 1
+		elif ch == ')':
+			group_count += 1
+		elif ch == '(':
+			if group_count == 0: #  unexpected brace
+				start_index = cur_offset + 1
+				break
+			group_count -= 1
 		else:
 			if brace_count or text_count:
 				# respect all characters inside attribute sets
@@ -460,7 +474,10 @@ def extract_abbreviation(text):
 				start_index = cur_offset + 1
 				break
 		
-	return text[start_index:] if start_index != -1 else ''
+	if start_index != -1 and text_count == 0 and brace_count == 0 and group_count == 0:
+		return text[start_index:]
+	else:
+		return ''
 
 def parse_into_tree(abbr, syntax='html'):
 	"""

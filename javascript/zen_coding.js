@@ -1010,6 +1010,7 @@
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
 				start_index = -1,
+				group_count = 0,
 				brace_count = 0,
 				text_count = 0;
 			
@@ -1023,15 +1024,31 @@
 				
 				var ch = str.charAt(cur_offset);
 				
-				if (ch == ']')
+				if (ch == ']') {
 					brace_count++;
-				else if (ch == '[')
+				} else if (ch == '[') {
+					if (!brace_count) { // unexpected brace
+						start_index = cur_offset + 1;
+						break;
+					}
 					brace_count--;
-				if (ch == '}')
+				} else if (ch == '}') {
 					text_count++;
-				else if (ch == '{')
+				} else if (ch == '{') {
+					if (!text_count) { // unexpected brace
+						start_index = cur_offset + 1;
+						break;
+					}
 					text_count--;
-				else {
+				} else if (ch == ')') {
+					group_count++;
+				} else if (ch == '(') {
+					if (!group_count) { // unexpected brace
+						start_index = cur_offset + 1;
+						break;
+					}
+					group_count--;
+				} else {
 					if (brace_count || text_count) 
 						// respect all characters inside attribute sets or text nodes
 						continue;
@@ -1043,8 +1060,8 @@
 				}
 			}
 			
-			if (start_index != -1) 
-				// found somethind, return abbreviation
+			if (start_index != -1 && !text_count && !brace_count && !group_count) 
+				// found something, return abbreviation
 				return str.substring(start_index);
 			else
 				return '';
