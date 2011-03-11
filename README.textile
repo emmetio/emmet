@@ -8,20 +8,18 @@ Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other struc
 
 ...can be expanded into:
 
-
 <pre><code>
-&lt;div id=&quot;page&quot;&gt;
-	&lt;div class=&quot;logo&quot;&gt;&lt;/div&gt;
-	&lt;ul id=&quot;navigation&quot;&gt;
-		&lt;li&gt;&lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
-		&lt;li&gt;&lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
-		&lt;li&gt;&lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
-		&lt;li&gt;&lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
-		&lt;li&gt;&lt;a href=&quot;&quot;&gt;&lt;/a&gt;&lt;/li&gt;
-	&lt;/ul&gt;
-&lt;/div&gt;
+<div id="page">
+	<div class="logo"></div>
+	<ul id="navigation">
+		<li><a href=""></a></li>
+		<li><a href=""></a></li>
+		<li><a href=""></a></li>
+		<li><a href=""></a></li>
+		<li><a href=""></a></li>
+	</ul>
+</div>
 </code></pre>
-
 
 "Read more about current Zen Coding syntax":http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsEn
 
@@ -46,12 +44,12 @@ h2. Officially supported editors
 
 These plugins are developed by Zen Coding team and guarantee to have full support of all Zen Coding latest features.
 
-* *Aptana/Eclipse* (crossplatform) — [[https://github.com/sergeche/eclipse-zencoding]] 
+* *Aptana/Eclipse* (crossplatform) — https://github.com/sergeche/eclipse-zencoding 
 * *TextMate* (Mac). Available in two flavors: basic snippets (Zen HTML and Zen CSS) and full-featured plugin (ZenCoding for TextMate). ~Bundles > Zen Coding menu item~
 * *Coda* (Mac) — "external download":http://github.com/sergeche/tea-for-coda/downloads, via "TEA for Coda":http://onecrayon.com/tea/. ~Plug-ins > TEA for Coda > Zen Coding menu item~
 * *Espresso* (Mac) — "external download":http://github.com/sergeche/tea-for-espresso/downloads external, via "TEA for Espresso":http://onecrayon.com/tea/. Zen Coding is bundled with Espresso by default, but you should upgrade ZC to latest version. ~Actions > HTML menu item~
 * *Komodo Edit/IDE* (crossplatform) — "external download":http://community.activestate.com/xpi/zen-coding. ~Tools > Zen Coding menu item~
-* *Notepad++* (Windows). ~Zen Coding menu item~ Also a Python version of NPP plugin is available: [[http://sourceforge.net/projects/npppythonscript/files/]]
+* *Notepad++* (Windows). ~Zen Coding menu item~ Also a "Python version of NPP plugin":http://sourceforge.net/projects/npppythonscript/files/ is available.
 * *PSPad* (Windows). ~Scripts > Zen Coding menu item~
 * *@<textarea>@* (browser-based). See "online demo":http://zen-coding.ru/textarea/.
 * *CodeMirror* (browser-based). See "online demo":http://zen-coding.ru/codemirror/.
