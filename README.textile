@@ -44,7 +44,7 @@ h2. Officially supported editors
 
 These plugins are developed by Zen Coding team and guarantee to have full support of all Zen Coding latest features.
 
-* *Aptana/Eclipse* (crossplatform) — https://github.com/sergeche/eclipse-zencoding 
+* *Aptana/Eclipse* (crossplatform) — "Zen Coding for Eclipse":https://github.com/sergeche/eclipse-zencoding 
 * *TextMate* (Mac). Available in two flavors: basic snippets (Zen HTML and Zen CSS) and full-featured plugin (ZenCoding for TextMate). ~Bundles > Zen Coding menu item~
 * *Coda* (Mac) — "external download":http://github.com/sergeche/tea-for-coda/downloads, via "TEA for Coda":http://onecrayon.com/tea/. ~Plug-ins > TEA for Coda > Zen Coding menu item~
 * *Espresso* (Mac) — "external download":http://github.com/sergeche/tea-for-espresso/downloads external, via "TEA for Espresso":http://onecrayon.com/tea/. Zen Coding is bundled with Espresso by default, but you should upgrade ZC to latest version. ~Actions > HTML menu item~
