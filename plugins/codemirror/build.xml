@@ -45,12 +45,10 @@
 		
 		<copy file="${codemirror.source}/README.txt" todir="${codemirror.build_dir}"/>
 		
-		<compile-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
-			<files>
-				<filelist dir="${codemirror.build_dir}">
-					<file name="zen_codemirror.js"/>
-				</filelist>
-			</files>
-		</compile-js-lib>
+		<compress-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
+			<filelist dir="${codemirror.build_dir}">
+				<file name="zen_codemirror.js"/>
+			</filelist>
+		</compress-js-lib>
 	</target>
 </project>

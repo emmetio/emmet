@@ -10,7 +10,8 @@
 	<import file="${zencoding_plugins_source}/npp/build.xml"/>
 	<import file="${zencoding_plugins_source}/e2/build.xml"/>
 	<import file="${zencoding_plugins_source}/codemirror/build.xml"/>
-	
+	<import file="${zencoding_plugins_source}/coda/build.xml"/>
+	<import file="${zencoding_plugins_source}/espresso/build.xml"/>
 	
 	<!-- List of Zen Coding JavaScript files -->
 	<filelist dir="${zencoding_javascript}" id="javascript.files">
@@ -56,7 +57,9 @@
     </target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin">
+	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, 
+		npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin,
+		coda_bundle, espresso_bundle">
 		<echo>Done</echo>
 	</target>
 </project>

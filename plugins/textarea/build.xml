@@ -36,13 +36,11 @@
 			</filelist>
 		</concat>
 		
-		<compile-js-lib tofile="${textarea.build_dir}/zen_textarea.min.js">
-			<files>
-				<filelist dir="${textarea.build_dir}">
-					<file name="zen_textarea.js"/>
-				</filelist>
-			</files>
-		</compile-js-lib>
+		<compress-js-lib tofile="${textarea.build_dir}/zen_textarea.min.js">
+			<filelist dir="${textarea.build_dir}">
+				<file name="zen_textarea.js"/>
+			</filelist>
+		</compress-js-lib>
 		
 		<copy todir="${textarea.build_dir}">
 			<filelist dir="${textarea.source}">

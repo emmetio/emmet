@@ -51,6 +51,7 @@ These plugins are developed by Zen Coding team and guarantee to have full suppor
 * *Komodo Edit/IDE* (crossplatform) — "external download":http://community.activestate.com/xpi/zen-coding. ~Tools > Zen Coding menu item~
 * *Notepad++* (Windows). ~Zen Coding menu item~ Also a "Python version of NPP plugin":http://sourceforge.net/projects/npppythonscript/files/ is available.
 * *PSPad* (Windows). ~Scripts > Zen Coding menu item~
+* *e2 Editor* (Windows). ~Bundles > Zen Coding menu item~
 * *@<textarea>@* (browser-based). See "online demo":http://zen-coding.ru/textarea/.
 * *CodeMirror* (browser-based). See "online demo":http://zen-coding.ru/codemirror/.
 
