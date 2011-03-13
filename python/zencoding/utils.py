@@ -474,7 +474,7 @@ def extract_abbreviation(text):
 				start_index = cur_offset + 1
 				break
 		
-	if start_index != -1 and text_count == 0 and brace_count == 0 and group_count == 0:
+	if start_index != -1 and start_index < len(text) and text_count == brace_count == group_count == 0:
 		return text[start_index:]
 	else:
 		return ''

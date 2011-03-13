@@ -23,10 +23,18 @@ if not abbr:
 	line = cur_line[0:cur_index]
 	abbr = zencoding.utils.extract_abbreviation(line)
 
+
+output = zencoding.utils.escape_text(line) + '$0' + zencoding.utils.escape_text(cur_line[cur_index:])
+
 if abbr:
-	result = line[0:-len(abbr)] + zencoding.expand_abbreviation(abbr, editor.get_syntax(), editor.get_profile_name())
-	cur_line_pad = re.match(r'^(\s+)', cur_line)
-	if cur_line_pad:
-		result = zencoding.utils.pad_string(result, cur_line_pad.group(1))
+	try:
+		result = line[0:-len(abbr)] + zencoding.expand_abbreviation(abbr, editor.get_syntax(), editor.get_profile_name())
+		cur_line_pad = re.match(r'^(\s+)', cur_line)
+		if cur_line_pad:
+			result = zencoding.utils.pad_string(result, cur_line_pad.group(1))
 		
-	sys.stdout.write(editor.add_placeholders(result) + zencoding.utils.escape_text(cur_line[cur_index:]))
+		output = editor.add_placeholders(result) + zencoding.utils.escape_text(cur_line[cur_index:])
+	except:
+		pass
+	
+sys.stdout.write(output)
