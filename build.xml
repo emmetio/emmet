@@ -59,7 +59,7 @@
 	<!-- Main build routine -->
 	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, 
 		npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin,
-		coda_bundle, espresso_bundle">
+		coda_bundle, espresso_bundle, textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>

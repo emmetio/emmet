@@ -16,11 +16,12 @@ TextMate's bundle system we have to forget about predefined Zen Coding actions
 and write our own
 """
 
+cur_line = os.getenv('TM_CURRENT_LINE', '')
+cur_index = int(os.getenv('TM_LINE_INDEX', 0))
+line = cur_line[0:cur_index]
+
 abbr = os.getenv('TM_SELECTED_TEXT', '')
 if not abbr:
-	cur_line = os.getenv('TM_CURRENT_LINE', '')
-	cur_index = int(os.getenv('TM_LINE_INDEX', 0))
-	line = cur_line[0:cur_index]
 	abbr = zencoding.utils.extract_abbreviation(line)
 
 
