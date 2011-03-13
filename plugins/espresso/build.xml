@@ -5,7 +5,7 @@
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/espresso/build.properties"/>
 
-	<target name="espresso_bundle" depends="espresso_init">
+	<target name="espresso_copy_files" depends="espresso_init">
 		<copy todir="${espresso.build_dir}">
 			<fileset dir="${tea-espresso.source}">
 				<exclude name="src/Support/Library/zencoding/**/*.*"/>
@@ -36,12 +36,20 @@
 				<exclude name="zen_settings_loader.py"/>
 			</fileset>
 		</copy>
+	</target>
+	
+	<target name="espresso_bundle" depends="espresso_copy_files">
+		<exec dir="${espresso.build_dir}" executable="xcodebuild"/>
+		<copy file="${espresso.source}/README.txt" todir="${espresso.build_dir}/build/Release"/>
+		<delete dir="${espresso.build_dir}/build/Release/TEA for Espresso.sugar.dSYM"></delete>
+		<zip destfile="${zencoding_plugins}/${zencoding_espresso_plugin.zip}">
+			<fileset dir="${espresso.build_dir}/build/Release"/>
+		</zip>
 		
 		<echo>Espresso plugin done</echo>
 	</target>
 
 	<target name="espresso_init">
-		<!-- <delete dir="${espresso.build_dir}"/> -->
 		<mkdir dir="${espresso.build_dir}"/>
 	</target>
 </project>

@@ -4,8 +4,8 @@
 
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/coda/build.properties"/>
-
-	<target name="coda_bundle" depends="coda_init">
+	
+	<target name="coda_copy_files" depends="coda_init">
 		<copy todir="${coda.build_dir}">
 			<fileset dir="${tea-coda.source}">
 				<exclude name="src/Support/Library/zencoding/**/*.*"/>
@@ -35,6 +35,17 @@
 				<exclude name="zen_editor.py"/>
 			</fileset>
 		</copy>
+	</target>
+
+	<target name="coda_bundle" depends="coda_copy_files">
+		<exec dir="${coda.build_dir}" executable="python">
+			<arg value="setup.py"/>
+			<arg value="py2app"/>
+		</exec>
+		<copy file="${coda.source}/README.txt" todir="${coda.build_dir}/dist"/>
+		<zip destfile="${zencoding_plugins}/${zencoding_coda_plugin.zip}">
+			<fileset dir="${coda.build_dir}/dist"></fileset>
+		</zip>
 		
 		<echo>Coda plugin done</echo>
 	</target>
