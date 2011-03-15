@@ -140,10 +140,9 @@ class ZenEditor():
 		if end is None: end = len(self.get_content())
 		
 		
+		self.set_caret_pos(start)
 		rng = tea.new_range(start, end - start)
 		value = self.add_placeholders(value)
-		if rng.length is 0:
-			self.set_caret_pos(start)
 			
 		tea.insert_snippet_over_range(self._context, value, rng, undo_name, not no_indent)
 
