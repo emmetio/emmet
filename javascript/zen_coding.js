@@ -318,8 +318,13 @@
 			if (!this._attr_hash)
 				this._attr_hash = {};
 			
-			// escape pipe (caret) character with internal placeholder
-			value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
+			if (typeof value === 'string') {
+				// escape pipe (caret) character with internal placeholder
+				value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder);
+			} else {
+				// value must be a function, which means it is getCaretPlaceholder
+				value = value();
+			}
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -362,7 +367,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
+			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder);
 		},
 		
 		/**
@@ -423,12 +428,12 @@
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
 		this.attributes = [];
-		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
+		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder);
 		this.parent = null;
 		this.syntax = type;
 		
-		this.addAttribute('id', getCaretPlaceholder());
-		this.addAttribute('class', getCaretPlaceholder());
+		this.addAttribute('id', getCaretPlaceholder);
+		this.addAttribute('class', getCaretPlaceholder);
 		this.copyAttributes(node);
 	}
 	
@@ -887,45 +892,34 @@
 	 * @return {String}
 	 */
 	function replaceUnescapedSymbol(str, symbol, replace) {
-		var i = 0,
-			il = str.length,
-			sl = symbol.length,
-			match_count = 0;
-			
-		while (i < il) {
-			if (str.charAt(i) == '\\') {
-				// escaped symbol, skip next character
-				i += sl + 1;
-			} else if (str.substr(i, sl) == symbol) {
-				// have match
-				var cur_sl = sl;
-				match_count++;
-				var new_value = replace;
-				if (typeof(replace) !== 'string') {
-					var replace_data = replace(str, symbol, i, match_count);
-					if (replace_data) {
-						cur_sl = replace_data[0].length;
-						new_value = replace_data[1];
-					} else {
-						new_value = false;
-					}
+		// After conversion from string to regexp, we get: (^|[^\\])\SYMBOL
+		var unescapedRE = new RegExp('(^|[^\\\\])\\' + symbol, 'g');
+		var match_num = 0;
+		return str.replace(unescapedRE, function(matchStr, precedingChar, offset, fullStr) {
+			var replacement;
+			match_num++;
+			if (typeof replace === 'function') {
+				offset += precedingChar.length;
+				replacement = replace(fullStr, symbol, offset, match_num);
+				if (replacement === false) {
+					// Function aborted the process, so return our original string
+					return matchStr;
 				}
+				/*
+				Two likely scenarios here:
+				1) replace was getCaretPlaceholder (takes no arguments, returns string)
+				2) replace was custom zen replacement function (takes above arguments, returns array)
 				
-				if (new_value === false) { // skip replacement
-					i++;
-					continue;
+				In the latter case, we need to switch to the array's second item (the actual string replacement)
+				*/
+				if (typeof replacement !== 'string') {
+					replacement = replacement[1];
 				}
-				
-				str = str.substring(0, i) + new_value + str.substring(i + cur_sl);
-				// adjust indexes
-				il = str.length;
-				i += new_value.length;
 			} else {
-				i++;
+				replacement = replace;
 			}
-		}
-		
-		return str;
+			return precedingChar + replacement;
+		});
 	}
 	
 	/**
