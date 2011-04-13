@@ -5,7 +5,8 @@
  * @include "settings.js"
  * @include "zen_parser.js"
  * @include "zen_resources.js"
- */var zen_coding = (function(){
+ */
+var zen_coding = (function(){
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 	
 		caret_placeholder = '{%::zen-caret::%}',
@@ -892,33 +893,42 @@
 	 * @return {String}
 	 */
 	function replaceUnescapedSymbol(str, symbol, replace) {
-		// After conversion from string to regexp, we get: (^|[^\\])\SYMBOL
-		var unescapedRE = new RegExp('(^|[^\\\\])\\' + symbol, 'g');
+		// After conversion from string to regexp, we get: (^|[^\\]|\\{2,})\SYMBOL
+		var unescapedRE = new RegExp('(^|[^\\\\]|\\\\{2,})\\' + symbol, 'g');
 		var match_num = 0;
 		return str.replace(unescapedRE, function(matchStr, precedingChar, offset, fullStr) {
-			var replacement;
-			match_num++;
-			if (typeof replace === 'function') {
-				offset += precedingChar.length;
-				replacement = replace(fullStr, symbol, offset, match_num);
-				if (replacement === false) {
-					// Function aborted the process, so return our original string
-					return matchStr;
+			// Only proceed if we have a single precedingChar (means symbol isn't escaped) or if we have an even number of multiple preceding backslashes (only scenario where the symbol can be preceded by a backslash but remain unescaped)
+			if (precedingChar.length <= 1 || precedingChar.length % 2 === 0) {
+				var replacement;
+				match_num++;
+				if (typeof replace === 'function') {
+					// Compensate for the preceding character we matched
+					offset += precedingChar.length;
+					/*
+					Two likely scenarios here:
+					1) replace was getCaretPlaceholder (takes no arguments, returns string)
+					2) replace was custom zen replacement function from replaceCounter (takes below arguments, returns array)
+					
+					Since getCaretPlaceholder isn't harmed by extra arguments, just pass through the replaceCounter args
+					*/
+					replacement = replace(fullStr, symbol, offset, match_num);
+					if (replacement === false) {
+						// Function aborted the process, so return our original string
+						return matchStr;
+					}
+					// If not a string, we got an array from replaceCounter
+					if (typeof replacement !== 'string') {
+						replacement = replacement[1];
+					}
+				} else {
+					// If not a function, it's a string
+					replacement = replace;
 				}
-				/*
-				Two likely scenarios here:
-				1) replace was getCaretPlaceholder (takes no arguments, returns string)
-				2) replace was custom zen replacement function (takes above arguments, returns array)
-				
-				In the latter case, we need to switch to the array's second item (the actual string replacement)
-				*/
-				if (typeof replacement !== 'string') {
-					replacement = replacement[1];
-				}
+				return precedingChar + replacement;
 			} else {
-				replacement = replace;
+				// Character is escaped, so return original string
+				return matchStr;
 			}
-			return precedingChar + replacement;
 		});
 	}
 	
