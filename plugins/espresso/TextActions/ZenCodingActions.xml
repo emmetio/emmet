@@ -20,7 +20,7 @@
 		</setup>
 	</action>
 	
-	<action id="ru.zen-coding.espresso.ToggleComment" category="zencoding">
+	<action id="ru.zen-coding.espresso.ToggleComment" category="zencoding.root">
 		<script>zen_actions.js</script>
 		<key-equivalent>command \</key-equivalent>
 		<setup>

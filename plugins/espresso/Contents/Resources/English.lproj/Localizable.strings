@@ -1,23 +1,20 @@
-# Categories
-"zencoding.root" = "Zen Coding";
-"zencoding.html" = "HTML";
-"zencoding.css" = "CSS";
-"zencoding.numbers" = "Numbers";
+"zencoding.root.title" = "Zen Coding";
+"zencoding.html.title" = "HTML";
+"zencoding.css.title" = "CSS";
+"zencoding.numbers.title" = "Numbers";
 
-# Actions
-"ru.zen-coding.espresso.PrevEditPoint" = "Select Previous Item";
-"ru.zen-coding.espresso.PrevEditPoint" = "Select Next Item";
-"ru.zen-coding.espresso.ToggleComment" = "Toggle Comment";
-"ru.zen-coding.espresso.EvaluateMath" = "Evaluate Math Expression";
-"ru.zen-coding.espresso.IncrementBy1" = "Increment by 1";
-"ru.zen-coding.espresso.DecrementBy1" = "Decrement by 1";
-"ru.zen-coding.espresso.IncrementBy01" = "Increment by 0.1";
-"ru.zen-coding.espresso.DecrementBy01" = "Decrement by 0.1";
-"ru.zen-coding.espresso.IncrementBy10" = "Increment by 10";
-"ru.zen-coding.espresso.DecrementBy10" = "Decrement by 10";
-"ru.zen-coding.espresso.SplitJoinTag" = "Split/Join tag";
-"ru.zen-coding.espresso.ReflectValue" = "Reflect Value";
+"ru.zen-coding.espresso.PrevEditPoint.title" = "Select Previous Item";
+"ru.zen-coding.espresso.PrevEditPoint.title" = "Select Next Item";
+"ru.zen-coding.espresso.ToggleComment.title" = "Toggle Comment";
+"ru.zen-coding.espresso.EvaluateMath.title" = "Evaluate Math Expression";
+"ru.zen-coding.espresso.IncrementBy1.title" = "Increment by 1";
+"ru.zen-coding.espresso.DecrementBy1.title" = "Decrement by 1";
+"ru.zen-coding.espresso.IncrementBy01.title" = "Increment by 0.1";
+"ru.zen-coding.espresso.DecrementBy01.title" = "Decrement by 0.1";
+"ru.zen-coding.espresso.IncrementBy10.title" = "Increment by 10";
+"ru.zen-coding.espresso.DecrementBy10.title" = "Decrement by 10";
+"ru.zen-coding.espresso.SplitJoinTag.title" = "Split/Join tag";
+"ru.zen-coding.espresso.ReflectValue.title" = "Reflect Value";
 
-# Temporarily disabled
-"ru.zen-coding.espresso.UpdateImageSize" = "Update Image Size";
-"ru.zen-coding.espresso.EncodeDecodeDataURI" = "Encode/Decode Image to data:URI";
+"ru.zen-coding.espresso.UpdateImageSize.title" = "Update Image Size";
+"ru.zen-coding.espresso.EncodeDecodeDataURI.title" = "Encode/Decode Image to data:URI";
