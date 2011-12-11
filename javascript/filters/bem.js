@@ -172,9 +172,10 @@ zen_coding.registerFilter('bem', (function() {
 			
 			// find donor element
 			var donor = item;
-			while (donor.parent && depth--) {
-				donor = donor.parent;
-			}
+			if (!donor.__bem.block)
+				while (donor.parent && depth--) {
+					donor = donor.parent;
+				}
 			
 			if (donor && donor.__bem) {
 				var prefix = donor.__bem.block;
