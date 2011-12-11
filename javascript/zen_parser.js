@@ -205,7 +205,7 @@
 	 * Get word, starting at <code>ix</code> character of <code>str</code>
 	 */
 	function getWord(ix, str) {
-		var m = str.substring(ix).match(/^[\w\-:\$\u2013\u2014]+/);
+		var m = str.substring(ix).match(/^[\w\-:\$]+/);
 		return m ? m[0] : '';
 	}
 	

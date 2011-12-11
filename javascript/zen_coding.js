@@ -56,7 +56,7 @@
 	function isAllowedChar(ch) {
 		ch = String(ch); // convert Java object to JS
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()|\u2013|\u2014';
+			special_chars = '#.>+*:$-_!@[]()|';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter

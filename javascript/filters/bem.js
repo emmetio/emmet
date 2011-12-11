@@ -89,7 +89,9 @@ zen_coding.registerFilter('bem', (function() {
 	 * @returns {String}
 	 */
 	function normalizeClassName(className) {
-		return (className || '').replace(/\s+/g, ' ').replace(/[\u2013|\u2014]/g, separators.element);
+		return (className || '').replace(/\s+/g, ' ').replace(/^\-+/g, function(str) {
+			return zen_coding.repeatString(separators.element, str.length);
+		});
 	}
 	
 	/**
@@ -125,6 +127,10 @@ zen_coding.registerFilter('bem', (function() {
 		}
 		
 		if (block) {
+			// inherit parent bem element, if exists
+			if (item.parent && item.parent.__bem && item.parent.__bem.element)
+				element = item.parent.__bem.element + separators.element + element;
+			
 			// produce multiple classes
 			var prefix = block;
 			var result = [];
