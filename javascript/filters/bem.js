@@ -128,8 +128,8 @@ zen_coding.registerFilter('bem', (function() {
 		
 		if (block) {
 			// inherit parent bem element, if exists
-			if (item.parent && item.parent.__bem && item.parent.__bem.element)
-				element = item.parent.__bem.element + separators.element + element;
+//			if (item.parent && item.parent.__bem && item.parent.__bem.element)
+//				element = item.parent.__bem.element + separators.element + element;
 			
 			// produce multiple classes
 			var prefix = block;
@@ -178,13 +178,23 @@ zen_coding.registerFilter('bem', (function() {
 			
 			// find donor element
 			var donor = item;
-			if (!donor.__bem.block)
-				while (donor.parent && depth--) {
-					donor = donor.parent;
-				}
+			while (donor.parent && depth--) {
+				donor = donor.parent;
+			}
+			
+			if (!donor || !donor.__bem)
+				donor = item;
 			
 			if (donor && donor.__bem) {
 				var prefix = donor.__bem.block;
+				
+				// decide if we should inherit element name
+//				if (entityType == 'element') {
+//					var curElem = cleanName.split(separators.modifier, 1)[0];
+//					if (donor.__bem.element && donor.__bem.element != curElem)
+//						prefix += separators.element + donor.__bem.element;
+//				}
+				
 				if (entityType == 'modifier' &&  donor.__bem.element)
 					prefix += separators.element + donor.__bem.element;
 				
