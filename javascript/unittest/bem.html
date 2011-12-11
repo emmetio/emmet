@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>JavaScript unit test file</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="unittest.css" type="text/css" />
+
+		<script src="../zen_settings.js" type="text/javascript"></script>
+		<script src="../zen_parser.js" type="text/javascript"></script>
+		<script src="../zen_resources.js" type="text/javascript"></script>
+		<script src="../zen_coding.js" type="text/javascript"></script>
+		<script type="text/javascript" src="../filters/format.js"></script>
+		<script type="text/javascript" src="../filters/html.js"></script>
+		<script type="text/javascript" src="../filters/bem.js"></script>
+		<script type="text/javascript">
+			zen_settings.html.filters = 'bem,html';
+		</script>
+	</head>
+	<body>
+		<div id="content">
+			<div id="header">
+				<h1>BEM filter</h1>
+			</div>
+			<!-- Log output (one per Runner, via {testLog: "testlog"} option)-->
+			<pre id="testlog"></pre>
+		</div>
+		<script type="text/javascript">
+			var htmlChars = {
+				'<' : '&lt;',	
+				'>' : '&gt;'
+			};
+			
+			zen_coding.setCaretPlaceholder('');
+		
+			function expandAbbr(abbr, type, profile) {
+				return zen_coding.expandAbbreviation(abbr, 'html', 'xhtml');
+			}
+			
+			function test(abbr) {
+				var result = expandAbbr(abbr.replace(/\s+/g, ''));
+				document.getElementById('testlog').innerHTML += '<b>' + abbr + '</b> → \n' + result.replace(/[<>]/g, function(str) {
+					return htmlChars[str];
+				}) + '\n\n';
+				console.log('%s → %s', abbr, result);
+			}
+			
+			/* new Test.Unit.Runner({
+				"test bem filter": function(){ with (this) {
+					assertEqual('<div class="block"></div>', expandAbbr('.block'));
+					assertEqual('<div class="block block__elem"></div>', expandAbbr('.block__elem'));
+					assertEqual('<div class="block"><div class="block block__elem"></div></div>', expandAbbr('.block>.__elem'));
+					assertEqual('<div class="block"><div class="block block__elem"></div></div>', expandAbbr('.block>.__elem'));
+					assertEqual('<div class="b-block"><div class="b-block b-block__el"><div class="b-block b-block__el"></div></div></div>', expandAbbr('.b-block>.__el >.__el'));
+				 }}
+			}); */
+			
+			test('.b-block_type_foo');
+			test('.b-block > ._type_foo');
+			test('.b-block > .__element');
+			test('.b-block > .—element');
+			test('.b-block > .__el >.__el');
+			test('.b-block > .__el1>.____el2');
+			test('.b-block > .—el1>.–el2');
+			test('.b-bl1 > .b-bl2_foo > .__el + .____el_bar');
+			
+		</script>
+	</body>
+</html>

@@ -56,7 +56,7 @@
 	function isAllowedChar(ch) {
 		ch = String(ch); // convert Java object to JS
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()|';
+			special_chars = '#.>+*:$-_!@[]()|\u2013|\u2014';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -472,6 +472,7 @@
 	
 	/**
 	 * @class
+	 * @type ZenNode
 	 * Creates simplified tag from Zen Coding tag
 	 * @param {Tag} tag
 	 */
@@ -538,18 +539,39 @@
 		},
 		
 		/**
+		 * Returns attribute object
+		 * @private
+		 * @param {String} name Attribute name
+		 */
+		_getAttr: function(name) {
+			name = name.toLowerCase();
+			for (var i = 0, il = this.attributes.length; i < il; i++) {
+				if (this.attributes[i].name.toLowerCase() == name)
+					return this.attributes[i];
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Get attribute's value.
 		 * @param {String} name
 		 * @return {String|null} Returns <code>null</code> if attribute wasn't found
 		 */
 		getAttribute: function(name) {
-			name = name.toLowerCase();
-			for (var i = 0, il = this.attributes.length; i < il; i++) {
-				if (this.attributes[i].name.toLowerCase() == name)
-					return this.attributes[i].value;
-			}
-			
-			return null;
+			var attr = this._getAttr(name);
+			return attr && attr.value;
+		},
+		
+		/**
+		 * Set attribute's value.
+		 * @param {String} name
+		 * @param {String} value
+		 */
+		setAttribute: function(name, value) {
+			var attr = this._getAttr(name);
+			if (attr)
+				attr.value = value;
 		},
 		
 		/**
