@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Zen Coding" default="main" basedir=".">
 	<property file="build.properties"/>
-	<import file="${basedir}/ant-tools/webtasks.xml"/>
+	
 	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
 	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
 	<import file="${zencoding_plugins_source}/aptana/build.xml"/>

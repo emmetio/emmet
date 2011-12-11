@@ -2,7 +2,13 @@
 <project name="textarea bundle" basedir="../../">
 	<description>&lt;textarea&gt; plugin building routines</description>
 	
-	<import file="${basedir}/ant-tools/webtasks.xml"/>
+	<taskdef resource="org/apache/tools/ant/taskdefs/default.properties">
+		<classpath>
+			<pathelement location="${basedir}/build/frontend-builder.jar" />
+			<pathelement location="${basedir}/build/compiler.jar"/>
+			<pathelement location="${basedir}/build/yuicompressor.jar"/>
+		</classpath>
+	</taskdef>
 
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/textarea/build.properties"/>
@@ -36,11 +42,12 @@
 			</filelist>
 		</concat>
 		
-		<compress-js-lib tofile="${textarea.build_dir}/zen_textarea.min.js">
+		<!-- Create minified version of Zen Coding lib -->
+		<compile-js destfile="${textarea.build_dir}/zen_textarea.min.js">
 			<filelist dir="${textarea.build_dir}">
 				<file name="zen_textarea.js"/>
 			</filelist>
-		</compress-js-lib>
+		</compile-js>
 		
 		<copy todir="${textarea.build_dir}">
 			<filelist dir="${textarea.source}">

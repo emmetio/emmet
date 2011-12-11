@@ -1,8 +1,8 @@
-/build
 /_project_src
 *.pyc
+.build_catalog
 /_docs
-/ant-tools
+/dist
 /plugins/codemirror/CodeMirror
 /plugins/tea-for-coda
-plugins/tea-for-espresso
+/plugins/tea-for-espresso

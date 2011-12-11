@@ -2,7 +2,13 @@
 <project name="CodeMirror plugin" basedir="../../">
 	<description>CodeMirror plugin building routines</description>
 	
-	<import file="${basedir}/ant-tools/webtasks.xml"/>
+	<taskdef resource="org/apache/tools/ant/taskdefs/default.properties">
+		<classpath>
+			<pathelement location="${basedir}/build/frontend-builder.jar" />
+			<pathelement location="${basedir}/build/compiler.jar"/>
+			<pathelement location="${basedir}/build/yuicompressor.jar"/>
+		</classpath>
+	</taskdef>
 
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/codemirror/build.properties"/>
@@ -45,10 +51,11 @@
 		
 		<copy file="${codemirror.source}/README.txt" todir="${codemirror.build_dir}"/>
 		
-		<compress-js-lib tofile="${codemirror.build_dir}/zen_codemirror.min.js">
+		<!-- Create minified version of Zen Coding lib -->
+		<compile-js destfile="${codemirror.build_dir}/zen_codemirror.min.js">
 			<filelist dir="${codemirror.build_dir}">
 				<file name="zen_codemirror.js"/>
 			</filelist>
-		</compress-js-lib>
+		</compile-js>
 	</target>
 </project>
