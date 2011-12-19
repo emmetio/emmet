@@ -3,7 +3,8 @@
  * and text nodes
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
+ * @memberOf __zen_parser
+ * @constructor
  * @include "zen_coding.js"
  */var zen_parser = (function(){
 	
@@ -417,6 +418,7 @@
 		 * text nodes and attributes. Each node of the tree is a single 
 		 * abbreviation. Tree represents actual structure of the outputted 
 		 * result
+		 * @memberOf zen_parser
 		 * @param {String} abbr Abbreviation to parse
 		 * @return {TreeNode}
 		 */
@@ -541,5 +543,5 @@
 		
 		TreeNode: TreeNode,
 		optimizeTree: optimizeTree
-	}
+	};
 })();

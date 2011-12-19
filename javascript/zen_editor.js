@@ -6,7 +6,7 @@
  * 
  * This interface is used by <i>zen_actions.js</i> for performing different 
  * actions like <b>Expand abbreviation</b>  
- * 
+ * @type IZenEditor
  * @example
  * var textarea = document.getElemenetsByTagName('textarea')[0];
  * zen_editor.setContext(textarea);
@@ -20,6 +20,7 @@ var zen_editor = {
 	/**
 	 * Setup underlying editor context. You should call this method 
 	 * <code>before</code> using any Zen Coding action.
+	 * @memberOf IZenEditor
 	 * @param {Object} context
 	 */
 	setContext: function(context) {},

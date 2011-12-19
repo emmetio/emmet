@@ -159,7 +159,7 @@
 			
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
-		}
+		};
 		
 		function hasMatch(str, start) {
 			if (arguments.length == 1)
@@ -260,7 +260,7 @@
 	 */
 	var HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
 		return findPair(html, start_ix, mode, saveMatch);
-	}
+	};
 	
 	HTMLPairMatcher.start_tag = start_tag;
 	HTMLPairMatcher.end_tag = end_tag;

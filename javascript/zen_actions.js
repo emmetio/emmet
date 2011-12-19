@@ -47,7 +47,7 @@ function expandAbbreviation(editor, syntax, profile_name) {
 		content = '';
 		
 	if ( (abbr = findAbbreviation(editor)) ) {
-		content = zen_coding.expandAbbreviation(abbr, syntax, profile_name);
+		content = zen_coding.expandAbbreviation(abbr, syntax, profile_name, captureContext(editor));
 		if (content) {
 			editor.replaceContent(content, caret_pos - abbr.length, caret_pos);
 			return true;
@@ -1004,6 +1004,45 @@ function evaluateMathExpression(editor) {
 	}
 	
 	return false;
+}
+
+/**
+ * Captures context XHTML element from editor under current caret position.
+ * This node can be used as a helper for abbreviation extraction
+ * @param {IZenEditor} editor
+ * @returns {TreeNode}
+ */
+function captureContext(editor) {
+	var allowedSyntaxes = {'html': 1, 'xml': 1, 'xsl': 1};
+	var syntax = String(editor.getSyntax());
+	if (syntax in allowedSyntaxes) {
+		var tags = zen_coding.html_matcher.getTags(
+				String(editor.getContent()), 
+				editor.getCaretPos(), 
+				String(editor.getProfileName()));
+		
+		if (tags && tags[0]) {
+			var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+			var startTag = tags[0];
+			var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
+			/** @type TreeNode */
+			var contextNode = new zen_parser.TreeNode();
+			contextNode.name = startTag.name;
+			
+			// parse attributes
+			var m;
+			while (m = reAttr.exec(tagAttrs)) {
+				contextNode.attributes.push({
+					name: m[1],
+					value: m[2]
+				});
+			}
+			
+			return contextNode;
+		}
+	}
+	
+	return null;
 }
 
 // register all actions

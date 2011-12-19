@@ -252,6 +252,9 @@ zen_coding.registerFilter('bem', (function() {
 	 * @param {Number} [level] Depth level
 	 */
 	function process(tree, profile, level) {
+		if (tree.name)
+			bemParse(tree);
+		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			var item = tree.children[i];
 			process(bemParse(item), profile);

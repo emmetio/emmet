@@ -79,7 +79,7 @@
 	function getCaretPlaceholder() {
 		return (typeof(caret_placeholder) != 'string') 
 			? caret_placeholder()
-			: caret_placeholder
+			: caret_placeholder;
 	}
 	
 	/**
@@ -223,7 +223,7 @@
 			callback = function(str, p1) {
 				var v = getVariable(p1);
 				return (v !== null && typeof v != 'undefined') ? v : str;
-			}
+			};
 		
 		return str.replace(/\$\{([\w\-]+)\}/g, callback);
 	}
@@ -333,7 +333,7 @@
 				}
 			} else {
 				a = {name: name, value: value};
-				this._attr_hash[name] = a
+				this._attr_hash[name] = a;
 				this.attributes.push(a);
 			}
 		},
@@ -1011,9 +1011,9 @@
 //			}
 		},
 		
-		expandAbbreviation: function(abbr, type, profile) {
+		expandAbbreviation: function(abbr, type, profile, contextNode) {
 			type = type || 'html';
-			var parsed_tree = this.parseIntoTree(abbr, type);
+			var parsed_tree = this.parseIntoTree(abbr, type, contextNode);
 			
 			if (parsed_tree) {
 				var tree = rolloutTree(parsed_tree);
@@ -1093,9 +1093,11 @@
 		 * Parses abbreviation into a node set
 		 * @param {String} abbr Abbreviation
 		 * @param {String} type Document type (xsl, html, etc.)
+		 * @param {TreeNode} contextNode Contextual node (XHTML under current 
+		 * caret position), for better abbreviation expansion
 		 * @return {Tag}
 		 */
-		parseIntoTree: function(abbr, type) {
+		parseIntoTree: function(abbr, type, contextNode) {
 			type = type || 'html';
 			// remove filters from abbreviation
 			var filter_list = '';
@@ -1107,7 +1109,7 @@
 			// try to parse abbreviation
 			try {
 				var abbr_tree = zen_parser.parse(abbr),
-					tree_root = new Tag({}, type);
+					tree_root = new Tag(contextNode || {}, type);
 					
 				abbr_tree = preprocessParsedTree(abbr_tree, type);
 			} catch(e) {
@@ -1514,5 +1516,5 @@
 			
 			return str_builder.join('');
 		}
-	}
+	};
 })();
