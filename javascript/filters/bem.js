@@ -89,9 +89,12 @@ zen_coding.registerFilter('bem', (function() {
 	 * @returns {String}
 	 */
 	function normalizeClassName(className) {
-		return (className || '').replace(/\s+/g, ' ').replace(/^\-+/g, function(str) {
-			return zen_coding.repeatString(separators.element, str.length);
+		className = ' ' + (className || '') + ' ';
+		className = className.replace(/\s+/g, ' ').replace(/\s(\-+)/g, function(str, p1) {
+			return ' ' + zen_coding.repeatString(separators.element, p1.length);
 		});
+		
+		return zen_coding.trim(className);
 	}
 	
 	/**

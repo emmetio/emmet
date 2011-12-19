@@ -1515,6 +1515,8 @@
 			}
 			
 			return str_builder.join('');
-		}
+		},
+		
+		trim: trim
 	};
 })();
