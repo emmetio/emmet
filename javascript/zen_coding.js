@@ -412,7 +412,7 @@
 	 * @param {zen_parser.TreeNode} node
 	 * @param {String} type Tag type (html, xml)
 	 */
-	function Snippet(node, type) {
+	function Snippet(node, type, source) {
 		/** @type {String} */
 		this.name = filterNodeName(node.name);
 		this.real_name = node.name;
@@ -422,7 +422,7 @@
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
 		this.attributes = [];
-		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
+		this.value = replaceUnescapedSymbol(source ? source.data : getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
 		this.syntax = type;
 		
@@ -830,10 +830,9 @@
 		if (node.isEmpty()) return null;
 		
 		var res = zen_resources.getMatchedResource(type, filterNodeName(node.name));
-		
 		return res && res.type === zen_coding.dataType.SNIPPET
-				? new Snippet(node, type)
-				: new Tag(node, type);
+				? new Snippet(node, type, res)
+				: new Tag(node, type, res);
 	}
 	
 	/**
