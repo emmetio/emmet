@@ -5,22 +5,20 @@
  * ('system' and 'user') for fast and safe resurce update
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- */var zen_resources = (function(){
-	var TYPE_ABBREVIATION = 'zen-tag',
-		TYPE_EXPANDO = 'zen-expando',
-	
-		/** Reference to another abbreviation or tag */
-		TYPE_REFERENCE = 'zen-reference',
-		
-		VOC_SYSTEM = 'system',
+ * 
+ * @memberOf __zenCodingResource
+ */var zen_resources = (/** @constructor */ function(){
+	var VOC_SYSTEM = 'system',
 		VOC_USER = 'user',
 		
 		/** Regular expression for XML tag matching */
 		re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
-		re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g,
 		
 		system_settings = {},
 		user_settings = {};
+	
+	/** List of registered abbreviation resolvers */
+	var resolvers = [];
 		
 	/**
 	 * Trim whitespace from string
@@ -139,18 +137,24 @@
 	 * @return {Object|null}
 	 */
 	function getParsedItem(vocabulary, syntax, name, item) {
-		var chain = createResourceChain(vocabulary, syntax, name),
-			result = null,
-			res;
-			
+		var chain = createResourceChain(vocabulary, syntax, name);
+		var result = null, res;
+		
 		for (var i = 0, il = chain.length; i < il; i++) {
 			res = chain[i];
 			if (item in res) {
-				if (name == 'abbreviations' && !isParsed(res[item])) {
-					// parse abbreviation
-					var value = res[item];
-					res[item] = parseAbbreviation(item, value);
-					res[item].__ref = value;
+				if (!isParsed(res[item])) {
+					switch(name) {
+						case 'abbreviations':
+							var value = res[item];
+							res[item] = parseAbbreviation(item, value);
+							res[item].__ref = value;
+							break;
+						case 'snippets':
+							res[item] = zen_coding.dataType.snippet(res[item]);
+							break;
+					}
+					
 					setParsed(res[item]);
 				}
 				
@@ -165,9 +169,9 @@
 	/**
 	 * Unified object for parsed data
 	 */
-	function entry(type, key, value) {
+	function entry(key, value) {
 		return {
-			type: type,
+			type: value.type,
 			key: key,
 			value: value
 		};
@@ -180,7 +184,7 @@
 	 * @return {Object}
 	 */
 	function makeExpando(key, value) {
-		return entry(TYPE_EXPANDO, key, value);
+		return entry(key, zen_coding.dataType.expando(value));
 	}
 	
 	/**
@@ -192,29 +196,13 @@
 	 * @return {Object}
 	 */
 	function makeAbbreviation(key, tag_name, attrs, is_empty) {
-		var result = {
-			name: tag_name,
-			is_empty: !!is_empty
-		};
-		
-		if (attrs) {
-			var m;
-			result.attributes = [];
-			while (m = re_attrs.exec(attrs)) {
-				result.attributes.push({
-					name: m[1],
-					value: m[3]
-				});
-			}
-		}
-		
-		return entry(TYPE_ABBREVIATION, key, result);
+		return entry(key, zen_coding.dataType.element(tag_name, attrs, is_empty));
 	}
 	
 	/**
 	 * Parses single abbreviation
 	 * @param {String} key Abbreviation name
-	 * @param {String} value = Abbreviation value
+	 * @param {String} value Abbreviation value
 	 * @return {Object}
 	 */
 	function parseAbbreviation(key, value) {
@@ -227,7 +215,7 @@
 			return makeAbbreviation(key, m[1], m[2], m[4] == '/');
 		} else {
 			// assume it's reference to another abbreviation
-			return entry(TYPE_REFERENCE, key, value);
+			return entry(key, zen_coding.dataType.reference(value));
 		}
 	}
 	
@@ -236,6 +224,7 @@
 		 * Sets new unparsed data for specified settings vocabulary
 		 * @param {Object} data
 		 * @param {String} type Vocabulary type ('system' or 'user')
+		 * @memberOf zen_resources
 		 */
 		setVocabulary: function(data, type) {
 			if (type == VOC_SYSTEM)
@@ -283,6 +272,25 @@
 		getSnippet: function(type, name) {
 			return this.getResource(type, 'snippets', name)
 				|| this.getResource(type, 'snippets', name.replace(/\-/g, ':'));
+		},
+		
+		/**
+		 * Returns resource (abbreviation, snippet, etc.) matched for passed 
+		 * abbreviation
+		 * @param {String} syntax
+		 * @param {String} abbr
+		 * @returns {Object}
+		 */
+		getMatchedResource: function(syntax, abbr) {
+			// walk through registered resolvers
+			var result = null;
+			for (var i = 0, il = resolvers.length; i < il; i++) {
+				result = resolvers[i](abbr, syntax);
+				if (result !== null)
+					return result;
+			}
+			
+			return this.getAbbreviation(syntax, abbr) || this.getSnippet(syntax, abbr);
 		},
 		
 		/**
@@ -334,7 +342,7 @@
 						
 					setParsed(res);
 				}
-				return res[type] || {}
+				return res[type] || {};
 			}
 			else
 				return {};
@@ -348,8 +356,24 @@
 		hasSyntax: function(syntax) {
 			return syntax in getVocabulary(VOC_USER) 
 				|| syntax in getVocabulary(VOC_SYSTEM);
+		},
+		
+		/**
+		 * Registers new abbreviation resolver.
+		 * @param {Function} fn Abbreviation resolver which will receive 
+		 * abbreviation as first argument and should return parsed abbreviation
+		 * object if abbreviation has handled successfully, <code>null</code>
+		 * otherwise
+		 */
+		addResolver: function(fn) {
+			if (!_.include(resolvers, fn))
+				resolvers.unshift(fn);
+		},
+		
+		removeResolver: function(fn) {
+			resolvers = _.without(resolvers, fn);
 		}
-	}
+	};
 })();
 
 try {

@@ -2,10 +2,8 @@
  * Core library that do all Zen Coding magic
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * @include "settings.js"
- * @include "zen_parser.js"
- * @include "zen_resources.js"
- */var zen_coding = (function(){
+ * @memberOf __zenCoding
+ */var zen_coding = (/** @constructor */ function(){
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 	
 		caret_placeholder = '{%::zen-caret::%}',
@@ -268,8 +266,9 @@
 		var abbr = null;
 		if (node.name) {
 			abbr = getAbbreviation(type, filterNodeName(node.name));
-			if (abbr && abbr.type == 'zen-reference')
-				abbr = getAbbreviation(type, filterNodeName(abbr.value));
+			if (abbr && abbr.type == zen_coding.dataType.REFERENCE) {
+				abbr = getAbbreviation(type, filterNodeName(abbr.value.data));
+			}
 		}
 		
 		this.name = (abbr) ? abbr.value.name : node.name;
@@ -451,7 +450,8 @@
 	 * @return {Object|null}
 	 */
 	function getSnippet(type, snippet_name) {
-		return zen_resources.getSnippet(type, snippet_name);
+		var result = zen_resources.getSnippet(type, snippet_name);
+		return result ? result.data : '';
 	}
 	
 	/**
@@ -829,7 +829,9 @@
 		type = type || 'html';
 		if (node.isEmpty()) return null;
 		
-		return isShippet(node.name, type) 
+		var res = zen_resources.getMatchedResource(type, filterNodeName(node.name));
+		
+		return res && res.type === zen_coding.dataType.SNIPPET
 				? new Snippet(node, type)
 				: new Tag(node, type);
 	}
@@ -871,7 +873,7 @@
 				// it's expando
 				var a = getAbbreviation(type, n.name);
 				if (a)
-					node.children[i] = zen_parser.parse(a.value);
+					node.children[i] = zen_parser.parse(a.value.data);
 			}
 			replaceExpandos(node.children[i], type);
 		}
@@ -981,6 +983,7 @@
 		 * @param {String} name Action's name
 		 * @param {Function} fn Action itself. The first argument should be
 		 * <code>zen_editor</code> instance.
+		 * @memberOf zen_coding
 		 */
 		registerAction: function(name, fn) {
 			this.actions[name.toLowerCase()] = fn;
