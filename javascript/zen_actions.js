@@ -1021,7 +1021,7 @@ function captureContext(editor) {
 				editor.getCaretPos(), 
 				String(editor.getProfileName()));
 		
-		if (tags && tags[0]) {
+		if (tags && tags[0] && tags[0].type == 'tag') {
 			var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 			var startTag = tags[0];
 			var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');

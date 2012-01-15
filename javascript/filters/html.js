@@ -68,13 +68,26 @@
 		item.start = item.start.replace('%s', zen_coding.padString(start, padding));
 		item.end = item.end.replace('%s', zen_coding.padString(end, padding));
 		
+		var startPlaceholderNum = 100;
+		var placeholderMemo = {};
+		
 		// replace variables ID and CLASS
-		var cb = function(str, var_name) {
-			if (var_name == 'id' || var_name == 'class')
-				return item.getAttribute(var_name);
-			else
-				return str;
+		var cb = function(str, varName) {
+			var attr = item.getAttribute(varName);
+			if (attr !== null)
+				return attr;
+			
+			var varValue = zen_coding.getVariable(varName);
+			if (varValue)
+				return varValue;
+			
+			// output as placeholder
+			if (!placeholderMemo[varName])
+				placeholderMemo[varName] = startPlaceholderNum++;
+				
+			return '${' + placeholderMemo[varName] + ':' + varName + '}';
 		};
+		
 		item.start = zen_coding.replaceVariables(item.start, cb);
 		item.end = zen_coding.replaceVariables(item.end, cb);
 		

@@ -15,11 +15,14 @@
 	
 	<!-- List of Zen Coding JavaScript files -->
 	<filelist dir="${zencoding_javascript}" id="javascript.files">
+		<file name="underscore.js"/>
 		<file name="zen_settings.js"/>
 		<file name="zen_resources.js"/>
 		<file name="zen_parser.js"/>
 		<file name="zen_coding.js"/>
 		<file name="zen_actions.js"/>
+		<file name="elements-factory.js"/>
+		<file name="generator.js"/>
 		<file name="html_matcher.js"/>
 		<file name="base64.js"/>
 			
