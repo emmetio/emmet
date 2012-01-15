@@ -205,7 +205,8 @@
 	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
-	 * @param {Object|Function} [vars] Variable set (default is <code>zen_settings.variables</code>) 
+	 * @param {Object} vars Variable set (default is <code>zen_settings.variables</code>)
+	 * or variable resolver 
 	 * @return {String}
 	 */
 	function replaceVariables(str, vars) {
@@ -1284,7 +1285,7 @@
 		 */
 		setVariable: function(name, value){
 			var voc = zen_resources.getVocabulary('user') || {};
-			if (!('varaibles' in voc))
+			if (!('variables' in voc))
 				voc.variables = {};
 				
 			voc.variables[name] = value;
