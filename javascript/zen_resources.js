@@ -167,39 +167,6 @@
 	}
 	
 	/**
-	 * Unified object for parsed data
-	 */
-	function entry(key, value) {
-		return {
-			type: value.type,
-			key: key,
-			value: value
-		};
-	}
-	
-	/**
-	 * Make expando from string
-	 * @param {String} key
-	 * @param {String} value
-	 * @return {Object}
-	 */
-	function makeExpando(key, value) {
-		return entry(key, zen_coding.dataType.expando(value));
-	}
-	
-	/**
-	 * Make abbreviation from string
-	 * @param {String} key Abbreviation key
-	 * @param {String} tag_name Expanded element's tag name
-	 * @param {String} attrs Expanded element's attributes
-	 * @param {Boolean} is_empty Is expanded element empty or not
-	 * @return {Object}
-	 */
-	function makeAbbreviation(key, tag_name, attrs, is_empty) {
-		return entry(key, zen_coding.dataType.element(tag_name, attrs, is_empty));
-	}
-	
-	/**
 	 * Parses single abbreviation
 	 * @param {String} key Abbreviation name
 	 * @param {String} value Abbreviation value
@@ -210,12 +177,15 @@
 		var m;
 		if (key.substr(-1) == '+') {
 			// this is expando, leave 'value' as is
-			return makeExpando(key, value);
+//			return makeExpando(key, value);
+			return zen_coding.dataType.expando(value);
 		} else if (m = re_tag.exec(value)) {
-			return makeAbbreviation(key, m[1], m[2], m[4] == '/');
+//			return makeAbbreviation(key, m[1], m[2], m[4] == '/');
+			return zen_coding.dataType.element(m[1], m[2], m[4] == '/');
 		} else {
 			// assume it's reference to another abbreviation
-			return entry(key, zen_coding.dataType.reference(value));
+//			return entry(key, zen_coding.dataType.reference(value));
+			return zen_coding.dataType.reference(value);
 		}
 	}
 	
@@ -279,13 +249,14 @@
 		 * abbreviation
 		 * @param {String} syntax
 		 * @param {String} abbr
+		 * @param {zen_parser.TreeNode} node
 		 * @returns {Object}
 		 */
-		getMatchedResource: function(syntax, abbr) {
+		getMatchedResource: function(syntax, abbr, node) {
 			// walk through registered resolvers
 			var result = null;
 			for (var i = 0, il = resolvers.length; i < il; i++) {
-				result = resolvers[i](abbr, syntax);
+				result = resolvers[i](abbr, node, syntax);
 				if (result !== null)
 					return result;
 			}

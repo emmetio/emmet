@@ -30,6 +30,7 @@
 			 */
 			element: function(elementName, attrs, isEmpty) {
 				var result = {
+					/** @memberOf __zenDataElement */
 					type: this.ELEMENT,
 					name: elementName,
 					is_empty: !!isEmpty
@@ -66,6 +67,7 @@
 			 */
 			snippet: function(value) {
 				return  {
+					/** @memberOf __zenDataSnippet */
 					type: this.SNIPPET,
 					data: value
 				};
@@ -77,6 +79,7 @@
 			 */
 			expando: function(value) {
 				return {
+					/** @memberOf __zenDataExpando */
 					type: this.EXPANDO,
 					data: value
 				};
@@ -88,6 +91,7 @@
 			 */
 			reference: function(value) {
 				return  {
+					/** @memberOf __zenDataReference */
 					type: this.REFERENCE,
 					data: value
 				};

@@ -39,37 +39,6 @@
 			filters: ''
 		};
 	
-	function isNumeric(ch) {
-		if (typeof(ch) == 'string')
-			ch = ch.charCodeAt(0);
-			
-		return (ch && ch > 47 && ch < 58);
-	}
-	
-	/**
-	 * Проверяет, является ли символ допустимым в аббревиатуре
-	 * @param {String} ch
-	 * @return {Boolean}
-	 */
-	function isAllowedChar(ch) {
-		ch = String(ch); // convert Java object to JS
-		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()|';
-		
-		return (char_code > 64 && char_code < 91)       // uppercase letter
-				|| (char_code > 96 && char_code < 123)  // lowercase letter
-				|| isNumeric(ch)                        // number
-				|| special_chars.indexOf(ch) != -1;     // special character
-	}
-	
-	/**
-	 * Возвращает символ перевода строки, используемый в редакторе
-	 * @return {String}
-	 */
-	function getNewline() {
-		return zen_coding.getNewline();
-	}
-	
 	/**
 	 * Returns caret placeholder
 	 * @return {String}
@@ -78,44 +47,6 @@
 		return (typeof(caret_placeholder) != 'string') 
 			? caret_placeholder()
 			: caret_placeholder;
-	}
-	
-	/**
-	 * Split text into lines. Set <code>remove_empty</code> to true to filter
-	 * empty lines
-	 * @param {String} text
-	 * @param {Boolean} [remove_empty]
-	 * @return {Array}
-	 */
-	function splitByLines(text, remove_empty) {
-		// IE fails to split string by regexp, 
-		// need to normalize newlines first
-		// Also, Mozilla's Rhiho JS engine has a wierd newline bug
-		var nl = getNewline();
-		var lines = (text || '')
-			.replace(/\r\n/g, '\n')
-			.replace(/\n\r/g, '\n')
-			.replace(/\r/g, '\n')
-			.replace(/\n/g, nl)
-			.split(nl);
-		
-		if (remove_empty) {
-			for (var i = lines.length; i >= 0; i--) {
-				if (!trim(lines[i]))
-					lines.splice(i, 1);
-			}
-		}
-		
-		return lines;
-	}
-	
-	/**
-	 * Trim whitespace from string
-	 * @param {String} text
-	 * @return {String}
-	 */
-	function trim(text) {
-		return (text || "").replace( /^\s+|\s+$/g, "" );
 	}
 	
 	function createProfile(options) {
@@ -128,42 +59,6 @@
 	
 	function setupProfile(name, options) {
 		profiles[name.toLowerCase()] = createProfile(options || {});
-	}
-	
-	/**
-	 * Repeats string <code>how_many</code> times
-	 * @param {String} str
-	 * @param {Number} how_many
-	 * @return {String}
-	 */
-	function repeatString(str, how_many) {
-		var result = '';
-		for (var i = 0; i < how_many; i++) 
-			result += str;
-			
-		return result;
-	}
-	
-	/**
-	 * Indents text with padding
-	 * @param {String} text Text to indent
-	 * @param {String|Number} pad Padding size (number) or padding itself (string)
-	 * @return {String}
-	 */
-	function padString(text, pad) {
-		var pad_str = (typeof(pad) == 'number') 
-				? repeatString(getIndentation(), pad) 
-				: pad, 
-			result = '';
-		
-		var lines = splitByLines(text),
-			nl = getNewline();
-			
-		result += lines[0];
-		for (var j = 1; j < lines.length; j++) 
-			result += nl + pad_str + lines[j];
-			
-		return result;
 	}
 	
 	/**
@@ -190,16 +85,6 @@
 	 */
 	function isShippet(abbr, type) {
 		return getSnippet(type, filterNodeName(abbr)) ? true : false;
-	}
-	
-	/**
-	 * Test if passed string ends with XHTML tag. This method is used for testing
-	 * '>' character: it belongs to tag or it's a part of abbreviation? 
-	 * @param {String} str
-	 * @return {Boolean}
-	 */
-	function isEndsWithTag(str) {
-		return re_tag.test(str);
 	}
 	
 	/**
@@ -261,18 +146,19 @@
 	 * @param {zen_parser.TreeNode} node Parsed tree node
 	 * @param {String} type Tag type (html, xml)
 	 */
-	function Tag(node, type) {
+	function Tag(node, type, resource) {
 		type = type || 'html';
 		
-		var abbr = null;
-		if (node.name) {
+		var abbr = resource;
+		if (!abbr && node.name) {
 			abbr = getAbbreviation(type, filterNodeName(node.name));
-			if (abbr && abbr.type == zen_coding.dataType.REFERENCE) {
-				abbr = getAbbreviation(type, filterNodeName(abbr.value.data));
-			}
 		}
 		
-		this.name = (abbr) ? abbr.value.name : node.name;
+		if (abbr && abbr.type == zen_coding.dataType.REFERENCE) {
+			abbr = getAbbreviation(type, filterNodeName(abbr.data));
+		}
+		
+		this.name = (abbr) ? abbr.name : node.name;
 		this.real_name = node.name;
 		this.count = node.count || 1;
 		this._abbr = abbr;
@@ -288,7 +174,7 @@
 		
 		// add default attributes
 		if (this._abbr)
-			this.copyAttributes(this._abbr.value);
+			this.copyAttributes(this._abbr);
 		
 		this.copyAttributes(node);
 	}
@@ -319,7 +205,7 @@
 				this._attr_hash = {};
 			
 			// escape pipe (caret) character with internal placeholder
-			value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
+			value = zen_coding.utils.replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -362,7 +248,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
+			this._content = zen_coding.utils.replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
 		},
 		
 		/**
@@ -423,7 +309,7 @@
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
 		this.attributes = [];
-		this.value = replaceUnescapedSymbol(source ? source.data : getSnippet(type, this.name), '|', getCaretPlaceholder());
+		this.value = zen_coding.utils.replaceUnescapedSymbol(source ? source.data : getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
 		this.syntax = type;
 		
@@ -461,14 +347,6 @@
 	 */
 	function getVariable(name) {
 		return zen_resources.getVariable(name);
-	}
-	
-	/**
-	 * Returns indentation string
-	 * @return {String}
-	 */
-	function getIndentation() {
-		return getVariable('indentation');
 	}
 	
 	/**
@@ -583,7 +461,7 @@
 			if (this.type == 'snippet')
 				return false;
 				
-			return (this.source._abbr && this.source._abbr.value.is_empty) 
+			return (this.source._abbr && this.source._abbr.is_empty) 
 				|| zen_resources.isItemInCollection(this.source.syntax, 'empty', this.name);
 		},
 		
@@ -727,10 +605,10 @@
 				for (var i = 0, il = items.length; i < il; i++) {
 					/** @type {ZenNode} */
 					var item = items[i];
-					item.content = replaceUnescapedSymbol(item.content, symbol, replace_fn);
+					item.content = zen_coding.utils.replaceUnescapedSymbol(item.content, symbol, replace_fn);
 					for (var j = 0, jl = item.attributes.length; j < jl; j++) {
 						var a = item.attributes[j];
-						a.value = replaceUnescapedSymbol(a.value, symbol, replace_fn);
+						a.value = zen_coding.utils.replaceUnescapedSymbol(a.value, symbol, replace_fn);
 					}
 				}
 			} else {
@@ -769,7 +647,7 @@
 				
 				if (child.repeat_by_lines) {
 					// it's a repeating element
-					tag_content = splitByLines(child.getPasteContent(), true);
+					tag_content = zen_coding.utils.splitByLines(child.getPasteContent(), true);
 					how_many = Math.max(tag_content.length, 1);
 				} else {
 					tag_content = child.getPasteContent();
@@ -787,7 +665,7 @@
 						var text = (typeof(tag_content) == 'string') 
 							? tag_content 
 							: (tag_content[j] || '');
-						tag.pasteContent(trim(text));
+						tag.pasteContent(zen_coding.utils.trim(text));
 					}
 				}
 			}
@@ -810,7 +688,7 @@
 			filter_list = filter_list.split(/[\|,]/g);
 			
 		for (var i = 0, il = filter_list.length; i < il; i++) {
-			var name = trim(filter_list[i].toLowerCase());
+			var name = zen_coding.utils.trim(filter_list[i].toLowerCase());
 			if (name && name in filters) {
 				tree = filters[name](tree, profile);
 			}
@@ -827,10 +705,9 @@
 	 * @return {Tag}
 	 */
 	function transformTreeNode(node, type) {
-		type = type || 'html';
 		if (node.isEmpty()) return null;
 		
-		var res = zen_resources.getMatchedResource(type, filterNodeName(node.name));
+		var res = zen_resources.getMatchedResource(type, filterNodeName(node.name), node);
 		return res && res.type === zen_coding.dataType.SNIPPET
 				? new Snippet(node, type, res)
 				: new Tag(node, type, res);
@@ -873,7 +750,7 @@
 				// it's expando
 				var a = getAbbreviation(type, n.name);
 				if (a)
-					node.children[i] = zen_parser.parse(a.value.data);
+					node.children[i] = zen_parser.parse(a.data);
 			}
 			replaceExpandos(node.children[i], type);
 		}
@@ -887,69 +764,6 @@
 	function preprocessParsedTree(tree, type) {
 		replaceExpandos(tree, type);
 		return zen_parser.optimizeTree(tree);
-	}
-	
-	/**
-	 * Pad string with zeroes
-	 * @param {String} str
-	 * @param {Number} pad
-	 */
-	function zeroPadString(str, pad) {
-		var padding = '', 
-			il = str.length;
-			
-		while (pad > il++) padding += '0';
-		return padding + str; 
-	}
-	
-	/**
-	 * Replaces unescaped symbols in <code>str</code>. For example, the '$' symbol
-	 * will be replaced in 'item$count', but not in 'item\$count'.
-	 * @param {String} str Original string
-	 * @param {String} symbol Symbol to replace
-	 * @param {String|Function} replace Symbol replacement
-	 * @return {String}
-	 */
-	function replaceUnescapedSymbol(str, symbol, replace) {
-		var i = 0,
-			il = str.length,
-			sl = symbol.length,
-			match_count = 0;
-			
-		while (i < il) {
-			if (str.charAt(i) == '\\') {
-				// escaped symbol, skip next character
-				i += sl + 1;
-			} else if (str.substr(i, sl) == symbol) {
-				// have match
-				var cur_sl = sl;
-				match_count++;
-				var new_value = replace;
-				if (typeof(replace) !== 'string') {
-					var replace_data = replace(str, symbol, i, match_count);
-					if (replace_data) {
-						cur_sl = replace_data[0].length;
-						new_value = replace_data[1];
-					} else {
-						new_value = false;
-					}
-				}
-				
-				if (new_value === false) { // skip replacement
-					i++;
-					continue;
-				}
-				
-				str = str.substring(0, i) + new_value + str.substring(i + cur_sl);
-				// adjust indexes
-				il = str.length;
-				i += new_value.length;
-			} else {
-				i++;
-			}
-		}
-		
-		return str;
 	}
 	
 	/**
@@ -1039,6 +853,8 @@
 				brace_count = 0,
 				text_count = 0;
 			
+			var U = zen_coding.utils;
+			
 			while (true) {
 				cur_offset--;
 				if (cur_offset < 0) {
@@ -1077,7 +893,7 @@
 					if (brace_count || text_count) 
 						// respect all characters inside attribute sets or text nodes
 						continue;
-					else if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
+					else if (!U.isAllowedChar(ch) || (ch == '>' && U.endsWithTag(str.substring(0, cur_offset + 1)))) {
 						// found stop symbol
 						start_index = cur_offset + 1;
 						break;
@@ -1129,13 +945,6 @@
 			return tree_root;
 		},
 		
-		/**
-		 * Indents text with padding
-		 * @param {String} text Text to indent
-		 * @param {String|Number} pad Padding size (number) or padding itself (string)
-		 * @return {String}
-		 */
-		padString: padString,
 		setupProfile: setupProfile,
 		getNewline: function(){
 			return newline;
@@ -1179,8 +988,6 @@
 			
 			return null;
 		},
-		
-		splitByLines: splitByLines,
 		
 		/**
 		 * Check if cursor is placed inside xHTML tag
@@ -1276,7 +1083,6 @@
 		
 		runFilters: runFilters,
 		
-		repeatString: repeatString,
 		getVariable: getVariable,
 		/**
 		 * Store runtime variable in user storage
@@ -1322,8 +1128,8 @@
 		replaceCounter: function(str, value) {
 			var symbol = '$';
 			value = String(value);
-			return replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, match_num){
-				if (str.charAt(pos + 1) == '{' || isNumeric(str.charAt(pos + 1)) ) {
+			return zen_coding.utils.replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, match_num){
+				if (str.charAt(pos + 1) == '{' || zen_coding.utils.isNumeric(str.charAt(pos + 1)) ) {
 					// it's a variable, skip it
 					return false;
 				}
@@ -1331,11 +1137,9 @@
 				// replace sequense of $ symbols with padded number  
 				var j = pos + 1;
 				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
-				return [str.substring(pos, j), zeroPadString(value, j - pos)];
+				return [str.substring(pos, j), zen_coding.utils.zeroPadString(value, j - pos)];
 			});
 		},
-		
-		isNumeric: isNumeric,
 		
 		/**
 		 * Upgrades tabstops in zen node in order to prevent naming conflicts
@@ -1466,6 +1270,8 @@
 				return ix - 1;
 			};
 			
+			var U = zen_coding.utils;
+			
 			while (i < il) {
 				var ch = text.charAt(i);
 				if (ch == '\\' && i + 1 < il) {
@@ -1477,10 +1283,10 @@
 					// looks like a tabstop
 					var next_ch = text.charAt(i + 1) || '';
 					_i = i;
-					if (this.isNumeric(next_ch)) {
+					if (U.isNumeric(next_ch)) {
 						// $N placeholder
 						start_ix = i + 1;
-						i = nextWhile(start_ix, this.isNumeric);
+						i = nextWhile(start_ix, U.isNumeric);
 						if (start_ix < i) {
 							str_builder.push(tabstop_fn(_i, text.substring(start_ix, i)));
 							continue;
@@ -1489,7 +1295,7 @@
 						// ${N:value} or ${N} placeholder
 						var brace_count = 1;
 						start_ix = i + 2;
-						i = nextWhile(start_ix, this.isNumeric);
+						i = nextWhile(start_ix, U.isNumeric);
 						
 						if (i > start_ix) {
 							if (text.charAt(i) == '}') {
@@ -1520,6 +1326,6 @@
 			return str_builder.join('');
 		},
 		
-		trim: trim
+		reTag: re_tag
 	};
 })();

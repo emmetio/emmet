@@ -17,12 +17,12 @@
 		}
 	});
 	
-	zen_resources.addResolver(function(abbr, syntax) {
+	zen_resources.addResolver(function(abbr, node, syntax) {
 		var result = null;
 		for (var i = 0, il = generators.length; i < il; i++) {
 			var item = generators[i], m;
 			if ((m = item.re.exec(abbr))) {
-				result = item.fn(m, abbr, syntax);
+				result = item.fn(m, abbr, node, syntax);
 				if (result !== null) {
 					return _.isString(result) ? zen_coding.dataType.snippet(result) : result;
 				}

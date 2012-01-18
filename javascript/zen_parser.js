@@ -11,7 +11,7 @@
 	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
 	/**
-	 * @class
+	 * @type TreeNode
 	 */
 	function TreeNode(parent) {
 		this.abbreviation = '';
@@ -156,6 +156,21 @@
 		 */
 		isTextNode: function() {
 			return !this.name && this.text;
+		},
+		
+		/**
+		 * Returns attribute value (might be empty string) or <code>null</code> 
+		 * if attribute wasn't found 
+		 * @param {String} name
+		 * @returns {String}
+		 */
+		getAttribute: function(name) {
+			for (var i = 0, il = this.attributes.length; i < il; i++) {
+				if (this.attributes[i].name == name)
+					return this.attributes[i].value;
+			}
+			
+			return null;
 		}
 	};
 	
