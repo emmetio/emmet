@@ -1,8 +1,10 @@
 /**
  * Utility module for Zen Coding
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
-	zen_coding.utils = {
+zen_coding.define('utils', function(require, _) {
+	return {
 		/** @memberOf zen_coding.utils */
 		reTag: /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 		
@@ -199,6 +201,65 @@
 			derived.prototype.constructor = derived;
 			derived.baseConstructor = from;
 			derived.superClass = from.prototype;
+		},
+		
+		/**
+		 * Replace variables like ${var} in string
+		 * @param {String} str
+		 * @param {Object} vars Variable set (defaults to variables defined in 
+		 * <code>zen_settings</code>) or variable resolver (<code>Function</code>)
+		 * @return {String}
+		 */
+		replaceVariables: function(str, vars) {
+			vars = vars || {};
+			var resolver = _.isFunction(vars) ? vars : function(str, p1) {
+				return p1 in vars ? vars[p1] : null;
+			};
+			
+			return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1) {
+				var newValue = resolver(str, p1);
+				if (newValue === null) {
+					// try to find variable in zen_settings
+					var res = zen_coding.require('resources');
+					newValue = res.getVariable(p1);
+				}
+				
+				if (newValue === null || _.isUndefined(newValue))
+					// nothing found, return token itself
+					newValue = str;
+				
+				return newValue;
+			});
+		},
+		
+		/**
+		 * Check if string matches against <code>reTag</code> regexp. This 
+		 * function may be used to test if provided string contains HTML tags
+		 * @param {String} str
+		 * @returns {Boolean}
+		 */
+		matchesTag: function(str) {
+			return this.reTag.test(str || '');
+		},
+		
+		/**
+		 * Escapes special characters used in Zen Coding, like '$', '|', etc.
+		 * Use this method before passing to actions like "Wrap with Abbreviation"
+		 * to make sure that existing spacial characters won't be altered
+		 * @param {String} text
+		 * @return {String}
+		 */
+		escapeText: function(text) {
+			return text.replace(/([\$\|\\])/g, '\\$1');
+		},
+		
+		/**
+		 * Unescapes special characters used in Zen Coding, like '$', '|', etc.
+		 * @param {String} text
+		 * @return {String}
+		 */
+		unescapeText: function(text) {
+			return text.replace(/\\(.)/g, '$1');
 		}
 	};
-})();
+});

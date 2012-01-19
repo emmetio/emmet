@@ -4,40 +4,13 @@
  * @link http://chikuyonok.ru
  * @memberOf __zenCoding
  */var zen_coding = (/** @constructor */ function(){
-	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
-	
-		caret_placeholder = '{%::zen-caret::%}',
+	var caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
 		
 		/** List of registered filters */
 		filters = {},
 		/** Filters that will be applied for unknown syntax */
-		basic_filters = 'html',
-		
-		profiles = {},
-		default_profile = {
-			tag_case: 'lower',
-			attr_case: 'lower',
-			attr_quotes: 'double',
-			
-			// each tag on new line
-			tag_nl: 'decide',
-			
-			place_cursor: true,
-			
-			// indent tags
-			indent: true,
-			
-			// how many inline elements should be to force line break 
-			// (set to 0 to disable)
-			inline_break: 3,
-			
-			// use self-closing style for writing empty elements, e.g. <br /> or <br>
-			self_closing_tag: 'xhtml',
-			
-			// Profile-level output filters, re-defines syntax filters 
-			filters: ''
-		};
+		basic_filters = 'html';
 	
 	/**
 	 * Returns caret placeholder
@@ -47,18 +20,6 @@
 		return (typeof(caret_placeholder) != 'string') 
 			? caret_placeholder()
 			: caret_placeholder;
-	}
-	
-	function createProfile(options) {
-		var result = {};
-		for (var p in default_profile)
-			result[p] = (p in options) ? options[p] : default_profile[p];
-		
-		return result;
-	}
-	
-	function setupProfile(name, options) {
-		profiles[name.toLowerCase()] = createProfile(options || {});
 	}
 	
 	/**
@@ -85,31 +46,6 @@
 	 */
 	function isShippet(abbr, type) {
 		return getSnippet(type, filterNodeName(abbr)) ? true : false;
-	}
-	
-	/**
-	 * Replace variables like ${var} in string
-	 * @param {String} str
-	 * @param {Object} vars Variable set (default is <code>zen_settings.variables</code>)
-	 * or variable resolver 
-	 * @return {String}
-	 */
-	function replaceVariables(str, vars) {
-		var callback;
-		
-		if (typeof vars == 'function')
-			callback = vars;
-		else if (vars)
-			callback = function(str, p1) {
-				return (p1 in vars) ? vars[p1] : str;
-			};
-		else 
-			callback = function(str, p1) {
-				var v = getVariable(p1);
-				return (v !== null && typeof v != 'undefined') ? v : str;
-			};
-		
-		return str.replace(/\$\{([\w\-]+)\}/g, callback);
 	}
 	
 	/**
@@ -204,8 +140,11 @@
 			if (!this._attr_hash)
 				this._attr_hash = {};
 			
+			/** @type {zen_coding.utils} */
+			var u = zen_coding.require('utils');
+			
 			// escape pipe (caret) character with internal placeholder
-			value = zen_coding.utils.replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
+			value = u.replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -238,9 +177,10 @@
 		/**
 		 * This function tests if current tags' content contains xHTML tags. 
 		 * This function is mostly used for output formatting
+		 * @returns {Boolean}
 		 */
 		hasTagsInContent: function() {
-			return this.getContent() && re_tag.test(this.getContent());
+			return zen_coding.require('utils').matchesTag(this.getContent());
 		},
 		
 		/**
@@ -248,7 +188,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = zen_coding.utils.replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
+			this._content = zen_coding.require('utils').replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
 		},
 		
 		/**
@@ -309,7 +249,7 @@
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
 		this.attributes = [];
-		this.value = zen_coding.utils.replaceUnescapedSymbol(source ? source.data : getSnippet(type, this.name), '|', getCaretPlaceholder());
+		this.value = zen_coding.require('utils').replaceUnescapedSymbol(source ? source.data : getSnippet(type, this.name), '|', getCaretPlaceholder());
 		this.parent = null;
 		this.syntax = type;
 		
@@ -487,7 +427,7 @@
 		 * This function is mostly used for output formatting
 		 */
 		hasTagsInContent: function() {
-			return this.content && re_tag.test(this.content);
+			return zen_coding.require('utils').matchesTag(this.content);
 		},
 		
 		/**
@@ -601,14 +541,16 @@
 				
 			items = items.concat(this.findElementsWithOutputPlaceholder());
 			
+			var u = zen_coding.require('utils');
+			
 			if (items.length) {
 				for (var i = 0, il = items.length; i < il; i++) {
 					/** @type {ZenNode} */
 					var item = items[i];
-					item.content = zen_coding.utils.replaceUnescapedSymbol(item.content, symbol, replace_fn);
+					item.content = u.replaceUnescapedSymbol(item.content, symbol, replace_fn);
 					for (var j = 0, jl = item.attributes.length; j < jl; j++) {
 						var a = item.attributes[j];
-						a.value = zen_coding.utils.replaceUnescapedSymbol(a.value, symbol, replace_fn);
+						a.value = u.replaceUnescapedSymbol(a.value, symbol, replace_fn);
 					}
 				}
 			} else {
@@ -640,6 +582,7 @@
 			tag_content = '';
 			
 		if (tree.children) {
+			var u = zen_coding.require('utils');
 			for (var i = 0, il = tree.children.length; i < il; i++) {
 				/** @type {Tag} */
 				var child = tree.children[i];
@@ -647,7 +590,7 @@
 				
 				if (child.repeat_by_lines) {
 					// it's a repeating element
-					tag_content = zen_coding.utils.splitByLines(child.getPasteContent(), true);
+					tag_content = u.splitByLines(child.getPasteContent(), true);
 					how_many = Math.max(tag_content.length, 1);
 				} else {
 					tag_content = child.getPasteContent();
@@ -665,7 +608,7 @@
 						var text = (typeof(tag_content) == 'string') 
 							? tag_content 
 							: (tag_content[j] || '');
-						tag.pasteContent(zen_coding.utils.trim(text));
+						tag.pasteContent(u.trim(text));
 					}
 				}
 			}
@@ -682,13 +625,13 @@
 	 * @return {ZenNode}
 	 */
 	function runFilters(tree, profile, filter_list) {
-		profile = processProfile(profile);
+		profile = zen_coding.require('profile').get(profile);
 		
 		if (typeof(filter_list) == 'string')
 			filter_list = filter_list.split(/[\|,]/g);
 			
 		for (var i = 0, il = filter_list.length; i < il; i++) {
-			var name = zen_coding.utils.trim(filter_list[i].toLowerCase());
+			var name = zen_coding.require('utils').trim(filter_list[i].toLowerCase());
 			if (name && name in filters) {
 				tree = filters[name](tree, profile);
 			}
@@ -766,26 +709,6 @@
 		return zen_parser.optimizeTree(tree);
 	}
 	
-	/**
-	 * Processes profile argument, returning, if possible, profile object
-	 */
-	function processProfile(profile) {
-		var _profile = profile;
-		if (typeof(profile) == 'string' && profile in profiles)
-			_profile = profiles[profile];
-		
-		if (!_profile)
-			_profile = profiles['plain'];
-			
-		return _profile;
-	}
-	
-	// create default profiles
-	setupProfile('xhtml');
-	setupProfile('html', {self_closing_tag: false});
-	setupProfile('xml', {self_closing_tag: true, tag_nl: true});
-	setupProfile('plain', {tag_nl: false, indent: false, place_cursor: false});
-	
 	
 	return {
 		/** Hash of all available actions */
@@ -831,11 +754,12 @@
 		expandAbbreviation: function(abbr, type, profile, contextNode) {
 			type = type || 'html';
 			var parsed_tree = this.parseIntoTree(abbr, type, contextNode);
+			var u = zen_coding.require('utils');
 			
 			if (parsed_tree) {
 				var tree = rolloutTree(parsed_tree);
 				this.applyFilters(tree, type, profile, parsed_tree.filters);
-				return replaceVariables(tree.toString());
+				return u.replaceVariables(tree.toString());
 			}
 			
 			return '';
@@ -853,7 +777,7 @@
 				brace_count = 0,
 				text_count = 0;
 			
-			var U = zen_coding.utils;
+			var u = zen_coding.require('utils');
 			
 			while (true) {
 				cur_offset--;
@@ -893,7 +817,7 @@
 					if (brace_count || text_count) 
 						// respect all characters inside attribute sets or text nodes
 						continue;
-					else if (!U.isAllowedChar(ch) || (ch == '>' && U.endsWithTag(str.substring(0, cur_offset + 1)))) {
+					else if (!u.isAllowedChar(ch) || (ch == '>' && u.endsWithTag(str.substring(0, cur_offset + 1)))) {
 						// found stop symbol
 						start_index = cur_offset + 1;
 						break;
@@ -945,7 +869,6 @@
 			return tree_root;
 		},
 		
-		setupProfile: setupProfile,
 		getNewline: function(){
 			return newline;
 		},
@@ -982,8 +905,9 @@
 				if (!pasted) 
 					tree.pasteContent(text);
 				
+				var u = zen_coding.require('utils');
 				this.applyFilters(tree, type, profile, tree_root.filters);
-				return replaceVariables(tree.toString());
+				return u.replaceVariables(tree.toString());
 			}
 			
 			return null;
@@ -1064,7 +988,7 @@
 		 * @return {ZenNode}
 		 */
 		applyFilters: function(tree, syntax, profile, additional_filters) {
-			profile = processProfile(profile);
+			profile = zen_coding.require('profile').get(profile);
 			var _filters = profile.filters;
 			if (!_filters)
 				_filters = zen_resources.getSubset(syntax, 'filters') || basic_filters;
@@ -1097,7 +1021,6 @@
 			voc.variables[name] = value;
 			zen_resources.setVocabulary(voc, 'user');
 		},
-		replaceVariables: replaceVariables,
 		
 		/**
 		 * Escapes special characters used in Zen Coding, like '$', '|', etc.
@@ -1165,14 +1088,6 @@
 				node[props[i]] = this.processTextBeforePaste(node[props[i]], escape_fn, tabstop_fn);
 			
 			return max_num;
-		},
-		
-		/**
-		 * Get profile by it's name. If profile wasn't found, returns 'plain'
-		 * profile
-		 */
-		getProfile: function(name) {
-			return (name in profiles) ? profiles[name] : profiles['plain'];
 		},
 		
 		/**
@@ -1270,7 +1185,7 @@
 				return ix - 1;
 			};
 			
-			var U = zen_coding.utils;
+			var u = zen_coding.require('utils');
 			
 			while (i < il) {
 				var ch = text.charAt(i);
@@ -1283,10 +1198,10 @@
 					// looks like a tabstop
 					var next_ch = text.charAt(i + 1) || '';
 					_i = i;
-					if (U.isNumeric(next_ch)) {
+					if (u.isNumeric(next_ch)) {
 						// $N placeholder
 						start_ix = i + 1;
-						i = nextWhile(start_ix, U.isNumeric);
+						i = nextWhile(start_ix, u.isNumeric);
 						if (start_ix < i) {
 							str_builder.push(tabstop_fn(_i, text.substring(start_ix, i)));
 							continue;
@@ -1295,7 +1210,7 @@
 						// ${N:value} or ${N} placeholder
 						var brace_count = 1;
 						start_ix = i + 2;
-						i = nextWhile(start_ix, U.isNumeric);
+						i = nextWhile(start_ix, u.isNumeric);
 						
 						if (i > start_ix) {
 							if (text.charAt(i) == '}') {
@@ -1324,8 +1239,6 @@
 			}
 			
 			return str_builder.join('');
-		},
-		
-		reTag: re_tag
+		}
 	};
 })();
