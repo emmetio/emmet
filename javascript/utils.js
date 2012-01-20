@@ -4,6 +4,12 @@
  * @param {Underscore} _
  */
 zen_coding.define('utils', function(require, _) {
+	/** 
+	 * Special token used as a placeholder for caret positions inside 
+	 * generated output 
+	 */
+	var caretPlaceholder = '{%::zen-caret::%}';
+	
 	return {
 		/** @memberOf zen_coding.utils */
 		reTag: /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
@@ -56,6 +62,25 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
+		 * Returns newline character
+		 * @returns {String}
+		 */
+		getNewline: function() {
+			var nl = zen_coding.require('resources').getVariable('newline');
+			return _.isString(nl) ? nl : '\n';
+		},
+		
+		/**
+		 * Sets new newline character that will be used in output
+		 * @param {String} str
+		 */
+		setNewline: function(str) {
+			var re = zen_coding.require('resources');
+			res.setVariable('newline', str);
+			res.setVariable('nl', str);
+		},
+		
+		/**
 		 * Split text into lines. Set <code>remove_empty</code> to true to filter
 		 * empty lines
 		 * @param {String} text Text to split
@@ -66,7 +91,7 @@ zen_coding.define('utils', function(require, _) {
 			// IE fails to split string by regexp, 
 			// need to normalize newlines first
 			// Also, Mozilla's Rhiho JS engine has a weird newline bug
-			var nl = zen_coding.getNewline();
+			var nl = this.getNewline();
 			var lines = (text || '')
 				.replace(/\r\n/g, '\n')
 				.replace(/\n\r/g, '\n')
@@ -113,7 +138,7 @@ zen_coding.define('utils', function(require, _) {
 			var result = [];
 			
 			var lines = this.splitByLines(text);
-			var nl = zen_coding.getNewline();
+			var nl = this.getNewline();
 				
 			result.push(lines[0]);
 			for (var j = 1; j < lines.length; j++) 
@@ -188,22 +213,6 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
-		 * Class inheritance method
-		 * @param {Function} derived Derived class
-		 * @param {Function} from Base class
-		 */
-		inherit: function(derived, from) {
-			var Inheritance = function(){};
-		
-			Inheritance.prototype = from.prototype;
-		
-			derived.prototype = new Inheritance();
-			derived.prototype.constructor = derived;
-			derived.baseConstructor = from;
-			derived.superClass = from.prototype;
-		},
-		
-		/**
 		 * Replace variables like ${var} in string
 		 * @param {String} str
 		 * @param {Object} vars Variable set (defaults to variables defined in 
@@ -220,7 +229,7 @@ zen_coding.define('utils', function(require, _) {
 				var newValue = resolver(str, p1);
 				if (newValue === null) {
 					// try to find variable in zen_settings
-					var res = zen_coding.require('resources');
+					var res = require('resources');
 					newValue = res.getVariable(p1);
 				}
 				
@@ -229,6 +238,31 @@ zen_coding.define('utils', function(require, _) {
 					newValue = str;
 				
 				return newValue;
+			});
+		},
+		
+		/**
+		 * Replaces '$' character in string assuming it might be escaped with '\'
+		 * @param {String} str String where caracter should be replaced
+		 * @param {String} value Replace value. Might be a <code>Function</code>
+		 * @return {String}
+		 */
+		replaceCounter: function(str, value) {
+			var symbol = '$';
+			// in case we received strings from Java, convert the to native strings
+			str = String(str);
+			value = String(value);
+			var that = this;
+			return this.replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, matchNum){
+				if (str.charAt(pos + 1) == '{' || that.isNumeric(str.charAt(pos + 1)) ) {
+					// it's a variable, skip it
+					return false;
+				}
+				
+				// replace sequense of $ symbols with padded number  
+				var j = pos + 1;
+				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
+				return [str.substring(pos, j), that.zeroPadString(value, j - pos)];
 			});
 		},
 		
@@ -260,6 +294,43 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		unescapeText: function(text) {
 			return text.replace(/\\(.)/g, '$1');
+		},
+		
+		/**
+		 * Returns caret placeholder
+		 * @returns {String}
+		 */
+		getCaretPlaceholder: function() {
+			return _.isFunction(caretPlaceholder) 
+				? caretPlaceholder.apply(this, arguments)
+				: caretPlaceholder;
+		},
+		
+		/**
+		 * Sets new representation for carets in generated output
+		 * @param {String} value New caret placeholder. Might be a 
+		 * <code>Function</code>
+		 */
+		setCaretPlaceholder: function(value) {
+			caretPlaceholder = value;
+		},
+		
+		/**
+		 * Returns context-aware node counter
+		 * @param {node} ZenNode
+		 * @return {Number}
+		 */
+		getCounterForNode: function(node) {
+			// find nearest repeating parent
+			var counter = node.counter;
+			if (!node.is_repeating && !node.repeat_by_lines) {
+				while (node = node.parent) {
+					if (node.is_repeating || node.repeat_by_lines)
+						return node.counter;
+				}
+			}
+			
+			return counter;
 		}
 	};
 });

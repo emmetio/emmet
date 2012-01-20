@@ -34,7 +34,7 @@
 		// make attribute string
 		var attrs = '',
 			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.require('utils').getCaretPlaceholder() : '',
 			attr_name;
 			
 		for (var i = 0; i < tag.attributes.length; i++) {
@@ -54,6 +54,8 @@
 	 */
 	function processSnippet(item, profile, level) {
 		var data = item.source.value;
+		var utils = zen_coding.require('utils');
+		var res = zen_coding.require('resources');
 			
 		if (!data)
 			// snippet wasn't found, process it as tag
@@ -65,8 +67,8 @@
 			padding = item.parent ? item.parent.padding : '';
 			
 			
-		item.start = item.start.replace('%s', zen_coding.padString(start, padding));
-		item.end = item.end.replace('%s', zen_coding.padString(end, padding));
+		item.start = item.start.replace('%s', utils.padString(start, padding));
+		item.end = item.end.replace('%s', utils.padString(end, padding));
 		
 		var startPlaceholderNum = 100;
 		var placeholderMemo = {};
@@ -77,7 +79,7 @@
 			if (attr !== null)
 				return attr;
 			
-			var varValue = zen_coding.getVariable(varName);
+			var varValue = res.getVariable(varName);
 			if (varValue)
 				return varValue;
 			
@@ -88,8 +90,8 @@
 			return '${' + placeholderMemo[varName] + ':' + varName + '}';
 		};
 		
-		item.start = zen_coding.replaceVariables(item.start, cb);
-		item.end = zen_coding.replaceVariables(item.end, cb);
+		item.start = utils.replaceVariables(item.start, cb);
+		item.end = utils.replaceVariables(item.end, cb);
 		
 		return item;
 	}
@@ -116,7 +118,7 @@
 		
 		var attrs = makeAttributesString(item, profile), 
 			content = '', 
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.require('utils').getCaretPlaceholder() : '',
 			self_closing = '',
 			is_unary = (item.isUnary() && !item.children.length),
 			start= '',
@@ -164,9 +166,12 @@
 	function process(tree, profile, level) {
 		level = level || 0;
 		if (level == 0) {
-			tree = zen_coding.runFilters(tree, profile, '_format');
+			tree = zen_coding.require('filters').apply(tree, '_format', profile);
 			tabstops = 0;
 		}
+		
+		var utils = zen_coding.require('utils');
+		var editorUtils = zen_coding.require('editorUtils');
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
@@ -177,12 +182,12 @@
 				: processSnippet(item, profile, level);
 			
 			// replace counters
-			var counter = zen_coding.getCounterForNode(item);
-			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, counter));
-			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, counter));
-			item.content = zen_coding.unescapeText(zen_coding.replaceCounter(item.content, counter));
+			var counter = editorUtils.getCounterForNode(item);
+			item.start = utils.unescapeText(utils.replaceCounter(item.start, counter));
+			item.end = utils.unescapeText(utils.replaceCounter(item.end, counter));
+			item.content = utils.unescapeText(utils.replaceCounter(item.content, counter));
 			
-			tabstops += zen_coding.upgradeTabstops(item, tabstops) + 1;
+			tabstops += editorUtils.upgradeTabstops(item, tabstops) + 1;
 			
 			process(item, profile, level + 1);
 		}
@@ -190,5 +195,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('html', process);
+	zen_coding.require('filters').add('html', process);
 })();

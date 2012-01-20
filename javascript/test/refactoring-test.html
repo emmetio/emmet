@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+	<meta charset="UTF-8">
+	<title>Test refactored modules</title>
+	<script type="text/javascript" src="../underscore.js"></script>
+	<script type="text/javascript" src="../zen_settings.js"></script>
+	
+	<script type="text/javascript" src="../core.js"></script>
+	<script type="text/javascript" src="../utils.js"></script>
+	<script type="text/javascript" src="../resources.js"></script>
+	<script type="text/javascript" src="../parsers/abbreviation.js"></script>
+	<script type="text/javascript" src="../actions.js"></script>
+	<script type="text/javascript" src="../profile.js"></script>
+	<script type="text/javascript" src="../transform.js"></script>
+	<script type="text/javascript" src="../editorUtils.js"></script>
+	
+	<script type="text/javascript" src="../elements.js"></script>
+	<script type="text/javascript" src="../elements/parsedElements.js"></script>
+	<script type="text/javascript" src="../elements/ZenNode.js"></script>
+	
+	<script type="text/javascript" src="../filters.js"></script>
+	<script type="text/javascript" src="../filters/format.js"></script>
+	<script type="text/javascript" src="../filters/html.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		console.log(zen_coding.expandAbbreviation('div>p>span+a*2', 'html'));
+		console.log(zen_coding.expandAbbreviation('cc:ie6', 'html'));
+	</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 /**
- * Class that parses abbreviation into tree with respect of groups, attributes
- * and text nodes
+ * Zen Coding abbreviation parser. This module is designed to be stand-alone
+ * (e.g. without any dependencies) so authors can copy this file into their
+ * projects
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @memberOf __zen_parser
@@ -560,3 +561,9 @@
 		optimizeTree: optimizeTree
 	};
 })();
+
+if (this.zen_coding) {
+	zen_coding.define('parser', function() {
+		return zen_parser;
+	});
+}

@@ -4,7 +4,7 @@
 	 * transformation process. This element will then be converted to 
 	 * <code>ZenNode</code>
 	 * 
-	 * @param {zen_parser.TreeNode} node Parsed tree node
+	 * @param {TreeNode} node Parsed tree node
 	 * @param {String} syntax Tag type (html, xml)
 	 * @param {__zenDataElement} resource Matched element resource from <code>zen_settings</code>
 	 */
@@ -21,6 +21,7 @@
 		this.is_repeating = node && node.count > 1;
 		this.parent = null;
 		this.has_implicit_name = !!node.has_implict_name;
+		this.children = [];
 		
 		this.setContent(node.text);
 	}
@@ -31,11 +32,16 @@
 		 * @param {ParsedElement} elem
 		 */
 		addChild: function(elem) {
-			if (!this.children)
-				this.children = [];
-				
 			elem.parent = this;
 			this.children.push(elem);
+		},
+		
+		/**
+		 * Check if current node contains children
+		 * @returns {Boolean}
+		 */
+		hasChildren: function() {
+			return !!this.children.length;
 		},
 		
 		/**
@@ -51,10 +57,10 @@
 				this._attr_hash = {};
 			
 			/** @type {zen_coding.utils} */
-			var u = zen_coding.require('utils');
+			var utils = zen_coding.require('utils');
 			
 			// escape pipe (caret) character with internal placeholder
-			value = u.replaceUnescapedSymbol(value, '|', zen_coding.getCaretPlaceholder());
+			value = utils.replaceUnescapedSymbol(value, '|', utils.getCaretPlaceholder());
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -98,8 +104,8 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = zen_coding.require('utils')
-				.replaceUnescapedSymbol(str || '', '|', zen_coding.getCaretPlaceholder());
+			var utils = zen_coding.require('utils');
+			this._content = utils.replaceUnescapedSymbol(str || '', '|', utils.getCaretPlaceholder());
 		},
 		
 		/**
@@ -135,10 +141,8 @@
 				return null;
 				
 			var deepestChild = this;
-			while (true) {
-				deepestChild = deepestChild.children[ deepestChild.children.length - 1 ];
-				if (!deepestChild.children || !deepestChild.children.length)
-					break;
+			while (deepestChild.children.length) {
+				deepestChild = _.last(deepestChild.children);
 			}
 			
 			return deepestChild;
@@ -147,6 +151,15 @@
 	
 	var elems = zen_coding.require('elements');
 	elems.add('parsedElement', function(node, syntax, resource) {
+		var res = zen_coding.require('resources');
+		if (!resource && node.name) {
+			resource = res.getAbbreviation(syntax, node.name);
+		}
+		
+		if (resource && elems.is(resource, 'reference')) {
+			resource = res.getAbbreviation(type, resource.data);
+		}
+		
 		var elem = new ParsedElement(node, syntax, resource);
 		// add default attributes
 		if (elem._abbr)
@@ -158,16 +171,19 @@
 	});
 	
 	elems.add('parsedSnippet', function(node, syntax, resource) {
+		if (_.isString(resource))
+			resource = elems.create('snippet', resource);
+		
 		var elem = new ParsedElement(node, syntax, resource);
 		var utils = zen_coding.require('utils');
 		var res = zen_coding.require('resources');
 		
-		var data = source ? source.data : res.getSnippet(syntax, elem.name);
-		elem.value = utils.replaceUnescapedSymbol(data, '|', zen_coding.getCaretPlaceholder());
+		var data = resource ? resource.data : res.getSnippet(syntax, elem.name);
+		elem.value = utils.replaceUnescapedSymbol(data, '|', utils.getCaretPlaceholder());
 		
 		// override some attributes
-		elem.addAttribute('id', zen_coding.getCaretPlaceholder());
-		elem.addAttribute('class', zen_coding.getCaretPlaceholder());
+		elem.addAttribute('id', utils.getCaretPlaceholder());
+		elem.addAttribute('class', utils.getCaretPlaceholder());
 		elem.copyAttributes(node);
 		
 		return elem;

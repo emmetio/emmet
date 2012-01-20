@@ -1,34 +1,27 @@
 /**
  * Parsed resources (snippets, abbreviations, variables, etc.) for Zen Coding.
  * Contains convenient method to get access for snippets with respect of 
- * inheritance. Also provides abilitity to store data in different vocabularies
- * ('system' and 'user') for fast and safe resurce update
+ * inheritance. Also provides ability to store data in different vocabularies
+ * ('system' and 'user') for fast and safe resource update
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * 
- * @memberOf __zenCodingResource
- */var zen_resources = (/** @constructor */ function(){
-	var VOC_SYSTEM = 'system',
-		VOC_USER = 'user',
+ * @param {Function} require
+ * @param {Underscore} _
+ */
+zen_coding.define('resources', function(require, _) {
+	var VOC_SYSTEM = 'system';
+	var VOC_USER = 'user';
 		
-		/** Regular expression for XML tag matching */
-		re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
+	/** Regular expression for XML tag matching */
+	var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/;
 		
-		system_settings = {},
-		user_settings = {};
+	var systemSettings = {};
+	var userSettings = {};
 	
 	/** List of registered abbreviation resolvers */
 	var resolvers = [];
-		
-	/**
-	 * Trim whitespace from string
-	 * @param {String} text
-	 * @return {String}
-	 */
-	function trim(text) {
-		return (text || "").replace( /^\s+|\s+$/g, "" );
-	}
-		
+	
 	/**
 	 * Check if specified resource is parsed by Zen Coding
 	 * @param {Object} obj
@@ -51,7 +44,7 @@
 	 * @param {String} name Vocabulary name ('system' or 'user')
 	 */
 	function getVocabulary(name) {
-		return name == VOC_SYSTEM ? system_settings : user_settings;
+		return name == VOC_SYSTEM ? systemSettings : userSettings;
 	}
 		
 	/**
@@ -90,9 +83,9 @@
 		var chain_source;
 		if (resource && 'extends' in resource)
 			chain_source = resource;
-		else if (vocabulary == VOC_USER && syntax in system_settings 
-			&& 'extends' in system_settings[syntax] )
-			chain_source = system_settings[syntax];
+		else if (vocabulary == VOC_USER && syntax in systemSettings 
+			&& 'extends' in systemSettings[syntax] )
+			chain_source = systemSettings[syntax];
 			
 		if (chain_source) {
 			if (!isParsed(chain_source['extends'])) {
@@ -139,6 +132,7 @@
 	function getParsedItem(vocabulary, syntax, name, item) {
 		var chain = createResourceChain(vocabulary, syntax, name);
 		var result = null, res;
+		var elements = require('elements');
 		
 		for (var i = 0, il = chain.length; i < il; i++) {
 			res = chain[i];
@@ -151,7 +145,7 @@
 							res[item].__ref = value;
 							break;
 						case 'snippets':
-							res[item] = zen_coding.dataType.snippet(res[item]);
+							res[item] = elements.create('snippet', res[item]);
 							break;
 					}
 					
@@ -173,19 +167,14 @@
 	 * @return {Object}
 	 */
 	function parseAbbreviation(key, value) {
-		key = trim(key);
+		key = require('utils').trim(key);
+		var elements = require('elements');
 		var m;
-		if (key.substr(-1) == '+') {
-			// this is expando, leave 'value' as is
-//			return makeExpando(key, value);
-			return zen_coding.dataType.expando(value);
-		} else if (m = re_tag.exec(value)) {
-//			return makeAbbreviation(key, m[1], m[2], m[4] == '/');
-			return zen_coding.dataType.element(m[1], m[2], m[4] == '/');
+		if (m = re_tag.exec(value)) {
+			return elements.create('element', m[1], m[2], m[4] == '/');
 		} else {
 			// assume it's reference to another abbreviation
-//			return entry(key, zen_coding.dataType.reference(value));
-			return zen_coding.dataType.reference(value);
+			return elements.create('reference', value);
 		}
 	}
 	
@@ -194,13 +183,13 @@
 		 * Sets new unparsed data for specified settings vocabulary
 		 * @param {Object} data
 		 * @param {String} type Vocabulary type ('system' or 'user')
-		 * @memberOf zen_resources
+		 * @memberOf zen_coding.resources
 		 */
 		setVocabulary: function(data, type) {
 			if (type == VOC_SYSTEM)
-				system_settings = data;
+				systemSettings = data;
 			else
-				user_settings = data;
+				userSettings = data;
 		},
 		
 		/**
@@ -247,21 +236,20 @@
 		/**
 		 * Returns resource (abbreviation, snippet, etc.) matched for passed 
 		 * abbreviation
+		 * @param {TreeNode} node
 		 * @param {String} syntax
-		 * @param {String} abbr
-		 * @param {zen_parser.TreeNode} node
 		 * @returns {Object}
 		 */
-		getMatchedResource: function(syntax, abbr, node) {
+		getMatchedResource: function(node, syntax) {
 			// walk through registered resolvers
 			var result = null;
 			for (var i = 0, il = resolvers.length; i < il; i++) {
-				result = resolvers[i](abbr, node, syntax);
+				result = resolvers[i](node, syntax);
 				if (result !== null)
 					return result;
 			}
 			
-			return this.getAbbreviation(syntax, abbr) || this.getSnippet(syntax, abbr);
+			return this.getAbbreviation(syntax, node.name) || this.getSnippet(syntax, node.name);
 		},
 		
 		/**
@@ -345,9 +333,10 @@
 			resolvers = _.without(resolvers, fn);
 		}
 	};
-})();
+});
 
 try {
-	zen_resources.setVocabulary(zen_settings, 'system');
-	zen_resources.setVocabulary(my_zen_settings, 'user');
+	var res = zen_coding.require('resources');
+	res.setVocabulary(zen_settings, 'system');
+	res.setVocabulary(my_zen_settings, 'user');
 } catch(e) {}

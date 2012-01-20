@@ -13,11 +13,11 @@
 		placeholder = '%s';
 	
 	function getNewline() {
-		return zen_coding.getNewline();
+		return zen_coding.require('resources').getVariable('newline');
 	}
 	
 	function getIndentation() {
-		return zen_resources.getVariable('indentation');
+		return zen_coding.require('resources').getVariable('indentation');
 	}
 	
 	/**
@@ -92,9 +92,10 @@
 			
 		item.start = item.end = placeholder;
 		
+		var utils = zen_coding.require('utils');
 		var padding = (item.parent) 
 			? item.parent.padding
-			: zen_coding.repeatString(getIndentation(), level);
+			: utils.repeatString(getIndentation(), level);
 		
 		if (!isVeryFirstChild(item)) {
 			item.start = getNewline() + padding + item.start;
@@ -102,7 +103,7 @@
 		
 		// adjust item formatting according to last line of <code>start</code> property
 		var parts = data.split(child_token),
-			lines = zen_coding.splitByLines(parts[0] || ''),
+			lines = utils.splitByLines(parts[0] || ''),
 			padding_delta = getIndentation();
 			
 		if (lines.length > 1) {
@@ -128,14 +129,14 @@
 			return item;
 		
 		item.start = item.end = placeholder;
-		
+		var utils = zen_coding.require('utils');
 		var is_unary = (item.isUnary() && !item.children.length);
 			
 		// formatting output
 		if (profile.tag_nl !== false) {
 			var padding = (item.parent) 
 					? item.parent.padding
-					: zen_coding.repeatString(getIndentation(), level),
+					: utils.repeatString(getIndentation(), level),
 				force_nl = (profile.tag_nl === true),
 				should_break = shouldBreakLine(item, profile);
 			
@@ -173,6 +174,7 @@
 	 */
 	function process(tree, profile, level) {
 		level = level || 0;
+		var utils = zen_coding.require('utils');
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
@@ -182,7 +184,7 @@
 				: processSnippet(item, profile, level);
 				
 			if (item.content)
-				item.content = zen_coding.padString(item.content, item.padding);
+				item.content = utils.padString(item.content, item.padding);
 				
 			process(item, profile, level + 1);
 		}
@@ -190,5 +192,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('_format', process);
+	zen_coding.require('filters').add('_format', process);
 })();
