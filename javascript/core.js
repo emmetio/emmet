@@ -46,16 +46,14 @@
 			var transform = this.require('transform');
 			var parser = this.require('parser');
 			
-			var data = filters.extractFromAbbreviation(abbr);
-			abbr = data[0];
-			var additionalFilters = data[1];
-			
-			var parsedTree = parser.parse(abbr);
-			if (parsedTree) {
-				var outputTree = transform.transform(parsedTree, syntax, contextNode);
-				var filtersList = filters.composeList(syntax, profile, additionalFilters);
+			try {
+				var data = filters.extractFromAbbreviation(abbr);
+				var outputTree = transform.transform(data[0], syntax, contextNode);
+				var filtersList = filters.composeList(syntax, profile, data[1]);
 				filters.apply(outputTree, filtersList, profile);
 				return utils.replaceVariables(outputTree.toString());
+			} catch(e) {
+				zen_coding.log(e);
 			}
 			
 			return '';

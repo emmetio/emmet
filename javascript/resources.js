@@ -244,7 +244,7 @@ zen_coding.define('resources', function(require, _) {
 			// walk through registered resolvers
 			var result = null;
 			for (var i = 0, il = resolvers.length; i < il; i++) {
-				result = resolvers[i](node, syntax);
+				result = resolvers[i].call(this, node, syntax);
 				if (result !== null)
 					return result;
 			}

@@ -22,11 +22,16 @@
 	<script type="text/javascript" src="../filters.js"></script>
 	<script type="text/javascript" src="../filters/format.js"></script>
 	<script type="text/javascript" src="../filters/html.js"></script>
+	
+	<script type="text/javascript" src="../resolvers/expando.js"></script>
+	<!-- <script type="text/javascript" src="../resolvers/generator.js"></script> -->
+	
 </head>
 <body>
 	<script type="text/javascript">
 		console.log(zen_coding.expandAbbreviation('div>p>span+a*2', 'html'));
 		console.log(zen_coding.expandAbbreviation('cc:ie6', 'html'));
+		console.log(zen_coding.expandAbbreviation('ol+', 'html'));
 	</script>
 </body>
 </html>

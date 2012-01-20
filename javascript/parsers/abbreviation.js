@@ -5,9 +5,7 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @memberOf __zen_parser
- * @constructor
- * @include "zen_coding.js"
- */var zen_parser = (function(){
+ */var zen_parser = (/** @constructor */ function(){
 	
 	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
@@ -562,8 +560,6 @@
 	};
 })();
 
-if (this.zen_coding) {
-	zen_coding.define('parser', function() {
-		return zen_parser;
-	});
-}
+try {
+	zen_coding.define('parser', zen_parser);
+} catch(e) {};

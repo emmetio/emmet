@@ -7,56 +7,6 @@
  */
 zen_coding.define('transform', function(require, _) {
 	/**
-	 * Roll outs basic Zen Coding tree into simplified, DOM-like tree.
-	 * The simplified tree, for example, represents each multiplied element 
-	 * as a separate element sets with its own content, if exists.
-	 * 
-	 * The simplified tree element contains some meta info (tag name, attributes, 
-	 * etc.) as well as output strings, which are exactly what will be outputted
-	 * after expanding abbreviation. This tree is used for <i>filtering</i>:
-	 * you can apply filters that will alter output strings to get desired look
-	 * of expanded abbreviation.
-	 * 
-	 * @param {ParsedElement} tree
-	 * @param {ZenNode} parent
-	 */
-	function rolloutTree(tree, parent) {
-		var elements = require('elements');
-		var utils = require('utils');
-		var howMany = 1;
-		var tagContent = '';
-		
-		parent = parent || elements.create('ZenNode', tree);
-		_.each(tree.children, function(child) {
-			howMany = child.count;
-			
-			if (child.repeat_by_lines) {
-				// it's a repeating element
-				tagContent = utils.splitByLines(child.getPasteContent(), true);
-				howMany = Math.max(tagContent.length, 1);
-			} else {
-				tagContent = child.getPasteContent();
-			}
-			
-			for (var j = 0; j < howMany; j++) {
-				var elem = elements.create('ZenNode', child);
-				parent.addChild(elem);
-				elem.counter = j + 1;
-				
-				if (child.hasChildren())
-					rolloutTree(child, elem);
-					
-				if (tagContent) {
-					var text = _.isString(tagContent) ? tagContent : tagContent[j];
-					elem.pasteContent(utils.trim(text || ''));
-				}
-			}
-		});
-		
-		return parent;
-	}
-	
-	/**
 	 * Resolves abbreviation node into parsed data
 	 * @param {TreeNode} node
 	 * @param {String} syntax
@@ -104,7 +54,7 @@ zen_coding.define('transform', function(require, _) {
 	 * @param {String} syntax
 	 * @param {ParsedElement} parent
 	 */
-	function processParsedNode(node, syntax, parent) {
+	function parseNodes(node, syntax, parent) {
 		var resolvedData = resolveNode(node, syntax);
 		
 		if (!resolvedData) 
@@ -124,7 +74,7 @@ zen_coding.define('transform', function(require, _) {
 				
 			// process child groups
 			_.each(node.children, function(child) {
-				processParsedNode(child, syntax, item);
+				parseNodes(child, syntax, item);
 			});
 		});
 	}
@@ -141,20 +91,40 @@ zen_coding.define('transform', function(require, _) {
 		 * @memberOf zen_coding.transform
 		 */
 		transform: function(abbrTree, syntax, contextNode) {
+			return this.rolloutTree(this.createParsedTree(abbrTree, syntax, contextNode));
+		},
+		
+		/**
+		 * Transforms abbreviation tree into parsed elements tree.
+		 * The parsed tree consists for resolved elements and snippets, defined 
+		 * in <code>zen_settings</code> file mostly. This is an intermediate tree
+		 * structure that can be used to produce final output tree.
+		 * @param {TreeNode} abbrTree Parsed abbreviation of string abbreviation
+		 * @param {String} syntax
+		 * @param {TreeNode} contextNode Contextual node (XHTML under current 
+		 * caret position), for better abbreviation expansion
+		 * @returns {ZenNode}
+		 * @returns {ParsedElement}
+		 */
+		createParsedTree: function(abbrTree, syntax, contextNode) {
 			var elems = require('elements');
 			var parser = require('parser');
 			
 			/** @type ParsedElement */
 			var treeRoot = elems.create('parsedElement', contextNode || {}, syntax);
+			if (_.isString(abbrTree))
+				abbrTree = parser.parse(abbrTree);
 			
+			if (!abbrTree)
+				return null;
 			abbrTree = parser.optimizeTree(abbrTree);
 			
 			// recursively expand each group item
 			_.each(abbrTree.children, function(child) {
-				processParsedNode(child, syntax, treeRoot);
+				parseNodes(child, syntax, treeRoot);
 			});
 			
-			return rolloutTree(treeRoot);
+			return treeRoot;
 		},
 
 		/**
@@ -165,6 +135,56 @@ zen_coding.define('transform', function(require, _) {
 		 */
 		resolve: function(node, syntax) {
 			return resolveNode(node, syntax);
+		},
+		
+		/**
+		 * Roll outs basic Zen Coding tree into simplified, DOM-like tree.
+		 * The simplified tree, for example, represents each multiplied element 
+		 * as a separate element sets with its own content, if exists.
+		 * 
+		 * The simplified tree element contains some meta info (tag name, attributes, 
+		 * etc.) as well as output strings, which are exactly what will be outputted
+		 * after expanding abbreviation. This tree is used for <i>filtering</i>:
+		 * you can apply filters that will alter output strings to get desired look
+		 * of expanded abbreviation.
+		 * 
+		 * @param {ParsedElement} tree
+		 * @param {ZenNode} parent
+		 */
+		rolloutTree: function(tree, parent) {
+			var elements = require('elements');
+			var utils = require('utils');
+			var howMany = 1;
+			var tagContent = '';
+			
+			parent = parent || elements.create('ZenNode', tree);
+			_.each(tree.children, function(child) {
+				howMany = child.count;
+				
+				if (child.repeat_by_lines) {
+					// it's a repeating element
+					tagContent = utils.splitByLines(child.getPasteContent(), true);
+					howMany = Math.max(tagContent.length, 1);
+				} else {
+					tagContent = child.getPasteContent();
+				}
+				
+				for (var j = 0; j < howMany; j++) {
+					var elem = elements.create('ZenNode', child);
+					parent.addChild(elem);
+					elem.counter = j + 1;
+					
+					if (child.hasChildren())
+						this.rolloutTree(child, elem);
+						
+					if (tagContent) {
+						var text = _.isString(tagContent) ? tagContent : tagContent[j];
+						elem.pasteContent(utils.trim(text || ''));
+					}
+				}
+			}, this);
+			
+			return parent;
 		}
 	};
 });
