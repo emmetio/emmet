@@ -162,6 +162,21 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
+		 * Removes padding at the beginning of each text's line
+		 * @param {String} text
+		 * @param {String} pad
+		 */
+		unindentString: function(text, pad) {
+			var lines = this.splitByLines(text);
+			for (var i = 0; i < lines.length; i++) {
+				if (lines[i].search(pad) == 0)
+					lines[i] = lines[i].substr(pad.length);
+			}
+			
+			return lines.join(this.getNewline());
+		},
+		
+		/**
 		 * Replaces unescaped symbols in <code>str</code>. For example, the '$' symbol
 		 * will be replaced in 'item$count', but not in 'item\$count'.
 		 * @param {String} str Original string
@@ -331,6 +346,26 @@ zen_coding.define('utils', function(require, _) {
 			}
 			
 			return counter;
+		},
+		
+		/**
+		 * Returns line padding
+		 * @param {String} line
+		 * @return {String}
+		 */
+		getLinePadding: function(line) {
+			return (line.match(/^(\s+)/) || [''])[0];
+		},
+		
+		/**
+		 * Escape special regexp chars in string, making it usable for creating dynamic
+		 * regular expressions
+		 * @param {String} str
+		 * @return {String}
+		 */
+		escapeForRegexp: function(str) {
+			var specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g"); // .*+?|()[]{}\
+			return str.replace(specials, "\\$&");
 		}
 	};
 });

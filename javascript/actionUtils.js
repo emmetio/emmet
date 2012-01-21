@@ -137,6 +137,112 @@ zen_coding.define('actionUtils', function(require, _) {
 					}
 				}
 			}
+		},
+		
+		/**
+		 * Captures context XHTML element from editor under current caret position.
+		 * This node can be used as a helper for abbreviation extraction
+		 * @param {IZenEditor} editor
+		 * @returns {TreeNode}
+		 */
+		captureContext: function(editor) {
+			var allowedSyntaxes = {'html': 1, 'xml': 1, 'xsl': 1};
+			var syntax = String(editor.getSyntax());
+			if (syntax in allowedSyntaxes) {
+				var tags = require('html_matcher').getTags(
+						String(editor.getContent()), 
+						editor.getCaretPos(), 
+						String(editor.getProfileName()));
+				
+				if (tags && tags[0] && tags[0].type == 'tag') {
+					var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+					var startTag = tags[0];
+					var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
+					/** @type TreeNode */
+					var contextNode = new require('parser').TreeNode();
+					contextNode.name = startTag.name;
+					
+					// parse attributes
+					var m;
+					while (m = reAttr.exec(tagAttrs)) {
+						contextNode.attributes.push({
+							name: m[1],
+							value: m[2]
+						});
+					}
+					
+					return contextNode;
+				}
+			}
+			
+			return null;
+		},
+		
+		/**
+		 * Returns line bounds for specific character position
+		 * @param {String} text
+		 * @param {Number} from Where to start searching
+		 * @return {Object}
+		 */
+		getLineBounds: function(text, from) {
+			var len = text.length,
+				start = 0,
+				end = len - 1;
+			
+			// search left
+			for (var i = from - 1; i > 0; i--) {
+				var ch = text.charAt(i);
+				if (ch == '\n' || ch == '\r') {
+					start = i + 1;
+					break;
+				}
+			}
+			// search right
+			for (var j = from; j < len; j++) {
+				var ch = text.charAt(j);
+				if (ch == '\n' || ch == '\r') {
+					end = j;
+					break;
+				}
+			}
+			
+			return {start: start, end: end};
+		},
+		
+		/**
+		 * Find expression bounds in current editor at caret position. 
+		 * On each character a <code>fn</code> function will be caller which must 
+		 * return <code>true</code> if current character meets requirements, 
+		 * <code>false</code> otherwise
+		 * @param {zen_editor} editor
+		 * @param {Function} fn Function to test each character of expression
+		 * @return {Array} If expression found, returns array with start and end 
+		 * positions 
+		 */
+		findExpressionBounds: function(editor, fn) {
+			var content = String(editor.getContent());
+			var il = content.length;
+			var exprStart = editor.getCaretPos() - 1;
+			var exprEnd = exprStart + 1;
+				
+			// start by searching left
+			while (exprStart >= 0 && fn(content.charAt(exprStart), exprStart, content)) exprStart--;
+			
+			// then search right
+			while (exprEnd < il && fn(content.charAt(exprEnd), exprEnd, content)) exprEnd++;
+			
+			return exprEnd > exprStart ? [++exprStart, exprEnd] : null;
+		},
+		
+		/**
+		 * Make decimal number look good: convert it to fixed precision end remove
+		 * trailing zeroes 
+		 * @param {Number} num
+		 * @param {Number} fraction Fraction numbers (default is 2)
+		 * @return {String}
+		 */
+		prettifyNumber: function(num, fraction) {
+			return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
 		}
 	};
 });

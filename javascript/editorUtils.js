@@ -152,6 +152,73 @@ zen_coding.define('editorUtils', function(require, _) {
 			}
 			
 			return false;
+		},
+		
+		/**
+		 * Sanitizes incoming editor data and provides default values for
+		 * output-specific info
+		 * @param {IZenEditor} editor
+		 * @param {String} syntax
+		 * @param {String} profile
+		 */
+		outputInfo: function(editor, syntax, profile) {
+			return  {
+				/** @memberOf outputInfo */
+				syntax: String(syntax || editor.getSyntax()),
+				profile: String(profile || editor.getProfileName()),
+				content: String(editor.getContent())
+			};
+		},
+		
+		/**
+		 * Unindent content, thus preparing text for tag wrapping
+		 * @param {IZenEditor} editor Editor instance
+		 * @param {String} text
+		 * @return {String}
+		 */
+		unindent: function(editor, text) {
+			return require('utils').unindentText(text, getCurrentLinePadding(editor));
+		},
+		
+		/**
+		 * Returns padding of current editor's line
+		 * @param {IZenEditor} Editor instance
+		 * @return {String}
+		 */
+		getCurrentLinePadding: function(editor) {
+			return require('utils').getLinePadding(editor.getCurrentLine());
+		},
+		
+		/**
+		 * Narrow down text indexes, adjusting selection to non-space characters
+		 * @param {String} text
+		 * @param {Number} start
+		 * @param {Number} end
+		 * @return {Array}
+		 */
+		narrowToNonSpace: function(text, start, end) {
+			// narrow down selection until first non-space character
+			var reSpace = /\s|\n|\r/;
+			var isIspace = function(ch) {
+				return reSpace.test(ch);
+			};
+			
+			while (start < end) {
+				if (!isSpace(text.charAt(start)))
+					break;
+					
+				start++;
+			}
+			
+			while (end > start) {
+				end--;
+				if (!isSpace(text.charAt(end))) {
+					end++;
+					break;
+				}
+			}
+			
+			return [start, end];
 		}
 	};
 });

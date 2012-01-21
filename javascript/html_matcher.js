@@ -293,7 +293,9 @@
 	HTMLPairMatcher.last_match = last_match;
 	
 	try {
-		zen_coding.define('html_matcher', HTMLPairMatcher);
+		zen_coding.define('html_matcher', function() {
+			return HTMLPairMatcher.apply(HTMLPairMatcher, arguments);
+		});
 	} catch(e){}
 	
 })();
