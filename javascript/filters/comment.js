@@ -2,7 +2,7 @@
  * Comment important tags (with 'id' and 'class' attributes)
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- */(function(){
+ */zen_coding.require('filters').add('c', (function() {
 	/**
 	 * Add comments to tag
 	 * @param {ZenNode} node
@@ -45,5 +45,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('c', process);
-})();
+	return process;
+})());

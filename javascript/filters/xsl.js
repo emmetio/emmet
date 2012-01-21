@@ -27,5 +27,5 @@
 		}
 	}
 	
-	zen_coding.registerFilter('xsl', process);
+	zen_coding.require('filters').add('xsl', process);
 })();

@@ -7,7 +7,7 @@
 		'<': '&lt;',
 		'>': '&gt;',
 		'&': '&amp;'
-	}
+	};
 	
 	function escapeChars(str) {
 		return str.replace(/([<>&])/g, function(str, p1){
@@ -29,5 +29,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('e', process);
+	zen_coding.require('filters').add('e', process);
 })();

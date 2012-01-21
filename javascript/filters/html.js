@@ -117,7 +117,6 @@
 			return item;
 		
 		var attrs = makeAttributesString(item, profile), 
-			content = '', 
 			cursor = profile.place_cursor ? zen_coding.require('utils').getCaretPlaceholder() : '',
 			self_closing = '',
 			is_unary = (item.isUnary() && !item.children.length),

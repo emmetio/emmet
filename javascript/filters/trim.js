@@ -19,5 +19,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('t', process);
+	zen_coding.require('filters').add('t', process);
 })();

@@ -27,5 +27,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('s', process);
+	zen_coding.require('filters').add('s', process);
 })();

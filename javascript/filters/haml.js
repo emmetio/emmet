@@ -9,46 +9,54 @@
 	var child_token = '${child}';
 	
 	/**
+	 * Returns proper string case, depending on profile value
+	 * @param {String} val String to process
+	 * @param {String} caseParam Profile's case value ('lower', 'upper', 'leave')
+	 */
+	function processStringCase(val, caseParam) {
+		switch (String(caseParam || '').toLowerCase()) {
+			case 'lower':
+				return val.toLowerCase();
+			case 'upper':
+				return val.toUpperCase();
+		}
+		
+		return val;
+	}
+	
+	/**
 	 * Creates HTML attributes string from tag according to profile settings
 	 * @param {ZenNode} tag
 	 * @param {default_profile} profile
 	 */
 	function makeAttributesString(tag, profile) {
 		// make attribute string
-		var attrs = '',
-			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
-			attr_name, 
-			i,
-			a;
-			
-		// use short notation for ID and CLASS attributes
-		for (i = 0; i < tag.attributes.length; i++) {
-			a = tag.attributes[i];
+		var attrs = '';
+		var otherAttrs = [];
+		var attrQuote = profile.attr_quotes == 'single' ? "'" : '"';
+		var cursor = profile.place_cursor ? zen_coding.require('utils').getCaretPlaceholder() : '';
+		
+		/** @type Underscore */
+		var _ = zen_coding.require('_');
+		
+		_.each(tag.attributes, function(a) {
 			switch (a.name.toLowerCase()) {
+				// use short notation for ID and CLASS attributes
 				case 'id':
 					attrs += '#' + (a.value || cursor);
 					break;
 				case 'class':
 					attrs += '.' + (a.value || cursor);
 					break;
+				// process other attributes
+				default:
+					var attrName = processStringCase(a.name, profile.attr_case);
+					otherAttrs.push(':' +attrName + ' => ' + attrQuote + (a.value || cursor) + attrQuote);
 			}
-		}
+		});
 		
-		var other_attrs = [];
-		
-		// process other attributes
-		for (i = 0; i < tag.attributes.length; i++) {
-			a = tag.attributes[i];
-			var attr_name_lower = a.name.toLowerCase();
-			if (attr_name_lower != 'id' && attr_name_lower != 'class') {
-				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : attr_name_lower;
-				other_attrs.push(':' +attr_name + ' => ' + attr_quote + (a.value || cursor) + attr_quote);
-			}
-		}
-		
-		if (other_attrs.length)
-			attrs += '{' + other_attrs.join(', ') + '}';
+		if (otherAttrs.length)
+			attrs += '{' + otherAttrs.join(', ') + '}';
 		
 		return attrs;
 	}
@@ -61,6 +69,8 @@
 	 */
 	function processSnippet(item, profile, level) {
 		var data = item.source.value;
+		var utils = zen_coding.require('utils');
+		var res = zen_coding.require('resources');
 			
 		if (!data)
 			// snippet wasn't found, process it as tag
@@ -71,18 +81,31 @@
 			end = parts[1] || '',
 			padding = item.parent ? item.parent.padding : '';
 			
-		item.start = item.start.replace('%s', zen_coding.padString(start, padding));
-		item.end = item.end.replace('%s', zen_coding.padString(end, padding));
+		item.start = item.start.replace('%s', utils.padString(start, padding));
+		item.end = item.end.replace('%s', utils.padString(end, padding));
+		
+		var startPlaceholderNum = 100;
+		var placeholderMemo = {};
 		
 		// replace variables ID and CLASS
-		var cb = function(str, var_name) {
-			if (var_name == 'id' || var_name == 'class')
-				return item.getAttribute(var_name);
-			else
-				return str;
+		var cb = function(str, varName) {
+			var attr = item.getAttribute(varName);
+			if (attr !== null)
+				return attr;
+			
+			var varValue = res.getVariable(varName);
+			if (varValue)
+				return varValue;
+			
+			// output as placeholder
+			if (!placeholderMemo[varName])
+				placeholderMemo[varName] = startPlaceholderNum++;
+				
+			return '${' + placeholderMemo[varName] + ':' + varName + '}';
 		};
-		item.start = zen_coding.replaceVariables(item.start, cb);
-		item.end = zen_coding.replaceVariables(item.end, cb);
+		
+		item.start = utils.replaceVariables(item.start, cb);
+		item.end = utils.replaceVariables(item.end, cb);
 		
 		return item;
 	}
@@ -109,7 +132,7 @@
 		
 		var attrs = makeAttributesString(item, profile), 
 			content = '', 
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.require('utils').getCaretPlaceholder() : '',
 			self_closing = '',
 			is_unary = (item.isUnary() && !item.children.length),
 			start= '',
@@ -148,27 +171,31 @@
 	 */
 	function process(tree, profile, level) {
 		level = level || 0;
+		/** @type Underscore */
+		var _ = zen_coding.require('_');
+		/** @type zen_coding.utils */
+		var utils = zen_coding.require('utils');
+		var editorUtils = zen_coding.require('editorUtils');
+		
 		if (level == 0)
 			// preformat tree
-			tree = zen_coding.runFilters(tree, profile, '_format');
+			tree = zen_coding.require('filters').apply(tree, '_format', profile);
 		
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {ZenNode} */
-			var item = tree.children[i];
+		_.each(tree.children, function(item) {
 			item = (item.type == 'tag') 
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
 			
 			// replace counters
-			var counter = zen_coding.getCounterForNode(item);
-			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, counter));
-			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, counter));
+			var counter = editorUtils.getCounterForNode(item);
+			item.start = utils.unescapeText(utils.replaceCounter(item.start, counter));
+			item.end = utils.unescapeText(utils.replaceCounter(item.end, counter));
 			
 			process(item, profile, level + 1);
-		}
+		});
 		
 		return tree;
 	}
 	
-	zen_coding.registerFilter('haml', process);
+	zen_coding.require('filters').add('haml', process);
 })();

@@ -2,7 +2,7 @@
  * @memberOf __zen_filter_bem
  * @constructor
  */
-zen_coding.registerFilter('bem', (function() {
+zen_coding.require('filters').add('bem', (function() {
 	var separators = {
 		element: '__',
 		modifier: '_'

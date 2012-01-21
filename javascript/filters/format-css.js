@@ -20,5 +20,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('fc', process);
+	zen_coding.require('filters').add('fc', process);
 })();

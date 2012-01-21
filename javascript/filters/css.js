@@ -21,5 +21,5 @@
 		return tree;
 	}
 	
-	zen_coding.registerFilter('css', process);
+	zen_coding.require('filters').add('css', process);
 })();
