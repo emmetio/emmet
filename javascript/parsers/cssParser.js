@@ -2,9 +2,9 @@
  * @author Stoyan Stefanov
  * @link https://github.com/stoyan/etc/tree/master/cssex
  */
-var CSSEX = (function () {
-     
-    var walker, tokens = [], isOp, isNameChar, isDigit;
+
+zen_coding.define('cssParser', function(require, _) {
+var walker, tokens = [], isOp, isNameChar, isDigit;
     
     // walks around the source
     walker = {
@@ -363,6 +363,11 @@ var CSSEX = (function () {
 
 
     return {
+    	/**
+    	 * @param source
+    	 * @returns
+    	 * @memberOf zen_coding.cssParser
+    	 */
         lex: function (source) {
             walker.init(source);
             tokens = [];
@@ -384,7 +389,4 @@ var CSSEX = (function () {
             return src;
         }
     };
-
-
-
-}());
+});

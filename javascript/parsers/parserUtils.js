@@ -6,9 +6,10 @@
  *  
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
- * @include "sex.js"
- */var ParserUtils = (function() {
+ * @param {Function} require
+ * @param {Underscore} _
+ */
+zen_coding.define('parserUtils', function(require, _) {
 	var css_stop_chars = '{}/\\<>';
 	
 	function isStopChar(token) {
@@ -27,22 +28,21 @@
 	}
 	
 	/**
-	 * Post-process optmized tokens: collapse tokens for complex values
+	 * Post-process optimized tokens: collapse tokens for complex values
 	 * @param {Array} optimized Optimized tokens
 	 * @param {Array} original Original preprocessed tokens 
 	 */
 	function postProcessOptimized(optimized, original) {
 		var token, child;
-		for (var i = 0, il = optimized.length; i < il; i++) {
-			token = optimized[i];
+		_.each(optimized, function(token, i) {
 			if (token.type == 'value') {
 				token.children = [];
 				child = null;
 				
-				var subtoken_start = token.ref_start_ix;
-					
-				while (subtoken_start <= token.ref_end_ix) {
-					var subtoken = original[subtoken_start];
+				var subtokenStart = token.ref_start_ix;
+				
+				while (subtokenStart <= token.ref_end_ix) {
+					var subtoken = original[subtokenStart];
 					if (subtoken.type != 'white') {
 						if (!child)
 							child = [subtoken.start, subtoken.end];
@@ -53,13 +53,13 @@
 						child = null;
 					}
 					
-					subtoken_start++;	
+					subtokenStart++;	
 				}
 				
 				if (child) // push last token
 					token.children.push(child);
 			}
-		}
+		});
 		
 		return optimized;
 	}
@@ -67,6 +67,7 @@
 	function makeToken(type, value, pos, ix) {
 		value = value || '';
 		return {
+			/** @memberOf syntaxToken */
 			type: type || '',
 			content: value,
 			start: pos,
@@ -75,8 +76,55 @@
 			ref_start_ix: ix,
 			/** Reference token index that ends current token */
 			ref_end_ix: ix
-		}
+		};
 	}
+	
+	function CSSTreeNode(token) {
+ 		this.start_token = token;
+ 		this.end_token = null;
+ 		
+ 		this.children = [];
+ 		this.properties = [];
+ 		
+ 		this.parent = null;
+ 		this.next_sibling = null;
+ 		this.prev_sibling = null;
+ 	}
+ 	
+ 	CSSTreeNode.prototype = {
+ 		/**
+ 		 * @param {syntaxToken} token
+ 		 * @returns {CSSTreeNode}
+ 		 */
+ 		addChild: function(token) {
+ 			var child = new CSSTreeNode(token);
+ 			/** @type CSSTreeNode */
+ 			var lastChild = _.last(this.children);
+ 				
+ 			child.parent = this;
+ 			if (lastChild) {
+ 				lastChild.next_sibling = child;
+ 				child.prev_sibling = lastChild;
+ 			}
+ 			
+ 			this.children.push(child);
+ 			return child;
+ 		},
+ 		
+ 		/**
+ 		 * Adds CSS property name and value into current section
+ 		 * @param {syntaxToken} name_token
+ 		 * @param {syntaxToken} value_token
+ 		 */
+ 		addProperty: function(nameToken, valueToken) {
+ 			this.properties.push({
+ 				name: nameToken ? nameToken.content : null,
+ 				value: valueToken ? valueToken.content : null,
+ 				name_token: nameToken,
+ 				value_token: valueToken
+ 			});
+ 		}
+ 	};
 	
 	return {
 		/**
@@ -85,9 +133,10 @@
 		 * @param {String} source CSS source code fragment
 		 * @param {Number} offset Offset of CSS fragment inside whole document
 		 * @return {Array}
+		 * @memberOf zen_coding.parserUtils
 		 */
 		parseCSS: function(source, offset) {
-			return this.optimizeCSS(CSSEX.lex(source), offset || 0, source);
+			return this.optimizeCSS(require('cssParser').lex(source), offset || 0, source);
 		},
 		
 		/**
@@ -97,13 +146,12 @@
 		 * @return {Array}
 		 */
 		parseHTML: function(tag, offset) {
-			var tokens = XMLParser.make(tag),
+			var tokens = require('xmlParser').make(tag),
 				result = [],
 				t, i = 0;
 				
 			try {
 				while (t = tokens.next()) {
-//					result.push(tagDef(offset + i, t));
 					result.push(makeToken(t.style, t.content, offset + i, 0));
 					i += t.value.length;
 				}
@@ -271,6 +319,55 @@
 			return null;
 		},
 		
-		token: makeToken
+		token: makeToken,
+		
+		/**
+		 * Find value token, staring at <code>pos</code> index and moving right
+		 * @param {Array} tokens
+		 * @param {Number} pos
+		 * @return {ParserUtils.token}
+		 */
+		findValueToken: function(tokens, pos) {
+			for (var i = pos, il = tokens.length; i < il; i++) {
+				var t = tokens[i];
+				if (t.type == 'value')
+					return t;
+				else if (t.type == 'identifier' || t.type == ';')
+					break;
+			}
+			
+			return null;
+		},
+		
+		/**
+	 	 * Parses content of CSS file into some sort of syntax tree for faster 
+	 	 * search and lookups
+	 	 * @param {String} text CSS stylesheet
+	 	 */
+ 		cssParseIntoTree: function(text) {
+	 		var tokens = this.parseCSS(text);
+	 		var tree = new CSSTreeNode();
+	 		/** @type syntaxToken */
+	 		var curNode = tree;
+	 			
+	 		_.each(tokens, function(token, i) {
+	 			switch (token.type) {
+		 			case '{': // rule/section start
+		 				curNode = curNode.addChild(token);
+		 				break;
+		 			case '}': // rule/section end
+		 				curNode.end_token = token;
+		 				curNode = curNode.parent;
+		 				break;
+		 			case 'identifier': // CSS property
+		 				if (curNode) {
+		 					curNode.addProperty(token, this.findValueToken(tokens, i + 1));
+		 				}
+		 				break;
+	 			}
+			});
+	 		
+	 		return tree;
+	 	}
 	};
-})();
+});
