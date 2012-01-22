@@ -4,7 +4,7 @@
  */
 zen_coding.require('actions').add('evaluate_math_expression', function(editor) {
 	var actionUtils = zen_coding.require('actionUtils');
-	var utils = zen_coding.require('actionUtils');
+	var utils = zen_coding.require('utils');
 	
 	var content = String(editor.getContent());
 	var chars = '.+-*/\\';
@@ -21,7 +21,7 @@ zen_coding.require('actions').add('evaluate_math_expression', function(editor) {
 		
 		try {
 			var result = new Function('return ' + expr)();
-			result = actionUtils.prettifyNumber(result);
+			result = utils.prettifyNumber(result);
 			editor.replaceContent(result, r[0], r[1]);
 			editor.setCaretPos(r[0] + result.length);
 			return true;

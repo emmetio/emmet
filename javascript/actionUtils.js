@@ -243,6 +243,40 @@ zen_coding.define('actionUtils', function(require, _) {
 		 */
 		prettifyNumber: function(num, fraction) {
 			return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
+		},
+		
+		/**
+		 * @param {IZenEditor} editor
+		 * @param {Object} data
+		 * @returns {Boolean}
+		 */
+		compoundUpdate: function(editor, data) {
+			if (data) {
+				var sel = editor.getSelectionRange();
+				editor.replaceContent(data.data, data.start, data.end, true);
+				editor.createSelection(data.caret, data.caret + sel.end - sel.start);
+				return true;
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Replaces or adds attribute to the tag
+		 * @param {String} tag
+		 * @param {String} attr_name
+		 * @param {String} attr_value
+		 */
+		replaceOrAppendHTMLAttribute: function(tag, attrName, attrValue) {
+			if (tag.toLowerCase().indexOf(attrName) != -1) {
+				// attribute exists
+				var re = new RegExp(attrName + '=([\'"])(.*?)([\'"])', 'i');
+				return tag.replace(re, function(str, p1, p2){
+					return attrName + '=' + p1 + attrValue + p1;
+				});
+			} else {
+				return tag.replace(/\s*(\/?>)$/, ' ' + attrName + '="' + attrValue + '" $1');
+			}
 		}
 	};
 });

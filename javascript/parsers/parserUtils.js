@@ -325,7 +325,7 @@ zen_coding.define('parserUtils', function(require, _) {
 		 * Find value token, staring at <code>pos</code> index and moving right
 		 * @param {Array} tokens
 		 * @param {Number} pos
-		 * @return {ParserUtils.token}
+		 * @return {syntaxToken}
 		 */
 		findValueToken: function(tokens, pos) {
 			for (var i = pos, il = tokens.length; i < il; i++) {
@@ -337,6 +337,36 @@ zen_coding.define('parserUtils', function(require, _) {
 			}
 			
 			return null;
+		},
+		
+		/**
+		 * Search for token with specified type left to the specified position
+		 * @param {Array} tokens List of parsed tokens
+		 * @param {Number} pos Position where to start searching
+		 * @param {String} type Token type
+		 * @return {Number} Token index
+		 */
+		findTokenFromPosition: function(tokens, pos, type) {
+			// find token under caret
+			var tokenIx = -1;
+			for (var i = 0, il = tokens.length; i < il; i++) {
+				var token = tokens[i];
+				if (token.start <= pos && token.end >= pos) {
+					tokenIx = i;
+					break;
+				}
+			}
+			
+			if (tokenIx != -1) {
+				// token found, search left until we find token with specified type
+				while (tokenIx >= 0) {
+					if (tokens[tokenIx].type == type)
+						return tokenIx;
+					tokenIx--;
+				}
+			}
+			
+			return -1;
 		},
 		
 		/**
@@ -368,6 +398,89 @@ zen_coding.define('parserUtils', function(require, _) {
 			});
 	 		
 	 		return tree;
+	 	},
+	 	
+	 	/**
+	 	 * Search for insertion point for new CSS properties
+	 	 * @param {Array} tokens
+	 	 * @param {Number} start_ix Token index where to start searching
+	 	 */
+	 	findCSSInsertionPoint: function(tokens, startIx) {
+	 		var insPoint;
+	 		var insIx = -1; 
+	 		var needCol = false;
+	 			
+	 		for (var i = startIx, il = tokens.length; i < il; i++) {
+	 			var t = tokens[i];
+	 			if (t.type == 'value') {
+	 				insPoint = t;
+	 				insIx = i;
+	 				// look ahead for rule termination
+	 				if (tokens[i + 1] && tokens[i + 1].type == ';') {
+	 					insPoint = tokens[i + 1];
+	 					insIx += 1;
+	 				} else {
+	 					needCol = true;
+	 				}
+	 				break;
+	 			}
+	 		}
+	 		
+	 		return {
+	 			token: insPoint,
+	 			ix: insIx,
+	 			need_col: needCol
+	 		};
+	 	},
+	 	
+	 	/**
+	 	 * Learns formatting style from parsed tokens
+	 	 * @param {Array} tokens List of tokens
+	 	 * @param {Number} pos Identifier token position, from which style should be learned
+	 	 * @returns {Function} Function with <code>(name, value)</code> arguments that will create
+	 	 * CSS rule based on learned formatting
+	 	 */
+	 	learnCSSStyle: function(tokens, pos) {
+	 		var prefix = '', glue = '', i, il;
+	 		
+	 		// use original tokens instead of optimized ones
+	 		pos = tokens[pos].ref_start_ix;
+	 		tokens = tokens.__original;
+	 		
+	 		// learn prefix
+	 		for (i = pos - 1; i >= 0; i--) {
+	 			if (tokens[i].type == 'white') {
+	 				prefix = tokens[i].content + prefix;
+	 			} else if (tokens[i].type == 'line') {
+	 				prefix = tokens[i].content + prefix;
+	 				break;
+	 			} else {
+	 				break;
+	 			}
+	 		}
+	 		
+	 		// learn glue
+	 		for (i = pos + 1, il = tokens.length; i < il; i++) {
+	 			if (tokens[i].type == 'white' || tokens[i].type == ':')
+	 				glue += tokens[i].content;
+	 			else break;
+	 		}
+	 		
+	 		if (glue.indexOf(':') == -1)
+	 			glue = ':';
+	 		
+	 		return function(name, value) {
+	 			return prefix + name + glue + value + ';';
+	 		};
+	 	},
+	 	
+	 	/**
+	 	 * Removes vendor prefix from CSS property
+	 	 * @param {String} name CSS property
+	 	 * @return {String}
+	 	 */
+	 	getBaseCSSName: function(name) {
+	 		return name.replace(/^\s*\-\w+\-/, '');
 	 	}
 	};
 });

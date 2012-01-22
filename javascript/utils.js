@@ -366,6 +366,17 @@ zen_coding.define('utils', function(require, _) {
 		escapeForRegexp: function(str) {
 			var specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g"); // .*+?|()[]{}\
 			return str.replace(specials, "\\$&");
+		},
+		
+		/**
+		 * Make decimal number look good: convert it to fixed precision end remove
+		 * traling zeroes 
+		 * @param {Number} num
+		 * @param {Number} fracion Fraction numbers (default is 2)
+		 * @return {String}
+		 */
+		prettifyNumber: function(num, fraction) {
+			return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
 		}
 	};
 });

@@ -34,7 +34,7 @@
 		if (r) {
 			var num = parseFloat(String(editor.getContent()).substring(r[0], r[1]));
 			if (!isNaN(num)) {
-				num = prettifyNumber(num + step);
+				num = utils.prettifyNumber(num + step);
 				editor.replaceContent(num, r[0], r[1]);
 				editor.createSelection(r[0], r[0] + num.length);
 				return true;
