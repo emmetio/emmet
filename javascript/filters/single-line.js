@@ -5,10 +5,11 @@
  */
 (function(){
 	function process(tree, profile, level) {
+		var elements = zen_coding.require('elements');
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
 			var item = tree.children[i];
-			if (item.type == 'tag') {
+			if (elements.is(item.source, 'parsedElement')) {
 				// remove padding from item 
 				var re_pad = /^\s+/;
 				item.start = item.start.replace(re_pad, '');

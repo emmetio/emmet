@@ -88,7 +88,7 @@ zen_coding.define('filters', function(require, _) {
 		extractFromAbbreviation: function(abbr) {
 			var filters = '';
 			abbr = abbr.replace(/\|([\w\|\-]+)$/, function(str, p1){
-				filter = p1;
+				filters = p1;
 				return '';
 			});
 			

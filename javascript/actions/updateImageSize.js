@@ -112,7 +112,7 @@
 		if (src) {
 			// check if it is data:url
 			if (startsWith('data:', src)) {
-				fileContent = zen_coding.requie('base64').decode( src.replace(/^data\:.+?;.+?,/, '') );
+				fileContent = zen_coding.require('base64').decode( src.replace(/^data\:.+?;.+?,/, '') );
 			} else {
 				var abs_path = file.locateFile(editor.getFilePath(), src);
 				if (abs_path === null) {

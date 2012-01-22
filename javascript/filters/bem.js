@@ -8,19 +8,17 @@ zen_coding.require('filters').add('bem', (function() {
 		modifier: '_'
 	};
 	
-	var toString = Object.prototype.toString;
-	var isArray = Array.isArray || function(obj) {
-		return toString.call(obj) == '[object Array]';
-	};
-	
 	var shouldRunHtmlFilter = false;
 	
 	/**
 	 * @param {ZenNode} item
 	 */
 	function bemParse(item) {
-		if (item.type != 'tag')
+		if (!zen_coding.require('elements').is(item.source, 'parsedElement'))
 			return item;
+		
+		/** @type Underscore */
+		var _ = zen_coding.require('_');
 		
 		// save BEM stuff in cache for faster lookups
 		item.__bem = {
@@ -30,42 +28,18 @@ zen_coding.require('filters').add('bem', (function() {
 		};
 		
 		var classNames = normalizeClassName(item.getAttribute('class')).split(' ');
+		var allClassNames = _.chain(classNames)
+			.map(function(name) {return processClassName(name, item);})
+			.flatten()
+			.uniq()
+			.value();
 		
-		// process class names
-		var processedClassNames = [];
-		var i, il, _item;
-		for (i = 0, il = classNames.length; i < il; i++) {
-			processedClassNames.push(processClassName(classNames[i], item));
-		}
-		
-		// flatten array
-		var allClassNames = [];
-		for (i = 0, il = processedClassNames.length; i < il; i++) {
-			_item = processedClassNames[i];
-			if (isArray(_item)) {
-				for (var j = 0, jl = _item.length; j < jl; j++) {
-					allClassNames.push(_item[j]);
-				}
-			} else {
-				allClassNames.push(_item);
-			}
-		}
-		
-		// remove duplicates
-		var memo = [];
-		for (i = 0, il = allClassNames.length; i < il; i++) {
-			_item = allClassNames[i];
-			if (!arrayInclude(memo, _item))
-				memo.push(_item);
-		}
-		
-		allClassNames = memo;
 		item.setAttribute('class', allClassNames.join(' '));
 		
 		if (!item.__bem.block) {
 			// guess best match for block name
 			var reBlockName = /^[a-z]\-/i;
-			for (i = 0, il = allClassNames.length; i < il; i++) {
+			for (var i = 0, il = allClassNames.length; i < il; i++) {
 				/** @type String */
 				if (reBlockName.test(allClassNames[i])) {
 					item.__bem.block = allClassNames[i];
@@ -77,7 +51,6 @@ zen_coding.require('filters').add('bem', (function() {
 			if (!item.__bem.block) {
 				item.__bem.block = allClassNames[0];
 			}
-			
 		}
 		
 		return item;
@@ -89,12 +62,13 @@ zen_coding.require('filters').add('bem', (function() {
 	 * @returns {String}
 	 */
 	function normalizeClassName(className) {
+		var utils = zen_coding.require('utils');
 		className = ' ' + (className || '') + ' ';
 		className = className.replace(/\s+/g, ' ').replace(/\s(\-+)/g, function(str, p1) {
-			return ' ' + zen_coding.repeatString(separators.element, p1.length);
+			return ' ' + utils.repeatString(separators.element, p1.length);
 		});
 		
-		return zen_coding.trim(className);
+		return utils.trim(className);
 	}
 	
 	/**
@@ -209,28 +183,6 @@ zen_coding.require('filters').add('bem', (function() {
 	}
 	
 	/**
-	 * Utility function, checks if <code>arr</code> contains <code>value</code>
-	 * @param {Array} arr
-	 * @param {Object} value
-	 * @returns {Boolean}
-	 */
-	function arrayInclude(arr, value) {
-		var result = -1;
-		if (arr.indexOf) {
-			result = arr.indexOf(value);
-		} else {
-			for (var i = 0, il = arr.length; i < il; i++) {
-				if (arr[i] === value) {
-					result = i;
-					break;
-				}
-			}
-		}
-		
-		return result != -1;
-	}
-	
-	/**
 	 * Recursive function for processing tags, which extends class names 
 	 * according to BEM specs: http://bem.github.com/bem-method/pages/beginning/beginning.ru.html
 	 * <br><br>
@@ -242,7 +194,7 @@ zen_coding.require('filters').add('bem', (function() {
 	 * <li>Inherits block name on child elements: 
 	 * .b-block > .__el > .__el → .b-block > .b-block__el > .b-block__el__el
 	 * </li>
-	 * <li>Treats typographic '—' symbol as '__'</li>
+	 * <li>Treats first dash symbol as '__'</li>
 	 * <li>Double underscore (or typographic '–') is also treated as an element 
 	 * level lookup, e.g. ____el will search for element definition in parent’s 
 	 * parent element:
@@ -258,10 +210,12 @@ zen_coding.require('filters').add('bem', (function() {
 		if (tree.name)
 			bemParse(tree);
 		
+		var elements = zen_coding.require('elements');
+		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			var item = tree.children[i];
 			process(bemParse(item), profile);
-			if (item.type == 'tag' && item.start)
+			if (elements.is(item.source, 'parsedElement') && item.start)
 				shouldRunHtmlFilter = true;
 		}
 		
@@ -279,7 +233,7 @@ zen_coding.require('filters').add('bem', (function() {
 		// in case 'bem' filter is applied after 'html' filter: run it again
 		// to update output
 		if (shouldRunHtmlFilter) {
-			tree = zen_coding.runFilters(tree, profile, 'html');
+			tree = zen_coding.require('filters').apply(tree, 'html', profile);
 		}
 		
 		return tree;

@@ -9,7 +9,7 @@
 	 * @param {String} text
 	 * @return {Boolean}
 	 */
-	function hasOutputPlaceholder(ext) {
+	function hasOutputPlaceholder(text) {
 		for (var i = 0, il = text.length; i < il; i++) {
 			var ch = text.charAt(i);
 			if (ch == '\\') { // escaped char

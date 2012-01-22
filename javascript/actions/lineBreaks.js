@@ -70,9 +70,9 @@
 	actions.add('insert_formatted_line_break', function(editor) {
 		if (!actions.run('insert_formatted_line_break_only', editor)) {
 			var editorUtils = zen_coding.require('editorUtils');
-			var utils = zen_coding.require('editorUtils');
+			var utils = zen_coding.require('utils');
 			
-			var curPadding = getCurrentLinePadding(editor);
+			var curPadding = editorUtils.getCurrentLinePadding(editor);
 			var content = String(editor.getContent());
 			var caret_pos = editor.getCaretPos();
 			var c_len = content.length;

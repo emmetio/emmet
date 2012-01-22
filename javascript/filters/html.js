@@ -171,12 +171,13 @@
 		
 		var utils = zen_coding.require('utils');
 		var editorUtils = zen_coding.require('editorUtils');
+		var elements = zen_coding.require('elements');
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
 	
 			var item = tree.children[i];
-			item = (item.type == 'tag') 
+			item = elements.is(item.source, 'parsedElement') 
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
 			

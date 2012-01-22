@@ -55,7 +55,7 @@
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 */
-	actions.add('expand_abbreviation', function(editor, syntax, profile) {
+	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
 		if (!actions.run('expand_abbreviation', editor, syntax, profile))
 			editor.replaceContent(zen_coding.require('resources').getVariable('indentation'), editor.getCaretPos());
 	});

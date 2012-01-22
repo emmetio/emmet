@@ -12,34 +12,35 @@
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
- * @include "../../javascript/zen_coding.js"
- * @include "../codemirror/shortcut.js"
+ * @constructor
+ * @memberOf __zenEditorTextarea
  */
 var zen_editor = (function(){
 	/** @param {Element} Source element */
-	var target = null,
-		/** Textual placeholder that identifies cursor position in pasted text */
-		caret_placeholder = '|',
+	var target = null;
+	
+	/** Textual placeholder that identifies cursor position in pasted text */
+	var caretPlaceholder = '|';
 		
-		default_options = {
-			profile: 'xhtml',
-			syntax: 'html',
-			use_tab: false,
-			pretty_break: false
-		},
+	var defaultOptions = {
+		profile: 'xhtml',
+		syntax: 'html',
+		use_tab: false,
+		pretty_break: false
+	};
 		
-		keyboard_shortcuts = {},
+	var keyboardShortcuts = {};
 		
-		/** @type {default_options} Current options */
-		options = null;
+	/** @type {default_options} Current options */
+	var options = null;
 	
 		
 	// different browser uses different newlines, so we have to figure out
 	// native browser newline and sanitize incoming text with them
 	var tx = document.createElement('textarea');
 	tx.value = '\n';
-	zen_coding.setNewline(tx.value);
+	
+	zen_coding.require('utils').setNewline(tx.value);
 	tx = null;
 	
 	/**
@@ -101,11 +102,12 @@ var zen_editor = (function(){
 			var t = target.createTextRange();
 			
 			t.collapse(true);
-			var delta = zen_coding.splitByLines(getContent().substring(0, start)).length - 1;
+			var utils = zen_coding.require('utils');
+			var delta = utils.splitByLines(getContent().substring(0, start)).length - 1;
 			
 			// IE has an issue with handling newlines while creating selection,
 			// so we need to adjust start and end indexes
-			end -= delta + zen_coding.splitByLines(getContent().substring(start, end)).length - 1;
+			end -= delta + utils.splitByLines(getContent().substring(start, end)).length - 1;
 			start -= delta;
 			
 			t.moveStart('character', start);
@@ -190,13 +192,9 @@ var zen_editor = (function(){
 	}
 	
 	function copyOptions(opt) {
-		opt = opt || {};
-		var result = {};
-		for (var p in default_options) if (default_options.hasOwnProperty(p)) {
-			result[p] = (p in opt) ? opt[p] : default_options[p];
-		}
-		
-		return result;
+		/** @type Underscore */
+		var _ = zen_coding.require('_');
+		return _.defaults(_.clone(opt || {}), defaultOptions);
 	}
 	
 	/**
@@ -209,17 +207,17 @@ var zen_editor = (function(){
 	 */
 	function handleTabStops(text) {
 		var selection_len = 0,
-			caret_pos = text.indexOf(caret_placeholder),
+			caret_pos = text.indexOf(caretPlaceholder),
 			placeholders = {};
 			
 		// find caret position
 		if (caret_pos != -1) {
-			text = text.split(caret_placeholder).join('');
+			text = text.split(caretPlaceholder).join('');
 		} else {
 			caret_pos = text.length;
 		}
 		
-		text = zen_coding.processTextBeforePaste(text, 
+		text = zen_coding.require('editorUtils').processTextBeforePaste(text, 
 			function(ch){ return ch; }, 
 			function(i, num, val) {
 				if (val) placeholders[num] = val;
@@ -256,7 +254,7 @@ var zen_editor = (function(){
 	 * @param {String} action_name
 	 */
 	function addShortcut(keystroke, label, action_name) {
-		keyboard_shortcuts[keystroke.toLowerCase()] = {
+		keyboardShortcuts[keystroke.toLowerCase()] = {
 			compiled: shortcut.compile(keystroke),
 			label: label,
 			action: normalizeActionName(action_name || label)
@@ -283,22 +281,22 @@ var zen_editor = (function(){
 		/** @type {Element} */
 		var target_elem = evt.target || evt.srcElement,
 			key_code = evt.keyCode || evt.which,
-			action_name;
+			actionName;
 			
 		if (target_elem && target_elem.nodeType == 1 && target_elem.nodeName == 'TEXTAREA') {
 			zen_editor.setContext(target_elem);
 			
 			// test if occured event corresponds to one of the defined shortcut
 			var sh, name, result;
-			for (var s in keyboard_shortcuts) if (keyboard_shortcuts.hasOwnProperty(s)) {
-				sh = keyboard_shortcuts[s];
+			for (var s in keyboardShortcuts) if (keyboardShortcuts.hasOwnProperty(s)) {
+				sh = keyboardShortcuts[s];
 				if (shortcut.test(sh.compiled, evt)) {
-					action_name = sh.action;
-					switch (action_name) {
+					actionName = sh.action;
+					switch (actionName) {
 						case 'expand_abbreviation':
 							if (key_code == 9) {
 								if (getOption('use_tab'))
-									action_name = 'expand_abbreviation_with_tab';
+									actionName = 'expand_abbreviation_with_tab';
 								else
 									// user pressed Tab key but it's forbidden in 
 									// Zen Coding: bubble up event
@@ -314,7 +312,7 @@ var zen_editor = (function(){
 							break;
 					}
 					
-					zen_coding.runAction(action_name, [zen_editor]);
+					zen_coding.require('actions').run(actionName, zen_editor);
 					stopEvent(evt);
 					return false;
 				}
@@ -365,9 +363,10 @@ var zen_editor = (function(){
 	addShortcut('Meta+Shift+B', 'Reflect CSS Value');
 	
 	return {
+		/** @memberOf zen_editor */
 		setContext: function(elem) {
 			target = elem;
-			caret_placeholder = zen_coding.getCaretPlaceholder();
+			caretPlaceholder = zen_coding.require('utils').getCaretPlaceholder();
 		},
 		
 		getSelectionRange: getSelectionRange,
@@ -435,7 +434,7 @@ var zen_editor = (function(){
 				
 			// indent new value
 			if (!no_indent)
-				value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+				value = zen_coding.require('utils').padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
 			var tabstop_res = handleTabStops(value);
@@ -475,12 +474,12 @@ var zen_editor = (function(){
 			var syntax = this.getOption('syntax'),
 				caret_pos = this.getCaretPos();
 				
-			if (!zen_resources.hasSyntax(syntax))
+			if (!zen_coding.require('resources').hasSyntax(syntax))
 				syntax = 'html';
 				
 			if (syntax == 'html') {
 				// get the context tag
-				var pair = zen_coding.html_matcher.getTags(this.getContent(), caret_pos);
+				var pair = zen_coding.require('html_matcher').getTags(this.getContent(), caret_pos);
 				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
 					// check that we're actually inside the tag
 					if (pair[0].end <= caret_pos && pair[1].start >= caret_pos)
@@ -557,8 +556,8 @@ var zen_editor = (function(){
 		 */
 		unbindShortcut: function(keystroke) {
 			keystroke = keystroke.toLowerCase();
-			if (keystroke in keyboard_shortcuts)
-				delete keyboard_shortcuts[keystroke];
+			if (keystroke in keyboardShortcuts)
+				delete keyboardShortcuts[keystroke];
 		},
 				
 		/**
@@ -568,7 +567,7 @@ var zen_editor = (function(){
 		getShortcuts: function() {
 			var result = [], lp;
 			
-			for (var p in keyboard_shortcuts) if (keyboard_shortcuts.hasOwnProperty(p)) {
+			for (var p in keyboardShortcuts) if (keyboardShortcuts.hasOwnProperty(p)) {
 				lp = p.toLowerCase();
 				
 				// skip some internal bindings
@@ -577,9 +576,9 @@ var zen_editor = (function(){
 					
 				result.push({
 					keystroke: shortcut.format(p),
-					compiled: keyboard_shortcuts[p].compiled,
-					label: keyboard_shortcuts[p].label,
-					action: keyboard_shortcuts[p].action
+					compiled: keyboardShortcuts[p].compiled,
+					label: keyboardShortcuts[p].label,
+					action: keyboardShortcuts[p].action
 				});
 			}
 			
@@ -595,7 +594,7 @@ var zen_editor = (function(){
 				actions = [];
 				
 			for (var i = 0; i < sh.length; i++) {
-				actions.push(sh[i].keystroke + ' — ' + sh[i].label)
+				actions.push(sh[i].keystroke + ' — ' + sh[i].label);
 			}
 			
 			message += actions.join('\n') + '\n\n';
@@ -617,40 +616,7 @@ var zen_editor = (function(){
 		 */
 		setup: function(opt) {
 			this.setOptions(opt);
-		},
-		
-		// expose some core Zen Coding objects
-		
-		/**
-		 * Returns core Zen Codind object
-		 */
-		getCore: function() {
-			return zen_coding;
-		},
-		
-		/**
-		 * Returns Zen Coding resource manager. You can add new snippets and 
-		 * abbreviations with this manager, as well as modify ones.<br><br>
-		 * 
-		 * Zen Coding stores settings in two separate vocabularies: 'system' 
-		 * and 'user'. The ultimate solution to add new abbreviations and
-		 * snippets is to setup a 'user' vocabulary, like this:
-		 * 
-		 * @example
-		 * var my_settings = {
-		 * 	html: {
-		 * 		abbreviations: {
-		 * 			'tag': '<div class="mytag">'
-		 * 		}
-		 * 	}
-		 * };
-		 * zen_editor.getResourceManager().setVocabulary(my_settings, 'user')
-		 * 
-		 * @see zen_resources.js
-		 */
-		getResourceManager: function() {
-			return zen_resources;
 		}
-	}
+	};
 })();
  

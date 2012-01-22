@@ -24,7 +24,7 @@
 		
 		var pasted = false;
 		
-		try {
+//		try {
 			var data = filters.extractFromAbbreviation(abbr);
 			var parsedTree = transform.createParsedTree(data[0], syntax);
 			if (parsedTree) {
@@ -42,9 +42,9 @@
 				filters.apply(outputTree, filtersList, profile);
 				return utils.replaceVariables(outputTree.toString());
 			}
-		} catch(e) {
-			zen_coding.log(e);
-		}
+//		} catch(e) {
+//			zen_coding.log(e);
+//		}
 		
 		return null;
 	}
@@ -61,7 +61,7 @@
 		var utils = zen_coding.require('utils');
 		/** @type zen_coding.editorUtils */
 		var editorUtils = zen_coding.require('editorUtils');
-		var matcher = zen_coding.require('matcher');
+		var matcher = zen_coding.require('html_matcher');
 		
 		abbr = abbr || editor.prompt("Enter abbreviation");
 		

@@ -23,7 +23,7 @@ zen_coding.require('actions').add('remove_tag', function(editor) {
 			var startLinePad = utils.getLinePadding(info.content.substring(startLineBounds.start, startLineBounds.end));
 			var tagContent = info.content.substring(tagContentRange[0], tagContentRange[1]);
 				
-			tagContent = utils.unindentText(tagContent, startLinePad);
+			tagContent = utils.unindentString(tagContent, startLinePad);
 			editor.replaceContent(utils.getCaretPlaceholder() + tagContent, pair[0].start, pair[1].end);
 		}
 		

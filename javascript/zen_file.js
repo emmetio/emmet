@@ -1,6 +1,9 @@
 /**
  * Zen Coding file i/o interface. Plugin developers should implement this 
- * interface in order to make some actions to work
+ * interface in order to make some actions to work.
+ * 
+ * This interface should be defined as <code>zen_coding.define('file')</code>
+ * module
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru

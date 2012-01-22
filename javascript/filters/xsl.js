@@ -18,10 +18,11 @@
 	}
 	
 	function process(tree) {
+		var elements = zen_coding.require('elements');
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
 			var item = tree.children[i];
-			if (item.type == 'tag' && item.name.toLowerCase() in tags && item.children.length)
+			if (elements.is(item.source, 'parsedElement') && item.name.toLowerCase() in tags && item.children.length)
 				trimAttribute(item);
 			process(item);
 		}

@@ -294,7 +294,7 @@
 	
 	try {
 		zen_coding.define('html_matcher', function() {
-			return HTMLPairMatcher.apply(HTMLPairMatcher, arguments);
+			return HTMLPairMatcher;
 		});
 	} catch(e){}
 	

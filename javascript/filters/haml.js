@@ -148,7 +148,7 @@
 			tag_name = '';
 			
 		item.end = '';
-		start = tag_name + attrs + self_closing;
+		start = tag_name + attrs + self_closing + ' ';
 		
 		var placeholder = '%s';
 		// We can't just replace placeholder with new value because
@@ -176,13 +176,14 @@
 		/** @type zen_coding.utils */
 		var utils = zen_coding.require('utils');
 		var editorUtils = zen_coding.require('editorUtils');
+		var elements = zen_coding.require('elements');
 		
 		if (level == 0)
 			// preformat tree
 			tree = zen_coding.require('filters').apply(tree, '_format', profile);
 		
 		_.each(tree.children, function(item) {
-			item = (item.type == 'tag') 
+			item = elements.is(item.source, 'parsedElement') 
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
 			

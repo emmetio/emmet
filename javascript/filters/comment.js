@@ -8,9 +8,11 @@
 	 * @param {ZenNode} node
 	 */
 	function addComments(node, i) {
+		var utils = zen_coding.require('utils');
+		
 		var id_attr = node.getAttribute('id'),
 			class_attr = node.getAttribute('class'),
-			nl = zen_coding.getNewline();
+			nl = utils.getNewline();
 			
 		if (id_attr || class_attr) {
 			var comment_str = '',
@@ -22,21 +24,23 @@
 			node.end = node.end.replace(/>/, '>' + nl + padding + '<!-- /' + comment_str + ' -->');
 			
 			// replace counters
-			var counter = zen_coding.getCounterForNode(node);
-			node.start = zen_coding.replaceCounter(node.start, counter);
-			node.end = zen_coding.replaceCounter(node.end, counter);
+			var counter = utils.getCounterForNode(node);
+			node.start = utils.replaceCounter(node.start, counter);
+			node.end = utils.replaceCounter(node.end, counter);
 		}
 	}
 	
 	function process(tree, profile) {
 		if (profile.tag_nl === false)
 			return tree;
+		
+		var elemens = zen_coding.require('element');
 			
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
 			var item = tree.children[i];
 			
-			if (item.isBlock())
+			if (item.isBlock() && elements.is(item.source, 'parsedElement'))
 				addComments(item, i);
 			
 			process(item, profile);

@@ -262,6 +262,20 @@ zen_coding.define('resources', function(require, _) {
 		},
 		
 		/**
+		 * Store runtime variable in user storage
+		 * @param {String} name Variable name
+		 * @param {String} value Variable value
+		 */
+		setVariable: function(name, value){
+			var voc = getVocabulary('user') || {};
+			if (!('variables' in voc))
+				voc.variables = {};
+				
+			voc.variables[name] = value;
+			this.setVocabulary(voc, 'user');
+		},
+		
+		/**
 		 * Returns resource subset from settings vocabulary
 		 * @param {String} syntax Syntax name
 		 * @param {String} name Resource name

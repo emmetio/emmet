@@ -75,7 +75,7 @@ zen_coding.define('utils', function(require, _) {
 		 * @param {String} str
 		 */
 		setNewline: function(str) {
-			var re = zen_coding.require('resources');
+			var res = zen_coding.require('resources');
 			res.setVariable('newline', str);
 			res.setVariable('nl', str);
 		},

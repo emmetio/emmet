@@ -177,7 +177,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * @return {String}
 		 */
 		unindent: function(editor, text) {
-			return require('utils').unindentText(text, getCurrentLinePadding(editor));
+			return require('utils').unindentString(text, require('editorUtils').getCurrentLinePadding(editor));
 		},
 		
 		/**
@@ -199,7 +199,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		narrowToNonSpace: function(text, start, end) {
 			// narrow down selection until first non-space character
 			var reSpace = /\s|\n|\r/;
-			var isIspace = function(ch) {
+			var isSpace = function(ch) {
 				return reSpace.test(ch);
 			};
 			

@@ -4,8 +4,9 @@
  */
 (function() {
 	var generators = [];
+	var resources = zen_coding.require('resources');
 	
-	_.extend(zen_coding, {
+	_.extend(resources, {
 		addGenerator: function(regexp, fn) {
 			if (_.isString(regexp))
 				regexp = new RegExp(regexp);
@@ -17,7 +18,7 @@
 		}
 	});
 	
-	zen_coding.require('resources').addResolver(function(node, syntax) {
+	resources.addResolver(function(node, syntax) {
 		var result = null;
 		var elements = zen_coding.require('elements');
 		for (var i = 0, il = generators.length; i < il; i++) {
