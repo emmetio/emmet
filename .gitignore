@@ -1,10 +1,8 @@
 /_project_src
 *.pyc
-.build_catalog
+.build-catalog
 /_docs
 /dist
 /plugins/codemirror/CodeMirror
 /plugins/tea-for-coda
 /plugins/tea-for-espresso
-
-.build-catalog

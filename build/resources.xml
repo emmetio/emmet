@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Zen Coding resources" basedir="..">
+	<property file="${basedir}/build.properties"/>
+	
+	<!-- List of Zen Coding JavaScript files -->
+	<filelist dir="${zencoding_javascript}" id="javascript.core">
+		<file name="underscore.js"/>
+		<file name="zen_settings.js"/>
+		<file name="core.js"/>
+		<file name="utils.js"/>
+		<file name="resources.js"/>
+		<file name="actions.js"/>
+		<file name="profile.js"/>
+		<file name="transform.js"/>
+		<file name="editorUtils.js"/>
+		<file name="actionUtils.js"/>
+		<file name="base64.js"/>
+		<file name="html_matcher.js"/>
+		<file name="filters.js"/>
+		<file name="elements.js"/>
+			
+		<file name="parsers/abbreviation.js"/>
+		<file name="parsers/cssParser.js"/>
+		<file name="parsers/xmlParser.js"/>
+		<file name="parsers/parserUtils.js"/>
+			
+		<file name="elements/parsedElements.js"/>
+		<file name="elements/ZenNode.js"/>
+		
+		<file name="resolvers/expando.js"/>
+		<file name="resolvers/generator.js"/>
+	</filelist>
+	
+	<fileset dir="${zencoding_javascript}/filters" id="javascript.filters">
+		<include name="*.js"/>
+	</fileset>
+	
+	<fileset dir="${zencoding_javascript}/actions" id="javascript.actions">
+		<include name="*.js"/>
+	</fileset>
+</project>

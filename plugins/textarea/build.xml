@@ -9,9 +9,10 @@
 			<pathelement location="${basedir}/build/yuicompressor.jar"/>
 		</classpath>
 	</taskdef>
-
 	<property file="build.properties"/>
 	<property file="${zencoding_plugins_source}/textarea/build.properties"/>
+	
+	<import file="${zencoding_resources}"/>
 
 	<target name="textarea_plugin" depends="build_textarea_plugin">
 		<zip destfile="${zencoding_plugins}/${zencoding_textarea_plugin.zip}">
@@ -28,17 +29,12 @@
 
 	<target name="build_textarea_plugin" depends="textarea_init">
 		<concat destfile="${textarea.build_dir}/zen_textarea.js">
-			<filelist dir="${textarea.source}">
-				<file name="__intro.js"/>
-			</filelist>
-			<filelist refid="javascript.files"/>
-			<fileset dir="${zencoding_javascript_filters}">
-				<include name="*.js"/>
-			</fileset>
+			<filelist refid="javascript.core"/>
+			<fileset refid="javascript.filters"/>
+			<fileset refid="javascript.actions"/>
 			<filelist dir="${textarea.source}">
 				<file name="../codemirror/shortcut.js"/>
 				<file name="zen_editor.js"/>
-				<file name="__outro.js"/>
 			</filelist>
 		</concat>
 		
