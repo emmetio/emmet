@@ -26,7 +26,7 @@ zen_coding.define('transform', function(require, _) {
 				return elements.create('parsedElement', node, syntax, elem);
 			if (elements.is(elem, 'ZenNode'))
 				throw '"ZenNode" is internal class and should not be used by resolvers';
-			if (elements.is(elem, 'parsedElement') || elements.is(elem, 'parsedSnippet'))
+			if (elements.is(elem, 'parsedElement') || elements.is(elem, 'parsedSnippet') || elements.is(elem, 'empty'))
 				return elem;
 			
 			return null;
@@ -56,11 +56,16 @@ zen_coding.define('transform', function(require, _) {
 	 */
 	function parseNodes(node, syntax, parent) {
 		var resolvedData = resolveNode(node, syntax);
+		/** @type zen_coding.elements */
+		var elements = require('elements');
 		
 		if (!resolvedData) 
 			return;
 		
 		_.each(_.isArray(resolvedData) ? resolvedData : [resolvedData], function(item) {
+			if (elements.is(item, 'empty')) // skip empty elements
+				return;
+			
 			parent.addChild(item);
 			
 			// set repeating element to the topmost node

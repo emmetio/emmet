@@ -68,7 +68,7 @@ zen_coding.define('resources', function(require, _) {
 	function createResourceChain(vocabulary, syntax, name) {
 		var voc = getVocabulary(vocabulary),
 			result = [],
-			resource;
+			resource = null;
 		
 		if (voc && syntax in voc) {
 			resource = voc[syntax];
@@ -80,7 +80,7 @@ zen_coding.define('resources', function(require, _) {
 		// in case of user-defined vocabulary, resource dependency
 		// may be defined in system vocabulary only, so we have to correctly
 		// handle this case
-		var chain_source;
+		var chain_source = null;
 		if (resource && 'extends' in resource)
 			chain_source = resource;
 		else if (vocabulary == VOC_USER && syntax in systemSettings 
@@ -204,7 +204,7 @@ zen_coding.define('resources', function(require, _) {
 		 * @param {String} syntax Resource syntax (html, css, ...)
 		 * @param {String} name Resource name ('snippets' or 'abbreviation')
 		 * @param {String} abbr Abbreviation name
-		 * @return {Object|null}
+		 * @return {Object}
 		 */
 		getResource: function(syntax, name, item) {
 			return getParsedItem(VOC_USER, syntax, name, item) 
@@ -215,9 +215,10 @@ zen_coding.define('resources', function(require, _) {
 		 * Returns abbreviation value from data set
 		 * @param {String} type Resource type (html, css, ...)
 		 * @param {String} name Abbreviation name
-		 * @return {Object|null}
+		 * @return {Object}
 		 */
 		getAbbreviation: function(type, name) {
+			name = name || '';
 			return this.getResource(type, 'abbreviations', name) 
 				|| this.getResource(type, 'abbreviations', name.replace(/\-/g, ':'));
 		},
@@ -229,6 +230,7 @@ zen_coding.define('resources', function(require, _) {
 		 * @return {Object|null}
 		 */
 		getSnippet: function(type, name) {
+			name = name || '';
 			return this.getResource(type, 'snippets', name)
 				|| this.getResource(type, 'snippets', name.replace(/\-/g, ':'));
 		},
