@@ -135,7 +135,7 @@
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return this.type == 'text' 
+			return this.type == 'text' || !this.source.name
 				|| zen_coding.require('resources').isItemInCollection(this.source.syntax, 'inline_level', this.name);
 		},
 		
