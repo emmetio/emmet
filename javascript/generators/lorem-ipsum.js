@@ -1,7 +1,14 @@
 /**
  * "Lorem ipsum" text generator. Matches lipsum(num)(elem_name) abbreviation.
  * This code is based on Django's contribution: 
- * https://code.djangoproject.com/browser/django/trunk/django/contrib/webdesign/lorem_ipsum.py  
+ * https://code.djangoproject.com/browser/django/trunk/django/contrib/webdesign/lorem_ipsum.py
+ * <br><br>
+ * Examples to test:<br>
+ * <code>lipsum</code> – generates 30 words text.<br>
+ * <code>lipsum*6</code> – generates 6 paragraphs (autowrapped with &lt;p&gt; element) of text.<br>
+ * <code>ol>lipsum10*5</code> — generates ordered list with 5 list items (autowrapped with &lt;li&gt; tag)
+ * with text of 10 words on each line<br>
+ * <code>lipsum20span*3</code> – generates 3 paragraphs of 20-words text, each wrapped with &lt;span&gt; element    
  */
 (function() {
 	/**
