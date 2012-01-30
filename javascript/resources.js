@@ -80,6 +80,7 @@ zen_coding.define('resources', function(require, _) {
 		// in case of user-defined vocabulary, resource dependency
 		// may be defined in system vocabulary only, so we have to correctly
 		// handle this case
+		var utils = require('utils');
 		var chain_source = null;
 		if (resource && 'extends' in resource)
 			chain_source = resource;
@@ -91,7 +92,7 @@ zen_coding.define('resources', function(require, _) {
 			if (!isParsed(chain_source['extends'])) {
 				var ar = chain_source['extends'].split(',');
 				for (var i = 0; i < ar.length; i++) 
-					ar[i] = trim(ar[i]);
+					ar[i] = utils.trim(ar[i]);
 				chain_source['extends'] = ar;
 				setParsed(chain_source['extends']);
 			}
