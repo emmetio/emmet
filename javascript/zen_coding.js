@@ -1012,7 +1012,7 @@ var zen_coding = (function(){
 			// put all the originally bracketed values back in place of the
 			// token identifiers previously used as placeholders
 			for (_i = 0, _len = tokens.length; _i < _len; _i++) {
-			  abbr = abbr.replace(token_identifier, t[_i]);
+			  abbr = abbr.replace(token_identifier, tokens[_i]);
 			}
 			
 			var parsed_tree = this.parseIntoTree(abbr, type);
