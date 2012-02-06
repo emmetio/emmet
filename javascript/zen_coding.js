@@ -993,7 +993,28 @@ var zen_coding = (function(){
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
 			
-			abbr = abbr.replace(/([^>]+?>[^>]+?)\^/g,'($1)+') // replace tree climbing hat with nesting
+			var tokens, _i, _len; // declare variables
+			var token_identifier = '_SVDIUNAUHASDC87ASDJASDH7SADBAMSDNASD_' // pretty long and random string
+			var tokens = [];
+			// replace bracketed sections which which will never contain the ascender (^) with
+			// a token for identifying later
+			var abbr = abbr.replace(/(\[.+?\]|{.+?})/g, function(x) {
+			  tokens.push(x);
+			  return token_identifier;
+			});
+			// replace all the ascender symbols with relevant enclosing brackets
+			abbr = abbr.replace(/[^\^]+(\^+)/g, function(string, hats) {
+			  return string.replace(
+				  new RegExp("([^>]+?(>[^>]+?){" + hats.length + "})\\^+", 'g'),
+				 '($1)+'
+				);
+			});
+			// put all the originally bracketed values back in place of the
+			// token identifiers previously used as placeholders
+			for (_i = 0, _len = tokens.length; _i < _len; _i++) {
+			  abbr = abbr.replace(token_identifier, t[_i]);
+			}
+			
 			var parsed_tree = this.parseIntoTree(abbr, type);
 			
 			if (parsed_tree) {
