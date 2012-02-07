@@ -19,8 +19,6 @@
 		var utils = zen_coding.require('utils');
 		/** @type zen_coding.transform */
 		var transform = zen_coding.require('transform');
-		/** @type zen_coding.parser */
-		var parser = zen_coding.require('parser');
 		
 		var pasted = false;
 		
@@ -56,7 +54,7 @@
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 */
-	zen_coding.require('actions').add('wrap_with_abbreviation', function(editor, abbr, syntax, profile) {
+	function wrapWithAbbreviaton(editor, abbr, syntax, profile) {
 		var info = zen_coding.require('editorUtils').outputInfo(editor, syntax, profile);
 		var utils = zen_coding.require('utils');
 		/** @type zen_coding.editorUtils */
@@ -96,5 +94,10 @@
 		}
 		
 		return false;
-	});
+	}
+	
+	// add back-reference to "wrap" utility function for use in external modules
+	wrapWithAbbreviaton.wrap = wrap;
+	
+	zen_coding.require('actions').add('wrap_with_abbreviation', wrapWithAbbreviaton);
 })();

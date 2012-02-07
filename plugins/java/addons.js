@@ -17,14 +17,14 @@
 		args.push(arguments[i]);
 	}
 	
-	return zen_coding.runAction(action_name, args);
+	return zen_coding.require('actions').run(action_name, args);
 }
 
 /**
  * Removes all user defined settings
  */
 function resetUserSettings() {
-	zen_resources.setVocabulary({}, 'user');
+	zen_coding.require('resources').setVocabulary({}, 'user');
 }
 
 /**
@@ -35,7 +35,8 @@ function resetUserSettings() {
  * @param {String} value
  */
 function addUserResource(syntax, type, abbr, value) {
-	var voc = zen_resources.getVocabulary('user') || {};
+	var res = zen_coding.require('resources');
+	var voc = res.getVocabulary('user') || {};
 	if (!(syntax in voc))
 		voc[syntax] = {};
 		
@@ -44,11 +45,11 @@ function addUserResource(syntax, type, abbr, value) {
 		
 	voc[syntax][type][abbr] = value;
 	
-	zen_resources.setVocabulary(voc, 'user');
+	res.setVocabulary(voc, 'user');
 }
 
 function hasZenCodingVariable(name) {
-	return !!zen_coding.getVariable(name);
+	return !!zen_coding.require('resources').getVariable(name);
 }
 
 function tryBoolean(val) {
@@ -80,48 +81,55 @@ function setupOutputProfile(name, profile_obj, editor) {
 	
 	name = String(name);
 	
-	var profile = {}, val;
+	var profile = {};
 		
 	for (var p in map) if (map.hasOwnProperty(p)) {
 		profile[p] = tryBoolean(profile_obj[map[p]]());
 	}
 	
-	zen_coding.setupProfile(name, profile);
+	zen_coding.require('profile').create(name, profile);
 }
 
 function addUserVariable(name, value) {
-	zen_coding.setVariable(name, value);
+	zen_coding.require('resources').setVariable(name, value);
 }
 
 function previewWrapWithAbbreviation(editor, abbr) {
 	var syntax = String(editor.getSyntax());
-	var profile_name = String(editor.getProfileName());
+	var profileName = String(editor.getProfileName());
 	abbr = String(abbr);
 	
 	var range = editor.getSelectionRange(),
-		start_offset = range.start,
-		end_offset = range.end,
+		startOffset = range.start,
+		endOffset = range.end,
 		content = String(editor.getContent());
 		
 		
 	if (!abbr)
 		return null;
 	
-	if (start_offset == end_offset) {
+	var editorUtils = zen_coding.require('editorUtils');
+	var utils = zen_coding.require('utils');
+	
+	if (startOffset == endOffset) {
 		// no selection, find tag pair
-		range = zen_coding.html_matcher(content, start_offset, profile_name);
+		range = zen_coding.require('html_matcher')(content, startOffset, profileName);
 		
 		if (!range || range[0] == -1) // nothing to wrap
 			return null;
 		
-		var narrowed_sel = narrowToNonSpace(content, range[0], range[1]);
-		
-		start_offset = narrowed_sel[0];
-		end_offset = narrowed_sel[1];
+		var narrowedSel = editorUtils.narrowToNonSpace(content, range[0], range[1]);
+		startOffset = narrowedSel[0];
+		endOffset = narrowedSel[1];
 	}
 	
-	var new_content = zen_coding.escapeText(content.substring(start_offset, end_offset)),
-		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), syntax, profile_name);
+	var wrapAction = zen_coding.require('actions').get('wrap_with_abbreviation');
+	var result = null;
+	if (wrapAction) {
+		
+		var newContent = utils.escapeText(content.substring(startOffset, endOffset));
+		result = wrapAction.fn.wrap(abbr, editorUtils.unindent(editor, newContent), syntax, profileName);
+	}
 	
 	return result || null;
 }

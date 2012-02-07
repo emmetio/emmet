@@ -38,4 +38,8 @@
 	<fileset dir="${zencoding_javascript}/actions" id="javascript.actions">
 		<include name="*.js"/>
 	</fileset>
+	
+	<fileset dir="${zencoding_javascript}/generators" id="javascript.generators">
+		<include name="*.js"/>
+	</fileset>
 </project>

@@ -90,8 +90,9 @@ zen_coding.define('resources', function(require, _) {
 		if (chain_source) {
 			if (!isParsed(chain_source['extends'])) {
 				var ar = chain_source['extends'].split(',');
+				var utils = require('utils');
 				for (var i = 0; i < ar.length; i++) 
-					ar[i] = trim(ar[i]);
+					ar[i] = utils.trim(ar[i]);
 				chain_source['extends'] = ar;
 				setParsed(chain_source['extends']);
 			}

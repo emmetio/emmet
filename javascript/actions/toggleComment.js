@@ -6,7 +6,6 @@
 	var matcher = zen_coding.require('html_matcher');
 	var utils = zen_coding.require('utils');
 	var editorUtils = zen_coding.require('editorUtils');
-	var actionUtils = zen_coding.require('actionUtils');
 	
 	/**
 	 * Toggle comment on current editor's selection or HTML tag/CSS rule
@@ -66,7 +65,7 @@
 			rng = editor.getCurrentLineRange();
 
 			// adjust start index till first non-space character
-			var _r = actionUtils.narrowToNonSpace(String(editor.getContent()), rng.start, rng.end);
+			var _r = editorUtils.narrowToNonSpace(String(editor.getContent()), rng.start, rng.end);
 			rng.start = _r[0];
 			rng.end = _r[1];
 		}
