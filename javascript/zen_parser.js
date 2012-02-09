@@ -5,7 +5,8 @@
  * @link http://chikuyonok.ru
  * 
  * @include "zen_coding.js"
- */var zen_parser = (function(){
+ */
+var zen_parser = (function(){
 	
 	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
@@ -515,6 +516,14 @@
 						if (!text_lvl && !attr_lvl && i != il - 1 /* expando? */) {
 							dumpToken();
 							context = context.parent.addChild();
+						} else {
+							token += ch;
+						}
+						break;
+					case '^': // Ascension operator
+						if (!text_lvl && !attr_lvl) {
+							dumpToken();
+							context = context.parent.parent.addChild();
 						} else {
 							token += ch;
 						}
