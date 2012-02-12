@@ -100,11 +100,12 @@
 		/**
 		 * Get attribute's value.
 		 * @param {String} name
-		 * @return {String|null} Returns <code>null</code> if attribute wasn't found
+		 * @return {String} Returns <code>null</code> if attribute wasn't found
 		 */
 		getAttribute: function(name) {
+			var _ = zen_coding.require('_');
 			var attr = this._getAttr(name);
-			return attr && attr.value;
+			return _.isUndefined(attr) ? null : attr.value;
 		},
 		
 		/**
