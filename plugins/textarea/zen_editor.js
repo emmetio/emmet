@@ -198,43 +198,6 @@ var zen_editor = (function(){
 	}
 	
 	/**
-	 * Handle tab-stops (like $1 or ${1:label}) inside text: find first tab-stop,
-	 * marks it as selection, remove the rest. If tab-stop wasn't found, search
-	 * for caret placeholder and use it as selection
-	 * @param {String} text
-	 * @return {Array} Array with new text and selection indexes (['...', -1,-1] 
-	 * if there's no selection)
-	 */
-	function handleTabStops(text) {
-		var selection_len = 0,
-			caret_pos = text.indexOf(caretPlaceholder),
-			placeholders = {};
-			
-		// find caret position
-		if (caret_pos != -1) {
-			text = text.split(caretPlaceholder).join('');
-		} else {
-			caret_pos = text.length;
-		}
-		
-		text = zen_coding.require('editorUtils').processTextBeforePaste(text, 
-			function(ch){ return ch; }, 
-			function(i, num, val) {
-				if (val) placeholders[num] = val;
-				
-				if (i < caret_pos) {
-					caret_pos = i;
-					if (val)
-						selection_len = val.length;
-				}
-					
-				return placeholders[num] || '';
-			});
-		
-		return [text, caret_pos, caret_pos + selection_len];
-	}
-	
-	/**
 	 * Returns normalized action name
 	 * @param {String} name Action name (like 'Expand Abbreviation')
 	 * @return Normalized name for coding (like 'expand_abbreviation')
@@ -428,7 +391,6 @@ var zen_editor = (function(){
 		 */
 		replaceContent: function(value, start, end, no_indent) {
 			var content = getContent(),
-				caret_pos = getCaretPos(),
 				has_start = typeof(start) !== 'undefined',
 				has_end = typeof(end) !== 'undefined';
 				
@@ -437,17 +399,20 @@ var zen_editor = (function(){
 				value = zen_coding.require('utils').padString(value, getStringPadding(this.getCurrentLine()));
 			
 			// find new caret position
-			var tabstop_res = handleTabStops(value);
-			value = tabstop_res[0];
+			var tabstopData = zen_coding.require('tabStops').extract(value);
+			value = tabstopData.text;
+			var firstTabStop = tabstopData.tabstops[0];
 			
-			start = start || 0;
-			if (tabstop_res[1] !== -1) {
-				tabstop_res[1] += start;
-				tabstop_res[2] += start;
+			if (firstTabStop) {
+				firstTabStop.start += start;
+				firstTabStop.end += start;
 			} else {
-				tabstop_res[1] = tabstop_res[2] = value.length + start;
+				firstTabStop = {
+					start: value.length + start,
+					end: value.length + start
+				};
 			}
-			
+				
 			try {
 				if (has_start && has_end) {
 					content = content.substring(0, start) + value + content.substring(end);
@@ -456,7 +421,7 @@ var zen_editor = (function(){
 				}
 				
 				target.value = content;
-				this.createSelection(tabstop_res[1], tabstop_res[2]);
+				this.createSelection(firstTabStop.start, firstTabStop.end);
 			} catch(e){}
 		},
 		

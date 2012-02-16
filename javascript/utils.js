@@ -10,6 +10,43 @@ zen_coding.define('utils', function(require, _) {
 	 */
 	var caretPlaceholder = '{%::zen-caret::%}';
 	
+	/**
+	 * A simple string builder, optimized for faster text concatenation
+	 * @param {String} value Initial value
+	 */
+	function StringBuilder(value) {
+		this._data = [];
+		this.length = 0;
+		
+		if (value)
+			this.append(value);
+	}
+	
+	StringBuilder.prototype = {
+		/**
+		 * Append string
+		 * @param {String} text
+		 */
+		append: function(text) {
+			this._data.push(text);
+			this.length += text.length;
+		},
+		
+		/**
+		 * @returns {String}
+		 */
+		toString: function() {
+			return this._data.join('');
+		},
+		
+		/**
+		 * @returns {String}
+		 */
+		valueOf: function() {
+			return this.toString();
+		}
+	};
+	
 	return {
 		/** @memberOf zen_coding.utils */
 		reTag: /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
@@ -377,6 +414,15 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		prettifyNumber: function(num, fraction) {
 			return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
+		},
+		
+		/**
+		 * A simple mutable string shim, optimized for faster text concatenation
+		 * @param {String} value Initial value
+		 * @returns {StringBuilder}
+		 */
+		stringBuilder: function(value) {
+			return new StringBuilder(value);
 		}
 	};
 });

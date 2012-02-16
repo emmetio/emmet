@@ -8,6 +8,8 @@
 (function(){
 	var child_token = '${child}',
 		tabstops = 0;
+	
+	var startPlaceholderNum = 100;
 		
 	/**
 	 * Returns proper string case, depending on profile value
@@ -70,10 +72,10 @@
 		item.start = item.start.replace('%s', utils.padString(start, padding));
 		item.end = item.end.replace('%s', utils.padString(end, padding));
 		
-		var startPlaceholderNum = 100;
 		var placeholderMemo = {};
 		
 		// replace variables ID and CLASS
+		// TODO should extract into external post-processor
 		var cb = function(str, varName) {
 			var attr = item.getAttribute(varName);
 			if (attr !== null)
@@ -167,11 +169,15 @@
 		if (level == 0) {
 			tree = zen_coding.require('filters').apply(tree, '_format', profile);
 			tabstops = 0;
+			
+			// reset placeholder counter
+			startPlaceholderNum = 100;
 		}
 		
 		var utils = zen_coding.require('utils');
 		var editorUtils = zen_coding.require('editorUtils');
 		var elements = zen_coding.require('elements');
+		var tabStops = zen_coding.require('tabStops');
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {ZenNode} */
@@ -187,7 +193,7 @@
 			item.end = utils.unescapeText(utils.replaceCounter(item.end, counter));
 			item.content = utils.unescapeText(utils.replaceCounter(item.content, counter));
 			
-			tabstops += editorUtils.upgradeTabstops(item, tabstops) + 1;
+			tabstops += tabStops.upgrade(item, tabstops) + 1;
 			
 			process(item, profile, level + 1);
 		}
