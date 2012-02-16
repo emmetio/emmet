@@ -18,6 +18,7 @@
 		<file name="html_matcher.js"/>
 		<file name="filters.js"/>
 		<file name="elements.js"/>
+		<file name="tabStops.js"/>
 			
 		<file name="parsers/abbreviation.js"/>
 		<file name="parsers/cssParser.js"/>

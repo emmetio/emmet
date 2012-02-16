@@ -46,7 +46,10 @@
 	
 	<target name="create_javascript" depends="init">
 		<concat destfile="${zencoding_build_dir}/zencoding.js">
-			<filelist refid="javascript.files"/>
+			<filelist refid="javascript.core" />
+    		<fileset refid="javascript.filters" />
+    		<fileset refid="javascript.actions" />
+    		<fileset refid="javascript.generators" />
 		</concat>
 	</target>
 	
