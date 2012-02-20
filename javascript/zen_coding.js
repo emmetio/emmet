@@ -1331,7 +1331,7 @@ var zen_coding = (function(){
 					if (value)
 						return '${' + (num + offset) + ':' + value + '}';
 					else
-						return '${' + (num + offset) + '}'; // CHANGED: added curly braces to prevent run-ins with numbers
+						return '${' + (num + offset) + '}';
 				};
 				
 			for (var i = 0, il = props.length; i < il; i++)
