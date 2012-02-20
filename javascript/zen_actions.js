@@ -326,8 +326,12 @@ function prevEditPoint(editor) {
 		// we're still in the same point, try searching from the other place
 		new_point = findNewEditPoint(editor, -1, -2);
 	
-	if (new_point != -1) 
+	if (new_point != -1) {
 		editor.setCaretPos(new_point);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**
@@ -336,8 +340,12 @@ function prevEditPoint(editor) {
  */
 function nextEditPoint(editor) {
 	var new_point = findNewEditPoint(editor, 1);
-	if (new_point != -1)
+	if (new_point != -1) {
 		editor.setCaretPos(new_point);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 /**
