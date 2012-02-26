@@ -44,7 +44,6 @@
 			var filters = this.require('filters');
 			var utils = this.require('utils');
 			var transform = this.require('transform');
-			var parser = this.require('parser');
 			
 			var data = filters.extractFromAbbreviation(abbr);
 			var outputTree = transform.transform(data[0], syntax, contextNode);

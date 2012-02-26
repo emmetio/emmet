@@ -73,8 +73,9 @@
 			node.parent = this;
 			
 			// check for implicit name
-			if (node.has_implicit_name && this.isInline())
+			if (node.has_implicit_name && this.source.name && this.isInline()) {
 				node.name = 'span';
+			}
 			
 			var lastChild = _.last(this.children);
 			if (lastChild) {
