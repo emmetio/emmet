@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Deep Merge example</title>
+	<script type="text/javascript" src="../underscore.js"></script>
+	<script type="text/javascript" src="../core.js"></script>
+	<script type="text/javascript" src="../utils.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		var obj1 = {k1: 'key1', k2: {a: 'val a', b: 'val b'}, k3: 'key 3'};
+		var obj2 = {k1: 'key1_2', k2: {a: 'val a2', c: 'val c'}, k4: 'key 4'};
+		console.log(zen_coding.require('utils').deepMerge({}, obj1, obj2));
+	</script>
+</body>
+</html>

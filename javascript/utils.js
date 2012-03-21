@@ -423,6 +423,59 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		stringBuilder: function(value) {
 			return new StringBuilder(value);
+		},
+
+		/**
+		 * Deep merge of two or more objects. Taken from jQuery.extend()
+		 */
+		deepMerge: function() {
+			var options, name, src, copy, copyIsArray, clone,
+				target = arguments[0] || {},
+				i = 1,
+				length = arguments.length;
+
+
+			// Handle case when target is a string or something (possible in deep copy)
+			if (!_.isObject(target) && !_.isFunction(target)) {
+				target = {};
+			}
+
+			for ( ; i < length; i++ ) {
+				// Only deal with non-null/undefined values
+				if ( (options = arguments[ i ]) != null ) {
+					// Extend the base object
+					for ( name in options ) {
+						src = target[ name ];
+						copy = options[ name ];
+
+						// Prevent never-ending loop
+						if ( target === copy ) {
+							continue;
+						}
+
+						// Recurse if we're merging plain objects or arrays
+						if ( copy && ( _.isObject(copy) || (copyIsArray = _.isArray(copy)) ) ) {
+							if ( copyIsArray ) {
+								copyIsArray = false;
+								clone = src && _.isArray(src) ? src : [];
+
+							} else {
+								clone = src && _.isObject(src) ? src : {};
+							}
+
+							// Never move original objects, clone them
+							target[ name ] = this.deepMerge(clone, copy );
+
+						// Don't bring in undefined values
+						} else if ( copy !== undefined ) {
+							target[ name ] = copy;
+						}
+					}
+				}
+			}
+
+			// Return the modified object
+			return target;
 		}
 	};
 });
