@@ -60,7 +60,7 @@
 			var utils = zen_coding.require('utils');
 			
 			// escape pipe (caret) character with internal placeholder
-			value = utils.replaceUnescapedSymbol(value, '|', utils.getCaretPlaceholder());
+			value = utils.replaceUnescapedSymbol(value || '', '|', utils.getCaretPlaceholder());
 			
 			var a;
 			if (name in this._attr_hash) {
