@@ -157,7 +157,7 @@
 		}
 		
 		if (resource && elems.is(resource, 'reference')) {
-			resource = res.getAbbreviation(type, resource.data);
+			resource = res.getAbbreviation(syntax, resource.data);
 		}
 		
 		var elem = new ParsedElement(node, syntax, resource);

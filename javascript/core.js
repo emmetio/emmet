@@ -45,6 +45,8 @@
 			var utils = this.require('utils');
 			var transform = this.require('transform');
 			
+			profile = this.require('profile').get(profile, syntax);
+			
 			var data = filters.extractFromAbbreviation(abbr);
 			var outputTree = transform.transform(data[0], syntax, contextNode);
 			var filtersList = filters.composeList(syntax, profile, data[1]);

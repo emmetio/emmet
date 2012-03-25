@@ -1,5 +1,165 @@
-<<<<<<< HEAD
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">	<head>		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		<title>Document</title>		<style type="text/css">			textarea {				width:100%;				height:20em;			}		</style>		<script type="text/javascript" src="../../javascript/zen_settings.js"></script>		<script type="text/javascript">			var my_zen_settings = {				'html': {					'abbreviations': {						'egr+': 'div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer',						'demo': '<div id="demo"></div>'					},					'snippets': {						'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',						'c': '<!-- |${child} -->',						'djb': '{% block ${id} %}\n\t${child}|\n{% endblock %}',						'attr': 'hello ${id} ${name}'					},										filters: 'bem,html'				}			};		</script>		<script type="text/javascript" src="../../javascript/underscore.js"></script>				<script type="text/javascript" src="../../javascript/core.js"></script>		<script type="text/javascript" src="../../javascript/utils.js"></script>		<script type="text/javascript" src="../../javascript/resources.js"></script>		<script type="text/javascript" src="../../javascript/actions.js"></script>		<script type="text/javascript" src="../../javascript/profile.js"></script>		<script type="text/javascript" src="../../javascript/transform.js"></script>		<script type="text/javascript" src="../../javascript/editorUtils.js"></script>		<script type="text/javascript" src="../../javascript/actionUtils.js"></script>		<script type="text/javascript" src="../../javascript/base64.js"></script>		<script type="text/javascript" src="../../javascript/html_matcher.js"></script>				<script type="text/javascript" src="../../javascript/filters.js"></script>		<script type="text/javascript" src="../../javascript/filters/bem.js"></script>		<script type="text/javascript" src="../../javascript/filters/comment.js"></script>		<script type="text/javascript" src="../../javascript/filters/escape.js"></script>		<script type="text/javascript" src="../../javascript/filters/format-css.js"></script>		<script type="text/javascript" src="../../javascript/filters/format.js"></script>		<script type="text/javascript" src="../../javascript/filters/haml.js"></script>		<script type="text/javascript" src="../../javascript/filters/html.js"></script>		<script type="text/javascript" src="../../javascript/filters/single-line.js"></script>		<script type="text/javascript" src="../../javascript/filters/trim.js"></script>		<script type="text/javascript" src="../../javascript/filters/xsl.js"></script>				<script type="text/javascript" src="../../javascript/elements.js"></script>		<script type="text/javascript" src="../../javascript/elements/parsedElements.js"></script>		<script type="text/javascript" src="../../javascript/elements/ZenNode.js"></script>				<script type="text/javascript" src="../../javascript/parsers/abbreviation.js"></script>		<script type="text/javascript" src="../../javascript/parsers/cssParser.js"></script>		<script type="text/javascript" src="../../javascript/parsers/xmlParser.js"></script>		<script type="text/javascript" src="../../javascript/parsers/parserUtils.js"></script>				<script type="text/javascript" src="../../javascript/actions/base64.js"></script>		<script type="text/javascript" src="../../javascript/actions/editPoints.js"></script>		<script type="text/javascript" src="../../javascript/actions/evaluateMath.js"></script>		<script type="text/javascript" src="../../javascript/actions/expandAbbreviation.js"></script>		<script type="text/javascript" src="../../javascript/actions/increment_decrement.js"></script>		<script type="text/javascript" src="../../javascript/actions/lineBreaks.js"></script>		<script type="text/javascript" src="../../javascript/actions/matchPair.js"></script>		<script type="text/javascript" src="../../javascript/actions/mergeLines.js"></script>		<script type="text/javascript" src="../../javascript/actions/reflectCSSValue.js"></script>		<script type="text/javascript" src="../../javascript/actions/removeTag.js"></script>		<script type="text/javascript" src="../../javascript/actions/selectItem.js"></script>		<script type="text/javascript" src="../../javascript/actions/selectLine.js"></script>		<script type="text/javascript" src="../../javascript/actions/splitJoinTag.js"></script>		<script type="text/javascript" src="../../javascript/actions/toggleComment.js"></script>		<script type="text/javascript" src="../../javascript/actions/wrapWithAbbreviation.js"></script>		<script type="text/javascript" src="../../javascript/actions/updateImageSize.js"></script>				<script type="text/javascript" src="../../javascript/resolvers/expando.js"></script>		<script type="text/javascript" src="../../javascript/resolvers/generator.js"></script>				<script type="text/javascript" src="../../javascript/generators/lorem-ipsum.js"></script>				<script type="text/javascript" src="../codemirror/shortcut.js"></script>		<script type="text/javascript" src="zen_editor.js"></script>		<!-- <script type="text/javascript" src="manager.js"></script> -->	</head>	<body>		<p>Simple HTML textarea</p>		<!-- div#content>ul.navigation>li.item$*4>a -->		<textarea class="zc-syntax-html">ul>li.item$*4>a[href=/sample/]>lipsum3.b-block>.__el>.__el|bem.b-bl1>.b-bl2_foo>.-el+.--el_bar|bem&lt;img src=&quot;data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA&quot; alt=&quot;&quot; /&gt;item 1item 2item 3</textarea><textarea class="zc-syntax-css">.logsummary {  margin-top: 1em;  margin-bottom: 1em;  padding: 1ex;  background:url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA');    opacity:0.5;  filter:alpha(opacity=50);  -ms-filter:alpha(opacity=50);      -moz-border-radius-topleft:10px;  -webkit-border-top-left-radius:10px;  border-top-left-radius:10px;    border: 1px solid #000;  font-weight: bold;  border-radius: 5px;  -moz-border-radius: 5px;  -webkit-border-radius: 5px;  -ms-border-radius: 5px;  background: url(myimage.png) #fff top left no-repeat;  background-image:url(myimage.png)}.logtable {  width:100%;  border-collapse: collapse;  border: 1px dotted #666;}.logtable td, .logtable th {  text-align: left;  padding: 3px 8px;  border: 1px dotted #666;}</textarea>				<p>XSL textarea with Tab and formatted line break support</p>		<textarea class="zc-use_tab-true zc-syntax-xsl zc-profile-xml zc-pretty_break-yes"></textarea>		<script type="text/javascript">			zen_editor.setup({pretty_break: true, use_tab: true});//			zen_textarea.showInfo();		</script>	</body></html>
-=======
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">	<head>		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		<title>Document</title>		<style type="text/css">			textarea {				width:100%;				height:20em;			}		</style>		<script type="text/javascript" src="../../javascript/zen_settings.js"></script>		<script type="text/javascript">			var my_zen_settings = {				'html': {					'abbreviations': {						'egr+': 'div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer',						'demo': '<div id="demo"></div>'					},					'snippets': {						'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',						'c': '<!-- |${child} -->',						'djb': '{% block ${id} %}\n\t${child}|\n{% endblock %}',						'attr': 'hello ${1:name}'					},										filters: 'bem,html'				}			};		</script>		<script type="text/javascript" src="../../javascript/underscore.js"></script>				<script type="text/javascript" src="../../javascript/core.js"></script>		<script type="text/javascript" src="../../javascript/utils.js"></script>		<script type="text/javascript" src="../../javascript/resources.js"></script>		<script type="text/javascript" src="../../javascript/actions.js"></script>		<script type="text/javascript" src="../../javascript/profile.js"></script>		<script type="text/javascript" src="../../javascript/transform.js"></script>		<script type="text/javascript" src="../../javascript/editorUtils.js"></script>		<script type="text/javascript" src="../../javascript/actionUtils.js"></script>		<script type="text/javascript" src="../../javascript/base64.js"></script>		<script type="text/javascript" src="../../javascript/html_matcher.js"></script>		<script type="text/javascript" src="../../javascript/tabStops.js"></script>				<script type="text/javascript" src="../../javascript/filters.js"></script>		<script type="text/javascript" src="../../javascript/filters/bem.js"></script>		<script type="text/javascript" src="../../javascript/filters/comment.js"></script>		<script type="text/javascript" src="../../javascript/filters/escape.js"></script>		<script type="text/javascript" src="../../javascript/filters/format-css.js"></script>		<script type="text/javascript" src="../../javascript/filters/format.js"></script>		<script type="text/javascript" src="../../javascript/filters/haml.js"></script>		<script type="text/javascript" src="../../javascript/filters/html.js"></script>		<script type="text/javascript" src="../../javascript/filters/single-line.js"></script>		<script type="text/javascript" src="../../javascript/filters/trim.js"></script>		<script type="text/javascript" src="../../javascript/filters/xsl.js"></script>				<script type="text/javascript" src="../../javascript/elements.js"></script>		<script type="text/javascript" src="../../javascript/elements/parsedElements.js"></script>		<script type="text/javascript" src="../../javascript/elements/ZenNode.js"></script>				<script type="text/javascript" src="../../javascript/parsers/abbreviation.js"></script>		<script type="text/javascript" src="../../javascript/parsers/cssParser.js"></script>		<script type="text/javascript" src="../../javascript/parsers/xmlParser.js"></script>		<script type="text/javascript" src="../../javascript/parsers/parserUtils.js"></script>				<script type="text/javascript" src="../../javascript/actions/base64.js"></script>		<script type="text/javascript" src="../../javascript/actions/editPoints.js"></script>		<script type="text/javascript" src="../../javascript/actions/evaluateMath.js"></script>		<script type="text/javascript" src="../../javascript/actions/expandAbbreviation.js"></script>		<script type="text/javascript" src="../../javascript/actions/increment_decrement.js"></script>		<script type="text/javascript" src="../../javascript/actions/lineBreaks.js"></script>		<script type="text/javascript" src="../../javascript/actions/matchPair.js"></script>		<script type="text/javascript" src="../../javascript/actions/mergeLines.js"></script>		<script type="text/javascript" src="../../javascript/actions/reflectCSSValue.js"></script>		<script type="text/javascript" src="../../javascript/actions/removeTag.js"></script>		<script type="text/javascript" src="../../javascript/actions/selectItem.js"></script>		<script type="text/javascript" src="../../javascript/actions/selectLine.js"></script>		<script type="text/javascript" src="../../javascript/actions/splitJoinTag.js"></script>		<script type="text/javascript" src="../../javascript/actions/toggleComment.js"></script>		<script type="text/javascript" src="../../javascript/actions/wrapWithAbbreviation.js"></script>		<script type="text/javascript" src="../../javascript/actions/updateImageSize.js"></script>				<script type="text/javascript" src="../../javascript/resolvers/expando.js"></script>		<script type="text/javascript" src="../../javascript/resolvers/generator.js"></script>				<script type="text/javascript" src="../../javascript/generators/example.js"></script>		<script type="text/javascript" src="../../javascript/generators/lorem-ipsum.js"></script>				<script type="text/javascript" src="../codemirror/shortcut.js"></script>		<script type="text/javascript" src="zen_editor.js"></script>		<!-- <script type="text/javascript" src="manager.js"></script> -->	</head>	<body>		<p>Simple HTML textarea</p>		<!-- div#content>ul.navigation>li.item$*4>a -->		<textarea class="zc-syntax-html">ul>li.item$*4>a[href=/sample/]>lipsum3.b-block>.__el>.__el|bem.b-bl1>.b-bl2_foo>.-el+.--el_bar|bem&lt;img src=&quot;data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA&quot; alt=&quot;&quot; /&gt;item 1item 2item 3</textarea><textarea class="zc-syntax-css">.logsummary {  margin-top: 1em;  margin-bottom: 1em;  padding: 1ex;  background:url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA');    opacity:0.5;  filter:alpha(opacity=50);  -ms-filter:alpha(opacity=50);      -moz-border-radius-topleft:10px;  -webkit-border-top-left-radius:10px;  border-top-left-radius:10px;    border: 1px solid #000;  font-weight: bold;  border-radius: 5px;  -moz-border-radius: 5px;  -webkit-border-radius: 5px;  -ms-border-radius: 5px;  background: url(myimage.png) #fff top left no-repeat;  background-image:url(myimage.png)}.logtable {  width:100%;  border-collapse: collapse;  border: 1px dotted #666;}.logtable td, .logtable th {  text-align: left;  padding: 3px 8px;  border: 1px dotted #666;}</textarea>				<p>XSL textarea with Tab and formatted line break support</p>		<textarea class="zc-use_tab-true zc-syntax-xsl zc-profile-xml zc-pretty_break-yes"></textarea>		<script type="text/javascript">			zen_editor.setup({pretty_break: true, use_tab: true});//			zen_textarea.showInfo();		</script>	</body></html>
->>>>>>> fac3eafbc5d0ffb93411f7bfeca5e32ecf390f15
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Document</title>
+		<style type="text/css">
+			textarea {
+				width:100%;
+				height:20em;
+			}
+		</style>
+		<script type="text/javascript" src="../../javascript/zen_settings.js"></script>
+		<script type="text/javascript">
+			var my_zen_settings = {
+				'html': {
+					'abbreviations': {
+						'egr+': 'div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer',
+						'demo': '<div id="demo"></div>'
+					},
+					'snippets': {
+						'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
+						'c': '<!-- |${child} -->',
+						'djb': '{% block ${id} %}\n\t${child}|\n{% endblock %}',
+						'attr': 'hello ${id} ${name}'
+					},
+					
+					filters: 'bem,html',
+					
+					profile: {
+						tag_case: 'upper',
+						attr_case: 'upper',
+						attr_quotes: 'double',
+						tag_nl: 'decide',
+						place_cursor: true,
+						indent: true,
+						inline_break: 3,
+						self_closing_tag: 'xhtml',
+						filters: ''
+					}
+				}
+			};
+		</script>
+		<script type="text/javascript" src="../../javascript/underscore.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/core.js"></script>
+		<script type="text/javascript" src="../../javascript/utils.js"></script>
+		<script type="text/javascript" src="../../javascript/resources.js"></script>
+		<script type="text/javascript" src="../../javascript/actions.js"></script>
+		<script type="text/javascript" src="../../javascript/profile.js"></script>
+		<script type="text/javascript" src="../../javascript/transform.js"></script>
+		<script type="text/javascript" src="../../javascript/editorUtils.js"></script>
+		<script type="text/javascript" src="../../javascript/actionUtils.js"></script>
+		<script type="text/javascript" src="../../javascript/base64.js"></script>
+		<script type="text/javascript" src="../../javascript/html_matcher.js"></script>
+		<script type="text/javascript" src="../../javascript/tabStops.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/filters.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/bem.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/comment.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/escape.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/format-css.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/format.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/haml.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/html.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/single-line.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/trim.js"></script>
+		<script type="text/javascript" src="../../javascript/filters/xsl.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/elements.js"></script>
+		<script type="text/javascript" src="../../javascript/elements/parsedElements.js"></script>
+		<script type="text/javascript" src="../../javascript/elements/ZenNode.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/parsers/abbreviation.js"></script>
+		<script type="text/javascript" src="../../javascript/parsers/cssParser.js"></script>
+		<script type="text/javascript" src="../../javascript/parsers/xmlParser.js"></script>
+		<script type="text/javascript" src="../../javascript/parsers/parserUtils.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/actions/base64.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/editPoints.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/evaluateMath.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/expandAbbreviation.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/increment_decrement.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/lineBreaks.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/matchPair.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/mergeLines.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/reflectCSSValue.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/removeTag.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/selectItem.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/selectLine.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/splitJoinTag.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/toggleComment.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/wrapWithAbbreviation.js"></script>
+		<script type="text/javascript" src="../../javascript/actions/updateImageSize.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/resolvers/expando.js"></script>
+		<script type="text/javascript" src="../../javascript/resolvers/generator.js"></script>
+		
+		<script type="text/javascript" src="../../javascript/generators/lorem-ipsum.js"></script>
+		
+		<script type="text/javascript" src="../codemirror/shortcut.js"></script>
+		<script type="text/javascript" src="zen_editor.js"></script>
+		<!-- <script type="text/javascript" src="manager.js"></script> -->
+	</head>
+	<body>
+		<p>Simple HTML textarea</p>
+		<!-- div#content>ul.navigation>li.item$*4>a -->
+		<textarea class="zc-syntax-html">
+ul>li.item$*4>a[href=/sample/]>lipsum3
+
+.b-block>.__el>.__el|bem
+.b-bl1>.b-bl2_foo>.-el+.--el_bar|bem
+
+&lt;img src=&quot;data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA&quot; alt=&quot;&quot; /&gt;
+
+item 1
+item 2
+item 3
+</textarea>
+<textarea class="zc-syntax-css">
+.logsummary {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 1ex;
+  background:url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA');
+  
+  opacity:0.5;
+  filter:alpha(opacity=50);
+  -ms-filter:alpha(opacity=50);
+  
+  
+  -moz-border-radius-topleft:10px;
+  -webkit-border-top-left-radius:10px;
+  border-top-left-radius:10px;
+  
+  border: 1px solid #000;
+  font-weight: bold;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -ms-border-radius: 5px;
+  background: url(myimage.png) #fff top left no-repeat;
+  background-image:url(myimage.png)
+}
+
+.logtable {
+  width:100%;
+  border-collapse: collapse;
+  border: 1px dotted #666;
+}
+
+.logtable td, .logtable th {
+  text-align: left;
+  padding: 3px 8px;
+  border: 1px dotted #666;
+}
+</textarea>
+		
+		<p>XSL textarea with Tab and formatted line break support</p>
+		<textarea class="zc-use_tab-true zc-syntax-xsl zc-profile-xml zc-pretty_break-yes"></textarea>
+		<script type="text/javascript">
+			zen_editor.setup({pretty_break: true, use_tab: true});
+//			zen_textarea.showInfo();
+		</script>
+	</body>
+</html>

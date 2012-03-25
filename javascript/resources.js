@@ -204,7 +204,7 @@ zen_coding.define('resources', function(require, _) {
 		 * Returns resource value from data set with respect of inheritance
 		 * @param {String} syntax Resource syntax (html, css, ...)
 		 * @param {String} name Resource name ('snippets' or 'abbreviation')
-		 * @param {String} abbr Abbreviation name
+		 * @param {String} item Resource item name
 		 * @return {Object}
 		 */
 		getResource: function(syntax, name, item) {

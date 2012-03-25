@@ -62,9 +62,20 @@ zen_coding.define('profile', function(require, _) {
 		 * Returns profile by its name. If profile wasn't found, returns
 		 * 'plain' profile
 		 * @param {String} name Profile name. Might be profile itself
+		 * @param {String} syntax. Optional. Current editor syntax. If defined,
+		 * profile is searched in resources first, then in predefined profiles
 		 * @returns {Object}
 		 */
-		get: function(name) {
+		get: function(name, syntax) {
+			if (syntax && _.isString(name)) {
+				// search in user resources first
+				var profile = require('resources').getSubset(syntax, 'profile');
+				if (profile) {
+					name = profile;
+				}
+			}
+			
+			
 			if (_.isString(name) && name.toLowerCase() in profiles)
 				return profiles[name.toLowerCase()];
 				
