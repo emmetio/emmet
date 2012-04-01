@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.baseBrowserLibrary"/>
 	<classpathentry kind="con" path="org.eclipse.wst.jsdt.USER_LIBRARY/Underscore"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.USER_LIBRARY/console"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
