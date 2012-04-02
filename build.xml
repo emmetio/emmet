@@ -10,6 +10,7 @@
 	<import file="${zencoding_plugins_source}/npp/build.xml"/>
 	<import file="${zencoding_plugins_source}/e2/build.xml"/>
 	<import file="${zencoding_plugins_source}/codemirror/build.xml"/>
+	<import file="${zencoding_plugins_source}/codemirror2/build.xml"/>
 	<import file="${zencoding_plugins_source}/coda/build.xml"/>
 	<import file="${zencoding_plugins_source}/espresso/build.xml"/>
 	

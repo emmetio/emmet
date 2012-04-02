@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+	<meta charset="UTF-8">
+	<title>CodeMirror2</title>
+	<link rel="stylesheet" href="./lib/codemirror.css" />
+	<style type="text/css">
+		.CodeMirror {
+			border: 1px solid #ccc;
+		}
+	</style>
+	
+	<script type="text/javascript" src="../../javascript/zen_settings.js"></script>
+	<script type="text/javascript" src="../../javascript/zen_parser.js"></script>
+	<script type="text/javascript" src="../../javascript/zen_resources.js"></script>
+	<script type="text/javascript" src="../../javascript/zen_coding.js"></script>
+	<script type="text/javascript" src="../../javascript/zen_actions.js"></script>
+	<script type="text/javascript" src="../../javascript/html_matcher.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/format.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/html.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/css.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/haml.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/comment.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/escape.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/format-css.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/xsl.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/trim.js"></script>
+	<script type="text/javascript" src="../../javascript/filters/single-line.js"></script>
+	
+	<script type="text/javascript" src="../../javascript/parsers/parsexml.js"></script>
+	<script type="text/javascript" src="../../javascript/parsers/sex.js"></script>
+	<script type="text/javascript" src="../../javascript/parsers/parserutils.js"></script>
+	<script type="text/javascript" src="../../javascript/parsers/traverse-actions.js"></script>
+	<script type="text/javascript" src="../../javascript/parsers/actions.js"></script>
+	
+	<script type="text/javascript" src="./lib/codemirror.js"></script>
+	<script type="text/javascript" src="./mode/xml/xml.js"></script>
+	
+	<script type="text/javascript" src="./shortcut.js"></script>
+	<script type="text/javascript" src="./zen_editor.js"></script>
+</head>
+<body>
+	<form><textarea id="code" name="code"></textarea></form>
+
+	<script type="text/javascript">
+		CodeMirror.fromTextArea(document.getElementById("code"), {
+			mode : 'text/html',
+			
+			syntax: 'html',   /* define Zen Coding syntax */
+			profile: 'xhtml', /* define Zen Coding output profile */
+			
+			// send all key events to Zen Coding
+			onKeyEvent: function() {
+				return zen_editor.handleKeyEvent.apply(zen_editor, arguments);
+			}
+		});
+	</script>
+</body>
+</html>
