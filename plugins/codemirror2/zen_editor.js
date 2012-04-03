@@ -292,8 +292,9 @@ var zen_editor = (function(){
 			}
 			
 			try {
-				this.createSelection(start, end);
-				mirror.replaceSelection(value);
+				mirror.replaceRange(value, mirror.posFromIndex(start), mirror.posFromIndex(end));
+				// this.createSelection(start, end);
+				// mirror.replaceSelection(value);
 				this.createSelection(tabstop_res[1], tabstop_res[2]);
 			} catch(e){}
 		},
