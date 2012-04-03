@@ -559,7 +559,7 @@ zen_settings = {
 					'</html>',
 			
 			'html:5': '<!DOCTYPE HTML>\n' +
-					'<html lang="${locale}">\n' +
+					'<html lang="${lang}">\n' +
 					'<head>\n' +
 					'	<meta charset="${charset}">\n' +
 					'	<title></title>\n' +
