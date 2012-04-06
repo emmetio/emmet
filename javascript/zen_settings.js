@@ -730,5 +730,14 @@ var zen_settings = {
 	'haml': {
 		'filters': 'haml',
 		'extends': 'html'
+	},
+	
+	'asp': {
+		'filters': 'html, asp',
+		'extends': 'html',
+		'abbreviations': {
+			'repeater': '<asp:Repeater runat="server" DataSource=""></asp:Repeater>',
+			'repeater+': 'repeater>itemtemplate'
+		}
 	}
 };

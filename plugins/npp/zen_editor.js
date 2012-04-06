@@ -331,6 +331,9 @@ var zen_editor = (function(){
 			var syntax = (Editor.langs[context.lang] || '').toLowerCase(),
 				caret_pos = this.getCaretPos();
 				
+			if (syntax == 'xml' && /\.xslt?(\.|$)/i.test(context.files[context.file]))
+				syntax = 'xsl';
+
 			if (!zen_coding.getResourceManager().hasSyntax(syntax))
 				syntax = 'html';
 			
