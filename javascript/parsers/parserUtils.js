@@ -33,7 +33,7 @@ zen_coding.define('parserUtils', function(require, _) {
 	 * @param {Array} original Original preprocessed tokens 
 	 */
 	function postProcessOptimized(optimized, original) {
-		var token, child;
+		var child;
 		_.each(optimized, function(token, i) {
 			if (token.type == 'value') {
 				token.children = [];
@@ -172,7 +172,7 @@ zen_coding.define('parserUtils', function(require, _) {
 		 */
 		optimizeCSS: function(tokens, offset, content) {
 			offset = offset || 0;
-			var result = [], token, i, il, _o = 0,
+			var result = [], token, i = 0, il, _o = 0,
 				in_rules = false,
 				in_value = false,
 				delta = 0,
@@ -187,6 +187,7 @@ zen_coding.define('parserUtils', function(require, _) {
 				orig_tokens = [];
 				
 			function addToken(token, type) {
+//				console.log('add token %o of type %o', token, type);
 				if (type && type in acc_tokens) {
 					if (!acc_tokens[type]) {
 						acc_tokens[type] = makeToken(type, token.value, offset + delta + token.charstart, i);
@@ -406,7 +407,7 @@ zen_coding.define('parserUtils', function(require, _) {
 	 	 * @param {Number} start_ix Token index where to start searching
 	 	 */
 	 	findCSSInsertionPoint: function(tokens, startIx) {
-	 		var insPoint;
+	 		var insPoint = null;
 	 		var insIx = -1; 
 	 		var needCol = false;
 	 			
