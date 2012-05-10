@@ -27,7 +27,7 @@ zen_coding.define('preferences', function(require, _) {
 		 * with many options
 		 * @param {Object} value Preference default value
 		 * @param {String} description Item textual description
-		 * @returns
+		 * @memberOf zen_coding.preferences
 		 */
 		set: function(name, value, description) {
 			var prefs = name;
@@ -51,6 +51,15 @@ zen_coding.define('preferences', function(require, _) {
 		 */
 		get: function(name) {
 			return name in preferences ? preferences[name].value : void 0;
+		},
+		
+		/**
+		 * Returns description of preference item
+		 * @param {String} name Preference name
+		 * @returns {Object}
+		 */
+		description: function(name) {
+			return name in preferences ? preferences[name].description : void 0;
 		},
 		
 		/**
