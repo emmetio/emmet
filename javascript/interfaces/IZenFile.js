@@ -5,11 +5,15 @@
  * This interface should be defined as <code>zen_coding.define('file')</code>
  * module
  * 
+ * @type IZenFile
+ * @constructor
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @version 0.65
  */
-var zen_file = {
+function IZenFile() {}
+
+IZenFile.prototype = {
 	/**
 	 * Read file content and return it
 	 * @param {String} path File's relative or absolute path

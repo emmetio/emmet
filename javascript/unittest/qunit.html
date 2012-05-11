@@ -4,24 +4,72 @@
 	<meta charset="UTF-8">
 	<title>Zen Coding Unit Tests</title>
 	<link rel="stylesheet" href="qunit/qunit.css" />
-	<script type="text/javascript" src="qunit/qunit.js"></script>
+	<script src="qunit/qunit.js"></script>
 	
-	<script type="text/javascript" src="../underscore.js"></script>
-	<script type="text/javascript" src="../zen_settings.js"></script>
-	<script type="text/javascript" src="../core.js"></script>
-	<script type="text/javascript" src="../utils.js"></script>
-	<script type="text/javascript" src="../resources.js"></script>
-	<script type="text/javascript" src="../elements.js"></script>
-	<script type="text/javascript" src="../tabStops.js"></script>
-	<script type="text/javascript" src="../preferences.js"></script>
-	<script type="text/javascript" src="../fast-css/fast-css.js"></script>
-	<script type="text/javascript" src="../parsers/cssParser.js"></script>
-	<script type="text/javascript" src="../parsers/cssEditTree.js"></script>
-	<script type="text/javascript" src="../parsers/parserUtils.js"></script>
+	<script src="../underscore.js"></script>
 	
-	<script type="text/javascript" src="tests/css-resolver.js"></script>
-	<script type="text/javascript" src="tests/css-parser.js"></script>
-	<script type="text/javascript" src="tests/preferences.js"></script>
+	<script src="../zen_settings.js"></script>	
+	<script src="../core.js"></script>
+	<script src="../utils.js"></script>
+	<script src="../resources.js"></script>
+	<script src="../actions.js"></script>
+	<script src="../profile.js"></script>
+	<script src="../transform.js"></script>
+	<script src="../editorUtils.js"></script>
+	<script src="../actionUtils.js"></script>
+	<script src="../base64.js"></script>
+	<script src="../html_matcher.js"></script>
+	<script src="../tabStops.js"></script>
+	<script src="../preferences.js"></script>
+	
+	<script src="../filters.js"></script>
+	<script src="../filters/bem.js"></script>
+	<script src="../filters/comment.js"></script>
+	<script src="../filters/escape.js"></script>
+	<script src="../filters/format-css.js"></script>
+	<script src="../filters/format.js"></script>
+	<script src="../filters/haml.js"></script>
+	<script src="../filters/html.js"></script>
+	<script src="../filters/single-line.js"></script>
+	<script src="../filters/trim.js"></script>
+	<script src="../filters/xsl.js"></script>
+	
+	<script src="../elements.js"></script>
+	<script src="../elements/parsedElements.js"></script>
+	<script src="../elements/ZenNode.js"></script>
+	
+	<script src="../parsers/abbreviation.js"></script>
+	<script src="../parsers/cssParser.js"></script>
+	<script src="../parsers/cssEditTree.js"></script>
+	<script src="../parsers/xmlParser.js"></script>
+	<script src="../parsers/parserUtils.js"></script>
+	
+	<script src="../actions/base64.js"></script>
+	<script src="../actions/editPoints.js"></script>
+	<script src="../actions/evaluateMath.js"></script>
+	<script src="../actions/expandAbbreviation.js"></script>
+	<script src="../actions/increment_decrement.js"></script>
+	<script src="../actions/lineBreaks.js"></script>
+	<script src="../actions/matchPair.js"></script>
+	<script src="../actions/mergeLines.js"></script>
+	<script src="../actions/reflectCSSValue.js"></script>
+	<script src="../actions/removeTag.js"></script>
+	<script src="../actions/selectItem.js"></script>
+	<script src="../actions/selectLine.js"></script>
+	<script src="../actions/splitJoinTag.js"></script>
+	<script src="../actions/toggleComment.js"></script>
+	<script src="../actions/wrapWithAbbreviation.js"></script>
+	<script src="../actions/updateImageSize.js"></script>
+	
+	<script src="../fast-css/fast-css.js"></script>
+	<script src="../resolvers/expando.js"></script>
+	<script src="../resolvers/generator.js"></script>
+	
+	<script src="tests/css-resolver.js"></script>
+	<script src="tests/css-parser.js"></script>
+	<script src="tests/preferences.js"></script>
+	<script src="tests/editorStub.js"></script>
+	<script src="tests/actions.js"></script>
 </head>
 <body>
 	<h1 id="qunit-header">Zen Coding</h1>

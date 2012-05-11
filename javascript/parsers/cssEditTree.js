@@ -16,20 +16,6 @@ zen_coding.define('cssEditTree', function(require, _) {
 	};
 	
 	/**
-	 * Replace substring of <code>str</code> with <code>value</code>
-	 * @param {String} str
-	 * @param {String} value
-	 * @param {Number} start
-	 * @param {Number} end
-	 */
-	function replaceSubstring(str, value, start, end) {
-		if (_.isUndefined(end))
-			end = start;
-		
-		return str.substring(0, start) + value + str.substring(end);
-	}
-	
-	/**
 	 * Returns newline character at specified position in content
 	 * @param {String} content
 	 * @param {Number} pos
@@ -259,7 +245,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @private
 		 */
 		_updateSource: function(value, start, end) {
-			this.source = replaceSubstring(this.source, value, start, end);
+			this.source = require('utils').replaceSubstring(this.source, value, start, end);
 		},
 			
 			

@@ -336,7 +336,7 @@ zen_coding.define('utils', function(require, _) {
 		 * @return {String}
 		 */
 		escapeText: function(text) {
-			return text.replace(/([\$\|\\])/g, '\\$1');
+			return text.replace(/([\$\\])/g, '\\$1');
 		},
 		
 		/**
@@ -423,6 +423,20 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		stringBuilder: function(value) {
 			return new StringBuilder(value);
+		},
+		
+		/**
+		 * Replace substring of <code>str</code> with <code>value</code>
+		 * @param {String} str
+		 * @param {String} value
+		 * @param {Number} start
+		 * @param {Number} end
+		 */
+		replaceSubstring: function(str, value, start, end) {
+			if (_.isUndefined(end))
+				end = start;
+			
+			return str.substring(0, start) + value + str.substring(end);
 		},
 
 		/**

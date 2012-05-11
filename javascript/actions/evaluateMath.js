@@ -9,9 +9,13 @@ zen_coding.require('actions').add('evaluate_math_expression', function(editor) {
 	var content = String(editor.getContent());
 	var chars = '.+-*/\\';
 		
-	var r = actionUtils.findExpressionBounds(editor, function(ch) {
-		return utils.isNumeric(ch) || chars.indexOf(ch) != -1;
-	});
+	
+	var sel = editor.getSelectionRange();
+	var r = (sel && sel.start != sel.end) 
+		? [sel.start, sel.end] 
+		: actionUtils.findExpressionBounds(editor, function(ch) {
+			return utils.isNumeric(ch) || chars.indexOf(ch) != -1;
+		});
 		
 	if (r) {
 		var expr = content.substring(r[0], r[1]);

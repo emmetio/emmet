@@ -38,7 +38,7 @@
 			return content.substring(start, ix);
 		}
 			
-		while (curPoint < maxLen && curPoint > 0) {
+		while (curPoint <= maxLen && curPoint >= 0) {
 			curPoint += inc;
 			var cur_char = ch(curPoint),
 				next_char = ch(curPoint + 1),

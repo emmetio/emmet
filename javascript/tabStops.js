@@ -83,9 +83,13 @@ zen_coding.define('tabStops', function(require, _) {
 				}
 			});
 			
+			text = utils.escapeText(text);
+			console.log('text before', text);
 			if (options.replaceCarets) {
-				text = text.replace(new RegExp(utils.getCaretPlaceholder(), 'g'), '${0:cursor}');
+				text = text.replace(new RegExp( utils.escapeForRegexp( utils.getCaretPlaceholder() ), 'g'), '${0:cursor}');
 			}
+			console.log('text after caret', text);
+			
 			
 			// locate tabstops and unify group's placeholders
 			text = this.processText(text, options);
@@ -167,14 +171,13 @@ zen_coding.define('tabStops', function(require, _) {
 					
 					// remember token start position
 					tokenStart = i;
-					
 					if (utils.isNumeric(nextCh)) {
 						// $N placeholder
 						startIx = i + 1;
 						i = nextWhile(startIx, utils.isNumeric);
 						if (startIx < i) {
 							strBuilder.append(options.tabstop({
-								start: tokenStart, 
+								start: strBuilder.length, 
 								group: text.substring(startIx, i),
 								token: text.substring(tokenStart, i)
 							}));
@@ -189,7 +192,7 @@ zen_coding.define('tabStops', function(require, _) {
 						if (i > startIx) {
 							if (text.charAt(i) == '}') {
 								strBuilder.append(options.tabstop({
-									start: tokenStart, 
+									start: strBuilder.length, 
 									group: text.substring(startIx, i),
 									token: text.substring(tokenStart, i + 1)
 								}));
@@ -205,7 +208,7 @@ zen_coding.define('tabStops', function(require, _) {
 								});
 								
 								strBuilder.append(options.tabstop({
-									start: tokenStart, 
+									start: strBuilder.length, 
 									group: text.substring(startIx, valStart - 2), 
 									placeholder: text.substring(valStart - 1, i),
 									token: text.substring(tokenStart, i + 1)
