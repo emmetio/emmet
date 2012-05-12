@@ -4,6 +4,18 @@
  */
 (function() {
 	var actions = zen_coding.require('actions');
+	/** @type zen_coding.preferences */
+	var prefs = zen_coding.require('preferences');
+	
+	// setup default preferences
+	prefs.set('css.closeBraceIndentation', '\n',
+			'Indentation before closing brace of CSS rule. Some users prefere' 
+			+ 'indented closing brace of CSS rule for better readability. '
+			+ 'This preference’s value will be automatically inserted before '
+			+ 'closing brace when user adds newline in newly created CSS rule '
+			+ '(e.g. when “Insert formatted linebreak” action will be performed ' 
+			+ 'in CSS file). If you’re such user, you may want to write put a value ' 
+			+ 'like <code>\\n\\t</code> in this preference.');
 	
 	/**
 	 * Inserts newline character with proper indentation in specific positions only.
@@ -21,10 +33,10 @@
 		var info = editorUtils.outputInfo(editor);
 		var caretPos = editor.getCaretPos();
 		var nl = utils.getNewline();
-		var pad = res.getVariable('indentation');
 		
 			
 		if (info.syntax == 'html') {
+			var pad = res.getVariable('indentation');
 			// let's see if we're breaking newly created tag
 			var pair = matcher.getTags(info.content, caretPos, info.profile);
 			
@@ -33,27 +45,40 @@
 				return true;
 			}
 		} else if (info.syntax == 'css') {
-			if (caretPos && info.content.charAt(caretPos - 1) == '{') {
-				// look ahead for a closing brace
-				for (var i = caretPos, il = info.content.length, ch; i < il; i++) {
-					ch = info.content.charAt(i);
-					if (ch == '}') return false;
-					if (ch == '{') break;
+			/** @type String */
+			var content = info.content;
+			if (caretPos && content.charAt(caretPos - 1) == '{') {
+				var append = prefs.get('css.closeBraceIndentation');
+				var pad = res.getVariable('indentation');
+				
+				var hasCloseBrace = content.charAt(caretPos) == '}';
+				if (!hasCloseBrace) {
+					// do we really need special formatting here?
+					// check if this is really a newly created rule,
+					// look ahead for a closing brace
+					for (var i = caretPos, il = content.length, ch; i < il; i++) {
+						ch = content.charAt(i);
+						if (ch == '{') {
+							// ok, this is a new rule without closing brace
+							break;
+						}
+						
+						if (ch == '}') {
+							// not a new rule, just add indentation
+							append = '';
+							hasCloseBrace = true;
+							break;
+						}
+					}
+				}
+				
+				if (!hasCloseBrace) {
+					append += '}';
 				}
 				
 				// defining rule set
-				var insValue = nl + pad + utils.getCaretPlaceholder() + nl;
-				var hasCloseBrace = caretPos < info.content.length && info.content.charAt(caretPos) == '}';
-					
-				var userCloseBrace = res.getVariable('close_css_brace');
-				if (userCloseBrace) {
-					// user defined how close brace should look like
-					insValue += utils.replaceVariables(userCloseBrace);
-				} else if (!hasCloseBrace) {
-					insValue += '}';
-				}
-				
-				editor.replaceContent(insValue, caretPos, caretPos + (hasCloseBrace ? 1 : 0));
+				var insValue = nl + pad + utils.getCaretPlaceholder() + append;
+				editor.replaceContent(insValue, caretPos);
 				return true;
 			}
 		}

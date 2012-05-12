@@ -84,12 +84,9 @@ zen_coding.define('tabStops', function(require, _) {
 			});
 			
 			text = utils.escapeText(text);
-			console.log('text before', text);
 			if (options.replaceCarets) {
 				text = text.replace(new RegExp( utils.escapeForRegexp( utils.getCaretPlaceholder() ), 'g'), '${0:cursor}');
 			}
-			console.log('text after caret', text);
-			
 			
 			// locate tabstops and unify group's placeholders
 			text = this.processText(text, options);

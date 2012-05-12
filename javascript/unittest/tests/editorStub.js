@@ -66,7 +66,9 @@ var editorStub = (function() {
 		 * Replace editor's content or it's part (from <code>start</code> to 
 		 * <code>end</code> index). If <code>value</code> contains 
 		 * <code>caret_placeholder</code>, the editor will put caret into 
-		 * this position. If you skip <code>start</code> and <code>end</code>
+		 * this position. 
+		 * 
+		 * If you skip <code>start</code> and <code>end</code>
 		 * arguments, the whole target's content will be replaced with 
 		 * <code>value</code>. 
 		 * 
@@ -78,13 +80,14 @@ var editorStub = (function() {
 		 * the corresponding substring of current target's content will be 
 		 * replaced with <code>value</code>. 
 		 * @param {String} value Content you want to paste
-		 * @param {Number} [start] Start index of editor's content
-		 * @param {Number} [end] End index of editor's content
-		 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
+		 * @param {Number} start Start index of editor's content
+		 * @param {Number} end End index of editor's content
+		 * @param {Boolean} noIndent Do not auto indent <code>value</code>
 		 */
 		replaceContent: function(value, start, end, noIndent) {
+			if (_.isUndefined(end)) 
+				end = _.isUndefined(start) ? content.length : start;
 			if (_.isUndefined(start)) start = 0;
-			if (_.isUndefined(end)) end = content.length;
 			var utils = require('utils');
 			
 			// indent new value

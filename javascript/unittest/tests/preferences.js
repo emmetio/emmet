@@ -2,6 +2,7 @@ module('Preferences');
 test('Check preferences', function() {
 	/** @type zen_coding.preferences */
 	var prefs = zen_coding.require('preferences');
+	prefs._startTest();
 	
 	prefs.set('a', 1, 'test');
 	equal(prefs.get('a'), 1, 'Preference "a" is set to 1');
@@ -25,4 +26,6 @@ test('Check preferences', function() {
 	
 	prefs.remove('d');
 	deepEqual(_.pluck(prefs.list(), 'name'), ['a', 'b', 'c'], 'Removed property "d"');
+	
+	prefs._stopTest();
 });

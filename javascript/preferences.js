@@ -13,6 +13,7 @@
  */
 zen_coding.define('preferences', function(require, _) {
 	var preferences = {};
+	var _dbg = null;
 	
 	function isValueObj(obj) {
 		return _.isObject(obj) 
@@ -88,6 +89,21 @@ zen_coding.define('preferences', function(require, _) {
 					description: preferences[key].description
 				};
 			});
+		},
+		
+		/**
+		 * For unit testing: use empty storage
+		 */
+		_startTest: function() {
+			_dbg = preferences;
+			preferences = {};
+		},
+		
+		/**
+		 * For unit testing: restore original storage
+		 */
+		_stopTest: function() {
+			preferences = _dbg;
 		}
 	};
 });
