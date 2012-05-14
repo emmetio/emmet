@@ -5,74 +5,43 @@
  * @memberOf __zenReflectCSSAction
  */
 (function() {
-	zen_coding.require('actions').add('reflect_css_value', function(editor) {
+	var require = _.bind(zen_coding.require, zen_coding);
+	require('actions').add('reflect_css_value', function(editor) {
 		if (editor.getSyntax() != 'css') return false;
 		
-		return zen_coding.require('actionUtils').compoundUpdate(editor, doCSSReflection(editor));
+		return require('actionUtils').compoundUpdate(editor, doCSSReflection(editor));
 	});
 	
 	function doCSSReflection(editor) {
-		/** @type zen_coding.parserUtils */
-		var parserUtils = zen_coding.require('parserUtils');
-		
-		var content = String(editor.getContent());
+		/** @type zen_coding.cssEditTree */
+		var cssEditTree = require('cssEditTree');
+		var outputInfo = require('editorUtils').outputInfo(editor);
 		var caretPos = editor.getCaretPos();
-		var css = parserUtils.extractCSSRule(content, caretPos);
-		var v;
-			
-		if (!css || caretPos < css[0] || caretPos > css[1])
-			// no matching CSS rule or caret outside rule bounds
-			return false;
-			
-		var tokens = parserUtils.parseCSS(content.substring(css[0], css[1]), css[0]);
-		var token_ix = parserUtils.findTokenFromPosition(tokens, caretPos, 'identifier');
 		
-		if (token_ix != -1) {
-			var cur_prop = tokens[token_ix].content;
-			var value_token = parserUtils.findValueToken(tokens, token_ix + 1);
-			var base_name = parserUtils.getBaseCSSName(cur_prop);
-			var re_name = new RegExp('^(?:\\-\\w+\\-)?' + base_name + '$');
-			var re_name = getReflectedCSSName(base_name);
-			var values = [];
-				
-			if (!value_token) return false;
-				
-			// search for all vendor-prefixed properties
-			for (var i = 0, token, il = tokens.length; i < il; i++) {
-				token = tokens[i];
-				if (token.type == 'identifier' && re_name.test(token.content) && token.content != cur_prop) {
-					v = parserUtils.findValueToken(tokens, i + 1);
-					if (v) 
-						values.push({name: token, value: v});
-				}
+		var cssRule = cssEditTree.parseFromPosition(outputInfo.content, caretPos);
+		if (!cssRule) return;
+		
+		var property = cssRule.propertyFromPosition(caretPos);
+		// no property under cursor, nothing to reflect
+		if (!property) return;
+		
+		var oldRule = cssRule.source;
+		var offset = cssRule.options.offset;
+		var caretDelta = caretPos - offset - property.range().start;
+		var reName = getReflectedCSSName(property.name());
+		_.each(cssRule.list(), function(p) {
+			if (reName.test(p.name())) {
+				reflectValue(property, p);
 			}
-			
-			// some editors do not provide easy way to replace multiple code 
-			// fragments so we have to squash all replace operations into one
-			if (values.length) {
-				var data = content.substring(values[0].value.start, values[values.length - 1].value.end);
-				var offset = values[0].value.start;
-				var value = value_token.content;
-				var rv;
-					
-				for (var i = values.length - 1; i >= 0; i--) {
-					v = values[i].value;
-					rv = getReflectedValue(cur_prop, value, values[i].name.content, v.content);
-					data = replaceSubstring(data, v.start - offset, v.end - offset, rv);
-						
-					// also calculate new caret position
-					if (v.start < caretPos) {
-						caretPos += rv.length - v.content.length;
-					}
-				}
-				
-				return {
-					'data': data,
-					'start': offset,
-					'end': values[values.length - 1].value.end,
-					'caret': caretPos
-				};
-			}
+		});
+		
+		if (oldRule !== cssRule.source) {
+			return {
+				data:  cssRule.source,
+				start: offset,
+				end:   offset + oldRule.length,
+				caret: offset + property.range().start + caretDelta
+			};
 		}
 	}
 	
@@ -82,7 +51,7 @@
 	 * @return {RegExp}
 	 */
 	function getReflectedCSSName(name) {
-		name = zen_coding.require('parserUtils').getBaseCSSName(name);
+		name = require('cssEditTree').baseName(name);
 		var vendorPrefix = '^(?:\\-\\w+\\-)?', m;
 		
 		if (name == 'opacity' || name == 'filter') {
@@ -98,10 +67,24 @@
 	}
 	
 	/**
-	 * Returns value that should be reflected for <code>ref_name</code> CSS property
-	 * from <code>cur_name</code> property. This function is used for special cases,
+	 * Reflects value from <code>donor</code> into <code>receiver</code>
+	 * @param {CSSProperty} donor Donor CSS property from which value should
+	 * be reflected
+	 * @param {CSSProperty} receiver Property that should receive reflected 
+	 * value from donor
+	 */
+	function reflectValue(donor, receiver) {
+		var value = getReflectedValue(donor.name(), donor.value(), 
+				receiver.name(), receiver.value());
+		
+		receiver.value(value);
+	}
+	
+	/**
+	 * Returns value that should be reflected for <code>refName</code> CSS property
+	 * from <code>curName</code> property. This function is used for special cases,
 	 * when the same result must be achieved with different properties for different
-	 * browsers. For example: opаcity:0.5; -> filter:alpha(opacity=50);<br><br>
+	 * browsers. For example: opаcity:0.5; → filter:alpha(opacity=50);<br><br>
 	 * 
 	 * This function does value conversion between different CSS properties
 	 * 
@@ -112,10 +95,10 @@
 	 * @return {String} New value for receiver property
 	 */
 	function getReflectedValue(curName, curValue, refName, refValue) {
-		var parserUtils = zen_coding.require('parserUtils');
-		var utils = zen_coding.require('utils');
-		curName = parserUtils.getBaseCSSName(curName);
-		refName = parserUtils.getBaseCSSName(refName);
+		var cssEditTree = require('cssEditTree');
+		var utils = require('utils');
+		curName = cssEditTree.baseName(curName);
+		refName = cssEditTree.baseName(refName);
 		
 		if (curName == 'opacity' && refName == 'filter') {
 			return refValue.replace(/opacity=[^)]*/i, 'opacity=' + Math.floor(parseFloat(curValue) * 100));
@@ -125,18 +108,5 @@
 		}
 		
 		return curValue;
-	}
-	
-	/**
-	 * Replace substring of <code>text</code>, defined by <code>start</code> and 
-	 * <code>end</code> indexes with <code>new_value</code>
-	 * @param {String} text
-	 * @param {Number} start
-	 * @param {Number} end
-	 * @param {String} new_value
-	 * @return {String}
-	 */
-	function replaceSubstring(text, start, end, new_value) {
-		return text.substring(0, start) + new_value + text.substring(end);
 	}
 })();

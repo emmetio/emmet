@@ -172,16 +172,16 @@
 	
 	/**
 	 * Find item
-	 * @param {zen_editor} editor
-	 * @param {String} is_backward Search backward (search forward otherwise)
-	 * @param {Function} extract_fn Function that extracts item content
-	 * @param {Function} range_rn Function that search for next token range
+	 * @param {IZenEditor} editor
+	 * @param {Boolean} isBackward Search backward (search forward otherwise)
+	 * @param {Function} extractFn Function that extracts item content
+	 * @param {Function} rangeFn Function that search for next token range
 	 */
-	function findItem(editor, is_backward, extract_fn, range_fn) {
+	function findItem(editor, isBackward, extractFn, rangeFn) {
 		var content = String(editor.getContent());
 		var contentLength = content.length;
 		var item, itemDef, rng;
-		var prev_range = [-1, -1];
+		var prevRange = [-1, -1];
 		var sel = editor.getSelectionRange();
 		var selStart = Math.min(sel.start, sel.end);
 		var selEnd = Math.max(sel.start, sel.end);
@@ -189,36 +189,36 @@
 		var searchPos = selStart, loop = 100000; // endless loop protection
 		while (searchPos >= 0 && searchPos < contentLength && loop > 0) {
 			loop--;
-			if ( (item = extract_fn(content, searchPos, is_backward)) ) {
-				if (prev_range[0] == item[0] && prev_range[1] == item[1]) {
+			if ( (item = extractFn(content, searchPos, isBackward)) ) {
+				if (prevRange[0] == item[0] && prevRange[1] == item[1]) {
 					break;
 				}
 				
-				prev_range[0] = item[0];
-				prev_range[1] = item[1];
+				prevRange[0] = item[0];
+				prevRange[1] = item[1];
 				itemDef = content.substring(item[0], item[1]);
-				rng = range_fn(itemDef, item[0], selStart, selEnd);
+				rng = rangeFn(itemDef, item[0], selStart, selEnd);
 					
 				if (rng) {
 					editor.createSelection(rng[0], rng[1]);
 					return true;
 				} else {
-					searchPos = is_backward ? item[0] : item[1] - 1;
+					searchPos = isBackward ? item[0] : item[1] - 1;
 				}
 			}
 			
-			searchPos += is_backward ? -1 : 1;
+			searchPos += isBackward ? -1 : 1;
 		}
 		
 		return false;
 	}
 	
 	function findNextCSSItem(editor) {
-		return findItem(editor, false, zen_coding.require('parserUtils').extractCSSRule, getRangeForNextItemInCSS);
+		return findItem(editor, false, zen_coding.require('cssEditTree').extractRule, getRangeForNextItemInCSS);
 	}
 	
 	function findPrevCSSItem(editor) {
-		return findItem(editor, true, zen_coding.require('parserUtils').extractCSSRule, getRangeForPrevItemInCSS);
+		return findItem(editor, true, zen_coding.require('cssEditTree').extractRule, getRangeForPrevItemInCSS);
 	}
 	
 	/**
@@ -230,7 +230,7 @@
 	 * @return {Array} Returns array with two indexes if next item was found, 
 	 * <code>null</code> otherwise
 	 */
-	function getRangeForNextItemInCSS(rule, offset, selStart, selEnd) {
+	function getRangeForNextItemInCSS_old(rule, offset, selStart, selEnd) {
 		var tokens = zen_coding.require('parserUtils').parseCSS(rule, offset); 
 		var next = [];
 			
@@ -255,6 +255,129 @@
 					if (token.type == 'value') // respect complex values
 						posTest = posTest || selStart >= token.start && token.end >= selEnd;
 				}
+				
+				if (!posTest) continue;
+				
+				// found token that should be selected
+				if (token.type == 'identifier') {
+					var rule_sel = handleFullRuleCSS(tokens, i, selEnd <= token.end ? token.start : -1);
+					if (rule_sel) return rule_sel;
+					
+				} else if (token.type == 'value' && selEnd > token.start && token.children) {
+					// looks like a complex value
+					var children = token.children;
+					for (var j = 0, jl = children.length; j < jl; j++) {
+						if (children[j][0] >= selStart || (selStart == selEnd && children[j][1] > selStart)) {
+							next = [children[j][0], children[j][1]];
+							if (checkSameRange(next)) {
+								var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
+								if (!checkSameRange(rule_sel))
+									return rule_sel;
+								else
+									continue;
+							}
+							
+							return next;
+						}
+					}
+				} else if (token.end > selEnd) {
+					return [token.start, token.end];
+				}
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Makes all possible selection ranges for specified CSS property
+	 * @param {CSSProperty} property
+	 * @returns {Array}
+	 */
+	function makePossibleRangesCSS(property) {
+		// find all possible ranges, sorted by position and size
+		var result = [property.range(true), property.valueRange(true)];
+		
+		// locate parts of complex values.
+		// some examples:
+		// – 1px solid red: 3 parts
+		// – arial, sans-serif: enumeration, 2 parts
+		// – url(image.png): function value part
+		
+		return result;
+	}
+	
+	/**
+	 * Split complex CSS value into parts
+	 * @param {String} value
+	 * @returns {Array}
+	 */
+	function splitCSSValue(value) {
+		// some examples:
+		// – 1px solid red: 3 parts
+		// – arial, sans-serif: enumeration, 2 parts
+		
+		var strings = [], funcs = [];
+		
+		// using naive approach: replace string and functions with placeholders
+		
+		
+	}
+	
+	/**
+	 * Returns range for item to be selected in tag after current caret position
+	 * @param {String} rule CSS rule declaration
+	 * @param {Number} offset Rule's position index inside content
+	 * @param {Number} selStart Start index of user selection
+	 * @param {Number} selEnd End index of user selection
+	 * @return {Array} Returns array with two indexes if next item was found, 
+	 * <code>null</code> otherwise
+	 */
+	function getRangeForNextItemInCSS(rule, offset, selStart, selEnd) {
+		/** @type CSSRule */
+		var tree = zen_coding.require('cssEditTree').parse(rule, {
+			offset: offset
+		});
+		
+		// check if selector is matched
+		var range = tree.selectorRange(true);
+		if (selEnd < range.end) {
+			return range.toArray();
+		}
+		
+		// find matched CSS property
+		/** @type CSSProperty */
+		var property = _.find(tree.list(), function(p) {
+			return p.range(true).end > selEnd;
+		});
+		
+		
+		
+		
+		var tokens = zen_coding.require('parserUtils').parseCSS(rule, offset); 
+		var next = [];
+		
+		/**
+		 * Same range is used inside complex value processor
+		 * @return {Boolean}
+		 */
+		function checkSameRange(r) {
+			return r[0] == selStart && r[1] == selEnd;
+		}
+		
+		// search for token that is right to selection
+		for (var i = 0, il = tokens.length; i < il; i++) {
+			/** @type {syntaxToken} */
+			var token = tokens[i], posTest;
+			if (token.type in knownCSSTypes) {
+				// check token position
+				if (selStart == selEnd)
+					posTest = token.end > selStart;
+					else {
+						posTest = token.start >= selStart;
+						if (token.type == 'value') // respect complex values
+							posTest = posTest || selStart >= token.start && token.end >= selEnd;
+					}
 				
 				if (!posTest) continue;
 				

@@ -171,6 +171,16 @@ zen_coding.define('cssEditTree', function(require, _) {
 	}
 	
 	/**
+	 * Returns range object
+	 * @param {Number} start
+	 * @param {Number} len 
+	 * @returns {Range}
+	 */
+	function range(start, len) {
+		return require('range').create(start, len);
+	}
+	
+	/**
 	 * @type CSSRule
 	 * @param {String} source
 	 * @param {Object} options
@@ -286,7 +296,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 			
 			// write new property into the source
 			this._updateSource(property, start);
-			this._shiftSiblingsRange(property, property.fullRange().length);
+			this._shiftSiblingsRange(property, property.fullRange().length());
 			return property;
 		},
 		
@@ -377,7 +387,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 			if (property) {
 				var r = property.fullRange();
 				this._updateSource('', r.start, r.end);
-				this._shiftSiblingsRange(property, -r.length);
+				this._shiftSiblingsRange(property, -r.length());
 				this._properties = _.without(this._properties, property);
 				this.save();
 			}
@@ -414,6 +424,16 @@ zen_coding.define('cssEditTree', function(require, _) {
 			return this._selector;
 		},
 		
+		/**
+		 * Returns selector range object
+		 * @param {Boolean} isAbsolute Return absolute range (with respect of 
+		 * rule offset)
+		 * @returns {Range}
+		 */
+		selectorRange: function(isAbsolute) {
+			return range(this._selectorPos + (isAbsolute ? this.options.offset : 0), this.selector());
+		},
+		
 		save: function() {
 			var delta = 0;
 			var selector = this.selector();
@@ -436,10 +456,8 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @returns {CSSProperty}
 		 */
 		propertyFromPosition: function(pos) {
-			var offset = this.options.offset;
 			return _.find(this.list(), function(property) {
-				var r = property.range();
-				return pos >= r.start + offset && pos < r.end + offset;
+				return property.range(true).inside(pos);
 			});
 		},
 		
@@ -479,6 +497,14 @@ zen_coding.define('cssEditTree', function(require, _) {
 				this._valuePos = pos;
 			
 			return this._value;
+		},
+		
+		/**
+		 * Returns ranges of complex value parts
+		 * @returns {Array} Returns <code>null</code> if value is not complex
+		 */
+		valueParts: function() {
+			
 		},
 		
 		/**
@@ -554,21 +580,51 @@ zen_coding.define('cssEditTree', function(require, _) {
 			this._isSaved = true;
 		},
 		
-		range: function() {
-			var r = {
-				start: this.namePosition(),
-				end: this.valuePosition() + this.value().length + this.end().length
-			};
+		/**
+		 * Returns rule range: from identifier to closing semicolon
+		 * @param {Boolean} isAbsolute Return absolute range (with respect of
+		 * rule offset)
+		 * @returns {Range}
+		 */
+		range: function(isAbsolute) {
+			var r = range(this.namePosition(), 
+					this.valuePosition() + this.value().length + this.end().length - this.namePosition());
 			
-			r.length = r.end - r.start;
+			if (isAbsolute)
+				r.shift(this.parent.options.offset);
 			return r;
 		},
 		
-		fullRange: function() {
-			var r = this.range();
+		/**
+		 * Returns full rule range, with indentation
+		 * @param {Boolean} isAbsolute Return absolute range (with respect of
+		 * rule offset)
+		 * @returns {Range}
+		 */
+		fullRange: function(isAbsolute) {
+			var r = this.range(isAbsolute);
 			r.start -= this.styleBefore.length;
-			r.length += this.styleBefore.length;
 			return r;
+		},
+		
+		/**
+		 * Returns property name range
+		 * @param {Boolean} isAbsolute Return absolute range (with respect of
+		 * rule offset)
+		 * @returns {Range}
+		 */
+		nameRange: function(isAbsolute) {
+			return range(this.namePosition() + (isAbsolute ? this.parent.options.offset : 0), this.name());
+		},
+		
+		/**
+		 * Returns property value range
+		 * @param {Boolean} isAbsolute Return absolute range (with respect of
+		 * rule offset)
+		 * @returns {Range}
+		 */
+		valueRange: function(isAbsolute) {
+			return range(this.valuePosition() + (isAbsolute ? this.parent.options.offset : 0), this.value());
 		},
 		
 		shiftPosition: function(delta) {
@@ -590,10 +646,28 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * Parses CSS rule into editable tree
 		 * @param {String} source
 		 * @param {Object} options
+		 * @memberOf zen_coding.cssEditTree
 		 * @returns {CSSRule}
 		 */
 		parse: function(source, options) {
 			return new CSSRule(source, options);
+		},
+		
+		/**
+		 * Extract and parse CSS rule from specified position in <code>content</code> 
+		 * @param {String} content CSS source code
+		 * @param {Number} pos Character position where to start source code extraction
+		 * @returns {CSSRule}
+		 */
+		parseFromPosition: function(content, pos, isBackward) {
+			var bounds = this.extractRule(content, pos, isBackward);
+			if (!bounds || pos < bounds[0] || pos > bounds[1])
+				// no matching CSS rule or caret outside rule bounds
+				return null;
+			
+			return this.parse(content.substring(bounds[0], bounds[1]), {
+				offset: bounds[0]
+			});
 		},
 		
 		/**
@@ -602,10 +676,11 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @param {Number} pos Character position where to start source code extraction
 		 * @returns {Array} Indexes of rule in <code>content</code>
 		 */
-		extractCSSRule: function(content, pos, isBackward) {
+		extractRule: function(content, pos, isBackward) {
 			var result = '';
 			var len = content.length;
 			var offset = pos;
+			var stopChars = '{}/\\<>';
 			var bracePos = -1, ch;
 			
 			// search left until we find rule edge
@@ -643,7 +718,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 				var selector = '';
 				while (offset >= 0) {
 					ch = content.charAt(offset);
-					if (css_stop_chars.indexOf(ch) != -1) break;
+					if (stopChars.indexOf(ch) != -1) break;
 					offset--;
 				}
 				
@@ -653,6 +728,15 @@ zen_coding.define('cssEditTree', function(require, _) {
 			}
 			
 			return null;
-		}
+		},
+		
+		/**
+	 	 * Removes vendor prefix from CSS property
+	 	 * @param {String} name CSS property
+	 	 * @return {String}
+	 	 */
+	 	baseName: function(name) {
+	 		return name.replace(/^\s*\-\w+\-/, '');
+	 	}
 	};
 });

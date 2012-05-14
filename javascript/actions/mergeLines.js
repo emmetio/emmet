@@ -22,7 +22,6 @@ zen_coding.require('actions').add('merge_lines', function(editor) {
 	if (selection.start != selection.end) {
 		// got range, merge lines
 		var text = info.content.substring(selection.start, selection.end);
-		var oldLength = text.length;
 		var lines = utils.splitByLines(text);
 		
 		for (var i = 1; i < lines.length; i++) {

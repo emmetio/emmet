@@ -18,6 +18,7 @@ zen_coding.require('actions').add('remove_tag', function(editor) {
 			// simply remove unary tag
 			editor.replaceContent(utils.getCaretPlaceholder(), pair[0].start, pair[0].end);
 		} else {
+			// remove tag and its newlines
 			var tagContentRange = editorUtils.narrowToNonSpace(info.content, pair[0].end, pair[1].start);
 			var startLineBounds = actionUtils.getLineBounds(info.content, tagContentRange[0]);
 			var startLinePad = utils.getLinePadding(info.content.substring(startLineBounds.start, startLineBounds.end));
