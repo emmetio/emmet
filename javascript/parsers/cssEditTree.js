@@ -181,6 +181,52 @@ zen_coding.define('cssEditTree', function(require, _) {
 	}
 	
 	/**
+	 * Finds parts of complex CSS value
+	 * @param {String} str
+	 * @returns {Array} Returns list of <code>Range</code>'s
+	 */
+	function findParts(str) {
+		/** @type StringStream */
+		var stream = require('stringStream').create(str);
+		var rangeModule = require('range');
+		var ch;
+		var result = [];
+		var sep = /[\s\u00a0,]/;
+		
+		var add = function() {
+			stream.next();
+			result.push(rangeModule.create(stream.start, stream.current()));
+			stream.start = stream.pos;
+		};
+		
+		// skip whitespace
+		stream.eatSpace();
+		stream.start = stream.pos;
+		
+		while (ch = stream.next()) {
+			if (ch == '"' || ch == "'") {
+				stream.next();
+				if (!stream.skipTo(ch)) break;
+				add();
+			} else if (ch == '(') {
+				if (!stream.skipTo(')')) break;
+				add();
+			} else {
+				if (sep.test(ch)) {
+					result.push(rangeModule.create(stream.start, stream.current().length - 1));
+					stream.eatWhile(sep);
+					stream.start = stream.pos;
+				}
+			}
+		}
+		
+		add();
+		return _.uniq(_.filter(result, function(item) {return !!item.length();}), false, function(item) {
+			return item.toString();
+		});
+	}
+	
+	/**
 	 * @type CSSRule
 	 * @param {String} source
 	 * @param {Object} options
@@ -503,8 +549,16 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * Returns ranges of complex value parts
 		 * @returns {Array} Returns <code>null</code> if value is not complex
 		 */
-		valueParts: function() {
+		valueParts: function(isAbsolute) {
+			var parts = findParts(this.value());
+			if (isAbsolute) {
+				var offset = this.parent.options.offset;
+				_.each(parts, function(p) {
+					p.shift(offset);
+				});
+			}
 			
+			return parts;
 		},
 		
 		/**
@@ -737,6 +791,13 @@ zen_coding.define('cssEditTree', function(require, _) {
 	 	 */
 	 	baseName: function(name) {
 	 		return name.replace(/^\s*\-\w+\-/, '');
-	 	}
+	 	},
+	 	
+	 	/**
+	 	 * Finds parts of complex CSS value
+	 	 * @param {String} str
+	 	 * @returns {Array}
+	 	 */
+	 	findParts: findParts
 	};
 });

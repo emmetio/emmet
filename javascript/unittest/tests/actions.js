@@ -180,8 +180,36 @@
 	});
 	
 	test('Select prev/next item (CSS)', function() {
+		editorStub.setSyntax('css');
+		
 		editorStub.replaceContent('|a {color: red; border: 1px solid black;}');
 		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 0, end: 1}, 'Selector matched');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 3, end: 14}, 'Full property matched');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 10, end: 13}, 'Property value matched');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 15, end: 39}, 'Advanced to next property');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 23, end: 38}, 'Selected "border" property value');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 23, end: 26}, 'Selected "1px" of "border" property');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 32}, 'Selected "solid" of "border" property');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 33, end: 38}, 'Selected "black" of "border" property');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 33, end: 38}, 'No selection change');
+		
+		editorStub.setSyntax('html');
 	});
 })();

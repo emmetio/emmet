@@ -17,7 +17,22 @@ test('Check internals', function() {
 	
 	rule.add('d', 'e');
 	var prop = rule.propertyFromPosition(7);
-	equal(prop.name(), 'd', 'Got ptoperty from position');
+	equal(prop.name(), 'd', 'Got property from position');
+	
+	var prop = rule.get('b');
+	prop.value('hello "lorem ipsum",     func(lorem ipsum) 123 ""');
+	var parts = _.map(prop.valueParts(), function(r) {
+		return r.substring(prop.value());
+	});
+	
+	deepEqual(parts, ['hello', '"lorem ipsum"', 'func(lorem ipsum)', '123', '""'], 'Correctly splitted complex value');
+	
+	prop.value('1px');
+	var parts = _.map(prop.valueParts(), function(r) {
+		return r.substring(prop.value());
+	});
+	
+	deepEqual(parts, ['1px'], 'No need to split simple value');
 });
 
 test('Check modifications', function() {

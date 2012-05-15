@@ -35,10 +35,12 @@ zen_coding.define('range', function(require, _) {
 		/**
 		 * Shifts indexes position with passed <code>delat</code>
 		 * @param {Number} delta
+		 * @returns {Range} range itself
 		 */
 		shift: function(delta) {
 			this.start += delta;
 			this.end += delta;
+			return this;
 		},
 		
 		/**
@@ -90,19 +92,31 @@ zen_coding.define('range', function(require, _) {
 		},
 		
 		/**
-		 * @returns {Array}
-		 */
-		toArray: function() {
-			return [this.start, this.end];
-		},
-		
-		/**
 		 * Returns substring of specified <code>str</code> for current range
 		 * @param {String} str
 		 * @returns {String}
 		 */
 		substring: function(str) {
 			return str.substring(this.start, this.end);
+		},
+		
+		/**
+		 * Creates copy of current range
+		 * @returns {Range}
+		 */
+		clone: function() {
+			return new Range(this.start, this.length());
+		},
+		
+		/**
+		 * @returns {Array}
+		 */
+		toArray: function() {
+			return [this.start, this.end];
+		},
+		
+		toString: function() {
+			return '{' + this.start + ', ' + this.length() + '}';
 		}
 	};
 	

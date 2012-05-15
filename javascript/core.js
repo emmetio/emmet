@@ -16,7 +16,7 @@
 			// do not let redefine existing properties
 			if (!(name in this)) {
 				this[name] = _.isFunction(factory) 
-					? factory(_.bind(this.require, this), _, this)
+					? this.exec(factory)
 					: factory;
 			}
 		},
@@ -27,6 +27,16 @@
 		 */
 		require: function(name) {
 			return this[name];
+		},
+		
+		/**
+		 * Helper method that just executes passed function but with all 
+		 * important arguments like 'require' and '_'
+		 * @param {Function} fn
+		 * @param {Object} context Execution context
+		 */
+		exec: function(fn, context) {
+			return fn.call(context || global, _.bind(this.require, this), _, this);
 		},
 		
 		/**

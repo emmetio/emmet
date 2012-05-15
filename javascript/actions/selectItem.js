@@ -4,8 +4,10 @@
  * -- Search for next/previous items in CSS
  * @constructor
  * @memberOf __zenSelectItemAction
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function(){
+zen_coding.exec(function(require, _) {
 	var startTag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
 	var knownXMLTypes = {
 		'xml-tagname': 1,
@@ -105,7 +107,7 @@
 		var next;
 				
 		// search for token that is left to the selection
-		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
+		for (var i = tokens.length - 1; i >= 0; i--) {
 			/** @type {syntaxToken} */
 			var token = tokens[i], pos_test;
 			if (token.type in knownXMLTypes) {
@@ -296,32 +298,49 @@
 	 */
 	function makePossibleRangesCSS(property) {
 		// find all possible ranges, sorted by position and size
-		var result = [property.range(true), property.valueRange(true)];
+		var valueRange = property.valueRange(true);
+		var result = [property.range(true), valueRange];
+		var stringStream = require('stringStream');
+		var cssEditTree = require('cssEditTree');
+		var range = require('range');
 		
 		// locate parts of complex values.
 		// some examples:
 		// – 1px solid red: 3 parts
 		// – arial, sans-serif: enumeration, 2 parts
 		// – url(image.png): function value part
+		var value = property.value();
+		_.each(property.valueParts(), function(r) {
+			// add absolute range
+			var clone = r.clone();
+			result.push(clone.shift(valueRange.start));
+			
+			/** @type StringStream */
+			var stream = stringStream.create(r.substring(value));
+			if (stream.match(/^[\w\-]+\(/, true)) {
+				// we have a function, find values in it.
+				// but first add function contents
+				stream.start = stream.pos;
+				stream.skipTo(')');
+				var fnBody = stream.current();
+				result.push(range.create(clone.start + stream.start, fnBody));
+				
+				// find parts
+				_.each(cssEditTree.findParts(fnBody), function(part) {
+					result.push(range.create(clone.start + stream.start + part.start, part.substring(fnBody)));
+				});
+			}
+		});
 		
-		return result;
-	}
-	
-	/**
-	 * Split complex CSS value into parts
-	 * @param {String} value
-	 * @returns {Array}
-	 */
-	function splitCSSValue(value) {
-		// some examples:
-		// – 1px solid red: 3 parts
-		// – arial, sans-serif: enumeration, 2 parts
-		
-		var strings = [], funcs = [];
-		
-		// using naive approach: replace string and functions with placeholders
-		
-		
+		// optimize result: remove empty ranges and duplicates
+		return _.chain(result)
+			.filter(function(item) {
+				return !!item.length();
+			})
+			.uniq(false, function(item) {
+				return item.toString();
+			})
+			.value();
 	}
 	
 	/**
@@ -335,81 +354,56 @@
 	 */
 	function getRangeForNextItemInCSS(rule, offset, selStart, selEnd) {
 		/** @type CSSRule */
-		var tree = zen_coding.require('cssEditTree').parse(rule, {
+		var tree = require('cssEditTree').parse(rule, {
 			offset: offset
 		});
 		
+		/** @type Range */
+		var selRange = require('range').create(selStart, selEnd - selStart);
+		
 		// check if selector is matched
 		var range = tree.selectorRange(true);
-		if (selEnd < range.end) {
+		if (selRange.end < range.end) {
 			return range.toArray();
 		}
 		
 		// find matched CSS property
 		/** @type CSSProperty */
-		var property = _.find(tree.list(), function(p) {
-			return p.range(true).end > selEnd;
-		});
+		var property = null;
+		var possibleRanges, curRange = null, ix;
+		var list = tree.list();
+		var searchFn = function(p) {
+			return p.range(true).end >= selRange.end;
+		};
 		
-		
-		
-		
-		var tokens = zen_coding.require('parserUtils').parseCSS(rule, offset); 
-		var next = [];
-		
-		/**
-		 * Same range is used inside complex value processor
-		 * @return {Boolean}
-		 */
-		function checkSameRange(r) {
-			return r[0] == selStart && r[1] == selEnd;
-		}
-		
-		// search for token that is right to selection
-		for (var i = 0, il = tokens.length; i < il; i++) {
-			/** @type {syntaxToken} */
-			var token = tokens[i], posTest;
-			if (token.type in knownCSSTypes) {
-				// check token position
-				if (selStart == selEnd)
-					posTest = token.end > selStart;
-					else {
-						posTest = token.start >= selStart;
-						if (token.type == 'value') // respect complex values
-							posTest = posTest || selStart >= token.start && token.end >= selEnd;
-					}
+		while (property = _.find(list, searchFn)) {
+			possibleRanges = makePossibleRangesCSS(property);
+			
+			// check if any possible range is already selected
+			curRange = _.find(possibleRanges, function(r) {
+				return r.equal(selRange);
+			});
+			
+			if (!curRange) {
+				// no selection, select nearest item
+				curRange = _.find(possibleRanges, function(r) {
+					return r.end > selRange.start;
+				});
 				
-				if (!posTest) continue;
-				
-				// found token that should be selected
-				if (token.type == 'identifier') {
-					var rule_sel = handleFullRuleCSS(tokens, i, selEnd <= token.end ? token.start : -1);
-					if (rule_sel) return rule_sel;
-					
-				} else if (token.type == 'value' && selEnd > token.start && token.children) {
-					// looks like a complex value
-					var children = token.children;
-					for (var j = 0, jl = children.length; j < jl; j++) {
-						if (children[j][0] >= selStart || (selStart == selEnd && children[j][1] > selStart)) {
-							next = [children[j][0], children[j][1]];
-							if (checkSameRange(next)) {
-								var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
-								if (!checkSameRange(rule_sel))
-									return rule_sel;
-								else
-									continue;
-							}
-							
-							return next;
-						}
-					}
-				} else if (token.end > selEnd) {
-					return [token.start, token.end];
+				if (curRange) break;
+			} else {
+				ix = _.indexOf(possibleRanges, curRange);
+				if (ix != possibleRanges.length - 1) {
+					curRange = possibleRanges[ix + 1];
+					break;
 				}
 			}
+			
+			curRange = null;
+			selRange.start = selRange.end = property.range(true).end + 1;
 		}
 		
-		return null;
+		return curRange ? curRange.toArray() : null;
 	}
 	
 	/**
@@ -546,4 +540,4 @@
 		else
 			return findPrevHTMLItem(editor);
 	});
-})();
+});
