@@ -9,13 +9,22 @@ zen_coding.define('range', function(require, _) {
 	/**
 	 * @type Range
 	 * @constructor
-	 * @param {Number} start
+	 * @param {Object} start
 	 * @param {Number} len
 	 */
 	function Range(start, len) {
-		len = _.isString(len) ? len.length : +len;
-		this.start = start;
-		this.end = start + len;
+		if (_.isObject(start) && 'start' in start) {
+			// create range from object stub
+			this.start = Math.min(start.start, start.end);
+			this.end = Math.max(start.start, start.end);
+		} else if (_.isArray(start)) {
+			this.start = start[0];
+			this.end = start[1];
+		} else {
+			len = _.isString(len) ? len.length : +len;
+			this.start = start;
+			this.end = start + len;
+		}
 	}
 	
 	Range.prototype = {
@@ -123,7 +132,8 @@ zen_coding.define('range', function(require, _) {
 	return {
 		/**
 		 * Creates new range object instance
-		 * @param {Number} start Range start
+		 * @param {Object} start Range start or array with 'start' and 'end'
+		 * as two first indexes or object with 'start' and 'end' properties
 		 * @param {Number} len Range length or string to produce range from
 		 * @returns {Range}
 		 * @memberOf zen_coding.range

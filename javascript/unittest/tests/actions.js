@@ -210,6 +210,71 @@
 		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 33, end: 38}, 'No selection change');
 		
+		// test previous item
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 32}, 'Selected "solid" of "border" property (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 23, end: 26}, 'Selected "1px" of "border" property (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 23, end: 38}, 'Selected "border" property value');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 15, end: 39}, 'Advanced to previous property');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 10, end: 13}, 'Previous property value matched');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 3, end: 14}, 'Previous property fully matched');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 0, end: 1}, 'Selector matched (backward)');
+		
 		editorStub.setSyntax('html');
+	});
+	
+	test('Select prev/next item (HTML)', function() {
+		editorStub.replaceContent('|<div class="hello world" b=1>text</div> <b class="large">text 2</b');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'Matched full "class" attribute');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 23}, 'Matched "class" value');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 25, end: 28}, 'Matched full "b" attribute');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 28}, 'Matched "b" value');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 43, end: 56}, 'Moved to <b> tage, selected full "class" attribute');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 50, end: 55}, 'Selected "class" value of <b> tag');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 50, end: 55}, 'No movement');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 43, end: 56}, 'Selected full "class" attribute of <b> tag (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 28}, 'Matched "b" value (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 25, end: 28}, 'Matched full "b" attribute (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 23}, 'Matched "class" value (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'Matched full "class" attribute (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'No movement (backward)');
 	});
 })();

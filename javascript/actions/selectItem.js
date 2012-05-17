@@ -9,31 +9,67 @@
  */
 zen_coding.exec(function(require, _) {
 	var startTag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
-	var knownXMLTypes = {
-		'xml-tagname': 1,
-		'xml-attname': 1,
-		'xml-attribute': 1
-	};
-	var knownCSSTypes = {
-		'selector': 1,
-		'identifier': 1,
-		'value': 1
-	};
+	
+	/**
+	 * Generic function for searching for items to select
+	 * @param {IZenEditor} editor
+	 * @param {Boolean} isBackward Search backward (search forward otherwise)
+	 * @param {Function} extractFn Function that extracts item content
+	 * @param {Function} rangeFn Function that search for next token range
+	 */
+	function findItem(editor, isBackward, extractFn, rangeFn) {
+		var range = require('range');
+		var content = require('editorUtils').outputInfo(editor).content;
+		
+		var contentLength = content.length;
+		var itemRange, rng;
+		/** @type Range */
+		var prevRange = range.create(-1, 0);
+		/** @type Range */
+		var sel = range.create(editor.getSelectionRange());
+		
+		var searchPos = sel.start, loop = 100000; // endless loop protection
+		while (searchPos >= 0 && searchPos < contentLength && --loop > 0) {
+			if ( (itemRange = extractFn(content, searchPos, isBackward)) ) {
+				if (prevRange.equal(itemRange)) {
+					break;
+				}
+				
+				prevRange = itemRange.clone();
+				rng = rangeFn(itemRange.substring(content), itemRange.start, sel.clone());
+				
+				if (rng) {
+					editor.createSelection(rng.start, rng.end);
+					return true;
+				} else {
+					searchPos = isBackward ? itemRange.start : itemRange.end - 1;
+				}
+			}
+			
+			searchPos += isBackward ? -1 : 1;
+		}
+		
+		return false;
+	}
+	
+	// XXX HTML section
 	
 	/**
 	 * Find next HTML item
-	 * @param {zen_editor} editor
+	 * @param {IZenEditor} editor
 	 */
 	function findNextHTMLItem(editor) {
 		var isFirst = true;
-		return findItem(editor, false, function(content, search_pos){
+		return findItem(editor, false, function(content, searchPos){
 			if (isFirst) {
 				isFirst = false;
-				return findOpeningTagFromPosition(content, search_pos);
+				return findOpeningTagFromPosition(content, searchPos);
 			} else {
-				return getOpeningTagFromPosition(content, search_pos);
+				return getOpeningTagFromPosition(content, searchPos);
 			}
-		}, getRangeForNextItemInHTML);
+		}, function(tag, offset, selRange) {
+			return getRangeForHTMLItem(tag, offset, selRange, false);
+		});
 	}
 	
 	/**
@@ -41,107 +77,95 @@ zen_coding.exec(function(require, _) {
 	 * @param {zen_editor} editor
 	 */
 	function findPrevHTMLItem(editor) {
-		return findItem(editor, true, getOpeningTagFromPosition, getRangeForPrevItemInHTML);
+		return findItem(editor, true, getOpeningTagFromPosition, function (tag, offset, selRange) {
+			return getRangeForHTMLItem(tag, offset, selRange, true);
+		});
 	}
 	
 	/**
-	 * Returns range for item to be selected in tag after current caret position
-	 * @param {String} tag Tag declaration
-	 * @param {Number} offset Tag's position index inside content
-	 * @param {Number} sel_start Start index of user selection
-	 * @param {Number} sel_end End index of user selection
-	 * @return {Array} Returns array with two indexes if next item was found, 
-	 * <code>null</code> otherwise
+	 * Creates possible selection ranges for HTML tag
+	 * @param {String} source Original HTML source for tokens
+	 * @param {Array} tokens List of HTML tokens
+	 * @returns {Array}
 	 */
-	function getRangeForNextItemInHTML(tag, offset, sel_start, sel_end) {
-		var parserUtils = zen_coding.require('parserUtils');
-		var tokens = parserUtils.parseHTML(tag, offset);
-		var next = [];
-				
-		// search for token that is right to selection
-		for (var i = 0, il = tokens.length; i < il; i++) {
-			/** @type {syntaxToken} */
-			var token = tokens[i], pos_test;
-			if (token.type in knownXMLTypes) {
-				// check token position
-				pos_test = token.start >= sel_start;
-				if (token.type == 'xml-attribute' && isQuote(token.content.charAt(0)))
-					pos_test = token.start + 1 >= sel_start && token.end -1 != sel_end;
-				
-				if (!pos_test && !(sel_start == sel_end && token.end > sel_start)) continue;
-				
-				// found token that should be selected
-				if (token.type == 'xml-attname') {
-					next = handleFullAttributeHTML(tokens, i, sel_end <= token.end ? token.start : -1);
-					if (next) return next;
-				} else if (token.end > sel_end) {
-					next = [token.start, token.end];
-					
-					if (token.type == 'xml-attribute')
-						next = handleQuotesHTML(token.content, next);
-						
-					if (sel_start == next[0] && sel_end == next[1])
-						// in case of empty attribute
-						continue;
-					
-					return next;
-				}
+	function makePossibleRangesHTML(source, tokens, offset) {
+		offset = offset || 0;
+		var range = require('range');
+		var result = [];
+		var attrStart = -1, attrValue = '', attrValueRange;
+		_.each(tokens, function(tok) {
+			if (tok.type == 'attribute') {
+				attrStart = tok.start;
+			} else if (tok.type == 'string') {
+				// attribute value
+				// push full attribute first
+				 result.push(range.create(attrStart, tok.end - attrStart));
+				 
+				 attrValueRange = range.create(tok);
+				 attrValue = attrValueRange.substring(source);
+				 
+				 // is this a quoted attribute?
+				 if (isQuote(attrValue.charAt(0)))
+					 attrValueRange.start++;
+				 
+				 if (isQuote(attrValue.charAt(attrValue.length - 1)))
+					 attrValueRange.end--;
+				 
+				 result.push(attrValueRange);
 			}
-		}
+		});
 		
-		return null;
+		// offset ranges
+		_.each(result, function(r) {
+			r.shift(offset);
+		});
+		
+		return result;
 	}
 	
 	/**
-	 * Returns range for item to be selected in tag before current caret position
+	 * Returns best HTML tag range match for current selection
 	 * @param {String} tag Tag declaration
 	 * @param {Number} offset Tag's position index inside content
-	 * @param {Number} sel_start Start index of user selection
-	 * @param {Number} sel_end End index of user selection
-	 * @return {Array} Returns array with two indexes if next item was found, 
-	 * <code>null</code> otherwise
+	 * @param {Range} selRange Selection range
+	 * @return {Range} Returns range if next item was found, <code>null</code> otherwise
 	 */
-	function getRangeForPrevItemInHTML(tag, offset, sel_start, sel_end) {
-		var parserUtils = zen_coding.require('parserUtils');
-		var tokens = parserUtils.parseHTML(tag, offset);
-		var next;
-				
-		// search for token that is left to the selection
-		for (var i = tokens.length - 1; i >= 0; i--) {
-			/** @type {syntaxToken} */
-			var token = tokens[i], pos_test;
-			if (token.type in knownXMLTypes) {
-				// check token position
-				pos_test = token.start < sel_start;
-				if (token.type == 'xml-attribute' && isQuote(token.content.charAt(0))) {
-					pos_test = token.start + 1 < sel_start;
-				}
-				
-				if (!pos_test) continue;
-				
-				// found token that should be selected
-				if (token.type == 'xml-attname') {
-					next = handleFullAttributeHTML(tokens, i, token.start);
-					if (next) return next;
-				} else {
-					next = [token.start, token.end];
-					
-					if (token.type == 'xml-attribute')
-						next = handleQuotesHTML(token.content, next);
-					
-					return next;
-				}
-			}
+	function getRangeForHTMLItem(tag, offset, selRange, isBackward) {
+		var ranges = makePossibleRangesHTML(tag, require('xmlParser').parse(tag), offset);
+		
+		if (isBackward)
+			ranges.reverse();
+		
+		// try to find selected range
+		var curRange = _.find(ranges, function(r) {
+			return r.equal(selRange);
+		});
+		
+		if (curRange) {
+			var ix = _.indexOf(ranges, curRange);
+			if (ix < ranges.length - 1)
+				return ranges[ix + 1];
+			
+			return null;
 		}
 		
-		return null;
+		// no selected range, find nearest one
+		if (isBackward)
+			return _.find(ranges, function(r) {
+				return r.start < selRange.start;
+			});
+		
+		// search forward
+		return _.find(ranges, function(r) {
+			return r.end > selRange.end;
+		});
 	}
 	
 	/**
 	 * Search for opening tag in content, starting at specified position
 	 * @param {String} html Where to search tag
 	 * @param {Number} pos Character index where to start searching
-	 * @return {Array} Returns array with tag indexes if valid opening tag was found,
+	 * @return {Range} Returns range if valid opening tag was found,
 	 * <code>null</code> otherwise
 	 */
 	function findOpeningTagFromPosition(html, pos) {
@@ -158,137 +182,18 @@ zen_coding.exec(function(require, _) {
 	/**
 	 * @param {String} html Where to search tag
 	 * @param {Number} pos Character index where to start searching
-	 * @return {Array} Returns array with tag indexes if valid opening tag was found,
+	 * @return {Range} Returns range if valid opening tag was found,
 	 * <code>null</code> otherwise
 	 */
 	function getOpeningTagFromPosition(html, pos) {
 		var m;
 		if (html.charAt(pos) == '<' && (m = html.substring(pos, html.length).match(startTag))) {
-			return [pos, pos + m[0].length];
+			return require('range').create(pos, m[0]);
 		}
 	}
 	
 	function isQuote(ch) {
 		return ch == '"' || ch == "'";
-	}
-	
-	/**
-	 * Find item
-	 * @param {IZenEditor} editor
-	 * @param {Boolean} isBackward Search backward (search forward otherwise)
-	 * @param {Function} extractFn Function that extracts item content
-	 * @param {Function} rangeFn Function that search for next token range
-	 */
-	function findItem(editor, isBackward, extractFn, rangeFn) {
-		var content = String(editor.getContent());
-		var contentLength = content.length;
-		var item, itemDef, rng;
-		var prevRange = [-1, -1];
-		var sel = editor.getSelectionRange();
-		var selStart = Math.min(sel.start, sel.end);
-		var selEnd = Math.max(sel.start, sel.end);
-			
-		var searchPos = selStart, loop = 100000; // endless loop protection
-		while (searchPos >= 0 && searchPos < contentLength && loop > 0) {
-			loop--;
-			if ( (item = extractFn(content, searchPos, isBackward)) ) {
-				if (prevRange[0] == item[0] && prevRange[1] == item[1]) {
-					break;
-				}
-				
-				prevRange[0] = item[0];
-				prevRange[1] = item[1];
-				itemDef = content.substring(item[0], item[1]);
-				rng = rangeFn(itemDef, item[0], selStart, selEnd);
-					
-				if (rng) {
-					editor.createSelection(rng[0], rng[1]);
-					return true;
-				} else {
-					searchPos = isBackward ? item[0] : item[1] - 1;
-				}
-			}
-			
-			searchPos += isBackward ? -1 : 1;
-		}
-		
-		return false;
-	}
-	
-	function findNextCSSItem(editor) {
-		return findItem(editor, false, zen_coding.require('cssEditTree').extractRule, getRangeForNextItemInCSS);
-	}
-	
-	function findPrevCSSItem(editor) {
-		return findItem(editor, true, zen_coding.require('cssEditTree').extractRule, getRangeForPrevItemInCSS);
-	}
-	
-	/**
-	 * Returns range for item to be selected in tag after current caret position
-	 * @param {String} rule CSS rule declaration
-	 * @param {Number} offset Rule's position index inside content
-	 * @param {Number} selStart Start index of user selection
-	 * @param {Number} selEnd End index of user selection
-	 * @return {Array} Returns array with two indexes if next item was found, 
-	 * <code>null</code> otherwise
-	 */
-	function getRangeForNextItemInCSS_old(rule, offset, selStart, selEnd) {
-		var tokens = zen_coding.require('parserUtils').parseCSS(rule, offset); 
-		var next = [];
-			
-		/**
-		 * Same range is used inside complex value processor
-		 * @return {Boolean}
-		 */
-		function checkSameRange(r) {
-			return r[0] == selStart && r[1] == selEnd;
-		}
-				
-		// search for token that is right to selection
-		for (var i = 0, il = tokens.length; i < il; i++) {
-			/** @type {syntaxToken} */
-			var token = tokens[i], posTest;
-			if (token.type in knownCSSTypes) {
-				// check token position
-				if (selStart == selEnd)
-					posTest = token.end > selStart;
-				else {
-					posTest = token.start >= selStart;
-					if (token.type == 'value') // respect complex values
-						posTest = posTest || selStart >= token.start && token.end >= selEnd;
-				}
-				
-				if (!posTest) continue;
-				
-				// found token that should be selected
-				if (token.type == 'identifier') {
-					var rule_sel = handleFullRuleCSS(tokens, i, selEnd <= token.end ? token.start : -1);
-					if (rule_sel) return rule_sel;
-					
-				} else if (token.type == 'value' && selEnd > token.start && token.children) {
-					// looks like a complex value
-					var children = token.children;
-					for (var j = 0, jl = children.length; j < jl; j++) {
-						if (children[j][0] >= selStart || (selStart == selEnd && children[j][1] > selStart)) {
-							next = [children[j][0], children[j][1]];
-							if (checkSameRange(next)) {
-								var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
-								if (!checkSameRange(rule_sel))
-									return rule_sel;
-								else
-									continue;
-							}
-							
-							return next;
-						}
-					}
-				} else if (token.end > selEnd) {
-					return [token.start, token.end];
-				}
-			}
-		}
-		
-		return null;
 	}
 	
 	/**
@@ -344,40 +249,41 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	/**
-	 * Returns range for item to be selected in tag after current caret position
-	 * @param {String} rule CSS rule declaration
-	 * @param {Number} offset Rule's position index inside content
-	 * @param {Number} selStart Start index of user selection
-	 * @param {Number} selEnd End index of user selection
-	 * @return {Array} Returns array with two indexes if next item was found, 
-	 * <code>null</code> otherwise
+	 * Tries to find matched CSS property and nearest range for selection
+	 * @param {CSSRule} rule
+	 * @param {Range} selRange
+	 * @param {Boolean} isBackward
+	 * @returns {Range}
 	 */
-	function getRangeForNextItemInCSS(rule, offset, selStart, selEnd) {
-		/** @type CSSRule */
-		var tree = require('cssEditTree').parse(rule, {
-			offset: offset
-		});
-		
-		/** @type Range */
-		var selRange = require('range').create(selStart, selEnd - selStart);
-		
-		// check if selector is matched
-		var range = tree.selectorRange(true);
-		if (selRange.end < range.end) {
-			return range.toArray();
-		}
-		
-		// find matched CSS property
+	function matchedRangeForCSSProperty(rule, selRange, isBackward) {
 		/** @type CSSProperty */
 		var property = null;
 		var possibleRanges, curRange = null, ix;
-		var list = tree.list();
-		var searchFn = function(p) {
-			return p.range(true).end >= selRange.end;
-		};
+		var list = rule.list();
+		var searchFn, nearestItemFn;
 		
+		if (isBackward) {
+			list.reverse();
+			searchFn = function(p) {
+				return p.range(true).start <= selRange.start;
+			};
+			nearestItemFn = function(r) {
+				return r.start < selRange.start;
+			};
+		} else {
+			searchFn = function(p) {
+				return p.range(true).end >= selRange.end;
+			};
+			nearestItemFn = function(r) {
+				return r.end > selRange.start;
+			};
+		}
+		
+		// search for nearest to selection CSS property
 		while (property = _.find(list, searchFn)) {
 			possibleRanges = makePossibleRangesCSS(property);
+			if (isBackward)
+				possibleRanges.reverse();
 			
 			// check if any possible range is already selected
 			curRange = _.find(possibleRanges, function(r) {
@@ -386,11 +292,8 @@ zen_coding.exec(function(require, _) {
 			
 			if (!curRange) {
 				// no selection, select nearest item
-				curRange = _.find(possibleRanges, function(r) {
-					return r.end > selRange.start;
-				});
-				
-				if (curRange) break;
+				if (curRange = _.find(possibleRanges, nearestItemFn))
+					break;
 			} else {
 				ix = _.indexOf(possibleRanges, curRange);
 				if (ix != possibleRanges.length - 1) {
@@ -400,133 +303,72 @@ zen_coding.exec(function(require, _) {
 			}
 			
 			curRange = null;
-			selRange.start = selRange.end = property.range(true).end + 1;
+			selRange.start = selRange.end = isBackward 
+				? property.range(true).start - 1
+				: property.range(true).end + 1;
 		}
 		
-		return curRange ? curRange.toArray() : null;
+		return curRange;
+	}
+	
+	function findNextCSSItem(editor) {
+		return findItem(editor, false, require('cssEditTree').extractRule, getRangeForNextItemInCSS);
+	}
+	
+	function findPrevCSSItem(editor) {
+		return findItem(editor, true, require('cssEditTree').extractRule, getRangeForPrevItemInCSS);
 	}
 	
 	/**
-	 * Returns range for item to be selected in CSS rule before current caret position
+	 * Returns range for item to be selected in CSS after current caret 
+	 * (selection) position
 	 * @param {String} rule CSS rule declaration
 	 * @param {Number} offset Rule's position index inside content
-	 * @param {Number} selStart Start index of user selection
-	 * @param {Number} selEnd End index of user selection
-	 * @return {Array} Returns array with two indexes if next item was found, 
-	 * <code>null</code> otherwise
+	 * @param {Range} selRange Selection range
+	 * @return {Range} Returns range if next item was found, <code>null</code> otherwise
 	 */
-	function getRangeForPrevItemInCSS(rule, offset, selStart, selEnd) {
-		var tokens = zen_coding.require('parserUtils').parseCSS(rule, offset);
-		var next = [];
-				
-		/**
-		 * Same range is used inside complex value processor
-		 * @return {Boolean}
-		 */
-		function checkSameRange(r) {
-			return r[0] == selStart && r[1] == selEnd;
+	function getRangeForNextItemInCSS(rule, offset, selRange) {
+		var tree = require('cssEditTree').parse(rule, {
+			offset: offset
+		});
+		
+		// check if selector is matched
+		var range = tree.selectorRange(true);
+		if (selRange.end < range.end) {
+			return range;
 		}
-			
-		// search for token that is left to the selection
-		for (var i = tokens.length - 1, il = tokens.length; i >= 0; i--) {
-			/** @type {syntaxToken} */
-			var token = tokens[i], pos_test;
-			if (token.type in knownCSSTypes) {
-				// check token position
-				pos_test = token.start < selStart;
-				if (token.type == 'value' && token.ref_start_ix != token.ref_end_ix) // respect complex values
-					pos_test = token.start <= selStart;
-				
-				if (!pos_test) continue;
-				
-				// found token that should be selected
-				if (token.type == 'identifier') {
-					var rule_sel = handleFullRuleCSS(tokens, i, token.start);
-					if (rule_sel) return rule_sel;
-				} else if (token.type == 'value' && token.ref_start_ix != token.ref_end_ix) {
-					// looks like a complex value
-					var children = token.children;
-					for (var j = children.length - 1; j >= 0; j--) {
-						if (children[j][0] < selStart) {
-							// create array copy
-							next = [children[j][0], children[j][1]]; 
-							
-							var rule_sel = handleCSSSpecialCase(rule, next[0], next[1], offset);
-							return !checkSameRange(rule_sel) ? rule_sel : next;
-						}
-					}
-					
-					// if we are here than we already traversed trough all
-					// child tokens, select full value
-					next = [token.start, token.end];
-					if (!checkSameRange(next)) 
-						return next;
-				} else {
-					return [token.start, token.end];
-				}
+		
+		return matchedRangeForCSSProperty(tree, selRange, false);
+	}
+	
+	/**
+	 * Returns range for item to be selected in CSS before current caret 
+	 * (selection) position
+	 * @param {String} rule CSS rule declaration
+	 * @param {Number} offset Rule's position index inside content
+	 * @param {Range} selRange Selection range
+	 * @return {Range} Returns range if previous item was found, <code>null</code> otherwise
+	 */
+	function getRangeForPrevItemInCSS(rule, offset, selRange) {
+		var tree = require('cssEditTree').parse(rule, {
+			offset: offset
+		});
+		
+		var curRange = matchedRangeForCSSProperty(tree, selRange, true);
+		
+		if (!curRange) {
+			// no matched property, try to match selector
+			var range = tree.selectorRange(true);
+			if (selRange.start > range.start) {
+				return range;
 			}
 		}
 		
-		return null;
-	}
-	
-	function handleFullRuleCSS(tokens, i, start) {
-		for (var j = i + 1, il = tokens.length; j < il; j++) {
-			/** @type {ParserUtils.token} */
-			var _t = tokens[j];
-			if ((_t.type == 'value' && start == -1) || _t.type == 'identifier') {
-				return [_t.start, _t.end];
-			} else if (_t.type == ';') {
-				return [start == -1 ? _t.start : start, _t.end];
-			} else if (_t.type == '}') {
-				return [start == -1 ? _t.start : start, _t.start - 1];
-			}
-		}
-		
-		return null;
-	}
-	
-	function handleFullAttributeHTML(tokens, i, start) {
-		for (var j = i + 1, il = tokens.length; j < il; j++) {
-			/** @type {ParserUtils.token} */
-			var _t = tokens[j];
-			if (_t.type == 'xml-attribute') {
-				if (start == -1)
-					return handleQuotesHTML(_t.content, [_t.start, _t.end]);
-				else
-					return [start, _t.end];
-			} else if (_t.type == 'xml-attname') {
-				// moved to next attribute, adjust selection
-				return [_t.start, tokens[i].end];
-			}
-		}
-			
-		return null;
-	}
-	
-	function handleQuotesHTML(attr, r) {
-		if (isQuote(attr.charAt(0)))
-			r[0]++;
-		if (isQuote(attr.charAt(attr.length - 1)))
-			r[1]--;
-			
-		return r;
-	}
-	
-	function handleCSSSpecialCase(text, start, end, offset) {
-		text = text.substring(start - offset, end - offset);
-		var m;
-		if (m = text.match(/^[\w\-]+\(['"]?/)) {
-			start += m[0].length;
-			if (m = text.match(/['"]?\)$/))
-				end -= m[0].length;
-		}
-		
-		return [start, end];
+		return curRange;
 	}
 	
 	// XXX register actions
-	var actions = zen_coding.require('actions');
+	var actions = require('actions');
 	actions.add('select_next_item', function(editor){
 		if (editor.getSyntax() == 'css')
 			return findNextCSSItem(editor);

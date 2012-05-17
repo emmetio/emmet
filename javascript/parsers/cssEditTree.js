@@ -221,9 +221,15 @@ zen_coding.define('cssEditTree', function(require, _) {
 		}
 		
 		add();
-		return _.uniq(_.filter(result, function(item) {return !!item.length();}), false, function(item) {
-			return item.toString();
-		});
+		
+		return _.chain(result)
+			.filter(function(item) {
+				return !!item.length();
+			})
+			.uniq(false, function(item) {
+				return item.toString();
+			})
+			.value();
 	}
 	
 	/**
@@ -728,7 +734,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * Extracts single CSS selector definition from source code
 		 * @param {String} content CSS source code
 		 * @param {Number} pos Character position where to start source code extraction
-		 * @returns {Array} Indexes of rule in <code>content</code>
+		 * @returns {Range}
 		 */
 		extractRule: function(content, pos, isBackward) {
 			var result = '';
@@ -778,7 +784,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 				
 				// also trim whitespace
 				selector = content.substring(offset + 1, bracePos).replace(/^[\s\n\r]+/m, '');
-				return [bracePos - selector.length, bracePos + result.length];
+				return require('range').create(bracePos - selector.length, bracePos + result.length);
 			}
 			
 			return null;
