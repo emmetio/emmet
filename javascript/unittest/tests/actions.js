@@ -239,6 +239,9 @@
 		editorStub.replaceContent('|<div class="hello world" b=1>text</div> <b class="large">text 2</b');
 		
 		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'Matched "div" tag name');
+		
+		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'Matched full "class" attribute');
 		
 		run('select_next_item');
@@ -251,7 +254,10 @@
 		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 28}, 'Matched "b" value');
 		
 		run('select_next_item');
-		deepEqual(editorStub.getSelectionRange(), {start: 43, end: 56}, 'Moved to <b> tage, selected full "class" attribute');
+		deepEqual(editorStub.getSelectionRange(), {start: 41, end: 42}, 'Moved to <b> tag, selected tag name');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 43, end: 56}, 'Matched full "class" attribute of <b> tag');
 		
 		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 50, end: 55}, 'Selected "class" value of <b> tag');
@@ -261,6 +267,9 @@
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 43, end: 56}, 'Selected full "class" attribute of <b> tag (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 41, end: 42}, 'Selected <b> tag name (backward)');
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 27, end: 28}, 'Matched "b" value (backward)');
@@ -275,6 +284,9 @@
 		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'Matched full "class" attribute (backward)');
 		
 		run('select_previous_item');
-		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 24}, 'No movement (backward)');
+		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'Matched "div" tab name (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'No movement (backward)');
 	});
 })();

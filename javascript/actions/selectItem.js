@@ -92,26 +92,40 @@ zen_coding.exec(function(require, _) {
 		offset = offset || 0;
 		var range = require('range');
 		var result = [];
-		var attrStart = -1, attrValue = '', attrValueRange;
+		var attrStart = -1, attrValue = '', attrValueRange, tagName;
 		_.each(tokens, function(tok) {
-			if (tok.type == 'attribute') {
-				attrStart = tok.start;
-			} else if (tok.type == 'string') {
-				// attribute value
-				// push full attribute first
-				 result.push(range.create(attrStart, tok.end - attrStart));
-				 
-				 attrValueRange = range.create(tok);
-				 attrValue = attrValueRange.substring(source);
-				 
-				 // is this a quoted attribute?
-				 if (isQuote(attrValue.charAt(0)))
-					 attrValueRange.start++;
-				 
-				 if (isQuote(attrValue.charAt(attrValue.length - 1)))
-					 attrValueRange.end--;
-				 
-				 result.push(attrValueRange);
+			switch (tok.type) {
+				case 'tag':
+					tagName = source.substring(tok.start, tok.end);
+					if (/^<[\w\:\-]/.test(tagName)) {
+						// add tag name
+						result.push(range.create({
+							start: tok.start + 1, 
+							end: tok.end
+						}));
+					}
+					break;
+				case 'attribute':
+					attrStart = tok.start;
+					break;
+					
+				case 'string':
+					// attribute value
+					// push full attribute first
+					 result.push(range.create(attrStart, tok.end - attrStart));
+					 
+					 attrValueRange = range.create(tok);
+					 attrValue = attrValueRange.substring(source);
+					 
+					 // is this a quoted attribute?
+					 if (isQuote(attrValue.charAt(0)))
+						 attrValueRange.start++;
+					 
+					 if (isQuote(attrValue.charAt(attrValue.length - 1)))
+						 attrValueRange.end--;
+					 
+					 result.push(attrValueRange);
+					break;
 			}
 		});
 		
