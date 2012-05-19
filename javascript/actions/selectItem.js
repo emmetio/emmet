@@ -92,7 +92,7 @@ zen_coding.exec(function(require, _) {
 		offset = offset || 0;
 		var range = require('range');
 		var result = [];
-		var attrStart = -1, attrValue = '', attrValueRange, tagName;
+		var attrStart = -1, attrName = '', attrValue = '', attrValueRange, tagName;
 		_.each(tokens, function(tok) {
 			switch (tok.type) {
 				case 'tag':
@@ -107,6 +107,7 @@ zen_coding.exec(function(require, _) {
 					break;
 				case 'attribute':
 					attrStart = tok.start;
+					attrName = source.substring(tok.start, tok.end);
 					break;
 					
 				case 'string':
@@ -125,6 +126,11 @@ zen_coding.exec(function(require, _) {
 						 attrValueRange.end--;
 					 
 					 result.push(attrValueRange);
+					 
+					 if (attrName == 'class') {
+						 result = result.concat(classNameRanges(attrValueRange.substring(source), attrValueRange.start));
+					 }
+					 
 					break;
 			}
 		});
@@ -134,6 +140,42 @@ zen_coding.exec(function(require, _) {
 			r.shift(offset);
 		});
 		
+		return _.chain(result)
+			.filter(function(item) {        // remove empty
+				return !!item.length();
+			})
+			.uniq(false, function(item) {   // remove duplicates
+				return item.toString();
+			})
+			.value();
+	}
+	
+	/**
+	 * Returns ranges of class names in "class" attribute value
+	 * @param {String} className
+	 * @returns {Array}
+	 */
+	function classNameRanges(className, offset) {
+		offset = offset || 0;
+		var result = [];
+		/** @type StringStream */
+		var stream = require('stringStream').create(className);
+		var range = require('range');
+		
+		// skip whitespace
+		stream.eatSpace();
+		stream.start = stream.pos;
+		
+		var ch;
+		while (ch = stream.next()) {
+			if (/[\s\u00a0]/.test(ch)) {
+				result.push(range.create(stream.start + offset, stream.pos - stream.start - 1));
+				stream.eatSpace();
+				stream.start = stream.pos;
+			}
+		}
+		
+		result.push(range.create(stream.start + offset, stream.pos - stream.start));
 		return result;
 	}
 	

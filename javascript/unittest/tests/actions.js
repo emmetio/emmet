@@ -248,6 +248,12 @@
 		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 23}, 'Matched "class" value');
 		
 		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 17}, 'Matched "hello" class name');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 18, end: 23}, 'Matched "world" class name');
+		
+		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 25, end: 28}, 'Matched full "b" attribute');
 		
 		run('select_next_item');
@@ -276,6 +282,12 @@
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 25, end: 28}, 'Matched full "b" attribute (backward)');
+		
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 18, end: 23}, 'Matched "world" class name (backward)');
+
+		run('select_previous_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 17}, 'Matched "hello" class name (backward)');
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 23}, 'Matched "class" value (backward)');

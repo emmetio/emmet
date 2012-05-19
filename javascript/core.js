@@ -1,7 +1,7 @@
 /**
  * Core Zen Coding object, available in global scope
  */
-(function(global) {
+(function(global, _) {
 	
 	global.zen_coding = {
 		/**
@@ -80,4 +80,4 @@
 	};
 	
 	
-})(this);
+})(this, _);
