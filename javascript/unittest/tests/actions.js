@@ -236,7 +236,7 @@
 	});
 	
 	test('Select prev/next item (HTML)', function() {
-		editorStub.replaceContent('|<div class="hello world" b=1>text</div> <b class="large">text 2</b');
+		editorStub.replaceContent('|<div class="hello world" b=1>text</div> <b class="large">text 2</b>');
 		
 		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'Matched "div" tag name');
@@ -300,5 +300,33 @@
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'No movement (backward)');
+	});
+	
+	test('Select current line', function() {
+		editorStub.replaceContent('Lorem\nipsum dol|or sit\namet');
+		run('select_line');
+		equal(editorStub.getSelection(), 'ipsum dolor sit', 'Selected line');
+	});
+	
+	test('Split/join current tag', function() {
+		editorStub.replaceContent('<span class="|sample"></span>');
+		
+		run('split_join_tag');
+		equal(editorStub.getContent(), '<span class="sample" />', 'Inline tag is joined');
+		
+		run('split_join_tag');
+		equal(editorStub.getContent(), '<span class="sample"></span>', 'Inline tag is splitted');
+		
+		
+		var oldProfile = editorStub.getProfileName();
+		editorStub.setProfileName('xml');
+		editorStub.replaceContent('<div class="|sample"></div>');
+		
+		run('split_join_tag');
+		equal(editorStub.getContent(), '<div class="sample"/>', 'XML tag is joined');
+		
+		run('split_join_tag');
+		equal(editorStub.getContent(), '<div class="sample">\n\t\n</div>', 'XML tag is splitted');
+		editorStub.setProfileName(oldProfile);
 	});
 })();
