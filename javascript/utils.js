@@ -438,6 +438,33 @@ zen_coding.define('utils', function(require, _) {
 			
 			return str.substring(0, start) + value + str.substring(end);
 		},
+		
+		/**
+		 * Narrows down text range, adjusting selection to non-space characters
+		 * @param {String} text
+		 * @param {Range} range
+		 * @return {Range}
+		 */
+		narrowToNonSpace: function(text, range) {
+			// narrow down selection until first non-space character
+			var reSpace = /[\s\n\r\u00a0]/;
+			while (range.start < range.end) {
+				if (!reSpace.test(text.charAt(range.start)))
+					break;
+					
+				range.start++;
+			}
+			
+			while (range.end > range.start) {
+				range.end--;
+				if (!reSpace.test(text.charAt(range.end))) {
+					range.end++;
+					break;
+				}
+			}
+			
+			return range;
+		},
 
 		/**
 		 * Deep merge of two or more objects. Taken from jQuery.extend()

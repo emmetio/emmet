@@ -721,12 +721,12 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 */
 		parseFromPosition: function(content, pos, isBackward) {
 			var bounds = this.extractRule(content, pos, isBackward);
-			if (!bounds || pos < bounds[0] || pos > bounds[1])
+			if (!bounds || !bounds.inside(pos))
 				// no matching CSS rule or caret outside rule bounds
 				return null;
 			
-			return this.parse(content.substring(bounds[0], bounds[1]), {
-				offset: bounds[0]
+			return this.parse(bounds.substring(content), {
+				offset: bounds.start
 			});
 		},
 		

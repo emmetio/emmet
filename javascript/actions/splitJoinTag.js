@@ -4,6 +4,8 @@
  * &lt;div /&gt; → &lt;div&gt;&lt;/div&gt; : split
  * @param {Function} require
  * @param {Underscore} _
+ * @memberOf __splitJoinTagAction
+ * @constructor
  */
 zen_coding.exec(function(require, _) {
 	/**

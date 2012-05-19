@@ -101,6 +101,15 @@ zen_coding.define('range', function(require, _) {
 		},
 		
 		/**
+		 * Check if current range completely includes specified one
+		 * @param {Range} r
+		 * @returns {Boolean} 
+		 */
+		include: function(r) {
+			return this.start <= r.start && this.end >= r.end;
+		},
+		
+		/**
 		 * Returns substring of specified <code>str</code> for current range
 		 * @param {String} str
 		 * @returns {String}
@@ -139,6 +148,9 @@ zen_coding.define('range', function(require, _) {
 		 * @memberOf zen_coding.range
 		 */
 		create: function(start, len) {
+			if (start instanceof Range)
+				return start;
+				
 			return new Range(start, len);
 		}
 	};

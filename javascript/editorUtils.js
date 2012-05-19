@@ -30,6 +30,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * @param {String} html Contents of the document
 		 * @param {Number} caretPos Current caret position inside tag
 		 * @return {Boolean}
+		 * TODO refactor: move to 'html_matcher' package
 		 */
 		isInsideTag: function(html, caretPos) {
 			var reTag = /^<\/?\w[\w\:\-]*.*?>/;
@@ -92,6 +93,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * @param {Number} start
 		 * @param {Number} end
 		 * @return {Array}
+		 * TODO refactor: use Range, move to utils module
 		 */
 		narrowToNonSpace: function(text, start, end) {
 			// narrow down selection until first non-space character
@@ -121,7 +123,8 @@ zen_coding.define('editorUtils', function(require, _) {
 		/**
 		 * Find start and end index of text line for <code>from</code> index
 		 * @param {String} text 
-		 * @param {Number} from 
+		 * @param {Number} from
+		 * TODO refactor: use Range, move to utils module 
 		 */
 		findNewlineBounds: function(text, from) {
 			var len = text.length,

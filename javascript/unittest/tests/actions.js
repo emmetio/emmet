@@ -329,4 +329,33 @@
 		equal(editorStub.getContent(), '<div class="sample">\n\t\n</div>', 'XML tag is splitted');
 		editorStub.setProfileName(oldProfile);
 	});
+
+	test('Toggle comment (HTML)', function() {
+		editorStub.replaceContent('hello <sp|an>world</span>');
+		
+		run('toggle_comment');
+		equal(editorStub.getContent(), 'hello <!-- <span>world</span> -->', 'Added comment to <span> element');
+		
+		editorStub.setCaretPos(12);
+		run('toggle_comment');
+		equal(editorStub.getContent(), 'hello <span>world</span>', 'Removed comment from <span> element');
+	});
+	
+	test('Toggle comment (CSS)', function() {
+		editorStub.setSyntax('css');
+		editorStub.replaceContent('a {color: red; font-weight:| bold;} b {color: black;}');
+		
+		run('toggle_comment');
+		equal(editorStub.getContent(), 'a {color: red; /* font-weight: bold; */} b {color: black;}', 'Added comment to font-weight property');
+		
+		editorStub.setCaretPos(18);
+		run('toggle_comment');
+		equal(editorStub.getContent(), 'a {color: red; font-weight: bold;} b {color: black;}', 'Removed comment from font-weight property');
+		
+		editorStub.setCaretPos(1);
+		run('toggle_comment');
+		equal(editorStub.getContent(), '/* a {color: red; font-weight: bold;} */ b {color: black;}', 'Commented full "a" rule');
+		
+		editorStub.setSyntax('html');
+	});
 })();
