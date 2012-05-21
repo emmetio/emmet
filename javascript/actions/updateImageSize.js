@@ -1,21 +1,12 @@
 /**
  * Automatically updates image size attributes in HTML's &lt;img&gt; element or
  * CSS rule
+ * @param {Function} require
+ * @param {Underscore} _
  * @constructor
- * @memberOf __zenUpdateImageSizeAction
+ * @memberOf __updateImageSizeAction
  */
-(function() {
-	zen_coding.require('actions').add('update_image_size', function(editor) {
-		var result;
-		if (String(editor.getSyntax()) == 'css') {
-			result = updateImageSizeCSS(editor);
-		} else {
-			result = updateImageSizeHTML(editor);
-		}
-		
-		return zen_coding.require('actionUtils').compoundUpdate(editor, result);
-	});
-	
+zen_coding.exec(function(require, _) {
 	/**
 	 * Updates image size of &lt;img src=""&gt; tag
 	 * @param {IZenEditor} editor
@@ -23,11 +14,11 @@
 	function updateImageSizeHTML(editor) {
 		var offset = editor.getCaretPos();
 		/** @type zen_coding.actionUtils */
-		var actionUtils = zen_coding.require('actionUtils');
+		var actionUtils = require('actionUtils');
 			
 		var image = findImage(editor);
 		if (image) {
-			var re = /\bsrc=(["'])(.+?)\1/i, m, src;
+			var re = /\bsrc=(["'])(.+?)\1/i, m, src = '';
 			if (m = re.exec(image.tag))
 				src = m[2];
 			
@@ -234,4 +225,15 @@
 			
 		return false;
 	}
-})();
+	
+	require('actions').add('update_image_size', function(editor) {
+		var result;
+		if (String(editor.getSyntax()) == 'css') {
+			result = updateImageSizeCSS(editor);
+		} else {
+			result = updateImageSizeHTML(editor);
+		}
+		
+		return require('actionUtils').compoundUpdate(editor, result);
+	});
+});

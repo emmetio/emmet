@@ -505,11 +505,12 @@ zen_coding.define('cssEditTree', function(require, _) {
 		/**
 		 * Returns property that belongs to specified position
 		 * @param {Number} pos
+		 * @param {Boolean} isAbsolute
 		 * @returns {CSSProperty}
 		 */
-		propertyFromPosition: function(pos) {
+		propertyFromPosition: function(pos, isAbsolute) {
 			return _.find(this.list(), function(property) {
-				return property.range(true).inside(pos);
+				return property.range(isAbsolute).inside(pos);
 			});
 		},
 		

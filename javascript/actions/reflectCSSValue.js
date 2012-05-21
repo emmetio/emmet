@@ -21,7 +21,7 @@
 		var cssRule = cssEditTree.parseFromPosition(outputInfo.content, caretPos);
 		if (!cssRule) return;
 		
-		var property = cssRule.propertyFromPosition(caretPos);
+		var property = cssRule.propertyFromPosition(caretPos, true);
 		// no property under cursor, nothing to reflect
 		if (!property) return;
 		
