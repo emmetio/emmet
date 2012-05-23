@@ -1,18 +1,22 @@
 /**
- * HTML EditTree is a module that can parse an HTML element into a tree with 
+ * XML EditTree is a module that can parse an XML/HTML element into a tree with 
  * convenient methods for adding, modifying and removing attributes. These 
  * changes can be written back to string with respect of code formatting.
  * 
- * @memberOf __htmlEditTreeDefine
+ * @memberOf __xmlEditTreeDefine
  * @constructor
  * @param {Function} require
  * @param {Underscore} _ 
  */
-zen_coding.define('htmlEditTree', function(require, _) {
+zen_coding.define('xmlEditTree', function(require, _) {
 	var defaultOptions = {
 		styleBefore: ' ',
+		styleSeparator: '=',
+		styleQuote: '"',
 		offset: 0
 	};
+	
+	var startTag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/m;
 	
 	function updateToken(token, source) {
 		var range = require('range').create(token);
@@ -37,69 +41,68 @@ zen_coding.define('htmlEditTree', function(require, _) {
 	 * @returns {Range}
 	 */
 	function range(start, len) {
-		return require('create').create(start, len);
+		return require('range').create(start, len);
 	}
 	
 	/**
-	 * @type HTMLEditElement
+	 * @type XMLEditElement
 	 * @param {String} source
 	 * @param {Object} options
 	 */
-	function HTMLEditElement(source, options) {
+	function XMLEditElement(source, options) {
 		this.options = _.extend({}, defaultOptions, options);
 		this.source = source;
-		this._isSaved = false;
 		this._attributes = [];
 		
 		var attrToken = null;
 		var tokens = require('xmlParser').parse(source);
 		
 		_.each(tokens, function(token) {
-			updateToken(token);
+			updateToken(token, source);
 			switch (token.type) {
 				case 'tag':
 					if (/^<[^\/]+/.test(token.value)) {
-						this.name(token.value.substring(1), token.start + 1);
+						this._name = token.value.substring(1);
 					}
 					break;
 					
 				case 'attribute':
 					// add empty attribute
 					if (attrToken) {
-						this._attributes.push(new HTMLEditAttribute(this, attrToken));
+						this._attributes.push(new XMLEditAttribute(this, attrToken));
 					}
 					
 					attrToken = token;
 					break;
 					
 				case 'string':
-					this._attributes.push(new HTMLEditAttribute(this, attrToken, token));
+					this._attributes.push(new XMLEditAttribute(this, attrToken, token));
 					attrToken = null;
 					break;
 			}
 		}, this);
 		
 		if (attrToken) {
-			this._attributes.push(new HTMLEditAttribute(this, attrToken));
+			this._attributes.push(new XMLEditAttribute(this, attrToken));
 		}
 		
 		this._saveStyle();
 	}
 	
-	HTMLEditElement.prototype = {
+	XMLEditElement.prototype = {
 		/**
 		 * Remembers all styles of properties
 		 * @private
 		 */
 		_saveStyle: function() {
-			var start = this.name().length + 1;
+			var start = this.nameRange().end;
 			var source = this.source;
 			
-			_.each(this.list(), /** @param {HTMLEditAttribute} p */ function(p) {
+			_.each(this.list(), /** @param {XMLEditAttribute} p */ function(p) {
 				p.styleBefore = source.substring(start, p.namePosition());
 				
 				if (p.valuePosition() !== -1) {
-					p.styleSeparator = source.substring(p.namePosition() + p.name().length, p.valuePosition());
+					p.styleSeparator = source.substring(p.namePosition() + p.name().length, p.valuePosition() - p.styleQuote.length);
 				}
 				
 				start = p.range().end;
@@ -107,26 +110,27 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		},
 		
 		/**
-		 * Shift token positions of modified property's siblings
-		 * @param {HTMLEditAttribute} attribute Modified attribute or its index
-		 * @param {Number} delta Position offset
-		 * @private
-		 */
-		_shiftSiblingsRange: function(attribute, delta) {
-			if (attribute instanceof HTMLEditAttribute)
-				attribute = this.indexOf(attribute) + 1;
-			
-			_.each(this.list().slice(attribute || 0), function(prop) {
-				prop.shiftPosition(delta);
-			});
-		},
-		
-		/**
 		 * Replace substring of rule's source
+		 * @param {String} value
+		 * @param {Number} start
+		 * @param {Number} end
 		 * @private
 		 */
 		_updateSource: function(value, start, end) {
-			this.source = require('utils').replaceSubstring(this.source, value, start, end);
+			// create modification range
+			var r = range(start, _.isUndefined(end) ? 0 : end - start);
+			var delta = value.length - r.length();
+			
+			// update all affected positions
+			_.each(this.list(), function(item) {
+				if (item._namePos > r.start) 
+					item._namePos += delta;
+				
+				if (item._valuePos > r.start) 
+					item._valuePos += delta;
+			});
+			
+			this.source = require('utils').replaceSubstring(this.source, value, r);
 		},
 			
 			
@@ -139,58 +143,47 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 */
 		add: function(name, value, pos) {
 			var list = this.list();
-			var start = 1;
-			
-			var styleBefore = this.options.styleBefore;
-			var styleSeparator = this.options.styleSeparator;
-			var styleQuote = this.options.styleQuote;
+			var start = this.nameRange().end;
+			var styles = _.pick(this.options, 'styleBefore', 'styleSeparator', 'styleQuote');
 			
 			if (_.isUndefined(pos))
 				pos = list.length;
 			
-			/** @type HTMLEditAttribute */
-			var donor = list[pos] || list[pos - 1];
+			
+			/** @type XMLEditAttribute */
+			var donor = list[pos];
 			if (donor) {
-				styleBefore = donor.styleBefore;
-				styleSeparator = donor.styleSeparator;
-				styleQuote = donor.styleQuote;
+				start = donor.fullRange().start;
+			} else if (donor = list[pos - 1]) {
 				start = donor.range().end;
 			}
 			
-			var attribute = new HTMLEditAttribute(this, 
-					createToken(start + styleBefore.length, name),
-					createToken(start + styleBefore.length + name.length + styleSeparator.length, value)
+			if (donor) {
+				styles = _.pick(donor, 'styleBefore', 'styleSeparator', 'styleQuote');
+			}
+			
+			value = styles.styleQuote + value + styles.styleQuote;
+			
+			var attribute = new XMLEditAttribute(this, 
+					createToken(start + styles.styleBefore.length, name),
+					createToken(start + styles.styleBefore.length + name.length 
+							+ styles.styleSeparator.length, value)
 					);
 			
-			attribute.styleBefore = styleBefore;
-			attribute.styleSeparator = styleSeparator;
-			attribute.styleQuote = styleQuote;
+			_.extend(attribute, styles);
+			
+			// write new attribute into the source
+			this._updateSource(attribute.styleBefore + attribute.toString(), start);
 			
 			// insert new attribute
 			this._attributes.splice(pos, 0, attribute);
-			
-			// write new property into the source
-			this._updateSource(attribute, start);
-			this._shiftSiblingsRange(attribute, attribute.fullRange().length());
 			return attribute;
-		},
-		
-		/**
-		 * Updates attribute value
-		 * @param {String} name Attribute name or its index to update
-		 * @param {String} value New attribute value
-		 */
-		set: function(name, value) {
-			var attr = this.get(name);
-			if (attr) {
-				attr.value(value);
-			}
 		},
 		
 		/**
 		 * Returns attribute object
 		 * @param {String} name Attribute name or its index
-		 * @returns {HTMLEditAttribute}
+		 * @returns {XMLEditAttribute}
 		 */
 		get: function(name) {
 			if (_.isNumber(name))
@@ -229,14 +222,15 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		},
 		
 		/**
-		 * Returns attribute value
+		 * Returns or updates attribute value
 		 * @param {String} name Attribute name or its index
+		 * @param {String} value New attribute value
 		 * @returns {String}
 		 */
-		value: function(name) {
+		value: function(name, value) {
 			var attribute = this.get(name);
 			if (attribute)
-				return attribute.value();
+				return attribute.value(value);
 		},
 		
 		/**
@@ -259,9 +253,7 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		remove: function(name) {
 			var attribute = this.get(name);
 			if (attribute) {
-				var r = attribute.fullRange();
-				this._updateSource('', r.start, r.end);
-				this._shiftSiblingsRange(attribute, -r.length());
+				this._updateSource('', attribute.fullRange());
 				this._attributes = _.without(this._attributes, attribute);
 			}
 		},
@@ -286,8 +278,6 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 */
 		name: function(value) {
 			if (!_.isUndefined(value) && this._name !== value) {
-				this._isSaved = false;
-				this._shiftSiblingsRange(null, value.length - this._name.length);
 				this._updateSource(value, 1, this._name.length + 1);
 				this._name = value;
 			}
@@ -309,7 +299,7 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 * Returns attribute that belongs to specified position
 		 * @param {Number} pos
 		 * @param {Boolean} isAbsolute
-		 * @returns {HTMLEditAttribute}
+		 * @returns {XMLEditAttribute}
 		 */
 		attributeFromPosition: function(pos, isAbsolute) {
 			return _.find(this.list(), function(attribute) {
@@ -323,38 +313,63 @@ zen_coding.define('htmlEditTree', function(require, _) {
 	};
 	
 	/**
-	 * @param {HTMLEditElement} element
+	 * @param {XMLEditElement} element
 	 * @param {Object} nameToken
 	 * @param {Object} valueToken
 	 */
-	function HTMLEditAttribute(element, nameToken, valueToken) {
+	function XMLEditAttribute(element, nameToken, valueToken) {
 		this.parent = element;
 		
-		this.styleBefore = '';
-		this.styleSeparator = '';
+		this.styleBefore = element.options.styleBefore;
+		this.styleSeparator = element.options.styleSeparator;
 		
-		this._isSaved = false;
-		this._name = this._nameOld = nameToken.value || '';
-		this._value = this._valueOld = valueToken ? valueToken.value : '';
+		var value = '', quote = element.options.styleQuote;
+		if (valueToken) {
+			value = valueToken.value;
+			quote = value.charAt(0);
+			if (quote == '"' || quote == "'") {
+				value = value.substring(1);
+			} else {
+				quote = '';
+			}
+			
+			if (quote && value.charAt(value.length - 1) == quote) {
+				value = value.substring(0, value.length - 1);
+			}
+		}
+		
+		this.styleQuote = quote;
+		
+		this._name = nameToken.value || '';
+		this._value = value;
 		this._namePos = nameToken.start;
-		this._valuePos = valueToken ? valueToken.start : -1;
+		this._valuePos = valueToken ? valueToken.start + quote.length : -1;
 	}
 	
-	HTMLEditAttribute.prototype = {
+	XMLEditAttribute.prototype = {
+		/**
+		 * Make position absolute
+		 * @private
+		 * @param {Number} num
+		 * @param {Boolean} isAbsolute
+		 * @returns {Boolean}
+		 */
+		_pos: function(num, isAbsolute) {
+			return num + (isAbsolute ? this.parent.options.offset : 0);
+		},
+			
 		/**
 		 * Sets of gets attribute value
 		 * @param {String} val New attribute value. If not passed, current 
 		 * value is returned
-		 * @param {Number} pos
+		 * @returns {String}
 		 */
-		value: function(val, pos) {
+		value: function(val) {
 			if (!_.isUndefined(val) && this._value !== val) {
+				// update value in source
+				this.parent._updateSource(val, this.valueRange());
 				this._value = val;
-				this.save();
 			}
-			
-			if (_.isNumber(pos))
-				this._valuePos = pos;
 			
 			return this._value;
 		},
@@ -363,61 +378,41 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 * Sets of gets attribute name
 		 * @param {String} val New attribute name. If not passed, current 
 		 * name is returned
-		 * @param {Number} pos
+		 * @returns {String}
 		 */
-		name: function(val, pos) {
+		name: function(val) {
 			if (!_.isUndefined(val) && this._name !== val) {
+				this.parent._updateSource(val, this.nameRange());
 				this._name = val;
-				this.save();
 			}
-			
-			if (_.isNumber(pos))
-				this._namePos = pos;
-			
 			return this._name;
 		},
 		
-		namePosition: function() {
-			return this._namePos;
+		/**
+		 * Returns position of attribute name token
+		 * @param {Boolean} isAbsolute Return absolute position
+		 * @returns {Number}
+		 */
+		namePosition: function(isAbsolute) {
+			return this._pos(this._namePos, isAbsolute);
 		},
 		
-		save: function() {
-			var delta = 0;
-			var name = this.name();
-			if (this._nameOld !== name) {
-				delta += name.length - this._nameOld.length;
-				this.parent._updateSource(name, this.namePosition(), this.namePosition() + this._nameOld.length);
-				this._valuePos += delta;
-			}
-			
-			var value = this.value();
-			if (this._valueOld !== value) {
-				delta += value.length - this._valueOld.length;
-				this.parent._updateSource(value, this.valuePosition(), this.valuePosition() + this._valueOld.length);
-			}
-			
-			if (delta) {
-				this.parent._shiftSiblingsRange(this, delta);
-			}
-			
-			this._valueOld = this._value;
-			this._nameOld = this._name;
-			this._isSaved = true;
+		/**
+		 * Returns position of attribute value token (value is unquoted)
+		 * @param {Boolean} isAbsolute Return absolute position
+		 * @returns {Number}
+		 */
+		valuePosition: function(isAbsolute) {
+			return this._pos(this._valuePos, isAbsolute);
 		},
 		
 		/**
 		 * Returns rule range: from identifier to closing semicolon
-		 * @param {Boolean} isAbsolute Return absolute range (with respect of
-		 * rule offset)
+		 * @param {Boolean} isAbsolute Return absolute range 
 		 * @returns {Range}
 		 */
 		range: function(isAbsolute) {
-			var r = range(this.namePosition(), 
-					this.valuePosition() + this.value().length - this.namePosition());
-			
-			if (isAbsolute)
-				r.shift(this.parent.options.offset);
-			return r;
+			return range(this.namePosition(isAbsolute), this.toString());
 		},
 		
 		/**
@@ -439,7 +434,7 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 * @returns {Range}
 		 */
 		nameRange: function(isAbsolute) {
-			return range(this.namePosition() + (isAbsolute ? this.parent.options.offset : 0), this.name());
+			return range(this.namePosition(isAbsolute), this.name());
 		},
 		
 		/**
@@ -449,16 +444,12 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 * @returns {Range}
 		 */
 		valueRange: function(isAbsolute) {
-			return range(this.valuePosition() + (isAbsolute ? this.parent.options.offset : 0), this.value());
-		},
-		
-		shiftPosition: function(delta) {
-			this._namePos += delta;
-			this._valuePos += delta;
+			return range(this.valuePosition(isAbsolute), this.value());
 		},
 		
 		toString: function() {
-			return this.styleBefore + this.name() + this.styleSeparator + this.value() + this.end();
+			return this.name() + this.styleSeparator
+				+ this.styleQuote + this.value() + this.styleQuote;
 		},
 		
 		valueOf: function() {
@@ -472,10 +463,69 @@ zen_coding.define('htmlEditTree', function(require, _) {
 		 * @param {String} source
 		 * @param {Object} options
 		 * @memberOf zen_coding.htmlEditTree
-		 * @returns {HTMLEditElement}
+		 * @returns {XMLEditElement}
 		 */
 		parse: function(source, options) {
+			return new XMLEditElement(source, options);
+		},
+		
+		/**
+		 * Extract and parse HTML from specified position in <code>content</code> 
+		 * @param {String} content CSS source code
+		 * @param {Number} pos Character position where to start source code extraction
+		 * @returns {XMLEditElement}
+		 */
+		parseFromPosition: function(content, pos, isBackward) {
+			var bounds = this.extractTag(content, pos, isBackward);
+			if (!bounds || !bounds.inside(pos))
+				// no matching HTML tag or caret outside tag bounds
+				return null;
 			
+			return this.parse(bounds.substring(content), {
+				offset: bounds.start
+			});
+		},
+		
+		/**
+		 * Extracts nearest HTML tag range from <code>content</code>, starting at 
+		 * <code>pos</code> position
+		 * @param {String} content
+		 * @param {Number} pos
+		 * @param {Boolean} isBackward
+		 * @returns {Range}
+		 */
+		extractTag: function(content, pos, isBackward) {
+			var len = content.length, i;
+			
+			// max extraction length. I don't think there may be tags larger 
+			// than 2000 characters length
+			var maxLen = Math.min(2000, len);
+			
+			/** @type Range */
+			var r = null;
+			
+			var match = function(pos) {
+				var m;
+				if (content.charAt(pos) == '<' && (m = content.substr(pos, maxLen).match(startTag)))
+					return range(pos, m[0]);
+			};
+			
+			// lookup backward, in case we are inside tag already
+			for (i = pos; i >= 0; i--) {
+				if (r = match(i)) break;
+			}
+			
+			if (r && (r.inside(pos) || isBackward))
+				return r;
+			
+			if (!r && isBackward)
+				return null;
+			
+			// search forward
+			for (i = pos; i < len; i++) {
+				if (r = match(i))
+					return r;
+			}
 		}
 	};
 });

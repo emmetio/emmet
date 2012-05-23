@@ -427,12 +427,20 @@ zen_coding.define('utils', function(require, _) {
 		
 		/**
 		 * Replace substring of <code>str</code> with <code>value</code>
-		 * @param {String} str
-		 * @param {String} value
-		 * @param {Number} start
-		 * @param {Number} end
+		 * @param {String} str String where to replace substring
+		 * @param {String} value New substring value
+		 * @param {Number} start Start index of substring to replace. May also
+		 * be a <code>Range</code> object: in this case, the <code>end</code>
+		 * argument is not required
+		 * @param {Number} end End index of substring to replace. If ommited, 
+		 * <code>start</code> argument is used
 		 */
 		replaceSubstring: function(str, value, start, end) {
+			if (_.isObject(start) && 'end' in start) {
+				end = start.end;
+				start = start.start;
+			}
+			
 			if (_.isUndefined(end))
 				end = start;
 			
