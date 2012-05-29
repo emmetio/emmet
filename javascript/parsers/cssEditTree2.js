@@ -15,159 +15,106 @@ zen_coding.define('cssEditTree', function(require, _) {
 		offset: 0
 	};
 	
-	/**
-	 * Returns newline character at specified position in content
-	 * @param {String} content
-	 * @param {Number} pos
-	 * @return {String}
-	 */
-	function getNewline(content, pos) {
-		return content.charAt(pos) == '\r' && content.charAt(pos + 1) == '\n' 
-			? '\r\n' 
-			: content.charAt(pos);
-	}
+	var WHITESPACE_REMOVE_FROM_START = 1;
+	var WHITESPACE_REMOVE_FROM_END   = 2;
 	
 	/**
-	 * Normalize newline tokens
+	 * Removes whitespace tokens from the array ends
 	 * @param {Array} tokens
-	 * @param {String} source
-	 */
-	function normalizeNewline(tokens, source) {
-		var it = new TokenIterator(tokens), token;
-		while (token = it.next()) {
-			if (token.type == 'line') {
-				token.value = getNewline(source, it.position());
-			}
-		}
-	}
-	
-	/**
-	 * @type TokenIterator
-	 * @param {Array} tokens
-	 * @returns
-	 */
-	function TokenIterator(tokens) {
-		/** @type Array */
-		this.tokens = tokens;
-		this._position = 0;
-		this.reset();
-	}
-	
-	TokenIterator.prototype = {
-		next: function() {
-			if (this.hasNext()) {
-				var token = this.tokens[++this._i];
-				if (this._i)
-					this._position += this.tokens[this._i - 1].value.length;
-				
-				return token;
-			}
-			
-			return null;
-		},
-		
-		position: function() {
-			return this._position;
-		},
-		
-		hasNext: function() {
-			return this._i < this._il - 1;
-		},
-		
-		reset: function() {
-			this._i = -1;
-			this._il = this.tokens.length;
-		},
-		
-		item: function() {
-			return this.tokens[this._i];
-		},
-		
-		itemNext: function() {
-			return this.tokens[this._i + 1];
-		},
-		
-		itemPrev: function() {
-			return this.tokens[this._i - 1];
-		},
-		
-		nextUntil: function(type, callback) {
-			var token;
-			var test = _.isString(type) 
-				? function(t){return t.type == type;} 
-				: type;
-			
-			while (token = this.next()) {
-				if (callback)
-					callback.call(this, token);
-				if (test.call(this, token))
-					break;
-			}
-		}
-	};
-	
-	/**
-	 * Consume all CSS properties in rule
-	 * @param {TokenIterator} it
-	 * @param {CSSEditRule} rule
+	 * @param {Number} mask Mask indicating from which end whitespace should be 
+	 * removed 
 	 * @returns {Array}
 	 */
-	function consumeProperties(it, rule) {
-		var result = [], token, property = null;
+	function trimWhitespaceTokens(tokens, mask) {
+		mask = mask || (WHITESPACE_REMOVE_FROM_START | WHITESPACE_REMOVE_FROM_END);
+		var whitespace = ['white', 'line'];
 		
-		while (token = it.next()) {
-			if (token.type == 'identifier') {
-				if (property)
-					result.push(property);
-				
-				property = new CSSEditProperty(rule);
-				property._nameOld = token.value;
-				property.name(token.value, it.position());
-				consumeValue(it, property);
+		if ((mask & WHITESPACE_REMOVE_FROM_END) == WHITESPACE_REMOVE_FROM_END)
+			while (tokens.length && _.include(whitespace, _.last(tokens).type)) {
+				tokens.pop();
+	 		}
+		
+		if ((mask & WHITESPACE_REMOVE_FROM_START) == WHITESPACE_REMOVE_FROM_START)
+			while (tokens.length && _.include(whitespace, tokens[0].type)) {
+				tokens.shift();
 			}
-		}
 		
-		if (property)
-			result.push(property);
-		
-		return result;
+		return tokens;
 	}
 	
 	/**
-	 * Consume CSS property value
+	 * Helper function that searches for selector range for <code>CSSEditRule</code>
 	 * @param {TokenIterator} it
-	 * @param {CSSEditProperty} property
+	 * @returns {Range}
 	 */
-	function consumeValue(it, property) {
-		var pos = -1;
-		var value = '';
-		var skipTokens = ['white', 'line', ':'];
-		var token, type;
-		
+	function findSelectorRange(it) {
+		var tokens = [], token;
+ 		var start = it.position(), end;
+ 		
+ 		while (token = it.next()) {
+			if (token.type == '{')
+				break;
+			tokens.push(token);
+		}
+ 		
+ 		trimWhitespaceTokens(tokens);
+ 		
+ 		if (tokens.length) {
+ 			start = tokens[0].start;
+ 			end = _.last(tokens).end;
+ 		} else {
+ 			end = start;
+ 		}
+ 		
+ 		return require('range').create(start, end - start);
+	}
+	
+	/**
+	 * Helper function that searches for CSS property value range next to
+	 * iterator's current position  
+	 * @param {TokenIterator} it
+	 * @returns {Range}
+	 */
+	function findValueRange(it) {
 		// find value start position
+		var skipTokens = ['white', 'line', ':'];
+		var tokens = [], token, start, end;
+		
 		it.nextUntil(function(tok) {
 			return !_.include(skipTokens, this.itemNext().type);
 		});
 		
-		pos = it.position() + it.item().value.length;
+		start = it.current().end;
+		// consume value
 		while (token = it.next()) {
-			type = token.type;
-			if (type == '}') {
-				break;
-			} else if (type == ';') {
-				property._endOld = token.value;
-				property.end(token.value);
-				break;
-			} else if (type == 'line' && (it.itemNext().type == '}' || pos === -1)) {
-				break;
+			if (token.type == '}' || token.type == ';') {
+				// found value end
+				trimWhitespaceTokens(tokens, WHITESPACE_REMOVE_FROM_START 
+						| (token.type == '}' ? WHITESPACE_REMOVE_FROM_END : 0));
+				
+				if (tokens.length) {
+					start = tokens[0].start;
+					end = _.last(tokens).end;
+				} else {
+					end = start;
+				}
+				
+				return require('range').create(start, end - start);
 			}
 			
-			value += token.value;
+			tokens.push(token);
 		}
+	}
+	
+	function createToken(start, value, type) {
+		var obj = {
+			start: start || 0,
+			value: value || '',
+			type: type
+		};
 		
-		// remember value
-		property._valueOld = value;
-		property.value(value, pos);
+		obj.end = obj.start + obj.value.length;
+		return obj;
 	}
 	
 	/**
@@ -240,30 +187,39 @@ zen_coding.define('cssEditTree', function(require, _) {
 	function CSSEditRule(source, options) {
 		this.options = _.extend({}, defaultOptions, options);
 		this.source = source;
-		this._isSaved = false;
-		this._contentStartPos = -1;
+		this._properties = [];
 		
-		var tokens = require('cssParser').lex(source);
-		normalizeNewline(tokens, source);
-		
-		// iterate though all tokens and collect all important values
-		var it = new TokenIterator(tokens), token;
+		/** @type TokenIterator */
+ 		var it = require('tokenIterator').create(
+ 				require('cssParser').parse(source));
+ 		
+ 		var selectorRange = findSelectorRange(it);
+ 		this._selectorPos = selectorRange.start;
+ 		this._selector = selectorRange.substring(source);
+ 		
+ 		if (!it.current() || it.current().type != '{')
+ 			throw 'Invalid CSS rule';
+ 		
+ 		this._contentStartPos = it.position() + 1;
+ 		
+ 		// consume properties
+ 		var propertyRange, valueRange, token;
 		while (token = it.next()) {
-			switch (token.type) {
-				case 'identifier':
-					this._selectorOld = token.value;
-					this.selector(token.value, it.position());
-					break;
-					
-				case '{':
-					this._contentStartPos = it.position() + 1;
-					this._properties = consumeProperties(it, this);
-					break;
+			if (token.type == 'identifier') {
+				propertyRange = range(token);
+				valueRange = findValueRange(it);
+				var end = (it.current() && it.current().type == ';') 
+					? range(it.current())
+					: range(it.position(), 0);
+				this._properties.push(new CSSEditProperty(this,
+						createToken(propertyRange.start, propertyRange.substring(source)),
+						createToken(valueRange.start, valueRange.substring(source)),
+						createToken(end.start, end.substring(source))
+						));
 			}
 		}
 		
 		this._saveStyle();
-		this.save();
 	}
 	
 	CSSEditRule.prototype = {
@@ -277,7 +233,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 			
 			_.each(this.list(), /** @param {CSSEditProperty} p */ function(p) {
 				p.styleBefore = source.substring(start, p.namePosition());
-				p.styleSeparator = source.substring(p.namePosition() + p.name().length, p.valuePosition());
+				p.styleSeparator = source.substring(p.nameRange().end, p.valuePosition());
 				
 				// graceful and naive comments removal 
 				p.styleBefore = _.last(p.styleBefore.split('*/'));
@@ -288,26 +244,33 @@ zen_coding.define('cssEditTree', function(require, _) {
 		},
 		
 		/**
-		 * Shift token positions of modified property's siblings
-		 * @param {CSSEditProperty} property Modified property or its index
-		 * @param {Number} delta Position offset
-		 * @private
-		 */
-		_shiftSiblingsRange: function(property, delta) {
-			if (property instanceof CSSEditProperty)
-				property = this.indexOf(property) + 1;
-			
-			_.each(this.list().slice(property), function(prop) {
-				prop.shiftPosition(delta);
-			});
-		},
-		
-		/**
-		 * Replace substring of rule's source
+		 * Replace substring of tag's source
+		 * @param {String} value
+		 * @param {Number} start
+		 * @param {Number} end
 		 * @private
 		 */
 		_updateSource: function(value, start, end) {
-			this.source = require('utils').replaceSubstring(this.source, value, start, end);
+			// create modification range
+			var r = range(start, _.isUndefined(end) ? 0 : end - start);
+			var delta = value.length - r.length();
+			
+			if (this._contentStartPos > r.start)
+				this._contentStartPos += delta;
+			
+			// update all affected positions
+			_.each(this.list(), function(item) {
+				if (item._namePos > r.start) 
+					item._namePos += delta;
+				
+				if (item._valuePos > r.start) 
+					item._valuePos += delta;
+				
+				if (item._endPos > r.start) 
+					item._endPos += delta;
+			});
+			
+			this.source = require('utils').replaceSubstring(this.source, value, r);
 		},
 			
 			
@@ -317,52 +280,44 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @param {String} value Property value
 		 * @param {Number} pos Position at which to insert new property. By 
 		 * default the property is inserted at the end of rule 
+		 * @returns {CSSEditProperty}
 		 */
 		add: function(name, value, pos) {
-			var len = this._properties.length;
+			var list = this.list();
 			var start = this._contentStartPos;
-			var property = new CSSEditProperty(this, name, value, ';');
-			property.styleBefore = this.options.styleBefore;
-			property.styleSeparator = this.options.styleSeparator;
+			var styles = _.pick(this.options, 'styleBefore', 'styleSeparator');
 			
 			if (_.isUndefined(pos))
-				pos = len;
+				pos = list.length;
 			
-			
-			if (len) {
-				// learn style from existing properties
-				var ref = this.get(pos > len - 1 ? len - 1 : pos);
-				property.styleBefore = ref.styleBefore;
-				property.styleSeparator = ref.styleSeparator;
-				// make sure the property ends with semicolon
-				ref.end(';');
-				
-				start = ref.fullRange()[pos == len ? 'end' : 'start'];
+			/** @type CSSEditProperty */
+			var donor = list[pos];
+			if (donor) {
+				start = donor.fullRange().start;
+			} else if (donor = list[pos - 1]) {
+				// make sure that donor has terminating semicolon
+				donor.end(';');
+				start = donor.range().end;
 			}
 			
-			property._namePos = start + property.styleBefore.length;
-			property._valuePos = property._namePos + name.length + property.styleSeparator.length;
+			if (donor) {
+				styles = _.pick(donor, 'styleBefore', 'styleSeparator');
+			}
+			
+			var nameToken = createToken(start + styles.styleBefore.length, name);
+			var valueToken = createToken(nameToken.end + styles.styleSeparator.length, value);
+			
+			var property = new CSSEditProperty(this, nameToken, valueToken,
+					createToken(valueToken.end, ';'));
+			
+			_.extend(property, styles);
+			
+			// write new property into the source
+			this._updateSource(property.styleBefore + property.toString(), start);
 			
 			// insert new property
 			this._properties.splice(pos, 0, property);
-			
-			// write new property into the source
-			this._updateSource(property, start);
-			this._shiftSiblingsRange(property, property.fullRange().length());
 			return property;
-		},
-		
-		/**
-		 * Updates CSS property's value
-		 * @param {String} name Property name or its index to update
-		 * @param {String} value New property value
-		 */
-		set: function(name, value) {
-			var property = this.get(name);
-			if (property) {
-				property.value(value);
-				property.save();
-			}
 		},
 		
 		/**
@@ -407,14 +362,15 @@ zen_coding.define('cssEditTree', function(require, _) {
 		},
 		
 		/**
-		 * Returns property value
+		 * Returns or updates property value
 		 * @param {String} name Property name or its index
+		 * @param {String} value New property value
 		 * @returns {String}
 		 */
-		value: function(name) {
+		value: function(name, value) {
 			var property = this.get(name);
 			if (property)
-				return property.value();
+				return property.value(value);
 		},
 		
 		/**
@@ -437,11 +393,8 @@ zen_coding.define('cssEditTree', function(require, _) {
 		remove: function(name) {
 			var property = this.get(name);
 			if (property) {
-				var r = property.fullRange();
-				this._updateSource('', r.start, r.end);
-				this._shiftSiblingsRange(property, -r.length());
+				this._updateSource('', property.fullRange());
 				this._properties = _.without(this._properties, property);
-				this.save();
 			}
 		},
 		
@@ -463,15 +416,11 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * selector is returned
 		 * @return {String}
 		 */
-		selector: function(value, pos) {
-			if (!_.isUndefined(value)) {
-				this._isSaved = false;
+		selector: function(value) {
+			if (!_.isUndefined(value) && !this._selector !== value) {
+				this._updateSource(value, this.selectorRange());
 				this._selector = value;
-				this.save();
 			}
-			
-			if (_.isNumber(pos))
-				this._selectorPos = pos;
 			
 			return this._selector;
 		},
@@ -484,22 +433,6 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 */
 		selectorRange: function(isAbsolute) {
 			return range(this._selectorPos + (isAbsolute ? this.options.offset : 0), this.selector());
-		},
-		
-		save: function() {
-			var delta = 0;
-			var selector = this.selector();
-			if (this._selectorOld !== selector) {
-				delta = selector - this._selectorOld;
-				this._updateSource(selector, this._selectorPos, this._selectorPos + this._selectorOld.length);
-			}
-			
-			if (delta)
-				this._shiftSiblingsRange(0, delta);
-			
-			this._selectorOld = this._selector;
-			this._isSaved = true;
-			_.invoke(this.list(), 'save');
 		},
 		
 		/**
@@ -519,35 +452,51 @@ zen_coding.define('cssEditTree', function(require, _) {
 		}
 	};
 	
+	/**
+	 * @param {CSSEditRule} rule
+	 * @param {Token} name
+	 * @param {Token} value
+	 * @param {Token} end
+	 * @returns
+	 */
 	function CSSEditProperty(rule, name, value, end) {
 		/** @type CSSEditRule */
 		this.parent = rule;
 		
-		this.styleBefore = '';
-		this.styleSeparator = '';
+		this.styleBefore = rule.options.styleBefore;
+		this.styleSeparator = rule.options.styleSeparator;
 		
-		this._isSaved = false;
-		this._name = this._nameOld = name || '';
-		this._value = this._valueOld = value || '';
-		this._end = this._endOld = end || '';
-		this._namePos = this._valuePos = -1;
+		this._name = name.value;
+		this._value = value.value;
+		this._end = end.value;
+		
+		this._namePos = name.start;
+		this._valuePos = value.start;
+		this._endPos = end.start;
 	}
 	
 	CSSEditProperty.prototype = {
 		/**
+		 * Make position absolute
+		 * @private
+		 * @param {Number} num
+		 * @param {Boolean} isAbsolute
+		 * @returns {Boolean}
+		 */
+		_pos: function(num, isAbsolute) {
+			return num + (isAbsolute ? this.parent.options.offset : 0);
+		},
+		
+		/**
 		 * Sets of gets property value
 		 * @param {String} val New property value. If not passed, current 
 		 * value is returned
-		 * @param {Number} pos
 		 */
-		value: function(val, pos) {
+		value: function(val) {
 			if (!_.isUndefined(val) && this._value !== val) {
+				this.parent._updateSource(val, this.valueRange());
 				this._value = val;
-				this.save();
 			}
-			
-			if (_.isNumber(pos))
-				this._valuePos = pos;
 			
 			return this._value;
 		},
@@ -572,16 +521,12 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * Sets of gets property name
 		 * @param {String} val New property name. If not passed, current 
 		 * name is returned
-		 * @param {Number} pos
 		 */
-		name: function(val, pos) {
+		name: function(val) {
 			if (!_.isUndefined(val) && this._name !== val) {
+				this.parent._updateSource(val, this.nameRange());
 				this._name = val;
-				this.save();
 			}
-			
-			if (_.isNumber(pos))
-				this._namePos = pos;
 			
 			return this._name;
 		},
@@ -593,52 +538,29 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 */
 		end: function(val) {
 			if (!_.isUndefined(val) && this._end !== val) {
+				this.parent._updateSource(val, this._endPos, this._endPos + this._end.length);
 				this._end = val;
-				this.save();
 			}
 			
 			return this._end;
 		},
 		
-		namePosition: function() {
-			return this._namePos;
+		/**
+		 * Returns position of property name token
+		 * @param {Boolean} isAbsolute Return absolute position
+		 * @returns {Number}
+		 */
+		namePosition: function(isAbsolute) {
+			return this._pos(this._namePos, isAbsolute);
 		},
 		
-		valuePosition: function() {
-			return this._valuePos;
-		},
-		
-		save: function() {
-			var delta = 0;
-			var name = this.name();
-			if (this._nameOld !== name) {
-				delta += name.length - this._nameOld.length;
-				this.parent._updateSource(name, this.namePosition(), this.namePosition() + this._nameOld.length);
-				this._valuePos += delta;
-			}
-			
-			var value = this.value();
-			if (this._valueOld !== value) {
-				delta += value.length - this._valueOld.length;
-				this.parent._updateSource(value, this.valuePosition(), this.valuePosition() + this._valueOld.length);
-			}
-			
-			var end = this.end();
-			if (this._endOld !== end) {
-				delta += end.length - this._endOld.length;
-				this.parent._updateSource(end, 
-						this.valuePosition() + this.value().length, 
-						this.valuePosition() + this.value().length + this._endOld.length);
-			}
-			
-			if (delta) {
-				this.parent._shiftSiblingsRange(this, delta);
-			}
-			
-			this._valueOld = this._value;
-			this._nameOld = this._name;
-			this._endOld = this._end;
-			this._isSaved = true;
+		/**
+		 * Returns position of property value token
+		 * @param {Boolean} isAbsolute Return absolute position
+		 * @returns {Number}
+		 */
+		valuePosition: function(isAbsolute) {
+			return this._pos(this._valuePos, isAbsolute);
 		},
 		
 		/**
@@ -648,12 +570,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @returns {Range}
 		 */
 		range: function(isAbsolute) {
-			var r = range(this.namePosition(), 
-					this.valuePosition() + this.value().length + this.end().length - this.namePosition());
-			
-			if (isAbsolute)
-				r.shift(this.parent.options.offset);
-			return r;
+			return range(this.namePosition(isAbsolute), this.toString());
 		},
 		
 		/**
@@ -675,7 +592,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @returns {Range}
 		 */
 		nameRange: function(isAbsolute) {
-			return range(this.namePosition() + (isAbsolute ? this.parent.options.offset : 0), this.name());
+			return range(this.namePosition(isAbsolute), this.name());
 		},
 		
 		/**
@@ -685,16 +602,15 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @returns {Range}
 		 */
 		valueRange: function(isAbsolute) {
-			return range(this.valuePosition() + (isAbsolute ? this.parent.options.offset : 0), this.value());
+			return range(this.valuePosition(isAbsolute), this.value());
 		},
 		
-		shiftPosition: function(delta) {
-			this._namePos += delta;
-			this._valuePos += delta;
-		},
-		
+		/**
+		 * Returns item string representation
+		 * @returns {String}
+		 */
 		toString: function() {
-			return this.styleBefore + this.name() + this.styleSeparator + this.value() + this.end();
+			return this.name() + this.styleSeparator + this.value() + this.end();
 		},
 		
 		valueOf: function() {
@@ -805,86 +721,6 @@ zen_coding.define('cssEditTree', function(require, _) {
 	 	 * @param {String} str
 	 	 * @returns {Array}
 	 	 */
-	 	findParts: findParts,
-	 	
-	 	_test: function(source) {
-	 		var tokens = require('cssParser').parse(source);
-	 		var skipTokens = ['white', 'line', ':'];
-	 		
-	 		/** @type TokenIterator */
-	 		var it = require('tokenIterator').create(tokens);
-	 		var token;
-	 		
-	 		// collect selector tokens 
-	 		var selectorTokens = [];
-	 		
-	 		while (token = it.next()) {
-				if (token.type == '{')
-					break;
-				selectorTokens.push(token);
-			}
-	 		
-	 		
-	 		if (!token || token.type != '{')
-	 			// invalid css rule
-	 			return  null;
-	 		
-	 		var _contentStartPos = it.position() + 1;
-	 		
-	 		// remove any whitespace tokens from the value end
-	 		while (selectorTokens.length && _.include(skipTokens, _.last(selectorTokens).type)) {
-	 			selectorTokens.pop();
-	 		}
-	 		
-	 		// consume properties
-	 		var _properties = [];
-	 		var propertyToken = null;
-	 		var valueTokens = [];
-	 		var valueStart, valueEnd;
-	 		var token;
-			
-			while (token = it.next()) {
-				if (token.type == 'identifier') {
-					propertyToken = token;
-					value = '';
-					valueTokens = [];
-					
-					// find value start position
-					it.nextUntil(function(tok) {
-						return !_.include(skipTokens, this.itemNext().type);
-					});
-					
-					valueStart = it.current().end;
-					// consume value
-					while (token = it.next()) {
-						if (token.type == '}' || token.type == ';') {
-							// found value end
-							if (token.type == '}') {
-								// remove any whitespace tokens from the value end
-								while (valueTokens.length && _.include(skipTokens, _.last(valueTokens).type)) {
-									valueTokens.pop();
-								}
-							}
-							
-							valueEnd = valueTokens.length ? _.last(valueTokens).end : valueStart;
-							_properties.push({
-								name: source.substring(propertyToken.start, propertyToken.end),
-								value: source.substring(valueStart, valueEnd)
-							});
-							propertyToken = null;
-							
-							break;
-						}
-						
-						valueTokens.push(token);
-					}
-				}
-			}
-			
-			return {
-				selector: source.substring(selectorTokens[0].start, _.last(selectorTokens).end),
-				properties: _properties
-			};
-		}
+	 	findParts: findParts
 	};
 });

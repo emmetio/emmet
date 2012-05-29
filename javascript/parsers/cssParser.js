@@ -360,7 +360,18 @@ var walker, tokens = [], isOp, isNameChar, isDigit;
         
         throw error("Unrecognized character");
     }
-
+    
+    /**
+	 * Returns newline character at specified position in content
+	 * @param {String} content
+	 * @param {Number} pos
+	 * @return {String}
+	 */
+	function getNewline(content, pos) {
+		return content.charAt(pos) == '\r' && content.charAt(pos + 1) == '\n' 
+			? '\r\n' 
+			: content.charAt(pos);
+	}
 
     return {
     	/**
@@ -376,6 +387,28 @@ var walker, tokens = [], isOp, isNameChar, isDigit;
             }
             return tokens;
         },
+        
+        /**
+         * Tokenizes CSS source
+         * @param {String} source
+         * @returns {Array}
+         */
+        parse: function(source) {
+        	// transform tokens
+	 		var pos = 0;
+	 		return _.map(this.lex(source), function(token) {
+	 			if (token.type == 'line') {
+	 				token.value = getNewline(source, pos);
+	 			}
+	 			
+	 			return {
+	 				type: token.type,
+	 				start: pos,
+	 				end: (pos += token.value.length)
+	 			};
+			});
+		},
+        
         toSource: function (toks) {
             var i = 0, max = toks.length, t, src = '';
             for (; i < max; i += 1) {

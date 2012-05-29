@@ -40,7 +40,7 @@ test('Check modifications', function() {
 	/** @type CSSRule */
 	var rule = zen_coding.require('cssEditTree').parse(source);
 	
-	rule.set('c', 'abc');
+	rule.value('c', 'abc');
 	equal(rule.value('c'), 'abc', 'New value');
 	equal(rule.source, 'a{c:abc;}', 'New source');
 	

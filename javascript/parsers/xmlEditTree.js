@@ -110,7 +110,7 @@ zen_coding.define('xmlEditTree', function(require, _) {
 		},
 		
 		/**
-		 * Replace substring of rule's source
+		 * Replace substring of tag's source
 		 * @param {String} value
 		 * @param {Number} start
 		 * @param {Number} end
