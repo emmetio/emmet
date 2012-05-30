@@ -1,10 +1,10 @@
 module('CSS Edit Tree');
 test('Check internals', function() {
 	var source = 'a{b:c;}';
-	/** @type CSSRule */
+	/** @type EditContainer */
 	var rule = zen_coding.require('cssEditTree').parse(source);
 	
-	equal(rule._selectorPos, 0, 'Selector position of "' + source + '"');
+	equal(rule.nameRange().start, 0, 'Selector position of "' + source + '"');
 	equal(rule._contentStartPos, 2, 'Content position of "' + source + '"');
 	
 	var property = rule.get(0);
@@ -13,10 +13,10 @@ test('Check internals', function() {
 	
 	equal(rule.value('b'), 'c', 'Value of property "' + property.name() + '"');
 	equal(rule.indexOf('b'), 0, 'Index of property "' + property.name() + '"');
-	equal(rule.selector(), 'a', 'Getting selector value');
+	equal(rule.name(), 'a', 'Getting selector value');
 	
 	rule.add('d', 'e');
-	var prop = rule.propertyFromPosition(7);
+	var prop = rule.itemFromPosition(7);
 	equal(prop.name(), 'd', 'Got property from position');
 	
 	var prop = rule.get('b');

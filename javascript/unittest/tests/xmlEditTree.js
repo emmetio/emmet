@@ -22,7 +22,7 @@ test('Check internals', function() {
 	equal(elem.value('class'), 'hello', 'Value of "class" attribute');
 	equal(elem.indexOf('b'), 1, 'Index of attribute "b"');
 	
-	var prop = elem.attributeFromPosition(20);
+	var prop = elem.itemFromPosition(20);
 	equal(prop.name(), 'b', 'Got attribute from position');
 });
 

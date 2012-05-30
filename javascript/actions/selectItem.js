@@ -389,7 +389,7 @@ zen_coding.exec(function(require, _) {
 		});
 		
 		// check if selector is matched
-		var range = tree.selectorRange(true);
+		var range = tree.nameRange(true);
 		if (selRange.end < range.end) {
 			return range;
 		}
@@ -414,7 +414,7 @@ zen_coding.exec(function(require, _) {
 		
 		if (!curRange) {
 			// no matched property, try to match selector
-			var range = tree.selectorRange(true);
+			var range = tree.nameRange(true);
 			if (selRange.start > range.start) {
 				return range;
 			}

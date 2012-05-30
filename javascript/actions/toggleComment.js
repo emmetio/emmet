@@ -46,10 +46,10 @@ zen_coding.exec(function(require, _) {
 			/** @type CSSRule */
 			var rule = require('cssEditTree').parseFromPosition(info.content, editor.getCaretPos());
 			if (rule) {
-				var property = rule.propertyFromPosition(editor.getCaretPos(), true);
+				var property = rule.itemFromPosition(editor.getCaretPos(), true);
 				range = property 
 					? property.range(true) 
-					: require('range').create(rule.selectorRange(true).start, rule.source);
+					: require('range').create(rule.nameRange(true).start, rule.source);
 			}
 		}
 		
