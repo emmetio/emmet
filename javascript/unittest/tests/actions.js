@@ -390,4 +390,18 @@
 		
 		editorStub.setSyntax('html');
 	});
+	
+	test('Wrap With Abbreviation', function() {
+		editorStub.replaceContent('<br| />');
+		editorStub.setPromptOutput('ul>li');
+		run('wrap_with_abbreviation');
+		equal(editorStub.getContent(), '<ul>\n\t<li>\n\t\t<br />\n\t</li>\n</ul>', 'Wrapped with `ul>li`');
+		
+		editorStub.replaceContent('one\ntwo\nthree');
+		editorStub.createSelection(0, 13);
+		editorStub.setPromptOutput('ul>li.i$*');
+		run('wrap_with_abbreviation');
+		equal(editorStub.getContent(), '<ul>\n\t<li class="i1">one</li>\n\t<li class="i2">two</li>\n\t<li class="i3">three</li>\n</ul>', 'Wrapped multiline abbreviation');
+		
+	});
 })();
