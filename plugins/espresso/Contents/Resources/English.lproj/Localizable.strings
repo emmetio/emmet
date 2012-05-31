@@ -1,0 +1,20 @@
+"zencoding.root.title" = "Zen Coding";
+"zencoding.html.title" = "HTML";
+"zencoding.css.title" = "CSS";
+"zencoding.numbers.title" = "Numbers";
+
+"ru.zen-coding.espresso.PrevEditPoint.title" = "Select Previous Item";
+"ru.zen-coding.espresso.PrevEditPoint.title" = "Select Next Item";
+"ru.zen-coding.espresso.ToggleComment.title" = "Toggle Comment";
+"ru.zen-coding.espresso.EvaluateMath.title" = "Evaluate Math Expression";
+"ru.zen-coding.espresso.IncrementBy1.title" = "Increment by 1";
+"ru.zen-coding.espresso.DecrementBy1.title" = "Decrement by 1";
+"ru.zen-coding.espresso.IncrementBy01.title" = "Increment by 0.1";
+"ru.zen-coding.espresso.DecrementBy01.title" = "Decrement by 0.1";
+"ru.zen-coding.espresso.IncrementBy10.title" = "Increment by 10";
+"ru.zen-coding.espresso.DecrementBy10.title" = "Decrement by 10";
+"ru.zen-coding.espresso.SplitJoinTag.title" = "Split/Join tag";
+"ru.zen-coding.espresso.ReflectValue.title" = "Reflect Value";
+
+"ru.zen-coding.espresso.UpdateImageSize.title" = "Update Image Size";
+"ru.zen-coding.espresso.EncodeDecodeDataURI.title" = "Encode/Decode Image to data:URI";

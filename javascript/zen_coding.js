@@ -5,7 +5,8 @@
  * @include "settings.js"
  * @include "zen_parser.js"
  * @include "zen_resources.js"
- */var zen_coding = (function(){
+ */
+var zen_coding = (function(){
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 	
 		caret_placeholder = '{%::zen-caret::%}',
@@ -318,8 +319,13 @@
 			if (!this._attr_hash)
 				this._attr_hash = {};
 			
-			// escape pipe (caret) character with internal placeholder
-			value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder());
+			if (typeof value === 'string') {
+				// escape pipe (caret) character with internal placeholder
+				value = replaceUnescapedSymbol(value, '|', getCaretPlaceholder);
+			} else {
+				// value must be a function, which means it is getCaretPlaceholder
+				value = value();
+			}
 			
 			var a;
 			if (name in this._attr_hash) {
@@ -362,7 +368,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder());
+			this._content = replaceUnescapedSymbol(str || '', '|', getCaretPlaceholder);
 		},
 		
 		/**
@@ -423,12 +429,12 @@
 		this.repeat_by_lines = node.is_repeating;
 		this.is_repeating = node && node.count > 1;
 		this.attributes = [];
-		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder());
+		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', getCaretPlaceholder);
 		this.parent = null;
 		this.syntax = type;
 		
-		this.addAttribute('id', getCaretPlaceholder());
-		this.addAttribute('class', getCaretPlaceholder());
+		this.addAttribute('id', getCaretPlaceholder);
+		this.addAttribute('class', getCaretPlaceholder);
 		this.copyAttributes(node);
 	}
 	
@@ -887,45 +893,43 @@
 	 * @return {String}
 	 */
 	function replaceUnescapedSymbol(str, symbol, replace) {
-		var i = 0,
-			il = str.length,
-			sl = symbol.length,
-			match_count = 0;
-			
-		while (i < il) {
-			if (str.charAt(i) == '\\') {
-				// escaped symbol, skip next character
-				i += sl + 1;
-			} else if (str.substr(i, sl) == symbol) {
-				// have match
-				var cur_sl = sl;
-				match_count++;
-				var new_value = replace;
-				if (typeof(replace) !== 'string') {
-					var replace_data = replace(str, symbol, i, match_count);
-					if (replace_data) {
-						cur_sl = replace_data[0].length;
-						new_value = replace_data[1];
-					} else {
-						new_value = false;
+		// After conversion from string to regexp, we get: (^|[^\\]|\\{2,})\SYMBOL
+		var unescapedRE = new RegExp('(^|[^\\\\]|\\\\{2,})\\' + symbol, 'g');
+		var match_num = 0;
+		return str.replace(unescapedRE, function(matchStr, precedingChar, offset, fullStr) {
+			// Only proceed if we have a single precedingChar (means symbol isn't escaped) or if we have an even number of multiple preceding backslashes (only scenario where the symbol can be preceded by a backslash but remain unescaped)
+			if (precedingChar.length <= 1 || precedingChar.length % 2 === 0) {
+				var replacement;
+				match_num++;
+				if (typeof replace === 'function') {
+					// Compensate for the preceding character we matched
+					offset += precedingChar.length;
+					/*
+					Two likely scenarios here:
+					1) replace was getCaretPlaceholder (takes no arguments, returns string)
+					2) replace was custom zen replacement function from replaceCounter (takes below arguments, returns array)
+					
+					Since getCaretPlaceholder isn't harmed by extra arguments, just pass through the replaceCounter args
+					*/
+					replacement = replace(fullStr, symbol, offset, match_num);
+					if (replacement === false) {
+						// Function aborted the process, so return our original string
+						return matchStr;
 					}
+					// If not a string, we got an array from replaceCounter
+					if (typeof replacement !== 'string') {
+						replacement = replacement[1];
+					}
+				} else {
+					// If not a function, it's a string
+					replacement = replace;
 				}
-				
-				if (new_value === false) { // skip replacement
-					i++;
-					continue;
-				}
-				
-				str = str.substring(0, i) + new_value + str.substring(i + cur_sl);
-				// adjust indexes
-				il = str.length;
-				i += new_value.length;
+				return precedingChar + replacement;
 			} else {
-				i++;
+				// Character is escaped, so return original string
+				return matchStr;
 			}
-		}
-		
-		return str;
+		});
 	}
 	
 	/**
