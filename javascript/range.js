@@ -115,7 +115,9 @@ zen_coding.define('range', function(require, _) {
 		 * @returns {String}
 		 */
 		substring: function(str) {
-			return str.substring(this.start, this.end);
+			return this.length() > 0 
+				? str.substring(this.start, this.end) 
+				: '';
 		},
 		
 		/**

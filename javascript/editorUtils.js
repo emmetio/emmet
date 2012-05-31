@@ -148,7 +148,8 @@ zen_coding.define('editorUtils', function(require, _) {
 				}
 			}
 			
-			return {start: start, end: end};
+			return require('range').create(start, end - start);
+//			return {start: start, end: end};
 		}
 	};
 });

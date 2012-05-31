@@ -358,4 +358,36 @@
 		
 		editorStub.setSyntax('html');
 	});
+	
+	test('Update image size (HTML)', function() {
+		editorStub.replaceContent('<img| src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" alt="" />');
+		run('update_image_size');
+		equal(editorStub.getContent(), '<img src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" alt="" width="3" height="2" />', 'Added "width" and "height" attributes into <img> tag');
+		
+		editorStub.replaceContent('<img| src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" width="100" height="100" alt="" />');
+		run('update_image_size');
+		equal(editorStub.getContent(), '<img src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" width="3" height="2" alt="" />', 'Updated existing attributes');
+		
+		editorStub.replaceContent('<img| src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" width="100" alt="" />');
+		run('update_image_size');
+		equal(editorStub.getContent(), '<img src="data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==" width="3" height="2" alt="" />', 'Updated "width" attribute and added "height" attribute');
+	});
+	
+	test('Update image size (CSS)', function() {
+		editorStub.setSyntax('css');
+		
+		editorStub.replaceContent('.test {\n\tbackgrou|nd: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n}');
+		run('update_image_size');
+		equal(editorStub.getContent(), '.test {\n\tbackground: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n\twidth: 3px;\n\theight: 2px;\n}', 'Added "width" and "height" properties');
+		
+		editorStub.replaceContent('.test {\n\tbackgrou|nd: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n\twidth: 100px;\n\theight: 100px;\n}');
+		run('update_image_size');
+		equal(editorStub.getContent(), '.test {\n\tbackground: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n\twidth: 3px;\n\theight: 2px;\n}', 'Updated "width" and "height" properties');
+		
+		editorStub.replaceContent('.test {\n\tbackgrou|nd: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n\twidth: 100px;\n}');
+		run('update_image_size');
+		equal(editorStub.getContent(), '.test {\n\tbackground: url(data:image/gif;base64,R0lGODlhAwACAHAAACH5BAUAAAAALAAAAAADAAIAQAIChF8AOw==);\n\twidth: 3px;\n\theight: 2px;\n}', 'Updated "width" property and added "height"');
+		
+		editorStub.setSyntax('html');
+	});
 })();

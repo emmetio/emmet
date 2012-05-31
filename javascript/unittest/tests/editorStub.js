@@ -91,8 +91,10 @@ var editorStub = (function() {
 			var utils = require('utils');
 			
 			// indent new value
-			if (!noIndent)
-				value = utils.padString(value, require('editorUtils').getCurrentLinePadding(this));
+			if (!noIndent) {
+				var lineRange = require('editorUtils').findNewlineBounds(content, start);
+				value = utils.padString(value, utils.getLinePadding(lineRange.substring(content)));
+			}
 			
 			// find new caret position
 			var tabstopData = require('tabStops').extract(value);

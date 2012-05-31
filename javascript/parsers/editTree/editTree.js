@@ -164,15 +164,21 @@ zen_coding.define('editTree', function(require, _, core) {
 		},
 		
 		/**
-		 * Returns or updates element value
+		 * Returns or updates element value. If such element doesn't exists,
+		 * it will be created automatically and added at the end of child list.
 		 * @param {String} name Element name or its index
 		 * @param {String} value New element value
 		 * @returns {String}
 		 */
-		value: function(name, value) {
+		value: function(name, value, pos) {
 			var element = this.get(name);
 			if (element)
 				return element.value(value);
+			
+			if (!_.isUndefined(value)) {
+				// no such element — create it
+				return this.add(name, value, pos);
+			}
 		},
 		
 		/**
@@ -219,14 +225,14 @@ zen_coding.define('editTree', function(require, _, core) {
 		
 		/**
 		 * Sets or gets container name
-		 * @param {String} value New name. If not passed, current 
+		 * @param {String} val New name. If not passed, current 
 		 * name is returned
 		 * @return {String}
 		 */
-		name: function(value) {
-			if (!_.isUndefined(value) && this._name !== value) {
-				this._updateSource(value, this._positions.name, this._positions.name + this._name.length);
-				this._name = value;
+		name: function(val) {
+			if (!_.isUndefined(val) && this._name !== (val = String(val))) {
+				this._updateSource(val, this._positions.name, this._positions.name + this._name.length);
+				this._name = val;
 			}
 			
 			return this._name;
@@ -240,6 +246,14 @@ zen_coding.define('editTree', function(require, _, core) {
 		 */
 		nameRange: function(isAbsolute) {
 			return range(this._positions.name + (isAbsolute ? this.options.offset : 0), this.name());
+		},
+		
+		/**
+		 * Returns range of current source
+		 * @param {Boolean} isAbsolute
+		 */
+		range: function(isAbsolute) {
+			return range(isAbsolute ? this.options.offset : 0, this.toString());
 		},
 		
 		/**
@@ -313,8 +327,7 @@ zen_coding.define('editTree', function(require, _, core) {
 		 * @returns {String}
 		 */
 		value: function(val) {
-			if (!_.isUndefined(val) && this._value !== val) {
-				// update value in source
+			if (!_.isUndefined(val) && this._value !== (val = String(val))) {
 				this.parent._updateSource(val, this.valueRange());
 				this._value = val;
 			}
@@ -329,10 +342,11 @@ zen_coding.define('editTree', function(require, _, core) {
 		 * @returns {String}
 		 */
 		name: function(val) {
-			if (!_.isUndefined(val) && this._name !== val) {
+			if (!_.isUndefined(val) && this._name !== (val = String(val))) {
 				this.parent._updateSource(val, this.nameRange());
 				this._name = val;
 			}
+			
 			return this._name;
 		},
 		
