@@ -17,7 +17,7 @@
 		// make attribute string
 		var attrs = '',
 			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder : '',
 			attr_name, 
 			i,
 			a;
@@ -27,10 +27,10 @@
 			a = tag.attributes[i];
 			switch (a.name.toLowerCase()) {
 				case 'id':
-					attrs += '#' + (a.value || cursor);
+					attrs += '#' + (a.value || (typeof cursor === 'function' ? cursor() : cursor));
 					break;
 				case 'class':
-					attrs += '.' + (a.value || cursor);
+					attrs += '.' + (a.value || (typeof cursor === 'function' ? cursor() : cursor));
 					break;
 			}
 		}
@@ -43,7 +43,7 @@
 			var attr_name_lower = a.name.toLowerCase();
 			if (attr_name_lower != 'id' && attr_name_lower != 'class') {
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : attr_name_lower;
-				other_attrs.push(':' +attr_name + ' => ' + attr_quote + (a.value || cursor) + attr_quote);
+				other_attrs.push(':' +attr_name + ' => ' + attr_quote + (a.value || (typeof cursor === 'function' ? cursor() : cursor)) + attr_quote);
 			}
 		}
 		
@@ -109,7 +109,7 @@
 		
 		var attrs = makeAttributesString(item, profile), 
 			content = '', 
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder : '',
 			self_closing = '',
 			is_unary = (item.isUnary() && !item.children.length),
 			start= '',
@@ -135,7 +135,7 @@
 		item.start = item.start.substring(0, pos) + start + item.start.substring(pos + placeholder.length);
 		
 		if (!item.children.length && !is_unary)
-			item.start += cursor;
+			item.start += (typeof cursor === 'function' ? cursor() : cursor);
 		
 		return item;
 	}

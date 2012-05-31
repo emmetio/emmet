@@ -34,13 +34,13 @@
 		// make attribute string
 		var attrs = '',
 			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder : '',
 			attr_name;
 			
 		for (var i = 0; i < tag.attributes.length; i++) {
 			var a = tag.attributes[i];
 			attr_name = processStringCase(a.name, profile.attr_case);
-			attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
+			attrs += ' ' + attr_name + '=' + attr_quote + (a.value || (typeof cursor === 'function' ? cursor() : cursor)) + attr_quote;
 		}
 		
 		return attrs;
@@ -103,7 +103,7 @@
 		
 		var attrs = makeAttributesString(item, profile), 
 			content = '', 
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
+			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder : '',
 			self_closing = '',
 			is_unary = (item.isUnary() && !item.children.length),
 			start= '',
@@ -136,8 +136,8 @@
 		pos = item.end.indexOf(placeholder);
 		item.end = item.end.substring(0, pos) + end + item.end.substring(pos + placeholder.length);
 		
-		if (!item.children.length && !is_unary && item.content.indexOf(cursor) == -1)
-			item.start += cursor;
+		if (!item.children.length && !is_unary && (typeof cursor === 'function' || item.content.indexOf(cursor) == -1))
+			item.start += (typeof cursor === 'function' ? cursor() : cursor);
 		
 		return item;
 	}
