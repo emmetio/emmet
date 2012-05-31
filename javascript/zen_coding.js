@@ -5,7 +5,8 @@
  * @include "settings.js"
  * @include "zen_parser.js"
  * @include "zen_resources.js"
- */var zen_coding = (function(){
+ */
+var zen_coding = (function(){
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 	
 		caret_placeholder = '{%::zen-caret::%}',
@@ -56,7 +57,7 @@
 	function isAllowedChar(ch) {
 		ch = String(ch); // convert Java object to JS
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()|';
+			special_chars = '#.>+*:$-_!@[]()|^';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
