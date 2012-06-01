@@ -3,6 +3,7 @@
  * padding:0; → padding: 0;
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * TODO: delete this filter, use resolver instead
  */(function(){
 	function process(tree, profile) {
 		var elements = zen_coding.require('elements');

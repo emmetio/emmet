@@ -90,6 +90,50 @@ zen_coding.define('profile', function(require, _) {
 			name = (name || '').toLowerCase();
 			if (name in profiles)
 				delete profiles[name];
+		},
+		
+		/**
+		 * Helper function that converts string case depending on 
+		 * <code>caseValue</code> 
+		 * @param {String} str String to transform
+		 * @param {String} caseValue Case value: can be <i>lower</i>, 
+		 * <i>upper</i> and <i>leave</i>
+		 * @returns {String}
+		 */
+		stringCase: function(str, caseValue) {
+			switch (String(caseValue || '').toLowerCase()) {
+				case 'lower':
+					return str.toLowerCase();
+				case 'upper':
+					return str.toUpperCase();
+			}
+			
+			return str;
+		},
+		
+		/**
+		 * Returns quote character based on profile parameter
+		 * @param {String} param Quote parameter, can be <i>single</i> or
+		 * <i>double</i>
+		 * @returns {String}
+		 */
+		quote: function(param) {
+			return param == 'single' ? "'" : '"';
+		},
+		
+		/**
+		 * Returns self-closing tag symbol, based on passed parameter
+		 * @param {String} param
+		 * @returns {String}
+		 */
+		selfClosing: function(param) {
+			if (param == 'xhtml')
+				return ' /';
+			
+			if (param === true)
+				return '/';
+			
+			return '';
 		}
 	};
 });

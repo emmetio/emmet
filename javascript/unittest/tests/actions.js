@@ -4,9 +4,21 @@
 		actions.run(name, editorStub);
 	};
 	
-	zen_coding.require('utils').setCaretPlaceholder('|');
+	var caret = zen_coding.require('utils').getCaretPlaceholder();
 	
 	module('Actions');
+	QUnit.moduleStart(function(obj) {
+		if (obj.name == 'Actions') {
+			zen_coding.require('utils').setCaretPlaceholder('|');
+		}
+	});
+	
+	QUnit.moduleDone(function(obj) {
+		if (obj.name == 'Actions') {
+			zen_coding.require('utils').setCaretPlaceholder(caret);
+		}
+	});
+	
 	test('Expand Abbreviatoin', function() {
 		var content = 'a>b| test';
 		editorStub.replaceContent(content);

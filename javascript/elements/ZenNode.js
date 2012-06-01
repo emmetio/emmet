@@ -49,6 +49,9 @@
 		/** @type {ParsedElement} Source element from which current tag was created */
 		this.source = elem;
 		
+		/** @type String Name of current node */
+		this.name = elem.name;
+		
 		// relations
 		/** @type {ZenNode} */
 		this.parent = null;

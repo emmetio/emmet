@@ -147,6 +147,16 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
+		 * Normalizes newline character: replaces newlines in <code>text</code> 
+		 * with newline defined in preferences
+		 * @param {String} text
+		 * @returns {String}
+		 */
+		normalizeNewline: function(text) {
+			return this.splitByLines(text).join(this.getNewline());
+		},
+		
+		/**
 		 * Repeats string <code>howMany</code> times
 		 * @param {String} str
 		 * @param {Number} how_many

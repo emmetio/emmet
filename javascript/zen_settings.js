@@ -696,12 +696,14 @@ var zen_settings = {
 	
 	'xml': {
 		'extends': 'html',
+		'profile': 'xml',
 		'filters': 'html'
 	},
 	
 	'xsl': {
 		'extends': 'html',
 		'filters': 'html, xsl',
+		'profile': 'xml',
 		'abbreviations': {
 			'tm': '<xsl:template match="" mode="">',
 			'tmatch': 'tm',

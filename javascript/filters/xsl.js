@@ -3,7 +3,12 @@
  * child elements
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- */(function(){
+ * 
+ * @constructor
+ * @memberOf __xslFilterDefine
+ * @param {Function} require
+ * @param {Underscore} _
+ */zen_coding.exec(function(require, _) {
 	var tags = {
 		'xsl:variable': 1,
 		'xsl:with-param': 1
@@ -17,16 +22,16 @@
 		node.start = node.start.replace(/\s+select\s*=\s*(['"]).*?\1/, '');
 	}
 	
-	function process(tree) {
-		var elements = zen_coding.require('elements');
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {ZenNode} */
-			var item = tree.children[i];
-			if (elements.is(item.source, 'parsedElement') && item.name.toLowerCase() in tags && item.children.length)
+	require('filters').add('xsl', function process(tree) {
+		var elements = require('elements');
+		_.each(tree.children, function(item) {
+			if (elements.is(item.source, 'parsedElement') 
+					&& item.name.toLowerCase() in tags 
+					&& item.children.length)
 				trimAttribute(item);
 			process(item);
-		}
-	}
-	
-	zen_coding.require('filters').add('xsl', process);
-})();
+		});
+		
+		return tree;
+	});
+});

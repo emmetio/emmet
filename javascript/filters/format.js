@@ -6,18 +6,16 @@
  * of abbreviation.
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
- * @include "../zen_coding.js"
- */(function(){
-	var child_token = '${child}',
-		placeholder = '%s';
-	
-	function getNewline() {
-		return zen_coding.require('resources').getVariable('newline');
-	}
+ * @constructor
+ * @memberOf __formatFilterDefine
+ * @param {Function} require
+ * @param {Underscore} _
+ */zen_coding.exec(function(require, _){
+	var childToken = '${child}';
+	var placeholder = '%s';
 	
 	function getIndentation() {
-		return zen_coding.require('resources').getVariable('indentation');
+		return require('resources').getVariable('indentation');
 	}
 	
 	/**
@@ -26,11 +24,11 @@
 	 * @return {Boolean}
 	 */
 	function hasBlockSibling(item) {
-		return (item.parent && item.parent.hasBlockChildren());
+		return item.parent && item.parent.hasBlockChildren();
 	}
 	
 	/**
-	 * Test if passed itrem is very first child of the whole tree
+	 * Test if passed item is very first child of the whole tree
 	 * @param {ZenNode} tree
 	 */
 	function isVeryFirstChild(item) {
@@ -55,15 +53,15 @@
 			return false;
 			
 		// calculate how many inline siblings we have
-		var node_count = 1;
+		var nodeCount = 1;
 		while (node = node.nextSibling) {
 			if (node.type == 'text' || !node.isInline())
-				node_count = 0;
+				nodeCount = 0;
 			else if (node.isInline())
-				node_count++;
+				nodeCount++;
 		}
 		
-		return node_count >= profile.inline_break;
+		return nodeCount >= profile.inline_break;
 	}
 	
 	/**
@@ -74,17 +72,19 @@
 	function shouldBreakChild(node, profile) {
 		// we need to test only one child element, because 
 		// hasBlockChildren() method will do the rest
-		return (node.children.length && shouldBreakLine(node.children[0], profile));
+		return node.children.length && shouldBreakLine(node.children[0], profile);
 	}
 	
 	/**
 	 * Processes element with <code>snippet</code> type
 	 * @param {ZenNode} item
 	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
+	 * @param {Number} level Depth level
 	 */
 	function processSnippet(item, profile, level) {
+		var utils = require('utils');
 		var data = item.source.value;
+		var nl = utils.getNewline();
 			
 		if (!data)
 			// snippet wasn't found, process it as tag
@@ -92,27 +92,26 @@
 			
 		item.start = item.end = placeholder;
 		
-		var utils = zen_coding.require('utils');
-		var padding = (item.parent) 
+		var padding = item.parent 
 			? item.parent.padding
 			: utils.repeatString(getIndentation(), level);
 		
 		if (!isVeryFirstChild(item)) {
-			item.start = getNewline() + padding + item.start;
+			item.start = nl + padding + item.start;
 		}
 		
 		// adjust item formatting according to last line of <code>start</code> property
-		var parts = data.split(child_token),
-			lines = utils.splitByLines(parts[0] || ''),
-			padding_delta = getIndentation();
+		var parts = data.split(childToken);
+		var lines = utils.splitByLines(parts[0] || '');
+		var paddingDelta = getIndentation();
 			
 		if (lines.length > 1) {
 			var m = lines[lines.length - 1].match(/^(\s+)/);
 			if (m)
-				padding_delta = m[1];
+				paddingDelta = m[1];
 		}
 		
-		item.padding = padding + padding_delta;
+		item.padding = padding + paddingDelta;
 		
 		return item;
 	}
@@ -129,34 +128,34 @@
 			return item;
 		
 		item.start = item.end = placeholder;
-		var utils = zen_coding.require('utils');
-		var is_unary = (item.isUnary() && !item.children.length);
+		var utils = require('utils');
+		var isUnary = (item.isUnary() && !item.children.length);
+		var nl = utils.getNewline();
 			
 		// formatting output
 		if (profile.tag_nl !== false) {
-			var padding = (item.parent) 
-					? item.parent.padding
-					: utils.repeatString(getIndentation(), level),
-				force_nl = (profile.tag_nl === true),
-				should_break = shouldBreakLine(item, profile);
+			var padding = item.parent 
+				? item.parent.padding
+				: utils.repeatString(getIndentation(), level);
+			var forceNl = profile.tag_nl === true;
+			var shouldBreak = shouldBreakLine(item, profile);
 			
 			// formatting block-level elements
 			if (item.type != 'text') {
-				if (( (item.isBlock() || should_break) && item.parent) || force_nl) {
+				if (( (item.isBlock() || shouldBreak) && item.parent) || forceNl) {
 					// snippet children should take different formatting
 					if (!item.parent || (item.parent.type != 'snippet' && !isVeryFirstChild(item)))
-						item.start = getNewline() + padding + item.start;
+						item.start = nl + padding + item.start;
 						
-					if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (force_nl && !is_unary))
-						item.end = getNewline() + padding + item.end;
+					if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (forceNl && !isUnary))
+						item.end = nl + padding + item.end;
 						
-					if (item.hasTagsInContent() || (force_nl && !item.hasChildren() && !is_unary))
-						item.start += getNewline() + padding + getIndentation();
-					
+					if (item.hasTagsInContent() || (forceNl && !item.hasChildren() && !isUnary))
+						item.start += nl + padding + getIndentation();
 				} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
-					item.start = getNewline() + padding + item.start;
+					item.start = nl + padding + item.start;
 				} else if (item.isInline() && item.hasBlockChildren()) {
-					item.end = getNewline() + padding + item.end;
+					item.end = nl + padding + item.end;
 				}
 				
 				item.padding = padding + getIndentation();
@@ -170,27 +169,23 @@
 	 * Processes simplified tree, making it suitable for output as HTML structure
 	 * @param {ZenNode} tree
 	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
+	 * @param {Number} level Depth level
 	 */
-	function process(tree, profile, level) {
+	require('filters').add('_format', function process(tree, profile, level) {
 		level = level || 0;
-		var utils = zen_coding.require('utils');
+		var utils = require('utils');
 		
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {ZenNode} */
-			var item = tree.children[i];
+		_.each(tree.children, function(item) {
 			item = (item.type == 'tag') 
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
-				
+			
 			if (item.content)
 				item.content = utils.padString(item.content, item.padding);
-				
+			
 			process(item, profile, level + 1);
-		}
+		});
 		
 		return tree;
-	}
-	
-	zen_coding.require('filters').add('_format', process);
-})();
+	});
+});

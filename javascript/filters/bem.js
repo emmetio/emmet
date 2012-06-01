@@ -1,8 +1,14 @@
 /**
- * @memberOf __zen_filter_bem
+ * Filter for aiding of writing elements with complex class names as described
+ * in Yandex's BEM (Block, Element, Modifier) methodology. This filter will
+ * automatically inherit block and element names from parent elements and insert
+ * them into child element classes
+ * @memberOf __bemFilterDefine
  * @constructor
+ * @param {Function} require
+ * @param {Underscore} _
  */
-zen_coding.require('filters').add('bem', (function() {
+zen_coding.exec(function(require, _) {
 	var separators = {
 		element: '__',
 		modifier: '_'
@@ -14,11 +20,8 @@ zen_coding.require('filters').add('bem', (function() {
 	 * @param {ZenNode} item
 	 */
 	function bemParse(item) {
-		if (!zen_coding.require('elements').is(item.source, 'parsedElement'))
+		if (!require('elements').is(item.source, 'parsedElement'))
 			return item;
-		
-		/** @type Underscore */
-		var _ = zen_coding.require('_');
 		
 		// save BEM stuff in cache for faster lookups
 		item.__bem = {
@@ -39,13 +42,9 @@ zen_coding.require('filters').add('bem', (function() {
 		if (!item.__bem.block) {
 			// guess best match for block name
 			var reBlockName = /^[a-z]\-/i;
-			for (var i = 0, il = allClassNames.length; i < il; i++) {
-				/** @type String */
-				if (reBlockName.test(allClassNames[i])) {
-					item.__bem.block = allClassNames[i];
-					break;
-				}
-			}
+			item.__bem.block = _.find(allClassNames, function(name) {
+				return reBlockName.test(name);
+			});
 			
 			// guessing doesn't worked, pick first class name as block name
 			if (!item.__bem.block) {
@@ -54,7 +53,6 @@ zen_coding.require('filters').add('bem', (function() {
 		}
 		
 		return item;
-	
 	}
 	
 	/**
@@ -62,7 +60,7 @@ zen_coding.require('filters').add('bem', (function() {
 	 * @returns {String}
 	 */
 	function normalizeClassName(className) {
-		var utils = zen_coding.require('utils');
+		var utils = require('utils');
 		className = ' ' + (className || '') + ' ';
 		className = className.replace(/\s+/g, ' ').replace(/\s(\-+)/g, function(str, p1) {
 			return ' ' + utils.repeatString(separators.element, p1.length);
@@ -88,7 +86,7 @@ zen_coding.require('filters').add('bem', (function() {
 		// * block__element_modifier
 		// * block__element_modifier1_modifier2
 		// * block_modifier
-		var result, block = '', element = '', modifier = '';
+		var block = '', element = '', modifier = '';
 		if (~name.indexOf(separators.element)) {
 			var blockElem = name.split(separators.element);
 			var elemModifiers = blockElem[1].split(separators.modifier);
@@ -204,38 +202,31 @@ zen_coding.require('filters').add('bem', (function() {
 	 * 
 	 * @param {ZenNode} tree
 	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
 	 */
-	function process(tree, profile, level) {
+	function process(tree, profile) {
 		if (tree.name)
 			bemParse(tree);
 		
-		var elements = zen_coding.require('elements');
-		
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			var item = tree.children[i];
+		var elements = require('elements');
+		_.each(tree.children, function(item) {
 			process(bemParse(item), profile);
 			if (elements.is(item.source, 'parsedElement') && item.start)
 				shouldRunHtmlFilter = true;
-		}
+		});
 		
 		return tree;
 	};
 	
-	/**
-	 * @param {ZenNode} tree
-	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
-	 */
-	return function(tree, profile, level) {
+	require('filters').add('bem', function(tree, profile) {
 		shouldRunHtmlFilter = false;
-		tree = process(tree, profile, level);
+		tree = process(tree, profile);
 		// in case 'bem' filter is applied after 'html' filter: run it again
 		// to update output
 		if (shouldRunHtmlFilter) {
-			tree = zen_coding.require('filters').apply(tree, 'html', profile);
+			tree = require('filters').apply(tree, 'html', profile);
 		}
 		
 		return tree;
-	};
-})());
+	});
+});
+

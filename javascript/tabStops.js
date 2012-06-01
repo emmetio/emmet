@@ -12,6 +12,11 @@
  * @param {Underscore} _  
  */
 zen_coding.define('tabStops', function(require, _) {
+	/**
+	 * Global placeholder value, automatically incremented by 
+	 * <code>variablesResolver()</code> function
+	 */
+	var startPlaceholderNum = 100;
 	
 	var defaultOptions = {
 		replaceCarets: true,
@@ -255,6 +260,39 @@ zen_coding.define('tabStops', function(require, _) {
 			}, this);
 			
 			return maxNum;
+		},
+		
+		/**
+		 * Helper function that produces a callback function for 
+		 * <code>replaceVariables()</code> method from {@link zen_coding.utils}
+		 * module. This callback will replace variable definitions (like 
+		 * ${var_name}) with their value defined in <i>resource</i> module,
+		 * or outputs tabstop with variable name otherwise.
+		 * @param {ZenNode} node Context node
+		 * @returns {Function}
+		 */
+		variablesResolver: function(node) {
+			var placeholderMemo = {};
+			var res = require('resources');
+			return function(str, varName) {
+				var attr = node.getAttribute(varName);
+				if (attr !== null)
+					return attr;
+				
+				var varValue = res.getVariable(varName);
+				if (varValue)
+					return varValue;
+				
+				// output as placeholder
+				if (!placeholderMemo[varName])
+					placeholderMemo[varName] = startPlaceholderNum++;
+					
+				return '${' + placeholderMemo[varName] + ':' + varName + '}';
+			};
+		},
+		
+		resetPlaceholderCounter: function() {
+			startPlaceholderNum = 100;
 		}
 	};
 });
