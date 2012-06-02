@@ -49,8 +49,16 @@ test('Value normalization', function() {
 test('Abbreviation expanding', function() {
 	var css = zen_coding.require('cssResolver');
 	
-	equal(css.expandToSnippet('padding5'), 'padding: 5px', 'Expanded "padding5"');
+	equal(css.expandToSnippet('padding5'), 'padding: 5px;', 'Expanded "padding5"');
 	equal(css.expandToSnippet('-transform'), '-webkit-transform: ${0};\n-moz-transform: ${0};\n-ms-transform: ${0};\n-o-transform: ${0};\ntransform: ${0};', 'Expanded "-transform"');
 	equal(css.expandToSnippet('-pos-a'), '-webkit-position: absolute;\n-moz-position: absolute;\n-ms-position: absolute;\n-o-position: absolute;\nposition: absolute;', 'Expanded "-pos-a"');
-	equal(css.expandToSnippet('pos-a'), 'position:absolute;', 'Expanded "pos-a" (no processing)');
+	equal(css.expandToSnippet('pos-a'), 'position: absolute;', 'Expanded "pos-a" (no processing)');
+});
+
+test('important declaration', function() {
+	var css = zen_coding.require('cssResolver');
+	
+	equal(css.expandToSnippet('pos-a!'), 'position: absolute !important;', 'Expanded "pos-a" with !important');
+	equal(css.expandToSnippet('padding5!'), 'padding: 5px !important;', 'Expanded "padding5" with !important');
+	equal(css.expandToSnippet('-transform!'), '-webkit-transform: ${0} !important;\n-moz-transform: ${0} !important;\n-ms-transform: ${0} !important;\n-o-transform: ${0} !important;\ntransform: ${0} !important;', 'Expanded "-transform" with !important');
 });

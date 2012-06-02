@@ -38,6 +38,8 @@
  * Although this example looks pointless, users can use this feature to write
  * cutting-edge properties implemented by browser vendors recently.  
  * 
+ * @constructor
+ * @memberOf __cssResolverDefine
  * @param {Function} require
  * @param {Underscore} _
  */
@@ -81,6 +83,11 @@ zen_coding.define('cssResolver', function(require, _) {
 	};
 	
 	var defaultValue = '${0};';
+	
+	var prefs = require('preferences');
+	prefs.set('css.valueSeparator', ': ',
+			'Defines a symbol that should be placed between CSS property and ' 
+			+ 'value when expanding CSS abbreviations.');
 	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
@@ -161,6 +168,34 @@ zen_coding.define('cssResolver', function(require, _) {
 			obj = {prefix: obj};
 		
 		vendorPrefixes[name] = _.extend({}, prefixObj, obj);
+	}
+	
+	/**
+	 * Transforms snippet value if required. For example, this transformation
+	 * may add <i>!important</i> declaration to CSS property
+	 * @param {String} snippet
+	 * @param {Boolean} isImportant
+	 * @returns {String}
+	 */
+	function transformSnippet(snippet, isImportant) {
+		if (!_.isString(snippet))
+			snippet = snippet.data;
+		
+		if (isImportant) {
+			if (~snippet.indexOf(';')) {
+				snippet = snippet.split(';').join(' !important;');
+			} else {
+				snippet += ' !important';
+			}
+		}
+		
+		// format value separator
+		var parts = snippet.split(':', 2);
+		snippet = parts[0].replace(/\s+$/, '') 
+			+ prefs.get('css.valueSeparator')
+			+ require('utils').trim(parts[1]);
+		
+		return snippet;
 	}
 	
 	addPrefix('w', 'webkit');
@@ -383,10 +418,16 @@ zen_coding.define('cssResolver', function(require, _) {
 		expand: function(abbr, value) {
 			var resources = require('resources');
 			
+			// check if snippet should be transformed to !important
+			var isImportant;
+			if (isImportant = /^(.+)\!$/.test(abbr)) {
+				abbr = RegExp.$1;
+			}
+			
 			// check if we have abbreviated resource
 			var snippet = resources.getSnippet('css', abbr);
 			if (snippet)
-				return snippet;
+				return transformSnippet(snippet, isImportant);
 			
 			// no abbreviated resource, parse abbreviation
 			var prefixData = this.extractPrefixes(abbr);
@@ -409,7 +450,7 @@ zen_coding.define('cssResolver', function(require, _) {
 			
 			var result = [];
 			if (!value && abbrData.values) {
-				value = _.map(abbrData.values, this.normalizeValue).join(' ');
+				value = _.map(abbrData.values, this.normalizeValue).join(' ') + ';';
 			}
 			
 			snippetObj.value = value || snippetObj.value;
@@ -421,16 +462,17 @@ zen_coding.define('cssResolver', function(require, _) {
 					
 				_.each(prefixes, function(p) {
 					if (p in vendorPrefixes) {
-						result.push({
-							name: vendorPrefixes[p].transformName(snippetObj.name),
-							value: snippetObj.value
-						});
+						result.push(transformSnippet(
+							vendorPrefixes[p].transformName(snippetObj.name) 
+							+ ':' + snippetObj.value,
+							isImportant));
+						
 					}
 				});
-				
 			}
 			
-			result.push(snippetObj);
+			// put the original property
+			result.push(transformSnippet(snippetObj.name + ':' + snippetObj.value, isImportant));
 			
 			return result;
 		},
@@ -445,9 +487,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		expandToSnippet: function(abbr, value) {
 			var snippet = this.expand(abbr, value);
 			if (_.isArray(snippet)) {
-				return _.map(snippet, function(s) {
-					return s.name + ': ' + s.value;
-				}).join('\n');
+				return snippet.join('\n');
 			}
 			
 			if (!_.isString(snippet))

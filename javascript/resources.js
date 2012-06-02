@@ -128,7 +128,7 @@ zen_coding.define('resources', function(require, _) {
 	 * @param {String} syntax Syntax name
 	 * @param {String} name Resource name ('abbreviation', 'snippet')
 	 * @param {String} item Abbreviation or snippet name
-	 * @return {Object|null}
+	 * @return {Object}
 	 */
 	function getParsedItem(vocabulary, syntax, name, item) {
 		var chain = createResourceChain(vocabulary, syntax, name);
@@ -228,7 +228,7 @@ zen_coding.define('resources', function(require, _) {
 		 * Returns snippet value from data set
 		 * @param {String} type Resource type (html, css, ...)
 		 * @param {String} name Snippet name
-		 * @return {Object|null}
+		 * @return {Object}
 		 */
 		getSnippet: function(type, name) {
 			name = name || '';
