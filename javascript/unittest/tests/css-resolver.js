@@ -1,6 +1,6 @@
 module('CSS resolver');
 test('Vendor prefixes extraction', function() {
-	var css = zen_coding.require('fastCSS');
+	var css = zen_coding.require('cssResolver');
 	
 	deepEqual(css.extractPrefixes('-transform'), {property: 'transform', prefixes: 'all'}, 'All prefixes for "transform" property');
 	deepEqual(css.extractPrefixes('-w-transform'), {property: 'transform', prefixes: ['w']}, 'Webkit prefix for "transform" property');
@@ -10,7 +10,7 @@ test('Vendor prefixes extraction', function() {
 });
 
 test('Value extraction', function() {
-	var css = zen_coding.require('fastCSS');
+	var css = zen_coding.require('cssResolver');
 	
 	equal(css.findValuesInAbbreviation('padding10'), '10', 'Extracted value from "padding10"');
 	equal(css.findValuesInAbbreviation('padding10-10'), '10-10', 'Extracted value from "padding10-10"');
@@ -21,7 +21,7 @@ test('Value extraction', function() {
 });
 
 test('Value parsing', function() {
-	var css = zen_coding.require('fastCSS');
+	var css = zen_coding.require('cssResolver');
 	
 	deepEqual(css.parseValues('5'), ['5'], 'Parsed value "10"');
 	deepEqual(css.parseValues('10'), ['10'], 'Parsed value "10"');
@@ -37,7 +37,7 @@ test('Value parsing', function() {
 });
 
 test('Value normalization', function() {
-	var css = zen_coding.require('fastCSS');
+	var css = zen_coding.require('cssResolver');
 	
 	equal(css.normalizeValue('10'), '10px', 'Normalized value 10');
 	equal(css.normalizeValue('10p'), '10%', 'Normalized value 10');
@@ -47,7 +47,7 @@ test('Value normalization', function() {
 });
 
 test('Abbreviation expanding', function() {
-	var css = zen_coding.require('fastCSS');
+	var css = zen_coding.require('cssResolver');
 	
 	equal(css.expandToSnippet('padding5'), 'padding: 5px', 'Expanded "padding5"');
 	equal(css.expandToSnippet('-transform'), '-webkit-transform: ${0};\n-moz-transform: ${0};\n-ms-transform: ${0};\n-o-transform: ${0};\ntransform: ${0};', 'Expanded "-transform"');

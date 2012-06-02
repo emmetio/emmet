@@ -41,7 +41,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('fastCSS', function(require, _) {
+zen_coding.define('cssResolver', function(require, _) {
 	var prefixObj = {
 		/** Real vendor prefix name */
 		prefix: 'zen',
