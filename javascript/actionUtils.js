@@ -183,7 +183,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		 * Returns line bounds for specific character position
 		 * @param {String} text
 		 * @param {Number} from Where to start searching
-		 * @return {Object}
+		 * @return {Range}
 		 */
 		getLineBounds: function(text, from) {
 			var len = text.length,
@@ -207,18 +207,17 @@ zen_coding.define('actionUtils', function(require, _) {
 				}
 			}
 			
-			return {start: start, end: end};
+			return require('range').create(start, end - start);
 		},
 		
 		/**
 		 * Find expression bounds in current editor at caret position. 
-		 * On each character a <code>fn</code> function will be caller which must 
+		 * On each character a <code>fn</code> function will be called and must 
 		 * return <code>true</code> if current character meets requirements, 
 		 * <code>false</code> otherwise
 		 * @param {zen_editor} editor
 		 * @param {Function} fn Function to test each character of expression
-		 * @return {Array} If expression found, returns array with start and end 
-		 * positions 
+		 * @return {Range}
 		 */
 		findExpressionBounds: function(editor, fn) {
 			var content = String(editor.getContent());
@@ -232,7 +231,9 @@ zen_coding.define('actionUtils', function(require, _) {
 			// then search right
 			while (exprEnd < il && fn(content.charAt(exprEnd), exprEnd, content)) exprEnd++;
 			
-			return exprEnd > exprStart ? [++exprStart, exprEnd] : null;
+			if (exprEnd > exprStart) {
+				return require('range').create([++exprStart, exprEnd]);
+			}
 		},
 		
 		/**

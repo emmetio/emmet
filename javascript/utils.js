@@ -460,12 +460,16 @@ zen_coding.define('utils', function(require, _) {
 		/**
 		 * Narrows down text range, adjusting selection to non-space characters
 		 * @param {String} text
-		 * @param {Range} range
+		 * @param {Number} start Starting range in <code>text</code> where 
+		 * slection should be adjusted. Can also be any object that is accepted
+		 * by <code>Range</code> class
 		 * @return {Range}
 		 */
-		narrowToNonSpace: function(text, range) {
-			// narrow down selection until first non-space character
+		narrowToNonSpace: function(text, start, end) {
+			var range = require('range').create(start, end);
+			
 			var reSpace = /[\s\n\r\u00a0]/;
+			// narrow down selection until first non-space character
 			while (range.start < range.end) {
 				if (!reSpace.test(text.charAt(range.start)))
 					break;
@@ -482,6 +486,36 @@ zen_coding.define('utils', function(require, _) {
 			}
 			
 			return range;
+		},
+		
+		/**
+		 * Find start and end index of text line for <code>from</code> index
+		 * @param {String} text 
+		 * @param {Number} from
+		 */
+		findNewlineBounds: function(text, from) {
+			var len = text.length,
+				start = 0,
+				end = len - 1;
+			
+			// search left
+			for (var i = from - 1; i > 0; i--) {
+				var ch = text.charAt(i);
+				if (ch == '\n' || ch == '\r') {
+					start = i + 1;
+					break;
+				}
+			}
+			// search right
+			for (var j = from; j < len; j++) {
+				var ch = text.charAt(j);
+				if (ch == '\n' || ch == '\r') {
+					end = j;
+					break;
+				}
+			}
+			
+			return require('range').create(start, end - start);
 		},
 
 		/**

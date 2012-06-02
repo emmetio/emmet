@@ -150,6 +150,9 @@ zen_coding.define('range', function(require, _) {
 		 * @memberOf zen_coding.range
 		 */
 		create: function(start, len) {
+			if (_.isUndefined(start) || start === null)
+				return null;
+			
 			if (start instanceof Range)
 				return start;
 				

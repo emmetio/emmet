@@ -2,10 +2,11 @@
  * Reflect CSS value: takes rule's value under caret and pastes it for the same 
  * rules with vendor prefixes
  * @constructor
- * @memberOf __zenReflectCSSAction
+ * @memberOf __reflectCSSActionDefine
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
-	var require = _.bind(zen_coding.require, zen_coding);
+zen_coding.exec(function(require, _) {
 	require('actions').add('reflect_css_value', function(editor) {
 		if (editor.getSyntax() != 'css') return false;
 		
@@ -109,4 +110,4 @@
 		
 		return curValue;
 	}
-})();
+});

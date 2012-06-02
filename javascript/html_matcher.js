@@ -139,7 +139,7 @@
 	 * @param {Number} start_ix Character index where to start searching pair 
 	 * (commonly, current caret position)
 	 * @param {Function} action Function that creates selection range
-	 * @return {Array|null}
+	 * @return {Array}
 	 */
 	function findPair(html, start_ix, mode, action) {
 		action = action || makeRange;
@@ -151,7 +151,6 @@
 			opening_tag = null,
 			/** @type {tag()} */
 			closing_tag = null,
-			range = null,
 			html_len = html.length,
 			m,
 			ix,

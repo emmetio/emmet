@@ -1,10 +1,14 @@
 /**
  * HTML pair matching (balancing) actions
+ * @constructor
+ * @memberOf __matchPairActionDefine
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
+zen_coding.exec(function(require, _) {
 	/** @type zen_coding.actions */
-	var actions = zen_coding.require('actions');
-	var matcher = zen_coding.require('html_matcher');
+	var actions = require('actions');
+	var matcher = require('html_matcher');
 	
 	/**
 	 * Find and select HTML tag pair
@@ -14,47 +18,49 @@
 	 */
 	function matchPair(editor, direction, syntax) {
 		direction = String((direction || 'out').toLowerCase());
-		syntax = String(syntax || editor.getProfileName());
+		var info = require('editorUtils').outputInfo(editor, syntax);
+		syntax = info.syntax;
 		
-		var range = editor.getSelectionRange();
-		var cursor = range.end;
-		var rangeStart = range.start; 
-		var rangeEnd = range.end;
-		var content = String(editor.getContent());
-		var range = null;
+		var range = require('range');
+		/** @type Range */
+		var selRange = range.create(editor.getSelectionRange());
+		var content = info.content;
+		/** @type Range */
+		var tagRange = null;
+		/** @type Range */
 		var _r;
 		
 		var oldOpenTag = matcher.last_match['opening_tag'];
 		var oldCloseTag = matcher.last_match['closing_tag'];
 			
-		if (direction == 'in' && oldOpenTag && rangeStart != rangeEnd) {
+		if (direction == 'in' && oldOpenTag && selRange.length()) {
 //			user has previously selected tag and wants to move inward
 			if (!oldCloseTag) {
 //				unary tag was selected, can't move inward
 				return false;
-			} else if (oldOpenTag.start == rangeStart) {
+			} else if (oldOpenTag.start == selRange.start) {
 				if (content.charAt(oldOpenTag.end) == '<') {
 //					test if the first inward tag matches the entire parent tag's content
-					_r = matcher.find(content, oldOpenTag.end + 1, syntax);
-					if (_r[0] == oldOpenTag.end && _r[1] == oldCloseTag.start) {
-						range = matcher(content, oldOpenTag.end + 1, syntax);
+					_r = range.create(matcher.find(content, oldOpenTag.end + 1, syntax));
+					if (_r.start == oldOpenTag.end && _r.end == oldCloseTag.start) {
+						tagRange = range.create(matcher(content, oldOpenTag.end + 1, syntax));
 					} else {
-						range = [oldOpenTag.end, oldCloseTag.start];
+						tagRange = range.create(oldOpenTag.end, oldCloseTag.start - oldOpenTag.end);
 					}
 				} else {
-					range = [oldOpenTag.end, oldCloseTag.start];
+					tagRange = range.create(oldOpenTag.end, oldCloseTag.start - oldOpenTag.end);
 				}
 			} else {
-				var new_cursor = content.substring(0, oldCloseTag.start).indexOf('<', oldOpenTag.end);
-				var search_pos = new_cursor != -1 ? new_cursor + 1 : oldOpenTag.end;
-				range = matcher(content, search_pos, syntax);
+				var newCursor = content.substring(0, oldCloseTag.start).indexOf('<', oldOpenTag.end);
+				var searchPos = newCursor != -1 ? newCursor + 1 : oldOpenTag.end;
+				tagRange = range.create(matcher(content, searchPos, syntax));
 			}
 		} else {
-			range = matcher(content, cursor, syntax);
+			tagRange = range.create(matcher(content, selRange.end, syntax));
 		}
 		
-		if (range !== null && range[0] != -1) {
-			editor.createSelection(range[0], range[1]);
+		if (tagRange && tagRange.start != -1) {
+			editor.createSelection(tagRange.start, tagRange.end);
 			return true;
 		}
 		
@@ -102,4 +108,4 @@
 		
 		return false;
 	});
-})();
+});

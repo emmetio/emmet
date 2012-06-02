@@ -1,36 +1,38 @@
 /**
  * Evaluates simple math expression under caret
- * @param {IZenEditor} editor
+ * @param {Function} require
+ * @param {Underscore} _ 
  */
-zen_coding.require('actions').add('evaluate_math_expression', function(editor) {
-	var actionUtils = zen_coding.require('actionUtils');
-	var utils = zen_coding.require('utils');
-	
-	var content = String(editor.getContent());
-	var chars = '.+-*/\\';
+zen_coding.exec(function(require, _) {
+	require('actions').add('evaluate_math_expression', function(editor) {
+		var actionUtils = require('actionUtils');
+		var utils = require('utils');
 		
-	
-	var sel = editor.getSelectionRange();
-	var r = (sel && sel.start != sel.end) 
-		? [sel.start, sel.end] 
-		: actionUtils.findExpressionBounds(editor, function(ch) {
-			return utils.isNumeric(ch) || chars.indexOf(ch) != -1;
-		});
+		var content = String(editor.getContent());
+		var chars = '.+-*/\\';
 		
-	if (r) {
-		var expr = content.substring(r[0], r[1]);
+		/** @type Range */
+		var sel = require('range').create(editor.getSelectionRange());
+		if (!sel.length()) {
+			sel = actionUtils.findExpressionBounds(editor, function(ch) {
+				return utils.isNumeric(ch) || chars.indexOf(ch) != -1;
+			});
+		}
 		
-		// replace integral division: 11\2 => Math.round(11/2) 
-		expr = expr.replace(/([\d\.\-]+)\\([\d\.\-]+)/g, 'Math.round($1/$2)');
+		if (sel && sel.length()) {
+			var expr = sel.substring(content);
+			
+			// replace integral division: 11\2 => Math.round(11/2) 
+			expr = expr.replace(/([\d\.\-]+)\\([\d\.\-]+)/g, 'Math.round($1/$2)');
+			
+			try {
+				var result = utils.prettifyNumber(new Function('return ' + expr)());
+				editor.replaceContent(result, sel.start, sel.end);
+				editor.setCaretPos(sel.start + result.length);
+				return true;
+			} catch (e) {}
+		}
 		
-		try {
-			var result = new Function('return ' + expr)();
-			result = utils.prettifyNumber(result);
-			editor.replaceContent(result, r[0], r[1]);
-			editor.setCaretPos(r[0] + result.length);
-			return true;
-		} catch (e) {}
-	}
-	
-	return false;
+		return false;
+	});
 });

@@ -37,7 +37,7 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 			if (!range || range[0] == -1) // nothing to wrap
 				return false;
 			
-			var narrowedSel = editorUtils.narrowToNonSpace(info.content, range[0], range[1]);
+			var narrowedSel = utils.narrowToNonSpace(info.content, range[0], range[1]);
 			startOffset = narrowedSel[0];
 			endOffset = narrowedSel[1];
 		}

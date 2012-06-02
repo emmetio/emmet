@@ -1,35 +1,37 @@
 /**
  * Gracefully removes tag under cursor
- * @param {IZenEditor} editor
+ * 
+ * @param {Function} require
+ * @param {Underscore} _ 
  */
-zen_coding.require('actions').add('remove_tag', function(editor) {
-	var utils = zen_coding.require('utils');
-	var actionUtils = zen_coding.require('actionUtils');
-	var editorUtils = zen_coding.require('editorUtils');
-	var matcher = zen_coding.require('html_matcher');
-	
-	var info = zen_coding.require('editorUtils').outputInfo(editor);
-	var caretPos = editor.getCaretPos();
+zen_coding.exec(function(require, _) {
+	require('actions').add('remove_tag', function(editor) {
+		var utils = require('utils');
+		var actionUtils = require('actionUtils');
+		var info = require('editorUtils').outputInfo(editor);
 		
-	// search for tag
-	var pair = matcher.getTags(info.content, caretPos, info.profile);
-	if (pair && pair[0]) {
-		if (!pair[1]) {
-			// simply remove unary tag
-			editor.replaceContent(utils.getCaretPlaceholder(), pair[0].start, pair[0].end);
-		} else {
-			// remove tag and its newlines
-			var tagContentRange = editorUtils.narrowToNonSpace(info.content, pair[0].end, pair[1].start);
-			var startLineBounds = actionUtils.getLineBounds(info.content, tagContentRange[0]);
-			var startLinePad = utils.getLinePadding(info.content.substring(startLineBounds.start, startLineBounds.end));
-			var tagContent = info.content.substring(tagContentRange[0], tagContentRange[1]);
+		// search for tag
+		var pair = require('html_matcher').getTags(info.content, editor.getCaretPos(), info.profile);
+		if (pair && pair[0]) {
+			if (!pair[1]) {
+				// simply remove unary tag
+				editor.replaceContent(utils.getCaretPlaceholder(), pair[0].start, pair[0].end);
+			} else {
+				// remove tag and its newlines
+				/** @type Range */
+				var tagContentRange = utils.narrowToNonSpace(info.content, pair[0].end, pair[1].start - pair[0].end);
+				/** @type Range */
+				var startLineBounds = actionUtils.getLineBounds(info.content, tagContentRange.start);
+				var startLinePad = utils.getLinePadding(startLineBounds.substring(info.content));
+				var tagContent = tagContentRange.substring(info.content);
 				
-			tagContent = utils.unindentString(tagContent, startLinePad);
-			editor.replaceContent(utils.getCaretPlaceholder() + tagContent, pair[0].start, pair[1].end);
+				tagContent = utils.unindentString(tagContent, startLinePad);
+				editor.replaceContent(utils.getCaretPlaceholder() + tagContent, pair[0].start, pair[1].end);
+			}
+			
+			return true;
 		}
 		
-		return true;
-	}
-	
-	return false;
+		return false;
+	});
 });

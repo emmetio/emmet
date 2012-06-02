@@ -1,11 +1,13 @@
 /**
  * Actions to insert line breaks. Some simple editors (like browser's 
  * &lt;textarea&gt;, for example) do not provide such simple things
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
-	var actions = zen_coding.require('actions');
+zen_coding.exec(function(require, _) {
+	var actions = require('actions');
 	/** @type zen_coding.preferences */
-	var prefs = zen_coding.require('preferences');
+	var prefs = require('preferences');
 	
 	// setup default preferences
 	prefs.set('css.closeBraceIndentation', '\n',
@@ -23,22 +25,18 @@
 	 * @return {Boolean} Returns <code>true</code> if line break was inserted 
 	 */
 	actions.add('insert_formatted_line_break_only', function(editor) {
-		var utils = zen_coding.require('utils');
-		/** @type zen_coding.editorUtils */
-		var editorUtils = zen_coding.require('editorUtils');
-		var matcher = zen_coding.require('html_matcher');
+		var utils = require('utils');
 		/** @type zen_coding.resources */
-		var res = zen_coding.require('resources');
+		var res = require('resources');
 		
-		var info = editorUtils.outputInfo(editor);
+		var info = require('editorUtils').outputInfo(editor);
 		var caretPos = editor.getCaretPos();
 		var nl = utils.getNewline();
 		
-			
 		if (info.syntax == 'html') {
 			var pad = res.getVariable('indentation');
 			// let's see if we're breaking newly created tag
-			var pair = matcher.getTags(info.content, caretPos, info.profile);
+			var pair = require('html_matcher').getTags(info.content, caretPos, info.profile);
 			
 			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caretPos && pair[1].start == caretPos) {
 				editor.replaceContent(nl + pad + utils.getCaretPlaceholder() + nl, caretPos);
@@ -94,20 +92,19 @@
 	 */
 	actions.add('insert_formatted_line_break', function(editor) {
 		if (!actions.run('insert_formatted_line_break_only', editor)) {
-			var editorUtils = zen_coding.require('editorUtils');
-			var utils = zen_coding.require('utils');
+			var utils = require('utils');
 			
-			var curPadding = editorUtils.getCurrentLinePadding(editor);
+			var curPadding = require('editorUtils').getCurrentLinePadding(editor);
 			var content = String(editor.getContent());
-			var caret_pos = editor.getCaretPos();
-			var c_len = content.length;
+			var caretPos = editor.getCaretPos();
+			var len = content.length;
 			var nl = utils.getNewline();
 				
 			// check out next line padding
 			var lineRange = editor.getCurrentLineRange();
 			var nextPadding = '';
 				
-			for (var i = lineRange.end + 1, ch; i < c_len; i++) {
+			for (var i = lineRange.end + 1, ch; i < len; i++) {
 				ch = content.charAt(i);
 				if (ch == ' ' || ch == '\t')
 					nextPadding += ch;
@@ -116,11 +113,11 @@
 			}
 			
 			if (nextPadding.length > curPadding.length)
-				editor.replaceContent(nl + nextPadding, caret_pos, caret_pos, true);
+				editor.replaceContent(nl + nextPadding, caretPos, caretPos, true);
 			else
-				editor.replaceContent(nl, caret_pos);
+				editor.replaceContent(nl, caretPos);
 		}
 		
 		return true;
 	});
-})();
+});

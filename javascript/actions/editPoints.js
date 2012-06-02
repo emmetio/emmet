@@ -1,10 +1,13 @@
 /**
  * Move between next/prev edit points. 'Edit points' are places between tags 
  * and quotes of empty attributes in html
+ * @constructor
+ * 
+ * @memberOf __editPointActionDefine
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
-	/** @type zen_coding.actions */
-	var actions = zen_coding.require('actions');
+zen_coding.exec(function(require, _) {
 	/**
 	 * Search for new caret insertion point
 	 * @param {zen_editor} editor Editor instance
@@ -22,14 +25,10 @@
 		var nextPoint = -1;
 		var reEmptyLine = /^\s+$/;
 		
-		function ch(ix) {
-			return content.charAt(ix);
-		}
-		
 		function getLine(ix) {
 			var start = ix;
 			while (start >= 0) {
-				var c = ch(start);
+				var c = content.charAt(start);
 				if (c == '\n' || c == '\r')
 					break;
 				start--;
@@ -40,20 +39,20 @@
 			
 		while (curPoint <= maxLen && curPoint >= 0) {
 			curPoint += inc;
-			var cur_char = ch(curPoint),
-				next_char = ch(curPoint + 1),
-				prev_char = ch(curPoint - 1);
+			var curChar = content.charAt(curPoint);
+			var nextChar = content.charAt(curPoint + 1);
+			var prevChar = content.charAt(curPoint - 1);
 				
-			switch (cur_char) {
+			switch (curChar) {
 				case '"':
 				case '\'':
-					if (next_char == cur_char && prev_char == '=') {
+					if (nextChar == curChar && prevChar == '=') {
 						// empty attribute
 						nextPoint = curPoint + 1;
 					}
 					break;
 				case '>':
-					if (next_char == '<') {
+					if (nextChar == '<') {
 						// between tags
 						nextPoint = curPoint + 1;
 					}
@@ -73,10 +72,13 @@
 		
 		return nextPoint;
 	}
-		
+	
+	/** @type zen_coding.actions */
+	var actions = require('actions');
+	
 	/**
 	 * Move caret to previous edit point
-	 * @param {zen_editor} editor Editor instance
+	 * @param {IZenEditor} editor Editor instance
 	 */
 	actions.add('prev_edit_point', function(editor) {
 		var curPos = editor.getCaretPos();
@@ -96,11 +98,11 @@
 	
 	/**
 	 * Move caret to next edit point
-	 * @param {zen_editor} editor Editor instance
+	 * @param {IZenEditor} editor Editor instance
 	 */
 	actions.add('next_edit_point', function(editor) {
 		var newPoint = findNewEditPoint(editor, 1);
 		if (newPoint != -1)
 			editor.setCaretPos(newPoint);
 	});
-})();
+});

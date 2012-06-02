@@ -2,15 +2,20 @@
  * Encodes/decodes image under cursor to/from base64
  * @param {IZenEditor} editor
  * @since 0.65
+ * 
+ * @memberOf __base64ActionDefine
+ * @constructor
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
-	zen_coding.require('actions').add('encode_decode_data_url', function(editor) {
+zen_coding.exec(function(require, _) {
+	require('actions').add('encode_decode_data_url', function(editor) {
 		var data = String(editor.getSelection());
 		var caretPos = editor.getCaretPos();
 			
 		if (!data) {
 			// no selection, try to find image bounds from current caret position
-			var text = String(editor.getContent()), ch, m;
+			var text = String(editor.getContent()),  m;
 			while (caretPos-- >= 0) {
 				if (startsWith('src=', text, caretPos)) { // found <img src="">
 					if (m = text.substr(caretPos).match(/^(src=(["'])?)([^'"<>\s]+)\1?/)) {
@@ -62,8 +67,8 @@
 	 * @return {Boolean}
 	 */
 	function encodeToBase64(editor, imgPath, pos) {
-		var file = zen_coding.require('file');
-		var actionUtils = zen_coding.require('actionUtils');
+		var file = require('file');
+		var actionUtils = require('actionUtils');
 		
 		var editorFile = editor.getFilePath();
 		var defaultMimeType = 'application/octet-stream';
@@ -78,7 +83,7 @@
 			throw "Can't find " + imgPath + ' file';
 		}
 		
-		var b64 = zen_coding.require('base64').encode(String(file.read(realImgPath)));
+		var b64 = require('base64').encode(String(file.read(realImgPath)));
 		if (!b64) {
 			throw "Can't encode file content to base64";
 		}
@@ -92,10 +97,7 @@
 
 	/**
 	 * Decodes base64 string back to file.
-	 * @requires zen_editor.prompt
-	 * @requires zen_file
-	 * 
-	 * @param {zen_editor} editor
+	 * @param {IZenEditor} editor
 	 * @param {String} data Base64-encoded file content
 	 * @param {Number} pos Caret position where image is located in the editor
 	 */
@@ -105,13 +107,14 @@
 		if (!filePath)
 			return false;
 			
-		var absPath = zen_file.createPath(editor.getFilePath(), filePath);
+		var file = require('file');
+		var absPath = file.createPath(editor.getFilePath(), filePath);
 		if (!absPath) {
 			throw "Can't save file";
 		}
 		
-		zen_coding.require('file').save(absPath, zen_coding.require('base64').decode( data.replace(/^data\:.+?;.+?,/, '') ));
+		file.save(absPath, require('base64').decode( data.replace(/^data\:.+?;.+?,/, '') ));
 		editor.replaceContent('$0' + filePath, pos, pos + data.length);
 		return true;
 	}
-})();
+});

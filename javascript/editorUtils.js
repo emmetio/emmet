@@ -75,7 +75,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * @return {String}
 		 */
 		unindent: function(editor, text) {
-			return require('utils').unindentString(text, require('editorUtils').getCurrentLinePadding(editor));
+			return require('utils').unindentString(text, this.getCurrentLinePadding(editor));
 		},
 		
 		/**
@@ -85,71 +85,6 @@ zen_coding.define('editorUtils', function(require, _) {
 		 */
 		getCurrentLinePadding: function(editor) {
 			return require('utils').getLinePadding(editor.getCurrentLine());
-		},
-		
-		/**
-		 * Narrow down text indexes, adjusting selection to non-space characters
-		 * @param {String} text
-		 * @param {Number} start
-		 * @param {Number} end
-		 * @return {Array}
-		 * TODO refactor: use Range, move to utils module
-		 */
-		narrowToNonSpace: function(text, start, end) {
-			// narrow down selection until first non-space character
-			var reSpace = /\s|\n|\r/;
-			var isSpace = function(ch) {
-				return reSpace.test(ch);
-			};
-			
-			while (start < end) {
-				if (!isSpace(text.charAt(start)))
-					break;
-					
-				start++;
-			}
-			
-			while (end > start) {
-				end--;
-				if (!isSpace(text.charAt(end))) {
-					end++;
-					break;
-				}
-			}
-			
-			return [start, end];
-		},
-		
-		/**
-		 * Find start and end index of text line for <code>from</code> index
-		 * @param {String} text 
-		 * @param {Number} from
-		 * TODO refactor: use Range, move to utils module 
-		 */
-		findNewlineBounds: function(text, from) {
-			var len = text.length,
-				start = 0,
-				end = len - 1;
-			
-			// search left
-			for (var i = from - 1; i > 0; i--) {
-				var ch = text.charAt(i);
-				if (ch == '\n' || ch == '\r') {
-					start = i + 1;
-					break;
-				}
-			}
-			// search right
-			for (var j = from; j < len; j++) {
-				var ch = text.charAt(j);
-				if (ch == '\n' || ch == '\r') {
-					end = j;
-					break;
-				}
-			}
-			
-			return require('range').create(start, end - start);
-//			return {start: start, end: end};
 		}
 	};
 });

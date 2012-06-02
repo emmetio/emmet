@@ -34,7 +34,7 @@ var editorStub = (function() {
 		 * Returns current line's start and end indexes
 		 */
 		getCurrentLineRange: function() {
-			return require('editorUtils').findNewlineBounds(content, caret);
+			return require('utils').findNewlineBounds(content, caret);
 		},
 		
 		/**
@@ -92,7 +92,7 @@ var editorStub = (function() {
 			
 			// indent new value
 			if (!noIndent) {
-				var lineRange = require('editorUtils').findNewlineBounds(content, start);
+				var lineRange = utils.findNewlineBounds(content, start);
 				value = utils.padString(value, utils.getLinePadding(lineRange.substring(content)));
 			}
 			
