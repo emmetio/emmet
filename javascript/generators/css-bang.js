@@ -4,6 +4,8 @@
  * @param {Array} match Regexp match object
  * @param {TreeNode} node Matched abbreviation node
  * @param {String} syntax Current syntax
+ * 
+ * TODO refactor, move to CSS resolver
  */
 zen_coding.require('resources').addGenerator(/^(.+)\!$/, function(match, node, syntax) {
 	if (syntax != 'css')

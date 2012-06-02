@@ -1,4 +1,4 @@
-(function() {
+zen_coding.exec(function(require, _) {
 	/**
 	 * Parsed element that represents intermediate node in abbreviation 
 	 * transformation process. This element will then be converted to 
@@ -6,7 +6,7 @@
 	 * 
 	 * @param {TreeNode} node Parsed tree node
 	 * @param {String} syntax Tag type (html, xml)
-	 * @param {__zenDataElement} resource Matched element resource from <code>zen_settings</code>
+	 * @param {DataElement} resource Matched element resource from <code>zen_settings</code>
 	 */
 	function ParsedElement(node, syntax, resource) {
 		this._abbr = resource;
@@ -57,7 +57,7 @@
 				this._attr_hash = {};
 			
 			/** @type {zen_coding.utils} */
-			var utils = zen_coding.require('utils');
+			var utils = require('utils');
 			
 			// escape pipe (caret) character with internal placeholder
 			value = utils.replaceUnescapedSymbol(value || '', '|', utils.getCaretPlaceholder());
@@ -96,7 +96,7 @@
 		 * This function is mostly used for output formatting
 		 */
 		hasTagsInContent: function() {
-			return zen_coding.require('utils').matchesTag(this.getContent());
+			return require('utils').matchesTag(this.getContent());
 		},
 		
 		/**
@@ -104,7 +104,7 @@
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			var utils = zen_coding.require('utils');
+			var utils = require('utils');
 			this._content = utils.replaceUnescapedSymbol(str || '', '|', utils.getCaretPlaceholder());
 		},
 		
@@ -121,7 +121,7 @@
 		 * @param {String} val
 		 */
 		setPasteContent: function(val) {
-			this._paste_content = zen_coding.require('utils').escapeText(val);
+			this._paste_content = require('utils').escapeText(val);
 		},
 		
 		/**
@@ -149,9 +149,9 @@
 		}
 	};
 	
-	var elems = zen_coding.require('elements');
+	var elems = require('elements');
 	elems.add('parsedElement', function(node, syntax, resource) {
-		var res = zen_coding.require('resources');
+		var res = require('resources');
 		if (!resource && node.name) {
 			resource = res.getAbbreviation(syntax, node.name);
 		}
@@ -175,8 +175,8 @@
 			resource = elems.create('snippet', resource);
 		
 		var elem = new ParsedElement(node, syntax, resource);
-		var utils = zen_coding.require('utils');
-		var res = zen_coding.require('resources');
+		var utils = require('utils');
+		var res = require('resources');
 		
 		var data = resource ? resource.data : res.getSnippet(syntax, elem.name);
 		elem.value = utils.replaceUnescapedSymbol(data, '|', utils.getCaretPlaceholder());
@@ -188,4 +188,4 @@
 		
 		return elem;
 	});
-})();
+});

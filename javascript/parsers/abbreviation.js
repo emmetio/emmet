@@ -4,10 +4,10 @@
  * projects
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * @memberOf __zen_parser
- */var zen_parser = (/** @constructor */ function(){
-	
-	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
+ * @memberOf __abbreviationParser
+ * @constructor
+ */zen_coding.define('parser', function(require, _) {
+	var reValidName = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
 	/**
 	 * @type TreeNode
@@ -83,7 +83,7 @@
 			}
 			
 			// validate name
-			if (this.name && !re_valid_name.test(this.name)) {
+			if (this.name && !reValidName.test(this.name)) {
 				throw new Error('InvalidAbbreviation');
 			}
 		},
@@ -118,7 +118,7 @@
 					output += ' [' + attrs.join(', ') + ']';
 				}
 			}
-			var result = zen_coding.repeatString('-', level)
+			var result = require('utils').repeatString('-', level)
 				+ output 
 				+ '\n';
 			for (var i = 0, il = this.children.length; i < il; i++) {
@@ -226,50 +226,49 @@
 	
 	/**
 	 * Extract attributes and their values from attribute set 
-	 * @param {String} attr_set
+	 * @param {String} attrSet
 	 */
-	function extractAttributes(attr_set) {
-		attr_set = trim(attr_set);
-		var loop_count = 100, // endless loop protection
-			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
-			result = [],
-			attr;
+	function extractAttributes(attrSet) {
+		attrSet = trim(attrSet);
+		var loopCount = 1000; // endless loop protection
+		var reString = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/;
+		var result = [];
+		var attr;
 			
-		while (attr_set && loop_count--) {
-			var attr_name = getWord(0, attr_set);
+		while (attrSet && loopCount--) {
+			var attrName = getWord(0, attrSet);
 			attr = null;
-			if (attr_name) {
-				attr = {name: attr_name, value: ''};
-//				result[attr_name] = '';
+			if (attrName) {
+				attr = {name: attrName, value: ''};
 				// let's see if attribute has value
-				var ch = attr_set.charAt(attr_name.length);
+				var ch = attrSet.charAt(attrName.length);
 				switch (ch) {
 					case '=':
-						var ch2 = attr_set.charAt(attr_name.length + 1);
+						var ch2 = attrSet.charAt(attrName.length + 1);
 						if (ch2 == '"' || ch2 == "'") {
 							// we have a quoted string
-							var m = attr_set.substring(attr_name.length + 1).match(re_string);
+							var m = attrSet.substring(attrName.length + 1).match(reString);
 							if (m) {
 								attr.value = m[2];
-								attr_set = trim(attr_set.substring(attr_name.length + m[0].length + 1));
+								attrSet = trim(attrSet.substring(attrName.length + m[0].length + 1));
 							} else {
 								// something wrong, break loop
-								attr_set = '';
+								attrSet = '';
 							}
 						} else {
 							// unquoted string
-							var m = attr_set.substring(attr_name.length + 1).match(/(.+?)(\s|$)/);
+							var m = attrSet.substring(attrName.length + 1).match(/(.+?)(\s|$)/);
 							if (m) {
 								attr.value = m[1];
-								attr_set = trim(attr_set.substring(attr_name.length + m[1].length + 1));
+								attrSet = trim(attrSet.substring(attrName.length + m[1].length + 1));
 							} else {
 								// something wrong, break loop
-								attr_set = '';
+								attrSet = '';
 							}
 						}
 						break;
 					default:
-						attr_set = trim(attr_set.substring(attr_name.length));
+						attrSet = trim(attrSet.substring(attrName.length));
 						break;
 				}
 			} else {
@@ -295,55 +294,55 @@
 		 * [attr]
 		 * #item[attr=Hello other="World"].class
 		 */
-		var result = [],
-			name = '',
-			collect_name = true,
-			class_name,
-			char_map = {'#': 'id', '.': 'class'};
+		var result = [];
+		var name = '';
+		var collectName = true;
+		var className = null;
+		var charMap = {'#': 'id', '.': 'class'};
 		
 		// walk char-by-char
-		var i = 0,
-			il = str.length,
-			val;
+		var i = 0;
+		var il = str.length;
+		var val;
 			
 		while (i < il) {
 			var ch = str.charAt(i);
 			switch (ch) {
 				case '#': // id
 					val = getWord(i, str.substring(1));
-					result.push({name: char_map[ch], value: val});
+					result.push({name: charMap[ch], value: val});
 					i += val.length + 1;
-					collect_name = false;
+					collectName = false;
 					break;
 				case '.': // class
 					val = getWord(i, str.substring(1));
-					if (!class_name) {
+					if (!className) {
 						// remember object pointer for value modification
-						class_name = {name: char_map[ch], value: ''};
-						result.push(class_name);
+						className = {name: charMap[ch], value: ''};
+						result.push(className);
 					}
 					
-					class_name.value += ((class_name.value) ? ' ' : '') + val;
+					className.value += (className.value ? ' ' : '') + val;
 					i += val.length + 1;
-					collect_name = false;
+					collectName = false;
 					break;
 				case '[': //begin attribute set
 					// search for end of set
-					var end_ix = str.indexOf(']', i);
-					if (end_ix == -1) {
+					var endIx = str.indexOf(']', i);
+					if (endIx == -1) {
 						// invalid attribute set, stop searching
 						i = str.length;
 					} else {
-						var attrs = extractAttributes(str.substring(i + 1, end_ix));
+						var attrs = extractAttributes(str.substring(i + 1, endIx));
 						for (var j = 0, jl = attrs.length; j < jl; j++) {
 							result.push(attrs[j]);
 						}
-						i = end_ix;
+						i = endIx;
 					}
-					collect_name = false;
+					collectName = false;
 					break;
 				default:
-					if (collect_name)
+					if (collectName)
 						name += ch;
 					i++;
 			}
@@ -380,35 +379,35 @@
 		if (expr.indexOf('{') == -1)
 			return [expr];
 			
-		var attr_lvl = 0,
-			text_lvl = 0,
-			brace_stack = [],
-			i = 0,
-			il = expr.length,
-			ch;
+		var attrLvl = 0;
+		var textLvl = 0;
+		var braceStack = [];
+		var i = 0;
+		var il = expr.length;
+		var ch;
 			
 		while (i < il) {
 			ch = expr.charAt(i);
 			switch (ch) {
 				case '[':
-					if (!text_lvl)
-						attr_lvl++;
+					if (!textLvl)
+						attrLvl++;
 					break;
 				case ']':
-					if (!text_lvl)
-						attr_lvl--;
+					if (!textLvl)
+						attrLvl--;
 					break;
 				case '{':
-					if (!attr_lvl) {
-						text_lvl++;
-						brace_stack.push(i);
+					if (!attrLvl) {
+						textLvl++;
+						braceStack.push(i);
 					}
 					break;
 				case '}':
-					if (!attr_lvl) {
-						text_lvl--;
-						var brace_start = brace_stack.pop();
-						if (text_lvl === 0) {
+					if (!attrLvl) {
+						textLvl--;
+						var brace_start = braceStack.pop();
+						if (textLvl === 0) {
 							// found braces bounds
 							return [
 								expr.substring(0, brace_start),
@@ -432,23 +431,21 @@
 		 * text nodes and attributes. Each node of the tree is a single 
 		 * abbreviation. Tree represents actual structure of the outputted 
 		 * result
-		 * @memberOf zen_parser
+		 * @memberOf abbreviationParser
 		 * @param {String} abbr Abbreviation to parse
 		 * @return {TreeNode}
 		 */
 		parse: function(abbr) {
-			var root = new TreeNode,
-				context = root.addChild(),
-				i = 0,
-				il = abbr.length,
-				text_lvl = 0,
-				attr_lvl = 0,
-				group_lvl = 0,
-				group_stack = [root],
-				ch, prev_ch,
-				token = '';
+			var root = new TreeNode;
+			var context = root.addChild();
+			var i = 0;
+			var il = abbr.length;
+			var textLvl = 0;
+			var attrLvl = 0;
+			var groupStack = [root];
+			var ch, prevCh, token = '';
 				
-			group_stack.last = function() {
+			groupStack.last = function() {
 				return this[this.length - 1];
 			};
 			
@@ -460,50 +457,50 @@
 				
 			while (i < il) {
 				ch = abbr.charAt(i);
-				prev_ch = i ? abbr.charAt(i - 1) : '';
+				prevCh = i ? abbr.charAt(i - 1) : '';
 				switch (ch) {
 					case '{':
-						if (!attr_lvl)
-							text_lvl++;
+						if (!attrLvl)
+							textLvl++;
 						token += ch;
 						break;
 					case '}':
-						if (!attr_lvl)
-							text_lvl--;
+						if (!attrLvl)
+							textLvl--;
 						token += ch;
 						break;
 					case '[':
-						if (!text_lvl)
-							attr_lvl++;
+						if (!textLvl)
+							attrLvl++;
 						token += ch;
 						break;
 					case ']':
-						if (!text_lvl)
-							attr_lvl--;
+						if (!textLvl)
+							attrLvl--;
 						token += ch;
 						break;
 					case '(':
-						if (!text_lvl && !attr_lvl) {
+						if (!textLvl && !attrLvl) {
 							// beginning of the new group
 							dumpToken();
 							
-							if (prev_ch != '+' && prev_ch != '>') {
+							if (prevCh != '+' && prevCh != '>') {
 								// previous char is not an operator, assume it's
 								// a sibling
 								context = context.parent.addChild();
 							}
 							
-							group_stack.push(context);
+							groupStack.push(context);
 							context = context.addChild();
 						} else {
 							token += ch;
 						}
 						break;
 					case ')':
-						if (!text_lvl && !attr_lvl) {
+						if (!textLvl && !attrLvl) {
 							// end of the group, pop stack
 							dumpToken();
-							context = group_stack.pop();
+							context = groupStack.pop();
 							
 							if (i < il - 1 && abbr.charAt(i + 1) == '*') {
 								// group multiplication
@@ -528,7 +525,7 @@
 						}
 						break;
 					case '+': // sibling operator
-						if (!text_lvl && !attr_lvl && i != il - 1 /* expando? */) {
+						if (!textLvl && !attrLvl && i != il - 1 /* expando? */) {
 							dumpToken();
 							context = context.parent.addChild();
 						} else {
@@ -536,7 +533,7 @@
 						}
 						break;
 					case '>': // child operator
-						if (!text_lvl && !attr_lvl) {
+						if (!textLvl && !attrLvl) {
 							dumpToken();
 							context = context.addChild();
 						} else {
@@ -555,11 +552,23 @@
 			return optimizeTree(root);
 		},
 		
+		/**
+		 * Check if passed symbol is valid symbol for abbreviation expression
+		 * @param {String} ch
+		 * @return {Boolean}
+		 */
+		isAllowedChar: function(ch) {
+			ch = String(ch); // convert Java object to JS
+			var charCode = ch.charCodeAt(0);
+			var specialChars = '#.>+*:$-_!@[]()|';
+			
+			return (charCode > 64 && charCode < 91)       // uppercase letter
+					|| (charCode > 96 && charCode < 123)  // lowercase letter
+					|| isNumeric(ch)                 // number
+					|| specialChars.indexOf(ch) != -1;    // special character
+		},
+		
 		TreeNode: TreeNode,
 		optimizeTree: optimizeTree
 	};
-})();
-
-try {
-	zen_coding.define('parser', zen_parser);
-} catch(e) {};
+});

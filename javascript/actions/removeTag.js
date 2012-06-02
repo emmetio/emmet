@@ -7,7 +7,6 @@
 zen_coding.exec(function(require, _) {
 	require('actions').add('remove_tag', function(editor) {
 		var utils = require('utils');
-		var actionUtils = require('actionUtils');
 		var info = require('editorUtils').outputInfo(editor);
 		
 		// search for tag
@@ -21,7 +20,7 @@ zen_coding.exec(function(require, _) {
 				/** @type Range */
 				var tagContentRange = utils.narrowToNonSpace(info.content, pair[0].end, pair[1].start - pair[0].end);
 				/** @type Range */
-				var startLineBounds = actionUtils.getLineBounds(info.content, tagContentRange.start);
+				var startLineBounds = utils.findNewlineBounds(info.content, tagContentRange.start);
 				var startLinePad = utils.getLinePadding(startLineBounds.substring(info.content));
 				var tagContent = tagContentRange.substring(info.content);
 				

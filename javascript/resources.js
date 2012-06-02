@@ -14,7 +14,7 @@ zen_coding.define('resources', function(require, _) {
 	var VOC_USER = 'user';
 		
 	/** Regular expression for XML tag matching */
-	var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/;
+	var reTag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/;
 		
 	var systemSettings = {};
 	var userSettings = {};
@@ -171,7 +171,7 @@ zen_coding.define('resources', function(require, _) {
 		key = require('utils').trim(key);
 		var elements = require('elements');
 		var m;
-		if (m = re_tag.exec(value)) {
+		if (m = reTag.exec(value)) {
 			return elements.create('element', m[1], m[2], m[4] == '/');
 		} else {
 			// assume it's reference to another abbreviation

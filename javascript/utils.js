@@ -62,22 +62,6 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
-		 * Check if passed symbol is valid symbol for abbreviation expression
-		 * @param {String} ch
-		 * @return {Boolean}
-		 */
-		isAllowedChar: function(ch) {
-			ch = String(ch); // convert Java object to JS
-			var charCode = ch.charCodeAt(0);
-			var specialChars = '#.>+*:$-_!@[]()|';
-			
-			return (charCode > 64 && charCode < 91)       // uppercase letter
-					|| (charCode > 96 && charCode < 123)  // lowercase letter
-					|| this.isNumeric(ch)                 // number
-					|| specialChars.indexOf(ch) != -1;    // special character
-		},
-		
-		/**
 		 * Check if passed symbol is a number
 		 * @param {String} ch
 		 * @returns {Boolean}
@@ -103,7 +87,7 @@ zen_coding.define('utils', function(require, _) {
 		 * @returns {String}
 		 */
 		getNewline: function() {
-			var nl = zen_coding.require('resources').getVariable('newline');
+			var nl = require('resources').getVariable('newline');
 			return _.isString(nl) ? nl : '\n';
 		},
 		
@@ -112,7 +96,7 @@ zen_coding.define('utils', function(require, _) {
 		 * @param {String} str
 		 */
 		setNewline: function(str) {
-			var res = zen_coding.require('resources');
+			var res = require('resources');
 			res.setVariable('newline', str);
 			res.setVariable('nl', str);
 		},
@@ -179,7 +163,7 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		padString: function(text, pad) {
 			var padStr = (_.isNumber(pad)) 
-				? this.repeatString(zen_resources.getVariable('indentation') || '\t', pad) 
+				? this.repeatString(require('resources').getVariable('indentation') || '\t', pad) 
 				: pad;
 				
 			var result = [];
@@ -375,24 +359,6 @@ zen_coding.define('utils', function(require, _) {
 		 */
 		setCaretPlaceholder: function(value) {
 			caretPlaceholder = value;
-		},
-		
-		/**
-		 * Returns context-aware node counter
-		 * @param {node} ZenNode
-		 * @return {Number}
-		 */
-		getCounterForNode: function(node) {
-			// find nearest repeating parent
-			var counter = node.counter;
-			if (!node.is_repeating && !node.repeat_by_lines) {
-				while (node = node.parent) {
-					if (node.is_repeating || node.repeat_by_lines)
-						return node.counter;
-				}
-			}
-			
-			return counter;
 		},
 		
 		/**

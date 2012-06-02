@@ -9,14 +9,18 @@
  * <code>ol>lipsum10*5</code> — generates ordered list with 5 list items (autowrapped with &lt;li&gt; tag)
  * with text of 10 words on each line<br>
  * <code>lipsum20span*3</code> – generates 3 paragraphs of 20-words text, each wrapped with &lt;span&gt; element    
+ * @param {Function} require
+ * @param {Underscore} _ 
+ * @constructor
+ * @memberOf __loremIpsumGeneratorDefine
  */
-(function() {
+zen_coding.exec(function(require, _) {
 	/**
 	 * @param {Array} match
 	 * @param {TreeNode} node
 	 * @param {String} syntax
 	 */
-	zen_coding.require('resources').addGenerator(/^lipsum(\d*)([a-z]*)$/i, function(match, node, syntax) {
+	require('resources').addGenerator(/^lipsum(\d*)([a-z]*)$/i, function(match, node, syntax) {
 		var wordCound = match[1] || 30;
 		var elemName = match[2] || '';
 		var outputCount = node.count || 1;
@@ -40,7 +44,7 @@
 		
 		var result = [], text;
 		/** @type zen_coding.transform */
-		var transform = zen_coding.require('transform');
+		var transform = require('transform');
 		while (outputCount-- > 0) {
 			// to automatically handle element references from zen_setting
 			// (and because I'm lazy) we will generate a new abbreviation and
@@ -101,9 +105,6 @@
 	 * @returns {Array}
 	 */
 	function sample(arr, count) {
-		/** @type Underscore */
-		var _ = zen_coding.require('_');
-		
 		var len = arr.length;
 		var iterations = Math.min(len, count);
 		var result = [];
@@ -119,7 +120,6 @@
 	}
 	
 	function choice(val) {
-		var _ = zen_coding.require('_');
 		if (_.isString(val))
 			return val.charAt(randint(0, val.length - 1));
 		
@@ -142,8 +142,6 @@
 	function insertCommas(words) {
 		var len = words.length;
 		var totalCommas = 0;
-		/** @type Underscore */
-		var _ = zen_coding.require('_');
 		
 		if (len > 3 && len <= 6) {
 			totalCommas = randint(0, 1);

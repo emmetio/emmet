@@ -2,8 +2,10 @@
  * <code>ZenNode</code> — an element in final transformation process which will 
  * be used to generate output
  * @author Sergey Chikuyonok (serge.che@gmail.com) <http://chikuyonok.ru>
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function(){
+zen_coding.exec(function(require, _) {
 	/**
 	 * Test if text contains output placeholder $#
 	 * @param {String} text
@@ -28,7 +30,7 @@
 	 * @param {ParsedElement} elem
 	 */
 	function ZenNode(elem) {
-		var elems = zen_coding.require('elements');
+		var elems = require('elements');
 		
 		this.type = elems.is(elem, 'parsedSnippet') ? 'snippet' : 'tag';
 		this.children = [];
@@ -107,7 +109,6 @@
 		 * @return {String} Returns <code>null</code> if attribute wasn't found
 		 */
 		getAttribute: function(name) {
-			var _ = zen_coding.require('_');
 			var attr = this._getAttr(name);
 			return _.isUndefined(attr) ? null : attr.value;
 		},
@@ -132,7 +133,7 @@
 				return false;
 				
 			return (this.source._abbr && this.source._abbr.is_empty) 
-				|| zen_coding.require('resources').isItemInCollection(this.source.syntax, 'empty', this.name);
+				|| require('resources').isItemInCollection(this.source.syntax, 'empty', this.name);
 		},
 		
 		/**
@@ -141,7 +142,7 @@
 		 */
 		isInline: function() {
 			return this.type == 'text' || !this.source.name
-				|| zen_coding.require('resources').isItemInCollection(this.source.syntax, 'inline_level', this.name);
+				|| require('resources').isItemInCollection(this.source.syntax, 'inline_level', this.name);
 		},
 		
 		/**
@@ -157,7 +158,7 @@
 		 * This function is mostly used for output formatting
 		 */
 		hasTagsInContent: function() {
-			return zen_coding.require('utils').matchesTag(this.content);
+			return require('utils').matchesTag(this.content);
 		},
 		
 		/**
@@ -256,8 +257,7 @@
 			var symbol = '$#';
 			var r = [symbol, text];
 			var replaceFn = function() {return r;};
-			var utils = zen_coding.require('utils');
-			/** @type {ZenNode[]} */
+			var utils = require('utils');
 			var items = [];
 				
 			if (this.hasOutputPlaceholder())
@@ -280,8 +280,7 @@
 		}
 	};
 	
-	var elems = zen_coding.require('elements');
-	elems.add('ZenNode', function(elem) {
+	require('elements').add('ZenNode', function(elem) {
 		return new ZenNode(elem);
 	});
-})();
+});

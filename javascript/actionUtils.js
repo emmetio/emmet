@@ -30,6 +30,7 @@ zen_coding.define('actionUtils', function(require, _) {
 			var textCount = 0;
 			
 			var utils = require('utils');
+			var parser = require('parser');
 			
 			while (true) {
 				curOffset--;
@@ -69,7 +70,7 @@ zen_coding.define('actionUtils', function(require, _) {
 					if (braceCount || textCount) 
 						// respect all characters inside attribute sets or text nodes
 						continue;
-					else if (!utils.isAllowedChar(ch) || (ch == '>' && utils.endsWithTag(str.substring(0, curOffset + 1)))) {
+					else if (!parser.isAllowedChar(ch) || (ch == '>' && utils.endsWithTag(str.substring(0, curOffset + 1)))) {
 						// found stop symbol
 						startIndex = curOffset + 1;
 						break;
@@ -180,42 +181,11 @@ zen_coding.define('actionUtils', function(require, _) {
 		},
 		
 		/**
-		 * Returns line bounds for specific character position
-		 * @param {String} text
-		 * @param {Number} from Where to start searching
-		 * @return {Range}
-		 */
-		getLineBounds: function(text, from) {
-			var len = text.length,
-				start = 0,
-				end = len - 1;
-			
-			// search left
-			for (var i = from - 1; i > 0; i--) {
-				var ch = text.charAt(i);
-				if (ch == '\n' || ch == '\r') {
-					start = i + 1;
-					break;
-				}
-			}
-			// search right
-			for (var j = from; j < len; j++) {
-				var ch = text.charAt(j);
-				if (ch == '\n' || ch == '\r') {
-					end = j;
-					break;
-				}
-			}
-			
-			return require('range').create(start, end - start);
-		},
-		
-		/**
 		 * Find expression bounds in current editor at caret position. 
 		 * On each character a <code>fn</code> function will be called and must 
 		 * return <code>true</code> if current character meets requirements, 
 		 * <code>false</code> otherwise
-		 * @param {zen_editor} editor
+		 * @param {IZenEditor} editor
 		 * @param {Function} fn Function to test each character of expression
 		 * @return {Range}
 		 */
@@ -237,17 +207,6 @@ zen_coding.define('actionUtils', function(require, _) {
 		},
 		
 		/**
-		 * Make decimal number look good: convert it to fixed precision end remove
-		 * trailing zeroes 
-		 * @param {Number} num
-		 * @param {Number} fraction Fraction numbers (default is 2)
-		 * @return {String}
-		 */
-		prettifyNumber: function(num, fraction) {
-			return num.toFixed(typeof fraction == 'undefined' ? 2 : fraction).replace(/\.?0+$/, '');
-		},
-		
-		/**
 		 * @param {IZenEditor} editor
 		 * @param {Object} data
 		 * @returns {Boolean}
@@ -261,24 +220,6 @@ zen_coding.define('actionUtils', function(require, _) {
 			}
 			
 			return false;
-		},
-		
-		/**
-		 * Replaces or adds attribute to the tag
-		 * @param {String} tag
-		 * @param {String} attr_name
-		 * @param {String} attr_value
-		 */
-		replaceOrAppendHTMLAttribute: function(tag, attrName, attrValue) {
-			if (tag.toLowerCase().indexOf(attrName) != -1) {
-				// attribute exists
-				var re = new RegExp(attrName + '=([\'"])(.*?)([\'"])', 'i');
-				return tag.replace(re, function(str, p1, p2){
-					return attrName + '=' + p1 + attrValue + p1;
-				});
-			} else {
-				return tag.replace(/\s*(\/?>)$/, ' ' + attrName + '="' + attrValue + '" $1');
-			}
 		}
 	};
 });

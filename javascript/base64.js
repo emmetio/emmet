@@ -53,7 +53,7 @@ zen_coding.define('base64', function(require, _) {
 		 * @return {String}
 		 */
 		decode : function(data) {
-			var o1, o2, o3, h1, h2, h3, h4, bits, i = 0, ac = 0, dec = "", tmpArr = [];
+			var o1, o2, o3, h1, h2, h3, h4, bits, i = 0, ac = 0, tmpArr = [];
 			var b64 = chars, il = data.length;
 
 			if (!data) {

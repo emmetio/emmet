@@ -1,10 +1,12 @@
 /**
  * Module adds support for generators: a regexp-based abbreviation resolver 
  * that can produce custom output.
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function() {
+zen_coding.exec(function(require, _) {
 	var generators = [];
-	var resources = zen_coding.require('resources');
+	var resources = require('resources');
 	
 	_.extend(resources, {
 		addGenerator: function(regexp, fn) {
@@ -20,7 +22,6 @@
 	
 	resources.addResolver(function(node, syntax) {
 		var result = null;
-		var elements = zen_coding.require('elements');
 		for (var i = 0, il = generators.length; i < il; i++) {
 			var item = generators[i], m;
 			if ((m = item.re.exec(node.name))) {
@@ -33,4 +34,4 @@
 		
 		return result;
 	});
-}());
+});

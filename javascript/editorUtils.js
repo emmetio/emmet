@@ -30,7 +30,6 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * @param {String} html Contents of the document
 		 * @param {Number} caretPos Current caret position inside tag
 		 * @return {Boolean}
-		 * TODO refactor: move to 'html_matcher' package
 		 */
 		isInsideTag: function(html, caretPos) {
 			var reTag = /^<\/?\w[\w\:\-]*.*?>/;
