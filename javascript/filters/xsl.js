@@ -25,8 +25,8 @@
 	require('filters').add('xsl', function process(tree) {
 		var elements = require('elements');
 		_.each(tree.children, function(item) {
-			if (elements.is(item.source, 'parsedElement') 
-					&& item.name.toLowerCase() in tags 
+			if (elements.is(item.source, 'parsedElement')
+					&& (item.name || '').toLowerCase() in tags 
 					&& item.children.length)
 				trimAttribute(item);
 			process(item);

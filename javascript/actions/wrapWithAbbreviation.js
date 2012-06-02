@@ -75,6 +75,9 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 			
 			var pasted = false;
 			
+			syntax = syntax || zen_coding.defaultSyntax();
+			profile = profile || zen_coding.defaultProfile();
+			
 			var data = filters.extractFromAbbreviation(abbr);
 			var parsedTree = transform.createParsedTree(data[0], syntax);
 			if (parsedTree) {

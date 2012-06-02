@@ -703,7 +703,6 @@ var zen_settings = {
 	'xsl': {
 		'extends': 'html',
 		'filters': 'html, xsl',
-		'profile': 'xml',
 		'abbreviations': {
 			'tm': '<xsl:template match="" mode="">',
 			'tmatch': 'tm',

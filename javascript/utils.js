@@ -341,7 +341,7 @@ zen_coding.define('utils', function(require, _) {
 		/**
 		 * Escapes special characters used in Zen Coding, like '$', '|', etc.
 		 * Use this method before passing to actions like "Wrap with Abbreviation"
-		 * to make sure that existing spacial characters won't be altered
+		 * to make sure that existing special characters won't be altered
 		 * @param {String} text
 		 * @return {String}
 		 */

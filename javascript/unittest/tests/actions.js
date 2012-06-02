@@ -415,5 +415,19 @@
 		run('wrap_with_abbreviation');
 		equal(editorStub.getContent(), '<ul>\n\t<li class="i1">one</li>\n\t<li class="i2">two</li>\n\t<li class="i3">three</li>\n</ul>', 'Wrapped multiline abbreviation');
 		
+		var wrap = function(abbr, content) {
+			return zen_coding.require('wrapWithAbbreviation').wrap(abbr, content);
+		};
+		
+		equal(wrap('p.test', 'hello world'), '<p class="test">hello world</p>');
+		equal(wrap('p+p.test', 'hello world'), '<p></p><p class="test">hello world</p>');
+		equal(wrap('ul#nav.simple>li', 'hello world'), '<ul id="nav" class="simple"><li>hello world</li></ul>');
+		equal(wrap('ul#nav.simple>li*2', 'hello world'), '<ul id="nav" class="simple"><li></li><li>hello world</li></ul>');
+		equal(wrap('li*', 'one\ntwo\nthree'), '<li>one</li><li>two</li><li>three</li>');
+		equal(wrap('ul>li*', 'one\ntwo\nthree'), '<ul><li>one</li><li>two</li><li>three</li></ul>');
+		equal(wrap('li*>a', 'one\ntwo\nthree'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>');
+		
+		// wrap with snippet
+		equal(wrap('cc:ie', 'hello world'), '<!--[if IE]>\n\thello world|\n<![endif]-->');
 	});
 })();

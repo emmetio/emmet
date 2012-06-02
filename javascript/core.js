@@ -2,7 +2,9 @@
  * Core Zen Coding object, available in global scope
  */
 (function(global, _) {
-	// 
+	var defaultSyntax = 'html';
+	var defaultProfile = 'plain';
+	
 	/**
 	 * Shared empty constructor function to aid in prototype-chain creation.
 	 */
@@ -120,6 +122,9 @@
 		expandAbbreviation: function(abbr, syntax, profile, contextNode) {
 			if (!abbr) return '';
 			
+			syntax = syntax || defaultSyntax;
+			profile = profile || defaultProfile;
+			
 			var filters = this.require('filters');
 			var utils = this.require('utils');
 			var transform = this.require('transform');
@@ -131,6 +136,22 @@
 			var filtersList = filters.composeList(syntax, profile, data[1]);
 			filters.apply(outputTree, filtersList, profile);
 			return utils.replaceVariables(outputTree.toString());
+		},
+		
+		/**
+		 * Returns default syntax name used in abbreviation engine
+		 * @returns {String}
+		 */
+		defaultSyntax: function() {
+			return defaultSyntax;
+		},
+		
+		/**
+		 * Returns default profile name used in abbreviation engine
+		 * @returns {String}
+		 */
+		defaultProfile: function() {
+			return defaultProfile;
 		},
 		
 		/**

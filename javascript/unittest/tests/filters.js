@@ -98,7 +98,9 @@
 	
 	test('XSL (xsl)', function() {
 		var oldSyntax = editorStub.getSyntax();
+		var oldProfile = editorStub.getProfileName();
 		editorStub.setSyntax('xsl');
+		editorStub.setProfileName('xml');
 		
 		expand('vare|xsl');
 		equal(editorStub.getContent(), '<xsl:variable name="" select=""/>', 'Expanded variable template, no attribute removal');
@@ -107,6 +109,7 @@
 		equal(editorStub.getContent(), '<xsl:variable name="">\n\t<p>\n\t\t\n\t</p>\n</xsl:variable>', 'Expanded variable template, "select" attribute removed');
 		
 		editorStub.setSyntax(oldSyntax);
+		editorStub.setProfileName(oldProfile);
 	});
 	
 })();
