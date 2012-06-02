@@ -73,12 +73,12 @@ zen_coding.exec(function(require, _) {
 	 */
 	function getImageSizeForSource(editor, src) {
 		var fileContent;
-		var file = require('file');
 		if (src) {
 			// check if it is data:url
 			if (/^data:/.test(src)) {
 				fileContent = require('base64').decode( src.replace(/^data\:.+?;.+?,/, '') );
 			} else {
+				var file = require('file');
 				var absPath = file.locateFile(editor.getFilePath(), src);
 				if (absPath === null) {
 					throw "Can't find " + src + ' file';

@@ -351,9 +351,3 @@ zen_coding.define('resources', function(require, _) {
 		}
 	};
 });
-
-try {
-	var res = zen_coding.require('resources');
-	res.setVocabulary(zen_settings, 'system');
-	res.setVocabulary(my_zen_settings, 'user');
-} catch(e) {}

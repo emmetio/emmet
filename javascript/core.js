@@ -5,6 +5,11 @@
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
+	/** List of registered modules */
+	var modules = {
+		_: _
+	};
+	
 	/**
 	 * Shared empty constructor function to aid in prototype-chain creation.
 	 */
@@ -61,6 +66,11 @@
 		return child;
 	};
 	
+	/**
+	 * @type Function Function that loads module definition if it's not defined
+	 */
+	var moduleLoader = null;
+	
 	global.zen_coding = {
 		/**
 		 * Simple, AMD-like module definition. The module will be added into
@@ -73,7 +83,7 @@
 		define: function(name, factory) {
 			// do not let redefine existing properties
 			if (!(name in this)) {
-				this[name] = _.isFunction(factory) 
+				modules[name] = _.isFunction(factory) 
 					? this.exec(factory)
 					: factory;
 			}
@@ -84,7 +94,10 @@
 		 * @param {String} name Module name
 		 */
 		require: function(name) {
-			return this[name];
+			if (!(name in modules) && moduleLoader)
+				moduleLoader(name);
+			
+			return modules[name];
 		},
 		
 		/**
@@ -163,11 +176,11 @@
 		},
 		
 		/**
-		 * Reference to Underscore.js. 
-		 * Get it by calling <code>zen_coding.require('_')</code>
+		 * Setups function that should synchronously load undefined modules
+		 * @param {Function} fn
 		 */
-		_: _
+		setModuleLoader: function(fn) {
+			moduleLoader = fn;
+		}
 	};
-	
-	
 })(this, _);

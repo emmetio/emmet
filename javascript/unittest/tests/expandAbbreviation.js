@@ -111,8 +111,8 @@
 	});
 	
 	test('Other patterns', function() {
-		runTest('script', '<script type="text/javascript"></script>');
-	 	runTest('script:src', '<scr' + 'ipt type="text/javascript" src=""></scr' + 'ipt>');
+		runTest('script', '<script></script>');
+	 	runTest('script:src', '<script src=""></script>');
 	 	runTest('img', '<img src="" alt="" />');
 	 	runTest('input:c', '<input type="checkbox" name="" id="" />');
 	 	runTest('some:elem', '<some:elem></some:elem>');

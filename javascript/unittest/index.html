@@ -8,7 +8,6 @@
 	
 	<script src="../underscore.js"></script>
 	
-	<script src="../zen_settings.js"></script>	
 	<script src="../core.js"></script>
 	<script src="../utils.js"></script>
 	<script src="../range.js"></script>
@@ -70,6 +69,16 @@
 	<script src="../fast-css/fast-css.js"></script>
 	<script src="../resolvers/expando.js"></script>
 	<script src="../resolvers/generator.js"></script>
+	
+	<script src="../loaders/ajaxLoader.js"></script>
+	<script>
+		(function() {
+			var res = ajaxLoader.loadJSON('../../snippets.json');
+			if (res) {
+				zen_coding.require('resources').setVocabulary(res, 'system');
+			}
+		})();
+	</script>
 	
 	<script src="tests/expandAbbreviation.js"></script>
 	<script src="tests/htmlMatcher.js"></script>
