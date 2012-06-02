@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Zen Coding for textarea</title>
+	<style>
+		textarea {
+			width: 100%;
+			height: 20em;
+		}
+	</style>
+	<script src="../../javascript/underscore.js"></script>
+	
+	<script src="../../javascript/core.js"></script>
+	<script src="../../javascript/utils.js"></script>
+	<script src="../../javascript/range.js"></script>
+	<script src="../../javascript/tokenIterator.js"></script>
+	<script src="../../javascript/stringStream.js"></script>
+	<script src="../../javascript/resources.js"></script>
+	<script src="../../javascript/actions.js"></script>
+	<script src="../../javascript/profile.js"></script>
+	<script src="../../javascript/transform.js"></script>
+	<script src="../../javascript/editorUtils.js"></script>
+	<script src="../../javascript/actionUtils.js"></script>
+	<script src="../../javascript/base64.js"></script>
+	<script src="../../javascript/html_matcher.js"></script>
+	<script src="../../javascript/tabStops.js"></script>
+	<script src="../../javascript/preferences.js"></script>
+	<script src="../../javascript/range.js"></script>
+	
+	<script src="../../javascript/filters.js"></script>
+	<script src="../../javascript/filters/bem.js"></script>
+	<script src="../../javascript/filters/comment.js"></script>
+	<script src="../../javascript/filters/escape.js"></script>
+	<script src="../../javascript/filters/format-css.js"></script>
+	<script src="../../javascript/filters/format.js"></script>
+	<script src="../../javascript/filters/haml.js"></script>
+	<script src="../../javascript/filters/html.js"></script>
+	<script src="../../javascript/filters/single-line.js"></script>
+	<script src="../../javascript/filters/trim.js"></script>
+	<script src="../../javascript/filters/xsl.js"></script>
+	
+	<script src="../../javascript/elements.js"></script>
+	<script src="../../javascript/elements/parsedElements.js"></script>
+	<script src="../../javascript/elements/ZenNode.js"></script>
+	
+	<script src="../../javascript/parsers/abbreviationParser.js"></script>
+	<script src="../../javascript/parsers/cssParser.js"></script>
+	<script src="../../javascript/parsers/xmlParser.js"></script>
+	
+	<script src="../../javascript/parsers/editTree/editTree.js"></script>
+	<script src="../../javascript/parsers/editTree/cssEditTree.js"></script>
+	<script src="../../javascript/parsers/editTree/xmlEditTree.js"></script>
+	
+	<script src="../../javascript/actions/base64.js"></script>
+	<script src="../../javascript/actions/editPoints.js"></script>
+	<script src="../../javascript/actions/evaluateMath.js"></script>
+	<script src="../../javascript/actions/expandAbbreviation.js"></script>
+	<script src="../../javascript/actions/increment_decrement.js"></script>
+	<script src="../../javascript/actions/lineBreaks.js"></script>
+	<script src="../../javascript/actions/matchPair.js"></script>
+	<script src="../../javascript/actions/mergeLines.js"></script>
+	<script src="../../javascript/actions/reflectCSSValue.js"></script>
+	<script src="../../javascript/actions/removeTag.js"></script>
+	<script src="../../javascript/actions/selectItem.js"></script>
+	<script src="../../javascript/actions/selectLine.js"></script>
+	<script src="../../javascript/actions/splitJoinTag.js"></script>
+	<script src="../../javascript/actions/toggleComment.js"></script>
+	<script src="../../javascript/actions/wrapWithAbbreviation.js"></script>
+	<script src="../../javascript/actions/updateImageSize.js"></script>
+	
+	<script src="../../javascript/fast-css/fast-css.js"></script>
+	<script src="../../javascript/resolvers/expando.js"></script>
+	
+	<script src="../../javascript/resolvers/generator.js"></script>
+	<script src="../../javascript/generators/lorem-ipsum.js"></script>
+	
+	<script src="../../javascript/loaders/ajaxLoader.js"></script>
+	<script>
+		(function() {
+			var res = ajaxLoader.loadJSON('../../snippets.json');
+			if (res) {
+				zen_coding.require('resources').setVocabulary(res, 'system');
+			}
+		})();
+	</script>
+	
+	
+	<script src="../codemirror/shortcut.js"></script>
+	<script src="customSnippets.js"></script>
+	<script src="zen_editor.js"></script>
+</head>
+<body>
+	<textarea class="zc-syntax-html">
+ul>li.item$*4>a[href=/sample/]>lipsum3
+
+.b-block>.__el>.__el|bem
+.b-bl1>.b-bl2_foo>.-el+.--el_bar|bem
+
+&lt;img src=&quot;data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA&quot; alt=&quot;&quot; /&gt;
+
+item 1
+item 2
+item 3
+</textarea>
+	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_editor.showInfo();" style="cursor:pointer; display: block;" />
+	<script type="text/javascript">
+		zen_editor.setup({pretty_break: true, use_tab: true});
+	</script>
+</body>
+</html>

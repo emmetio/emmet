@@ -18,9 +18,6 @@
 var zen_editor = (function(){
 	/** @param {Element} Source element */
 	var target = null;
-	
-	/** Textual placeholder that identifies cursor position in pasted text */
-	var caretPlaceholder = '|';
 		
 	var defaultOptions = {
 		profile: 'xhtml',
@@ -250,7 +247,7 @@ var zen_editor = (function(){
 			zen_editor.setContext(target_elem);
 			
 			// test if occured event corresponds to one of the defined shortcut
-			var sh, name, result;
+			var sh;
 			for (var s in keyboardShortcuts) if (keyboardShortcuts.hasOwnProperty(s)) {
 				sh = keyboardShortcuts[s];
 				if (shortcut.test(sh.compiled, evt)) {
@@ -329,7 +326,6 @@ var zen_editor = (function(){
 		/** @memberOf zen_editor */
 		setContext: function(elem) {
 			target = elem;
-			caretPlaceholder = zen_coding.require('utils').getCaretPlaceholder();
 		},
 		
 		getSelectionRange: getSelectionRange,

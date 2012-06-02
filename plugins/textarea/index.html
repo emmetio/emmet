@@ -1,166 +1,1 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>Document</title>
-		<style type="text/css">
-			textarea {
-				width:100%;
-				height:20em;
-			}
-		</style>
-		<script type="text/javascript" src="../../javascript/zen_settings.js"></script>
-		<script type="text/javascript">
-			var my_zen_settings = {
-				'html': {
-					'abbreviations': {
-						'egr+': 'div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer',
-						'demo': '<div id="demo"></div>'
-					},
-					'snippets': {
-						'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
-						'c': '<!-- |${child} -->',
-						'djb': '{% block ${id} %}\n\t${child}|\n{% endblock %}',
-						'attr': 'hello ${id} ${name}',
-						'blank': ' target="_blank"'
-					},
-					
-					filters: 'bem,html',
-					
-					profile: {
-						tag_case: 'upper',
-						attr_case: 'upper',
-						attr_quotes: 'double',
-						tag_nl: 'decide',
-						place_cursor: true,
-						indent: true,
-						inline_break: 3,
-						self_closing_tag: 'xhtml',
-						filters: ''
-					}
-				}
-			};
-		</script>
-		<script type="text/javascript" src="../../javascript/underscore.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/core.js"></script>
-		<script type="text/javascript" src="../../javascript/utils.js"></script>
-		<script type="text/javascript" src="../../javascript/resources.js"></script>
-		<script type="text/javascript" src="../../javascript/actions.js"></script>
-		<script type="text/javascript" src="../../javascript/profile.js"></script>
-		<script type="text/javascript" src="../../javascript/transform.js"></script>
-		<script type="text/javascript" src="../../javascript/editorUtils.js"></script>
-		<script type="text/javascript" src="../../javascript/actionUtils.js"></script>
-		<script type="text/javascript" src="../../javascript/base64.js"></script>
-		<script type="text/javascript" src="../../javascript/html_matcher.js"></script>
-		<script type="text/javascript" src="../../javascript/tabStops.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/filters.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/bem.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/comment.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/escape.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/format-css.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/format.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/haml.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/html.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/single-line.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/trim.js"></script>
-		<script type="text/javascript" src="../../javascript/filters/xsl.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/elements.js"></script>
-		<script type="text/javascript" src="../../javascript/elements/parsedElements.js"></script>
-		<script type="text/javascript" src="../../javascript/elements/ZenNode.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/parsers/abbreviation.js"></script>
-		<script type="text/javascript" src="../../javascript/parsers/cssParser.js"></script>
-		<script type="text/javascript" src="../../javascript/parsers/xmlParser.js"></script>
-		<script type="text/javascript" src="../../javascript/parsers/parserUtils.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/actions/base64.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/editPoints.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/evaluateMath.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/expandAbbreviation.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/increment_decrement.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/lineBreaks.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/matchPair.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/mergeLines.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/reflectCSSValue.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/removeTag.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/selectItem.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/selectLine.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/splitJoinTag.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/toggleComment.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/wrapWithAbbreviation.js"></script>
-		<script type="text/javascript" src="../../javascript/actions/updateImageSize.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/resolvers/expando.js"></script>
-		<script type="text/javascript" src="../../javascript/resolvers/generator.js"></script>
-		
-		<script type="text/javascript" src="../../javascript/generators/lorem-ipsum.js"></script>
-		
-		<script type="text/javascript" src="../codemirror/shortcut.js"></script>
-		<script type="text/javascript" src="zen_editor.js"></script>
-		<!-- <script type="text/javascript" src="manager.js"></script> -->
-	</head>
-	<body>
-		<p>Simple HTML textarea</p>
-		<!-- div#content>ul.navigation>li.item$*4>a -->
-		<textarea class="zc-syntax-html">
-ul>li.item$*4>a[href=/sample/]>lipsum3
-
-.b-block>.__el>.__el|bem
-.b-bl1>.b-bl2_foo>.-el+.--el_bar|bem
-
-&lt;img src=&quot;data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA&quot; alt=&quot;&quot; /&gt;
-
-item 1
-item 2
-item 3
-</textarea>
-<textarea class="zc-syntax-css">
-.logsummary {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  padding: 1ex;
-  background:url('data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOwAA');
-  
-  opacity:0.5;
-  filter:alpha(opacity=50);
-  -ms-filter:alpha(opacity=50);
-  
-  
-  -moz-border-radius-topleft:10px;
-  -webkit-border-top-left-radius:10px;
-  border-top-left-radius:10px;
-  
-  border: 1px solid #000;
-  font-weight: bold;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  -ms-border-radius: 5px;
-  background: url(myimage.png) #fff top left no-repeat;
-  background-image:url(myimage.png)
-}
-
-.logtable {
-  width:100%;
-  border-collapse: collapse;
-  border: 1px dotted #666;
-}
-
-.logtable td, .logtable th {
-  text-align: left;
-  padding: 3px 8px;
-  border: 1px dotted #666;
-}
-</textarea>
-		
-		<p>XSL textarea with Tab and formatted line break support</p>
-		<textarea class="zc-use_tab-true zc-syntax-xsl zc-profile-xml zc-pretty_break-yes"></textarea>
-		<script type="text/javascript">
-			zen_editor.setup({pretty_break: true, use_tab: true});
-//			zen_textarea.showInfo();
-		</script>
-	</body>
-</html>
+<!doctype html><html lang="en"><head>	<meta charset="UTF-8" />	<title>Zen Coding for textarea</title>	<style>		body {			font-family: sans-serif;			font-size: 0.8em;		}				textarea {			width:90%;			height:20em;		}	</style>	<script src="zen_textarea.min.js"></script></head><body>	<h1>Zen Coding for &lt;textarea&gt;</h1>	<p>This is a demonstration of <a href="http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-textarea.v0.5.zip">Zen Coding for &lt;textarea&gt;</a> plugin. To use it on your web-page, simply incude <code>zen_textarea.js</code> on your page.</p>	<p>Click on “Powered by Zen Coding” icon to see available keyboard shorcuts.</p>	<textarea>html:5>div#page>div#header>ul.navigation>li*4>a</textarea>	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_textarea.showInfo();" style="cursor: pointer; display: block;" />		<p>This plugin also supports expanding abbreviations/indenting by Tab key and formatted line break (add indentation of previous line when hitting Enter key). These options are off by default, but you can turn them on globally or locally (for specified textarea). For a list of available options see <code>default_options</code> variable of <a href="http://code.google.com/p/zen-coding/source/browse/trunk/plugins/textarea/manager.js">manager.js</a> file.</p>		<p>To enable option globally just call <code>zen_textarea.setup()</code> method passing object with options and their values:</p>	<pre>zen_textarea.setup({pretty_break: true, use_tab: true});</pre>		To change options for specified textarea, add <code>zc-{option_name}-{value}</code> class name for &lt;textarea&gt; tag:	<pre>&lt;textarea class="zc-syntax-xsl zc-use_tab-true zc-pretty_break-false"&gt;&lt;/textarea&gt;</pre>		<p>Here’s a demo field that uses XSL syntax with Tab and formatted line break support:</p>	<textarea class="zc-use_tab-true zc-syntax-xsl zc-profile-xml">tm>if>div.message</textarea>	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_textarea.showInfo();" style="cursor: pointer; display: block;" />		<script type="text/javascript">		// Setting up global preferences.		// See variable 'default_options' for list of available options:		// http://code.google.com/p/zen-coding/source/browse/trunk/plugins/textarea/manager.js		zen_textarea.setup({pretty_break: true});				// Call zen_textarea.showInfo(); to show user some clues about using Zen Coding		// zen_textarea.showInfo();	</script></body></html>

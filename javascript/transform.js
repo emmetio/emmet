@@ -113,7 +113,7 @@ zen_coding.define('transform', function(require, _) {
 		 */
 		createParsedTree: function(abbrTree, syntax, contextNode) {
 			var elems = require('elements');
-			var parser = require('parser');
+			var parser = require('abbreviationParser');
 			
 			/** @type ParsedElement */
 			var treeRoot = elems.create('parsedElement', contextNode || {}, syntax);

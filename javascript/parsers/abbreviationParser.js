@@ -6,7 +6,7 @@
  * @link http://chikuyonok.ru
  * @memberOf __abbreviationParser
  * @constructor
- */zen_coding.define('parser', function(require, _) {
+ */zen_coding.define('abbreviationParser', function(require, _) {
 	var reValidName = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
 	/**
