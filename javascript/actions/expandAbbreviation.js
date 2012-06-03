@@ -1,12 +1,23 @@
 /**
  * 'Expand abbreviation' editor action: extracts abbreviation from current caret 
-* position and replaces it with formatted output
+ * position and replaces it with formatted output. 
+ * <br><br>
+ * This behavior can be overridden with custom handlers which can perform 
+ * different actions when 'Expand Abbreviation' action is called.
+ * For example, a CSS gradient handler that produces vendor-prefixed gradient
+ * definitions registers its own expand abbreviation handler.  
+ *  
  * @constructor
  * @memberOf __expandAbbreviationActionDefine
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+zen_coding.define('expandAbbreviation', function(require, _) {
+	/**
+	 * List of registered handlers
+	 */
+	var handlers = [];
+	
 	/**
 	 * Search for abbreviation in editor from current caret position
 	 * @param {IZenEditor} editor Editor instance
@@ -28,8 +39,7 @@ zen_coding.exec(function(require, _) {
 	
 	var actions = require('actions');
 	/**
-	 * 'Expand abbreviation' editor action: extracts abbreviation from current caret 
-	 * position and replaces it with formatted output 
+	 * 'Expand abbreviation' editor action 
 	 * @param {IZenEditor} editor Editor instance
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
@@ -37,6 +47,35 @@ zen_coding.exec(function(require, _) {
 	 * successfully
 	 */
 	actions.add('expand_abbreviation', function(editor, syntax, profile) {
+		var args = _.toArray(arguments);
+		return !!_.find(handlers, function(fn) {
+			return fn.apply(this, args);
+		});
+	});
+	
+	/**
+	 * A special version of <code>expandAbbreviation</code> function: if it can't
+	 * find abbreviation, it will place Tab character at caret position
+	 * @param {IZenEditor} editor Editor instance
+	 * @param {String} syntax Syntax type (html, css, etc.)
+	 * @param {String} profile Output profile name (html, xml, xhtml)
+	 */
+	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
+		if (!actions.run('expand_abbreviation', editor, syntax, profile))
+			editor.replaceContent(require('resources').getVariable('indentation'), editor.getCaretPos());
+	});
+	
+	// setup default handler
+	/**
+	 * Extracts abbreviation from current caret 
+	 * position and replaces it with formatted output 
+	 * @param {IZenEditor} editor Editor instance
+	 * @param {String} syntax Syntax type (html, css, etc.)
+	 * @param {String} profile Output profile name (html, xml, xhtml)
+	 * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
+	 * successfully
+	 */
+	handlers.push(function(editor, syntax, profile) {
 		var info = require('editorUtils').outputInfo(editor, syntax, profile);
 		var caretPos = editor.getSelectionRange().end;
 		var abbr;
@@ -54,15 +93,27 @@ zen_coding.exec(function(require, _) {
 		return false;
 	});
 	
-	/**
-	 * A special version of <code>expandAbbreviation</code> function: if it can't
-	 * find abbreviation, it will place Tab character at caret position
-	 * @param {IZenEditor} editor Editor instance
-	 * @param {String} syntax Syntax type (html, css, etc.)
-	 * @param {String} profile Output profile name (html, xml, xhtml)
-	 */
-	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
-		if (!actions.run('expand_abbreviation', editor, syntax, profile))
-			editor.replaceContent(require('resources').getVariable('indentation'), editor.getCaretPos());
-	});
+	return {
+		/**
+		 * Adds custom expand abbreviation handler. The passed function should 
+		 * return <code>true</code> if it was performed successfully, 
+		 * <code>false</code> otherwise.
+		 * 
+		 * Added handlers will be called when 'Expand Abbreviation' is called
+		 * in order they were added
+		 * @param {Function} fn
+		 */
+		addHandler: function(fn) {
+			if (!_.include(handlers, fn))
+				handlers.push(fn);
+		},
+		
+		/**
+		 * Removes registered handler
+		 * @returns
+		 */
+		removeHandler: function(fn) {
+			handlers = _.without(handlers, fn);
+		}
+	};
 });

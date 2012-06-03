@@ -82,7 +82,7 @@
 		 */
 		define: function(name, factory) {
 			// do not let redefine existing properties
-			if (!(name in this)) {
+			if (!(name in modules)) {
 				modules[name] = _.isFunction(factory) 
 					? this.exec(factory)
 					: factory;

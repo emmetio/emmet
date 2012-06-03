@@ -157,6 +157,19 @@ zen_coding.define('range', function(require, _) {
 				return start;
 				
 			return new Range(start, len);
+		},
+		
+		/**
+		 * <code>Range</code> object factory, the same as <code>this.create()</code>
+		 * but last argument represents end of range, not length
+		 * @returns {Range}
+		 */
+		create2: function(start, end) {
+			if (_.isNumber(start) && _.isNumber(end)) {
+				end -= start;
+			}
+			
+			return this.create(start, end);
 		}
 	};
 });
