@@ -5,7 +5,7 @@
  * @param {String} syntax
  */
 zen_coding.require('resources').addResolver(function(node, syntax) {
-	if (!node.isEmpty() && !node.isTextNode() && ~node.name.indexOf('+')) {
+	if (node.isElement() && ~node.name.indexOf('+')) {
 		// it's expando
 		var a = this.getAbbreviation(syntax, node.name);
 		if (a) {

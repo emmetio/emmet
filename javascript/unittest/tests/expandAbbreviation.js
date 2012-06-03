@@ -132,9 +132,9 @@
 	test('CSS', function() {
 		runTest('@i', 'css', '@import url(|);');
 		runTest('!', 'css', '!important');
-		runTest('pos:s', 'css', 'position:static;');
-		runTest('ti:-', 'css', 'text-indent:-9999px;');
-		runTest('bdb+', 'css', 'border-bottom:1px solid #000;');
+		runTest('pos:s', 'css', 'position: static;');
+		runTest('ti:-', 'css', 'text-indent: -9999px;');
+		runTest('bdb+', 'css', 'border-bottom: 1px solid #000;');
 	});
 	
 	test('Inheritance', function() {

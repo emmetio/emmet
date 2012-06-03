@@ -143,6 +143,8 @@
 		},
 		
 		/**
+		 * Indicates empty node (i.e. without abbreviation). It may be a 
+		 * grouping node and should not be outputted
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
@@ -155,6 +157,14 @@
 		 */
 		isTextNode: function() {
 			return !this.name && this.text;
+		},
+		
+		/**
+		 * Indicates whether this node may be used to build elements or snippets
+		 * @returns {Boolean}
+		 */
+		isElement: function() {
+			return !this.isEmpty() && !this.isTextNode();
 		},
 		
 		/**

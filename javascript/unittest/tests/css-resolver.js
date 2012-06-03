@@ -49,10 +49,13 @@ test('Value normalization', function() {
 test('Abbreviation expanding', function() {
 	var css = zen_coding.require('cssResolver');
 	
+	equal(css.expandToSnippet('p5'), 'padding: 5px;', 'Expanded "p5"');
+	equal(css.expandToSnippet('p5-6'), 'padding: 5px 6px;', 'Expanded "p5-6"');
 	equal(css.expandToSnippet('padding5'), 'padding: 5px;', 'Expanded "padding5"');
 	equal(css.expandToSnippet('-transform'), '-webkit-transform: ${0};\n-moz-transform: ${0};\n-ms-transform: ${0};\n-o-transform: ${0};\ntransform: ${0};', 'Expanded "-transform"');
 	equal(css.expandToSnippet('-pos-a'), '-webkit-position: absolute;\n-moz-position: absolute;\n-ms-position: absolute;\n-o-position: absolute;\nposition: absolute;', 'Expanded "-pos-a"');
 	equal(css.expandToSnippet('pos-a'), 'position: absolute;', 'Expanded "pos-a" (no processing)');
+	equal(css.expandToSnippet('something'), 'something: ${0};', 'Expanded unknown property');
 });
 
 test('important declaration', function() {

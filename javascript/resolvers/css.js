@@ -2,7 +2,7 @@
  * Resolver for fast CSS typing. Handles abbreviations with the following 
  * notation:<br>
  * 
- * <code>(-vendor prefix)?property(value)*</code>
+ * <code>(-vendor prefix)?property(value)*(!)?</code>
  * 
  * <br><br>
  * <b>Abbreviation handling</b><br>
@@ -10,7 +10,11 @@
  * By default, Zen Coding search for snippet definition for provided abbreviation.
  * If snippet wasn't found, Zen Coding automatically generates tag with 
  * abbreviation's name. For example, <code>foo</code> abbreviation will generate
- * <code>&lt;foo&gt;&lt;/foo&gt;</code> output
+ * <code>&lt;foo&gt;&lt;/foo&gt;</code> output.
+ * <br><br>
+ * This module will capture all expanded properties and upgrade them with values, 
+ * vendor prefixes and !important declarations. All unmatched abbreviations will 
+ * be automatically transformed into <code>property-name: ${0}</code> snippets. 
  * 
  * <b>Vendor prefixes<b><br>
  * 
@@ -84,10 +88,22 @@ zen_coding.define('cssResolver', function(require, _) {
 	
 	var defaultValue = '${0};';
 	
+	// XXX module preferences
 	var prefs = require('preferences');
 	prefs.set('css.valueSeparator', ': ',
 			'Defines a symbol that should be placed between CSS property and ' 
 			+ 'value when expanding CSS abbreviations.');
+	
+	var descTemplate = _.template('A comma-separated list of CSS properties that may have ' 
+		+ '<code><%= vendor %></code> vendor prefix. This list is used to generate '
+		+ 'a list of prefixed properties when expanding <code>-property</code> '
+		+ 'abbreviations. Empty list means that all possible CSS values may ' 
+		+ 'have <code><%= vendor %></code> prefix.');
+	
+	prefs.set('css.webkitProperties', '', descTemplate({vendor: 'webkit'}));
+	prefs.set('css.mozProperties', '', descTemplate({vendor: 'moz'}));
+	prefs.set('css.msProperties', '', descTemplate({vendor: 'ms'}));
+	prefs.set('css.oProperties', '', descTemplate({vendor: 'o'}));
 	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
@@ -114,7 +130,7 @@ zen_coding.define('cssResolver', function(require, _) {
 			}
 		});
 		
-		return snippet.indexOf(':') == -1 || snippet.split(':').length == 2;
+		return snippet.split(':').length == 2;
 	}
 	
 	/**
@@ -181,6 +197,9 @@ zen_coding.define('cssResolver', function(require, _) {
 		if (!_.isString(snippet))
 			snippet = snippet.data;
 		
+		if (!isSingleProperty(snippet))
+			return snippet;
+		
 		if (isImportant) {
 			if (~snippet.indexOf(';')) {
 				snippet = snippet.split(';').join(' !important;');
@@ -198,13 +217,54 @@ zen_coding.define('cssResolver', function(require, _) {
 		return snippet;
 	}
 	
-	addPrefix('w', 'webkit');
-	addPrefix('m', 'moz');
-	addPrefix('s', 'ms');
-	addPrefix('o', 'o');
-	addPrefix('k', {
-		prefix: 'khtml',
-		obsolete: true
+	/**
+	 * Helper function that parses comma-separated list of elements into array
+	 * @param {String} list
+	 * @returns {Array}
+	 */
+	function parseList(list) {
+		var utils = require('utils');
+		var result = _.map((list || '').split(','), function(item) {
+			return utils.trim(item);
+		});
+		
+		return result.length ? result : null;
+	}
+	
+	addPrefix('w', {
+		prefix: 'webkit',
+		supports: parseList(prefs.get('css.webkitProperties'))
+	});
+	addPrefix('m', {
+		prefix: 'moz',
+		supports: parseList(prefs.get('css.mozProperties'))
+	});
+	addPrefix('s', {
+		prefix: 'ms',
+		supports: parseList(prefs.get('css.msProperties'))
+	});
+	addPrefix('o', {
+		prefix: 'o',
+		supports: parseList(prefs.get('css.oProperties'))
+	});
+	
+	// I think nobody uses it
+//	addPrefix('k', {
+//		prefix: 'khtml',
+//		obsolete: true
+//	});
+	
+	/**
+	 * XXX register resolver
+	 * @param {TreeNode} node
+	 * @param {String} syntax
+	 */
+	require('resources').addResolver(function(node, syntax) {
+		if (syntax == 'css' && node.isElement()) {
+			return require('cssResolver').expandToSnippet(node.name);
+		}
+		
+		return null;
 	});
 	
 	return {
@@ -212,7 +272,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		 * Adds vendor prefix
 		 * @param {String} name One-character prefix name
 		 * @param {Object} obj Object describing vendor prefix
-		 * @memberOf zen_coding.fastCSS
+		 * @memberOf cssResolver
 		 */
 		addPrefix: addPrefix,
 		
