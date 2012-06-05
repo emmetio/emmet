@@ -22,14 +22,17 @@ zen_coding.define('tabStops', function(require, _) {
 		replaceCarets: true,
 		escape: function(ch) {
 			return ch;
+		},
+		tabstop: function(data) {
+			return data.token;
 		}
 	};
 	
 	return {
 		/**
 		 * Main function that looks for a tabstops in provided <code>text</code>
-		 * and returns a processed version of <code>text</code> and list of
-		 * tabstops found.
+		 * and returns a processed version of <code>text</code> with expanded 
+		 * placeholders and list of tabstops found.
 		 * @param {String} text Text to process
 		 * @param {Object} options List of processor options:<br>
 		 * 
@@ -50,21 +53,22 @@ zen_coding.define('tabStops', function(require, _) {
 		 * 
 		 * @returns {Object} Object with processed <code>text</code> property
 		 * and array of <code>tabstops</code> found
-		 * @memberOf zen_coding.tabStops
+		 * @memberOf tabStops
 		 */
 		extract: function(text, options) {
 			// prepare defaults
 			var utils = require('utils');
-			var placeholders = {};
+			var placeholders = {carets: ''};
 			var marks = [];
 			
 			options = _.extend({}, defaultOptions, options, {
 				tabstop: function(data) {
+					var token = data.token;
 					var ret = '';
 					if (data.placeholder == 'cursor') {
 						marks.push({
 							start: data.start,
-							end: data.start + data.token.length,
+							end: data.start + token.length,
 							group: 'carets',
 							value: ''
 						});
@@ -78,17 +82,16 @@ zen_coding.define('tabStops', function(require, _) {
 						
 						marks.push({
 							start: data.start,
-							end: data.start + data.token.length,
+							end: data.start + token.length,
 							group: data.group,
 							value: ret
 						});
 					}
 					
-					return data.token;
+					return token;
 				}
 			});
 			
-			text = utils.escapeText(text);
 			if (options.replaceCarets) {
 				text = text.replace(new RegExp( utils.escapeForRegexp( utils.getCaretPlaceholder() ), 'g'), '${0:cursor}');
 			}
@@ -97,38 +100,28 @@ zen_coding.define('tabStops', function(require, _) {
 			text = this.processText(text, options);
 			
 			// now, replace all tabstops with placeholders
-			var tabStops = [], lastIx = 0;
-			
-			/** @type MutableString */
-			var buf = utils.stringBuilder();
-			
-			_.each(marks, function(mark) {
+			var buf = utils.stringBuilder(), lastIx = 0;
+			var tabStops = _.map(marks, function(mark) {
 				buf.append(text.substring(lastIx, mark.start));
 				
-				var ph = '';
-				if (mark.group != 'carets' && mark.group in placeholders)
-					ph = placeholders[mark.group];
-				
-				tabStops.push({
-					group: mark.group,
-					start: buf.length,
-					end:  buf.length + ph.length
-				});
+				var pos = buf.length;
+				var ph = placeholders[mark.group] || '';
 				
 				buf.append(ph);
 				lastIx = mark.end;
+				
+				return {
+					group: mark.group,
+					start: pos,
+					end:  pos + ph.length
+				};
 			});
 			
 			buf.append(text.substring(lastIx));
 			
-			// sort tabstops by their positions
-			tabStops.sort(function(a, b) {
-				return a.start - b.start;
-			});
-			
 			return {
 				text: buf.toString(),
-				tabstops: tabStops
+				tabstops: _.sortBy(tabStops, 'start')
 			};
 		},
 		
@@ -142,98 +135,57 @@ zen_coding.define('tabStops', function(require, _) {
 		 * @returns {String}
 		 */
 		processText: function(text, options) {
-			var utils = require('utils');
-			var strBuilder = utils.stringBuilder();
+			options = _.extend({}, defaultOptions, options);
 			
-			// provide safe defaults
-			options = _.extend({}, defaultOptions, {
-				tabstop: function(data) {
-					return data.token;
-				}
-			}, options);
+			var buf = require('utils').stringBuilder();
+			/** @type StringStream */
+			var stream = require('stringStream').create(text);
+			var ch, m, a;
 			
-			var i = 0, il = text.length, startIx, tokenStart;
-				
-			var nextWhile = function(ix, fn) {
-				while (ix < il) if (!fn(text.charAt(ix++))) break;
-				return ix - 1;
-			};
-			
-			
-			while (i < il) {
-				var ch = text.charAt(i);
-				if (ch == '\\' && i + 1 < il) {
+			while (ch = stream.next()) {
+				if (ch == '\\' && !stream.eol()) {
 					// handle escaped character
-					strBuilder.append(options.escape(text.charAt(i + 1)));
-					i += 2;
+					buf.append(options.escape(stream.next()));
 					continue;
-				} else if (ch == '$') {
-					// looks like a tabstop
-					var nextCh = text.charAt(i + 1) || '';
-					
-					// remember token start position
-					tokenStart = i;
-					if (utils.isNumeric(nextCh)) {
-						// $N placeholder
-						startIx = i + 1;
-						i = nextWhile(startIx, utils.isNumeric);
-						if (startIx < i) {
-							strBuilder.append(options.tabstop({
-								start: strBuilder.length, 
-								group: text.substring(startIx, i),
-								token: text.substring(tokenStart, i)
-							}));
-							continue;
-						}
-					} else if (nextCh == '{') {
-						// ${N:value} or ${N} placeholder
-						var braceCount = 1;
-						startIx = i + 2;
-						i = nextWhile(startIx, utils.isNumeric);
-						
-						if (i > startIx) {
-							if (text.charAt(i) == '}') {
-								strBuilder.append(options.tabstop({
-									start: strBuilder.length, 
-									group: text.substring(startIx, i),
-									token: text.substring(tokenStart, i + 1)
-								}));
-								
-								i++; // handle closing brace
-								continue;
-							} else if (text.charAt(i) == ':') {
-								var valStart = i + 2;
-								i = nextWhile(valStart, function(c) {
-									if (c == '{') braceCount++;
-									else if (c == '}') braceCount--;
-									return !!braceCount;
-								});
-								
-								strBuilder.append(options.tabstop({
-									start: strBuilder.length, 
-									group: text.substring(startIx, valStart - 2), 
-									placeholder: text.substring(valStart - 1, i),
-									token: text.substring(tokenStart, i + 1)
-								}));
-								
-								i++; // handle closing brace
-								continue;
-							}
-						}
-					}
-					i = tokenStart;
 				}
 				
-				// push current character to stack
-				strBuilder.append(ch);
-				i++;
+				a = ch;
+				
+				if (ch == '$') {
+					// looks like a tabstop
+					stream.start = stream.pos - 1;
+					
+					if (m = stream.match(/^[0-9]+/)) {
+						// it's $N
+						a = options.tabstop({
+							start: buf.length, 
+							group: stream.current().substr(1),
+							token: stream.current()
+						});
+					} else if (m = stream.match(/^\{([0-9]+)(:.+?)?\}/)) {
+						// ${N:value} or ${N} placeholder
+						var obj = {
+							start: buf.length, 
+							group: m[1],
+							token: stream.current()
+						};
+						
+						if (m[2]) {
+							obj.placeholder = m[2].substr(1);
+						}
+						
+						a = options.tabstop(obj);
+					}
+				}
+				
+				buf.append(a);
 			}
 			
-			return strBuilder.toString();
+			return buf.toString();
 		},
 		
 		/**
-		 * Upgrades tabstops in zen node in order to prevent naming conflicts
+		 * Upgrades tabstops in output node in order to prevent naming conflicts
 		 * @param {ZenNode} node
 		 * @param {Number} offset Tab index offset
 		 * @returns {Number} Maximum tabstop index in element
@@ -264,7 +216,7 @@ zen_coding.define('tabStops', function(require, _) {
 		
 		/**
 		 * Helper function that produces a callback function for 
-		 * <code>replaceVariables()</code> method from {@link zen_coding.utils}
+		 * <code>replaceVariables()</code> method from {@link utils}
 		 * module. This callback will replace variable definitions (like 
 		 * ${var_name}) with their value defined in <i>resource</i> module,
 		 * or outputs tabstop with variable name otherwise.
