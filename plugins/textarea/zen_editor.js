@@ -381,18 +381,23 @@ var zen_editor = (function(){
 		 * the corresponding substring of current target's content will be 
 		 * replaced with <code>value</code>. 
 		 * @param {String} value Content you want to paste
-		 * @param {Number} [start] Start index of editor's content
-		 * @param {Number} [end] End index of editor's content
-		 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
+		 * @param {Number} start Start index of editor's content
+		 * @param {Number} end End index of editor's content
+		 * @param {Boolean} noIndent Do not auto indent <code>value</code>
 		 */
-		replaceContent: function(value, start, end, no_indent) {
-			var content = getContent(),
-				has_start = typeof(start) !== 'undefined',
-				has_end = typeof(end) !== 'undefined';
-				
+		replaceContent: function(value, start, end, noIndent) {
+			var content = getContent();
+			var utils = zen_coding.require('utils');
+			
+			if (_.isUndefined(end)) 
+				end = _.isUndefined(start) ? content.length : start;
+			if (_.isUndefined(start)) start = 0;
+			
 			// indent new value
-			if (!no_indent)
-				value = zen_coding.require('utils').padString(value, getStringPadding(this.getCurrentLine()));
+			if (!noIndent) {
+				var lineRange = utils.findNewlineBounds(content, start);
+				value = utils.padString(value, utils.getLinePadding(lineRange.substring(content)));
+			}
 			
 			// find new caret position
 			var tabstopData = zen_coding.require('tabStops').extract(value);
@@ -410,13 +415,7 @@ var zen_editor = (function(){
 			}
 				
 			try {
-				if (has_start && has_end) {
-					content = content.substring(0, start) + value + content.substring(end);
-				} else if (has_start) {
-					content = content.substring(0, start) + value + content.substring(start);
-				}
-				
-				target.value = content;
+				target.value = utils.replaceSubstring(content, value, start, end);
 				this.createSelection(firstTabStop.start, firstTabStop.end);
 			} catch(e){}
 		},

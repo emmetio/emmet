@@ -48,7 +48,7 @@ zen_coding.define('utils', function(require, _) {
 	};
 	
 	return {
-		/** @memberOf zen_coding.utils */
+		/** @memberOf utils */
 		reTag: /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/,
 		
 		/**
@@ -271,18 +271,17 @@ zen_coding.define('utils', function(require, _) {
 				return p1 in vars ? vars[p1] : null;
 			};
 			
-			return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1) {
+			var res = require('resources');
+			return str.replace(/\$\{([a-z_\-][\w\-]*)\}/g, function(str, p1) {
 				var newValue = resolver(str, p1);
 				if (newValue === null) {
 					// try to find variable in zen_settings
-					var res = require('resources');
 					newValue = res.getVariable(p1);
 				}
 				
 				if (newValue === null || _.isUndefined(newValue))
 					// nothing found, return token itself
 					newValue = str;
-				
 				return newValue;
 			});
 		},

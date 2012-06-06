@@ -209,10 +209,10 @@ zen_coding.define('cssResolver', function(require, _) {
 		}
 		
 		// format value separator
-		var parts = snippet.split(':', 2);
-		snippet = parts[0].replace(/\s+$/, '') 
+		var ix = snippet.indexOf(':');
+		snippet = snippet.substring(0, ix).replace(/\s+$/, '') 
 			+ prefs.get('css.valueSeparator')
-			+ require('utils').trim(parts[1]);
+			+ require('utils').trim(snippet.substring(ix + 1));
 		
 		return snippet;
 	}
@@ -223,29 +223,25 @@ zen_coding.define('cssResolver', function(require, _) {
 	 * @returns {Array}
 	 */
 	function parseList(list) {
-		var utils = require('utils');
-		var result = _.map((list || '').split(','), function(item) {
-			return utils.trim(item);
-		});
-		
+		var result = _.map((list || '').split(','), require('utils').trim);
 		return result.length ? result : null;
 	}
 	
 	addPrefix('w', {
 		prefix: 'webkit',
-		supports: parseList(prefs.get('css.webkitProperties'))
+		supports: prefs.getArray('css.webkitProperties')
 	});
 	addPrefix('m', {
 		prefix: 'moz',
-		supports: parseList(prefs.get('css.mozProperties'))
+		supports: prefs.getArray('css.mozProperties')
 	});
 	addPrefix('s', {
 		prefix: 'ms',
-		supports: parseList(prefs.get('css.msProperties'))
+		supports: prefs.getArray('css.msProperties')
 	});
 	addPrefix('o', {
 		prefix: 'o',
-		supports: parseList(prefs.get('css.oProperties'))
+		supports: prefs.getArray('css.oProperties')
 	});
 	
 	// I think nobody uses it

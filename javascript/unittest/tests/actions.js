@@ -74,7 +74,7 @@
 		run('evaluate_math_expression');
 		equal(editorStub.getContent(), 'hello 18 world', 'Evaluated expression in ' + content);
 		
-		editorStub.replaceContent(content = 'hello 11\\2| world');
+		editorStub.replaceContent(zen_coding.require('utils').escapeText(content = 'hello 11\\2| world'));
 		run('evaluate_math_expression');
 		equal(editorStub.getContent(), 'hello 6 world', 'Evaluated expression in ' + content);
 	});

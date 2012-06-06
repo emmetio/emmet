@@ -32,7 +32,6 @@
 	<script src="../../javascript/filters/bem.js"></script>
 	<script src="../../javascript/filters/comment.js"></script>
 	<script src="../../javascript/filters/escape.js"></script>
-	<script src="../../javascript/filters/format-css.js"></script>
 	<script src="../../javascript/filters/format.js"></script>
 	<script src="../../javascript/filters/haml.js"></script>
 	<script src="../../javascript/filters/html.js"></script>
@@ -69,10 +68,11 @@
 	<script src="../../javascript/actions/wrapWithAbbreviation.js"></script>
 	<script src="../../javascript/actions/updateImageSize.js"></script>
 	
-	<script src="../../javascript/fast-css/fast-css.js"></script>
+	<script src="../../javascript/resolvers/css.js"></script>
+	<script src="../../javascript/resolvers/cssGradient.js"></script>
 	<script src="../../javascript/resolvers/expando.js"></script>
-	
 	<script src="../../javascript/resolvers/generator.js"></script>
+	
 	<script src="../../javascript/generators/lorem-ipsum.js"></script>
 	
 	<script src="../../javascript/loaders/ajaxLoader.js"></script>
@@ -102,6 +102,11 @@ ul>li.item$*4>a[href=/sample/]>lipsum3
 item 1
 item 2
 item 3
+</textarea>
+	<textarea class="zc-syntax-css">
+.rule {
+	background: lg(red, black);
+}
 </textarea>
 	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_editor.showInfo();" style="cursor:pointer; display: block;" />
 	<script type="text/javascript">

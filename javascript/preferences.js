@@ -28,7 +28,7 @@ zen_coding.define('preferences', function(require, _) {
 		 * with many options
 		 * @param {Object} value Preference default value
 		 * @param {String} description Item textual description
-		 * @memberOf zen_coding.preferences
+		 * @memberOf preferences
 		 */
 		set: function(name, value, description) {
 			var prefs = name;
@@ -48,10 +48,28 @@ zen_coding.define('preferences', function(require, _) {
 		/**
 		 * Returns preference value
 		 * @param {String} name
-		 * @returns
+		 * @returns {String} Returns <code>undefined</code> if preference is 
+		 * not defined
 		 */
 		get: function(name) {
 			return name in preferences ? preferences[name].value : void 0;
+		},
+		
+		/**
+		 * Returns comma-separated preference value as array of values
+		 * @param {String} name
+		 * @returns {Array} Returns <code>undefined</code> if preference is 
+		 * not defined, <code>null</code> if string cannot be converted to array
+		 */
+		getArray: function(name) {
+			var val = this.get(name);
+			if (!_.isUndefined(val)) {
+				val = _.map(val.split(','), require('utils').trim);
+				if (!val.length)
+					val = null;
+			}
+			
+			return val;
 		},
 		
 		/**

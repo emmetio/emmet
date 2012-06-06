@@ -18,21 +18,6 @@ test('Check internals', function() {
 	rule.add('d', 'e');
 	var prop = rule.itemFromPosition(7);
 	equal(prop.name(), 'd', 'Got property from position');
-	
-	var prop = rule.get('b');
-	prop.value('hello "lorem ipsum",     func(lorem ipsum) 123 ""');
-	var parts = _.map(prop.valueParts(), function(r) {
-		return r.substring(prop.value());
-	});
-	
-	deepEqual(parts, ['hello', '"lorem ipsum"', 'func(lorem ipsum)', '123', '""'], 'Correctly splitted complex value');
-	
-	prop.value('1px');
-	var parts = _.map(prop.valueParts(), function(r) {
-		return r.substring(prop.value());
-	});
-	
-	deepEqual(parts, ['1px'], 'No need to split simple value');
 });
 
 test('Check modifications', function() {
@@ -81,4 +66,31 @@ test('Check source with formatting', function() {
 	
 	rule3.add('h', 'i');
 	equal(rule3.source, 'a {\n\tb: c;\n\t/* c */\n\tf: g;\n\td: e;\n\th: i;\n}', 'Source with formatting 4');
+});
+
+test('Check value parts', function() {
+	var source = '.a {b:hello "lorem ipsum",     func(lorem ipsum) 123 ""; c: fn1(a), fn2(fn3(b))}';
+	/** @type EditContainer */
+	var rule = zen_coding.require('cssEditTree').parse(source);
+	
+	var prop = rule.get('b');
+	var parts = _.map(prop.valueParts(), function(r) {
+		return r.substring(prop.value());
+	});
+	
+	deepEqual(parts, ['hello', '"lorem ipsum"', 'func(lorem ipsum)', '123', '""'], 'Correctly splitted complex value');
+	
+	prop.value('1px');
+	var parts = _.map(prop.valueParts(), function(r) {
+		return r.substring(prop.value());
+	});
+	
+	deepEqual(parts, ['1px'], 'No need to split simple value');
+	
+	prop = rule.get('c');
+	parts = _.map(prop.valueParts(), function(r) {
+		return r.substring(prop.value());
+	});
+	
+	deepEqual(parts, ['fn1(a)', 'fn2(fn3(b))'], 'Correctly splitted complex value with nested functions');
 });

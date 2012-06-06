@@ -48,7 +48,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 */
 	actions.add('expand_abbreviation', function(editor, syntax, profile) {
 		var args = _.toArray(arguments);
-		return !!_.find(handlers, function(fn) {
+		return !!_.find(_.clone(handlers).reverse(), function(fn) {
 			return fn.apply(this, args);
 		});
 	});

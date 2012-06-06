@@ -115,6 +115,34 @@ zen_coding.define('stringStream', function(require, _) {
 		},
 		
 		/**
+		 * Skips to <code>close</code> character which is pair to <code>open</code>
+		 * character, considering possible pair nesting. This function is used
+		 * to consume pair of characters, like opening and closing braces
+		 * @param {String} open
+		 * @param {String} close
+		 * @returns {Boolean} Returns <code>true</code> if pair was successfully
+		 * consumed
+		 */
+		skipToPair: function(open, close) {
+			var braceCount = 0, ch;
+			var pos = this.pos, len = this.string.length;
+			while (pos < len) {
+				ch = this.string.charAt(pos++);
+				if (ch == open) {
+					braceCount++;
+				} else if (ch == close) {
+					braceCount--;
+					if (braceCount < 1) {
+						this.pos = pos;
+						return true;
+					}
+				}
+			}
+			
+			return false;
+		},
+		
+		/**
 		 * Backs up the stream n characters. Backing it up further than the
 		 * start of the current token will cause things to break, so be careful.
 		 * @param {Number} n

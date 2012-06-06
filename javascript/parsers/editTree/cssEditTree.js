@@ -144,7 +144,10 @@ zen_coding.define('cssEditTree', function(require, _) {
 				if (!stream.skipTo(ch)) break;
 				add();
 			} else if (ch == '(') {
-				if (!stream.skipTo(')')) break;
+				// function found, may have nested function
+				stream.backUp(1);
+				if (!stream.skipToPair('(', ')')) break;
+				stream.backUp(1);
 				add();
 			} else {
 				if (sep.test(ch)) {
@@ -197,7 +200,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 					valueRange = findValueRange(it);
 					var end = (it.current() && it.current().type == ';') 
 						? range(it.current())
-						: range(it.position(), 0);
+						: range(valueRange.end, 0);
 					this._children.push(new CSSEditElement(this,
 							editTree.createToken(propertyRange.start, propertyRange.substring(source)),
 							editTree.createToken(valueRange.start, valueRange.substring(source)),
@@ -298,7 +301,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		valueParts: function(isAbsolute) {
 			var parts = findParts(this.value());
 			if (isAbsolute) {
-				var offset = this.parent.options.offset;
+				var offset = this.valuePosition(true);
 				_.each(parts, function(p) {
 					p.shift(offset);
 				});
