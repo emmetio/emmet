@@ -190,7 +190,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 	 		if (!it.current() || it.current().type != '{')
 	 			throw 'Invalid CSS rule';
 	 		
-	 		this._contentStartPos = it.position() + 1;
+	 		this._positions.contentStart = it.position() + 1;
 	 		
 	 		// consume properties
 	 		var propertyRange, valueRange, token;
@@ -217,7 +217,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * @private
 		 */
 		_saveStyle: function() {
-			var start = this._contentStartPos;
+			var start = this._positions.contentStart;
 			var source = this.source;
 			
 			_.each(this.list(), /** @param {CSSEditProperty} p */ function(p) {
@@ -242,7 +242,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 */
 		add: function(name, value, pos) {
 			var list = this.list();
-			var start = this._contentStartPos;
+			var start = this._positions.contentStart;
 			var styles = _.pick(this.options, 'styleBefore', 'styleSeparator');
 			var editTree = require('editTree');
 			

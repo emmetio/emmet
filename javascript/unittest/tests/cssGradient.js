@@ -17,5 +17,6 @@ test('Expand abbreviation handler', function() {
 	
 	zen_coding.require('actions').run('expand_abbreviation', editorStub);
 	equal(editorStub.getContent(), '.r{a:-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));a:-webkit-linear-gradient(red, black);a:-moz-linear-gradient(red, black);a:-ms-linear-gradient(red, black);a:-o-linear-gradient(red, black);a:linear-gradient(red, black);}');
+	equal(editorStub.getCaretPos(), 234, 'Correctly placed cursor');
 	editorStub.setSyntax('html');
 });

@@ -5,7 +5,7 @@ test('Check internals', function() {
 	var rule = zen_coding.require('cssEditTree').parse(source);
 	
 	equal(rule.nameRange().start, 0, 'Selector position of "' + source + '"');
-	equal(rule._contentStartPos, 2, 'Content position of "' + source + '"');
+	equal(rule._positions.contentStart, 2, 'Content position of "' + source + '"');
 	
 	var property = rule.get(0);
 	equal(property.namePosition(), 2, 'Name position of property "' + property.name() + '"');
@@ -18,6 +18,8 @@ test('Check internals', function() {
 	rule.add('d', 'e');
 	var prop = rule.itemFromPosition(7);
 	equal(prop.name(), 'd', 'Got property from position');
+	
+	rule.add('t', '123', 0);
 });
 
 test('Check modifications', function() {
@@ -28,6 +30,7 @@ test('Check modifications', function() {
 	rule.value('c', 'abc');
 	equal(rule.value('c'), 'abc', 'New value');
 	equal(rule.source, 'a{c:abc;}', 'New source');
+	deepEqual(rule.get('c').valueRange(true).toArray(), [4, 7], 'Proper value range');
 	
 	rule.add('e', 'hello');
 	equal(rule.value('e'), 'hello', 'New property');

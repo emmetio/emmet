@@ -252,7 +252,7 @@ zen_coding.define('cssGradient', function(require, _) {
 					
 					pasteGradient(cssProp, gradient);
 					editor.replaceContent(cssRule.toString(), ruleStart, ruleEnd);
-					editor.setCaretPos(cssProp.valueRange().end);
+					editor.setCaretPos(cssProp.valueRange(true).end);
 					return true;
 				}
 			}

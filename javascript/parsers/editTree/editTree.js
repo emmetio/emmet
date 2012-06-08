@@ -90,7 +90,7 @@ zen_coding.define('editTree', function(require, _, core) {
 			
 			var update = function(obj) {
 				_.each(obj, function(v, k) {
-					if (v >= r.start)
+					if (v >= r.end)
 						obj[k] += delta;
 				});
 			};
