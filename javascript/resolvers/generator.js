@@ -5,33 +5,37 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
-	var generators = [];
+	/** @type HandlerList */
+	var generators = require('handlerList').create();
 	var resources = require('resources');
 	
 	_.extend(resources, {
-		addGenerator: function(regexp, fn) {
+		/**
+		 * Add generator. A generator function <code>fn</code> will be called 
+		 * only if current abbreviation matches <code>regexp</code> regular 
+		 * expression and this function should return <code>null</code> if
+		 * abbreviation cannot be resolved
+		 * @param {RegExp} regexp Regular expression for abbreviation element name
+		 * @param {Function} fn Resolver function
+		 * @param {Object} options Options list as described in 
+		 * {@link HandlerList#add()} method
+		 */
+		addGenerator: function(regexp, fn, options) {
 			if (_.isString(regexp))
 				regexp = new RegExp(regexp);
 			
-			generators.unshift({
-				re: regexp,
-				fn: fn
-			});
+			generators.add(function(node, syntax) {
+				var m;
+				if ((m = regexp.exec(node.name))) {
+					return fn(m, node, syntax);
+				}
+				
+				return null;
+			}, options);
 		}
 	});
 	
 	resources.addResolver(function(node, syntax) {
-		var result = null;
-		for (var i = 0, il = generators.length; i < il; i++) {
-			var item = generators[i], m;
-			if ((m = item.re.exec(node.name))) {
-				result = item.fn(m, node, syntax);
-				if (result !== null) {
-					return result;
-				}
-			}
-		}
-		
-		return result;
+		return generators.exec(null, _.toArray(arguments));
 	});
 });

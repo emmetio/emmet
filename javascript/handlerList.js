@@ -72,9 +72,14 @@ zen_coding.define('handlerList', function(require, _) {
 		 */
 		exec: function(skipValue, args) {
 			args = args || [];
-			return !!_.find(this.list(), function(h) {
-				return h.fn.apply(h, args) !== skipValue;
+			var result = null;
+			_.find(this.list(), function(h) {
+				result = h.fn.apply(h, args);
+				if (result !== skipValue)
+					return true;
 			});
+			
+			return result;
 		}
 	};
 	

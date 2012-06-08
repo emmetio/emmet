@@ -14,9 +14,9 @@
  */
 zen_coding.define('expandAbbreviation', function(require, _) {
 	/**
-	 * List of registered handlers
+	 * @type HandlerList List of registered handlers
 	 */
-	var handlers = [];
+	var handlers = require('handlerList').create();
 	
 	/**
 	 * Search for abbreviation in editor from current caret position
@@ -47,10 +47,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 * successfully
 	 */
 	actions.add('expand_abbreviation', function(editor, syntax, profile) {
-		var args = _.toArray(arguments);
-		return !!_.find(_.clone(handlers).reverse(), function(fn) {
-			return fn.apply(this, args);
-		});
+		return handlers.exec(false, _.toArray(arguments));
 	});
 	
 	/**
@@ -75,7 +72,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
 	 * successfully
 	 */
-	handlers.push(function(editor, syntax, profile) {
+	handlers.add(function(editor, syntax, profile) {
 		var info = require('editorUtils').outputInfo(editor, syntax, profile);
 		var caretPos = editor.getSelectionRange().end;
 		var abbr;
@@ -91,7 +88,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {order: -1});
 	
 	return {
 		/**
@@ -102,10 +99,10 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		 * Added handlers will be called when 'Expand Abbreviation' is called
 		 * in order they were added
 		 * @param {Function} fn
+		 * @param {Object} options
 		 */
-		addHandler: function(fn) {
-			if (!_.include(handlers, fn))
-				handlers.push(fn);
+		addHandler: function(fn, options) {
+			handlers.add(fn, options);
 		},
 		
 		/**
@@ -113,7 +110,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		 * @returns
 		 */
 		removeHandler: function(fn) {
-			handlers = _.without(handlers, fn);
+			handlers.remove(fn, options);
 		}
 	};
 });

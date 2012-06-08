@@ -28,6 +28,7 @@ test('Check internals', function() {
 	execOrder.length = 0;
 	var fn = function() {
 		execOrder.push('d');
+		return true;
 	};
 	
 	hl.add(fn, {order: 2});

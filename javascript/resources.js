@@ -19,8 +19,8 @@ zen_coding.define('resources', function(require, _) {
 	var systemSettings = {};
 	var userSettings = {};
 	
-	/** List of registered abbreviation resolvers */
-	var resolvers = [];
+	/** @type HandlerList List of registered abbreviation resolvers */
+	var resolvers = require('handlerList').create();
 	
 	/**
 	 * Check if specified resource is parsed by Zen Coding
@@ -244,15 +244,9 @@ zen_coding.define('resources', function(require, _) {
 		 * @returns {Object}
 		 */
 		getMatchedResource: function(node, syntax) {
-			// walk through registered resolvers
-			var result = null;
-			for (var i = 0, il = resolvers.length; i < il; i++) {
-				result = resolvers[i].call(this, node, syntax);
-				if (result !== null)
-					return result;
-			}
-			
-			return this.getAbbreviation(syntax, node.name) || this.getSnippet(syntax, node.name);
+			return resolvers.exec(null, _.toArray(arguments)) 
+				|| this.getAbbreviation(syntax, node.name) 
+				|| this.getSnippet(syntax, node.name);
 		},
 		
 		/**
@@ -340,14 +334,15 @@ zen_coding.define('resources', function(require, _) {
 		 * abbreviation as first argument and should return parsed abbreviation
 		 * object if abbreviation has handled successfully, <code>null</code>
 		 * otherwise
+		 * @param {Object} options Options list as described in 
+		 * {@link HandlerList#add()} method
 		 */
-		addResolver: function(fn) {
-			if (!_.include(resolvers, fn))
-				resolvers.unshift(fn);
+		addResolver: function(fn, options) {
+			resolvers.add(fn, options);
 		},
 		
 		removeResolver: function(fn) {
-			resolvers = _.without(resolvers, fn);
+			resolvers.remove(fn);
 		}
 	};
 });
