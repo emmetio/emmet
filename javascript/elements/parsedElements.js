@@ -1,3 +1,8 @@
+/**
+ * Parsed element factory
+ * @param {Function} require
+ * @param {Underscore} _ 
+ */
 zen_coding.exec(function(require, _) {
 	/**
 	 * Parsed element that represents intermediate node in abbreviation 
@@ -6,9 +11,11 @@ zen_coding.exec(function(require, _) {
 	 * 
 	 * @param {TreeNode} node Parsed tree node
 	 * @param {String} syntax Tag type (html, xml)
-	 * @param {DataElement} resource Matched element resource from <code>zen_settings</code>
+	 * @param {DataElement} resource Matched element resource from <code>settings.json</code>
+	 * @param {Object} options Custom options dictionary. It will be inherited in
+	 * <code>ZenNode</code>
 	 */
-	function ParsedElement(node, syntax, resource) {
+	function ParsedElement(node, syntax, resource, options) {
 		this._abbr = resource;
 		
 		this.name = this._abbr ? this._abbr.name : node.name;
@@ -22,6 +29,7 @@ zen_coding.exec(function(require, _) {
 		this.parent = null;
 		this.has_implicit_name = !!node.has_implict_name;
 		this.children = [];
+		this.options = _.extend({}, options || {});
 		
 		this.setContent(node.text);
 	}
@@ -103,9 +111,15 @@ zen_coding.exec(function(require, _) {
 		 * Set textual content for tag
 		 * @param {String} str Tag's content
 		 */
-		setContent: function(str) {
-			var utils = require('utils');
-			this._content = utils.replaceUnescapedSymbol(str || '', '|', utils.getCaretPlaceholder());
+		setContent: function(data) {
+			// XXX do I really should escape pipe here?
+			// I think 'resource' module is a better place
+			if (_.isString(data)) {
+				var utils = require('utils');
+				this._content = utils.replaceUnescapedSymbol(data || '', '|', utils.getCaretPlaceholder());
+			} else if (_.isFunction(data)) {
+				this._content = data;
+			}
 		},
 		
 		/**
@@ -113,7 +127,9 @@ zen_coding.exec(function(require, _) {
 		 * @return {String}
 		 */
 		getContent: function() {
-			return this._content || '';
+			return _.isFunction(this._content) 
+				? this._content(this) 
+				: this._content || '';
 		},
 		
 		/**
@@ -150,8 +166,13 @@ zen_coding.exec(function(require, _) {
 	};
 	
 	var elems = require('elements');
-	elems.add('parsedElement', function(node, syntax, resource) {
+	elems.add('parsedElement', function(node, syntax, resource, options) {
 		var res = require('resources');
+		
+		if (_.isString(resource)) {
+			resource = elems.create('element', resource);
+		}
+		
 		if (!resource && node.name) {
 			resource = res.getAbbreviation(syntax, node.name);
 		}
@@ -160,7 +181,7 @@ zen_coding.exec(function(require, _) {
 			resource = res.getAbbreviation(syntax, resource.data);
 		}
 		
-		var elem = new ParsedElement(node, syntax, resource);
+		var elem = new ParsedElement(node, syntax, resource, options);
 		// add default attributes
 		if (elem._abbr)
 			elem.copyAttributes(elem._abbr);
@@ -170,15 +191,17 @@ zen_coding.exec(function(require, _) {
 		return elem;
 	});
 	
-	elems.add('parsedSnippet', function(node, syntax, resource) {
+	elems.add('parsedSnippet', function(node, syntax, resource, options) {
 		if (_.isString(resource))
 			resource = elems.create('snippet', resource);
 		
-		var elem = new ParsedElement(node, syntax, resource);
+		var elem = new ParsedElement(node, syntax, resource, options);
 		var utils = require('utils');
 		var res = require('resources');
 		
 		var data = resource ? resource.data : res.getSnippet(syntax, elem.name);
+		// XXX do I really should escape pipe here?
+		// I think 'resource' module is a better place
 		elem.value = utils.replaceUnescapedSymbol(data, '|', utils.getCaretPlaceholder());
 		
 		// override some attributes

@@ -26,15 +26,16 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	/**
-	 * Creates simplified tag from Zen Coding tag
+	 * Creates simplified element from parsed tree
 	 * @param {ParsedElement} elem
 	 */
-	function ZenNode(elem) {
+	function ZenNode(elem, options) {
 		var elems = require('elements');
 		
-		this.type = elems.is(elem, 'parsedSnippet') ? 'snippet' : 'tag';
+		this.nodeType = elems.is(elem, 'parsedSnippet') ? 'snippet' : 'element';
 		this.children = [];
 		this.counter = 1;
+		this.options = _.extend({}, elem.options, options || {});
 		
 		// copy attributes
 		_.each('name,real_name,is_repeating,repeat_by_lines,has_implicit_name'.split(','), function(p) {
@@ -43,12 +44,12 @@ zen_coding.exec(function(require, _) {
 		
 		// create deep copy of attribute list so we can change
 		// their values in runtime without affecting other nodes
-		// created from the same tag
+		// created from the same element
 		this.attributes = _.map(elem.attributes, function(a) {
 			return _.clone(a);
 		});
 		
-		/** @type {ParsedElement} Source element from which current tag was created */
+		/** @type {ParsedElement} Source element from which current element was created */
 		this.source = elem;
 		
 		/** @type String Name of current node */
@@ -72,7 +73,7 @@ zen_coding.exec(function(require, _) {
 	ZenNode.prototype = {
 		/**
 		 * Add child node
-		 * @param {ZenNode} tag
+		 * @param {ZenNode} node
 		 */
 		addChild: function(node) {
 			node.parent = this;
@@ -125,11 +126,11 @@ zen_coding.exec(function(require, _) {
 		},
 		
 		/**
-		 * Test if current tag is unary (no closing tag)
+		 * Test if current element is unary (no closing tag)
 		 * @return {Boolean}
 		 */
 		isUnary: function() {
-			if (this.type == 'snippet')
+			if (this.nodeType == 'snippet')
 				return false;
 				
 			return (this.source._abbr && this.source._abbr.is_empty) 
@@ -137,11 +138,11 @@ zen_coding.exec(function(require, _) {
 		},
 		
 		/**
-		 * Test if current tag is inline-level (like &lt;strong&gt;, &lt;img&gt;)
+		 * Test if current element is inline-level (like &lt;strong&gt;, &lt;img&gt;)
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return this.type == 'text' || !this.source.name
+			return this.nodeType == 'text' || !this.source.name
 				|| require('resources').isItemInCollection(this.source.syntax, 'inline_level', this.name);
 		},
 		
@@ -150,11 +151,11 @@ zen_coding.exec(function(require, _) {
 		 * @return {Boolean}
 		 */
 		isBlock: function() {
-			return this.type == 'snippet' || !this.isInline();
+			return this.nodeType == 'snippet' || !this.isInline();
 		},
 		
 		/**
-		 * This function tests if current tags' content contains xHTML tags. 
+		 * This function tests if current elements' content contains xHTML tags. 
 		 * This function is mostly used for output formatting
 		 */
 		hasTagsInContent: function() {
@@ -162,7 +163,7 @@ zen_coding.exec(function(require, _) {
 		},
 		
 		/**
-		 * Check if tag has child elements
+		 * Check if element has child elements
 		 * @return {Boolean}
 		 */
 		hasChildren: function() {
@@ -170,7 +171,7 @@ zen_coding.exec(function(require, _) {
 		},
 		
 		/**
-		 * Test if current tag contains block-level children
+		 * Test if current element contains block-level children
 		 * @return {Boolean}
 		 */
 		hasBlockChildren: function() {
@@ -280,7 +281,7 @@ zen_coding.exec(function(require, _) {
 		}
 	};
 	
-	require('elements').add('ZenNode', function(elem) {
-		return new ZenNode(elem);
+	require('elements').add('ZenNode', function(elem, options) {
+		return new ZenNode(elem, options);
 	});
 });

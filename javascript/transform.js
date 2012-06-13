@@ -15,7 +15,6 @@ zen_coding.define('transform', function(require, _) {
 	function resolveNode(node, syntax) {
 		if (node.isEmpty()) return null;
 		
-		var result = require('resources').getMatchedResource(node, syntax);
 		/** @type zen_coding.elements */
 		var elements = require('elements');
 		
@@ -31,6 +30,14 @@ zen_coding.define('transform', function(require, _) {
 			
 			return null;
 		};
+		
+		var result = require('resources').getMatchedResource(node, syntax);
+		// a little sugar here: if matched resource is a subtree (e.g. parsed
+		// abbreviation , like in 'expando' generator), retrieve children
+		// only for easier tree transform
+		if (elements.is(result, 'parsedElement') && result.isRoot) {
+			result = _.clone(result.children);
+		}
 		
 		if (_.isArray(result)) {
 			// received a set of elements, make sure it contains valid elements only
@@ -104,9 +111,10 @@ zen_coding.define('transform', function(require, _) {
 		 * The parsed tree consists for resolved elements and snippets, defined 
 		 * in <code>zen_settings</code> file mostly. This is an intermediate tree
 		 * structure that can be used to produce final output tree.
-		 * @param {TreeNode} abbrTree Parsed abbreviation of string abbreviation
+		 * @param {TreeNode} abbrTree Parsed abbreviation or abbreviation string 
+		 * (it will be parsed automatically)
 		 * @param {String} syntax
-		 * @param {TreeNode} contextNode Contextual node (XHTML under current 
+		 * @param {TreeNode} contextNode Contextual node (XHTML element under current 
 		 * caret position), for better abbreviation expansion
 		 * @returns {ZenNode}
 		 * @returns {ParsedElement}
@@ -117,6 +125,7 @@ zen_coding.define('transform', function(require, _) {
 			
 			/** @type ParsedElement */
 			var treeRoot = elems.create('parsedElement', contextNode || {}, syntax);
+			treeRoot.isRoot = true;
 			if (_.isString(abbrTree))
 				abbrTree = parser.parse(abbrTree);
 			
@@ -143,13 +152,13 @@ zen_coding.define('transform', function(require, _) {
 		},
 		
 		/**
-		 * Roll outs basic Zen Coding tree into simplified, DOM-like tree.
+		 * Rolls out basic Zen Coding tree into simplified, DOM-like tree.
 		 * The simplified tree, for example, represents each multiplied element 
-		 * as a separate element sets with its own content, if exists.
+		 * as a separate element with its own content, if exists.
 		 * 
 		 * The simplified tree element contains some meta info (tag name, attributes, 
 		 * etc.) as well as output strings, which are exactly what will be outputted
-		 * after expanding abbreviation. This tree is used for <i>filtering</i>:
+		 * after expanding abbreviation. This tree can be used for <i>filtering</i>:
 		 * you can apply filters that will alter output strings to get desired look
 		 * of expanded abbreviation.
 		 * 

@@ -1,5 +1,6 @@
 /**
- * "Lorem ipsum" text generator. Matches lipsum(num)(elem_name) abbreviation.
+ * "Lorem ipsum" text generator. Matches <code>lipsum(num)?</code> or 
+ * <code>lorem(num)?</code> abbreviation.
  * This code is based on Django's contribution: 
  * https://code.djangoproject.com/browser/django/trunk/django/contrib/webdesign/lorem_ipsum.py
  * <br><br>
@@ -8,7 +9,8 @@
  * <code>lipsum*6</code> – generates 6 paragraphs (autowrapped with &lt;p&gt; element) of text.<br>
  * <code>ol>lipsum10*5</code> — generates ordered list with 5 list items (autowrapped with &lt;li&gt; tag)
  * with text of 10 words on each line<br>
- * <code>lipsum20span*3</code> – generates 3 paragraphs of 20-words text, each wrapped with &lt;span&gt; element    
+ * <code>span*3>lipsum20</code> – generates 3 paragraphs of 20-words text, each wrapped with &lt;span&gt; element .
+ * Each paragraph phrase is unique   
  * @param {Function} require
  * @param {Underscore} _ 
  * @constructor
@@ -20,9 +22,9 @@ zen_coding.exec(function(require, _) {
 	 * @param {TreeNode} node
 	 * @param {String} syntax
 	 */
-	require('resources').addGenerator(/^lipsum(\d*)([a-z]*)$/i, function(match, node, syntax) {
+	require('resources').addGenerator(/^(?:lorem|lipsum)(\d*)$/i, function(match, node, syntax) {
 		var wordCound = match[1] || 30;
-		var elemName = match[2] || '';
+		var elemName = '';
 		var outputCount = node.count || 1;
 		
 		if (!elemName && node.parent.name) {
@@ -42,20 +44,28 @@ zen_coding.exec(function(require, _) {
 			elemName = 'p';
 		}
 		
-		var result = [], text;
-		/** @type zen_coding.transform */
-		var transform = require('transform');
-		while (outputCount-- > 0) {
-			// to automatically handle element references from zen_setting
-			// (and because I'm lazy) we will generate a new abbreviation and
-			// let Zen Coding correctly expand it
-			text = elemName + '{' + paragraph(wordCound, result.length == 0) + '}';
-			result.push(transform.createParsedTree(text, syntax, node.parent).children[0]);
-		}
+		var elem = require('elements').create('parsedElement', node, syntax, elemName);
+		// override 'getContent()' method so it will output lorem ipsum dynamically,
+		// when tree will be rolled out
+		elem._content = function(el) {
+			var isStarted = !!el.options.loremStarted;
+			el.options.loremStarted = true;
+			return paragraph(wordCound, !isStarted);
+		};
 		
-		return result;
+		return elem;
 	});
 	
+	/**
+	 * Find root element
+	 * @param {TreeNode} node
+	 * @returns {TreeNode}
+	 */
+	function findRoot(node) {
+		while (node.parent)
+			node = node.parent;
+		return node;
+	}
 	
 	var COMMON_P = 'lorem ipsum dolor sit amet consectetur adipisicing elit'.split(' ');
 	
@@ -169,7 +179,7 @@ zen_coding.exec(function(require, _) {
 		var words;
 		
 		if (startWithCommon) {
-			words = COMMON_P.slice(0, wordCount);
+			words = COMMON_P.slice(0, wordCount + 1);
 			if (words.length > 5)
 				words[4] += ',';
 			totalWords += words.length;
