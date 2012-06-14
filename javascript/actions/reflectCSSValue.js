@@ -6,7 +6,12 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+zen_coding.define('reflectCSSValue', function(require, _) {
+	/**
+	 * @type HandlerList List of registered handlers
+	 */
+	var handlers = require('handlerList').create();
+	
 	require('actions').add('reflect_css_value', function(editor) {
 		if (editor.getSyntax() != 'css') return false;
 		
@@ -29,12 +34,15 @@ zen_coding.exec(function(require, _) {
 		var oldRule = cssRule.source;
 		var offset = cssRule.options.offset;
 		var caretDelta = caretPos - offset - property.range().start;
-		var reName = getReflectedCSSName(property.name());
-		_.each(cssRule.list(), function(p) {
-			if (reName.test(p.name())) {
-				reflectValue(property, p);
-			}
-		});
+		
+		handlers.exec(false, [property]);
+		
+//		var reName = getReflectedCSSName(property.name());
+//		_.each(cssRule.list(), function(p) {
+//			if (reName.test(p.name())) {
+//				reflectValue(property, p);
+//			}
+//		});
 		
 		if (oldRule !== cssRule.source) {
 			return {
@@ -110,4 +118,36 @@ zen_coding.exec(function(require, _) {
 		
 		return curValue;
 	}
+	
+	// XXX add default handler
+	handlers.add(function(property) {
+		var reName = getReflectedCSSName(property.name());
+		_.each(property.parent.list(), function(p) {
+			if (reName.test(p.name())) {
+				reflectValue(property, p);
+			}
+		});
+	}, {order: -1});
+	
+	return {
+		/**
+		 * Adds custom reflect handler. The passed function will receive matched
+		 * CSS property (as <code>CSSEditElement</code> object) and should
+		 * return <code>true</code> if it was performed successfully (handled 
+		 * reflection), <code>false</code> otherwise.
+		 * @param {Function} fn
+		 * @param {Object} options
+		 */
+		addHandler: function(fn, options) {
+			handlers.add(fn, options);
+		},
+		
+		/**
+		 * Removes registered handler
+		 * @returns
+		 */
+		removeHandler: function(fn) {
+			handlers.remove(fn, options);
+		}
+	};
 });

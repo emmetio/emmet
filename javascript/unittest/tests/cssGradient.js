@@ -20,3 +20,12 @@ test('Expand abbreviation handler', function() {
 	equal(editorStub.getCaretPos(), 234, 'Correctly placed cursor');
 	editorStub.setSyntax('html');
 });
+
+test('"Reflect CSS Value" action delegate', function() {
+	editorStub.setSyntax('css');
+	editorStub.replaceContent('.r{a:test;a:linear-gradient(red, green$0);a:-moz-linear-gradient(red, black);p:1}');
+	
+	zen_coding.require('actions').run('reflect_css_value', editorStub);
+	equal(editorStub.getContent(), '.r{a:test;a:linear-gradient(red, green);a:-moz-linear-gradient(red, green);p:1}');
+	editorStub.setSyntax('html');
+});

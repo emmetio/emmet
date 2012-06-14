@@ -261,6 +261,34 @@ zen_coding.define('cssGradient', function(require, _) {
 		return false;
 	});
 	
+	// XXX register "Reflect CSS Value" action delegate
+	/**
+	 * @param {EditElement} property
+	 */
+	require('reflectCSSValue').addHandler(function(property) {
+		var cssGradient = require('cssGradient');
+		var gradient = cssGradient.parse(property.value());
+		if (!gradient)
+			return false;
+		
+		// reflect value for properties with the same name
+		_.each(property.parent.getAll(property.name()), function(prop) {
+			if (prop === property)
+				return;
+			
+			// check if property value starts with gradient definition
+			var m = prop.value().match(/^\s*(\-([a-z]+)\-)?linear\-gradient/);
+			if (m) {
+				prop.value(cssGradient.toString(gradient, m[2] || ''));
+			} else if (m = prop.value().match(/\s*\-webkit\-gradient/)) {
+				// old webkit gradient definition
+				prop.value(cssGradient.oldWebkitLinearGradient(gradient));
+			}
+		});
+		
+		return true;
+	});
+	
 	return {
 		/**
 		 * Parses gradient definition
