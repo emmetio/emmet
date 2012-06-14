@@ -6,6 +6,8 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * 
+ * XXX This module is over-complicated, should provide better implementation
+ * 
  * @param {Function} require
  * @param {Underscore} _
  */
@@ -281,41 +283,6 @@ zen_coding.define('resources', function(require, _) {
 		getSubset: function(syntax, name) {
 			return getSubset(VOC_USER, syntax, name) 
 				|| getSubset(VOC_SYSTEM, syntax, name);
-		},
-		
-		/**
-		 * Check if specified item exists in specified resource collection
-		 * (like 'empty', 'block_level')
-		 * @param {String} syntax 
-		 * @param {String} collection Collection name
-		 * @param {String} item Item name
-		 */
-		isItemInCollection: function(syntax, collection, item) {
-			return item in this.getElementsCollection(getVocabulary(VOC_USER)[syntax], collection)
-				|| item in this.getElementsCollection(getVocabulary(VOC_SYSTEM)[syntax], collection);
-		},
-		
-		/**
-		 * Returns specified elements collection (like 'empty', 'block_level') from
-		 * <code>resource</code>. If collections wasn't found, returns empty object
-		 * @param {Object} resource
-		 * @param {String} type
-		 * @return {Object}
-		 */
-		getElementsCollection: function(resource, type) {
-			if (resource && resource.element_types) {
-				// if it's not parsed yet – do it
-				var res = resource.element_types;
-				if (!isParsed(res)) {
-					for (var p in res) 
-						res[p] = stringToHash(res[p]);
-						
-					setParsed(res);
-				}
-				return res[type] || {};
-			}
-			else
-				return {};
 		},
 		
 		/**

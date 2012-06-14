@@ -29,13 +29,7 @@ zen_coding.exec(function(require, _) {
 		
 		if (!elemName && node.parent.name) {
 			// guess element name from TreeNode
-			switch (node.parent.name.toLowerCase()) {
-				case 'ul':
-				case 'ol':
-					elemName = 'li';
-					break;
-				// TODO add more auto names 
-			}
+			elemName = require('tagName').getMapping(node.parent.name);
 		}
 		
 		// if output tag name is undefined and user wants to output more than one

@@ -45,7 +45,7 @@
 		if (!profile.inline_break)
 			return false;
 			
-		// find toppest non-inline sibling
+		// find topmost non-inline sibling
 		while (node.previousSibling && node.previousSibling.isInline())
 			node = node.previousSibling;
 		

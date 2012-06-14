@@ -79,9 +79,9 @@ zen_coding.exec(function(require, _) {
 			node.parent = this;
 			
 			// check for implicit name
-			if (node.has_implicit_name && this.source.name && this.isInline()) {
-				node.name = 'span';
-			}
+//			if (node.has_implicit_name && this.source.name && this.isInline()) {
+//				node.name = 'span';
+//			}
 			
 			var lastChild = _.last(this.children);
 			if (lastChild) {
@@ -134,7 +134,7 @@ zen_coding.exec(function(require, _) {
 				return false;
 				
 			return (this.source._abbr && this.source._abbr.is_empty) 
-				|| require('resources').isItemInCollection(this.source.syntax, 'empty', this.name);
+				|| require('tagName').isEmptyElement(this.name);
 		},
 		
 		/**
@@ -142,8 +142,8 @@ zen_coding.exec(function(require, _) {
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return this.nodeType == 'text' || !this.source.name
-				|| require('resources').isItemInCollection(this.source.syntax, 'inline_level', this.name);
+			return this.nodeType == 'text' || !this.name
+				|| require('tagName').isInlineLevel(this.name);
 		},
 		
 		/**
@@ -278,6 +278,15 @@ zen_coding.exec(function(require, _) {
 				var child = this.findDeepestChild() || this;
 				child.content += text;
 			}
+		},
+		
+		/**
+		 * Check if current node name implied name (e.g. name is undefined,
+		 * but it should exist in output)
+		 * @returns {Boolean}
+		 */
+		hasImpliedName: function() {
+			return !this.name && this.has_implicit_name && this.nodeType == 'element';
 		}
 	};
 	

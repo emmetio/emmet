@@ -76,7 +76,7 @@
 					
 				if (name) {
 					var attr_result = parseAttributes(name);
-					this.name = attr_result[0] || 'div';
+					this.name = attr_result[0] || '';
 					this.has_implict_name = !attr_result[0];
 					this.attributes = attr_result[1];
 				}

@@ -191,12 +191,15 @@
 		equal(utils.unescapeText('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'), '<xsl:apply-templates select="item \\\\| other"/>');
 	});
 	
-	test('Implicit tag name', function() {
+	test('Implied tag name', function() {
 		runTest('#content', '<div id="content"></div>');
 		runTest('.content', '<div class="content"></div>');
 		runTest('#content.demo', '<div id="content" class="demo"></div>');
 		runTest('.demo[title=test]', '<div class="demo" title="test"></div>');
 		runTest('#some_id>.some_class', '<div id="some_id"><div class="some_class"></div></div>');
+		runTest('ul>.item', '<ul><li class="item"></li></ul>');
+		runTest('ol>.', '<ol><li class=""></li></ol>');
+		runTest('em>.', '<em><span class=""></span></em>');
 	});
 	
 	test('Dollar sign', function() {

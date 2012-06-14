@@ -91,6 +91,22 @@ zen_coding.define('transform', function(require, _) {
 		});
 	}
 	
+	/**
+	 * Resolves implicit node names in parsed tree
+	 * @param {ZenNode} tree
+	 */
+	function resolveNodeNames(tree) {
+		var tagName = require('tagName');
+		_.each(tree.children, function(node) {
+			if (node.hasImpliedName()) {
+				node.name = tagName.resolve(node.parent.name);
+			}
+			resolveNodeNames(node);
+		});
+		
+		return tree;
+	}
+	
 	return  {
 		/**
 		 * Transforms parsed abbreviation tree into final output tree 
@@ -198,7 +214,8 @@ zen_coding.define('transform', function(require, _) {
 				}
 			}, this);
 			
-			return parent;
+			// make sure all elements has their names
+			return resolveNodeNames(parent);
 		}
 	};
 });
