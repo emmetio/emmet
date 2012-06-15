@@ -110,6 +110,17 @@ zen_coding.define('preferences', function(require, _) {
 		},
 		
 		/**
+		 * Loads user-defined preferences from JSON
+		 * @param {Object} json
+		 * @returns
+		 */
+		load: function(json) {
+			_.each(json, function(value, key) {
+				this.set(key, value);
+			}, this);
+		},
+		
+		/**
 		 * For unit testing: use empty storage
 		 */
 		_startTest: function() {
