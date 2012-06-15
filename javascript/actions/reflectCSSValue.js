@@ -16,7 +16,7 @@ zen_coding.define('reflectCSSValue', function(require, _) {
 		if (editor.getSyntax() != 'css') return false;
 		
 		return require('actionUtils').compoundUpdate(editor, doCSSReflection(editor));
-	});
+	}, {label: 'CSS/Reflect Value'});
 	
 	function doCSSReflection(editor) {
 		/** @type zen_coding.cssEditTree */
@@ -36,13 +36,6 @@ zen_coding.define('reflectCSSValue', function(require, _) {
 		var caretDelta = caretPos - offset - property.range().start;
 		
 		handlers.exec(false, [property]);
-		
-//		var reName = getReflectedCSSName(property.name());
-//		_.each(cssRule.list(), function(p) {
-//			if (reName.test(p.name())) {
-//				reflectValue(property, p);
-//			}
-//		});
 		
 		if (oldRule !== cssRule.source) {
 			return {

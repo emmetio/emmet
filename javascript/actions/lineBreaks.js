@@ -82,7 +82,7 @@ zen_coding.exec(function(require, _) {
 		}
 			
 		return false;
-	});
+	}, {hidden: true});
 	
 	/**
 	 * Inserts newline character with proper indentation. This action is used in
@@ -119,5 +119,5 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return true;
-	});
+	}, {hidden: true});
 });

@@ -60,7 +60,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
 		if (!actions.run('expand_abbreviation', editor, syntax, profile))
 			editor.replaceContent(require('resources').getVariable('indentation'), editor.getCaretPos());
-	});
+	}, {hidden: true});
 	
 	// setup default handler
 	/**

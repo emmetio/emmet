@@ -34,5 +34,5 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {label: 'Numbers/Evaluate Math Expression'});
 });

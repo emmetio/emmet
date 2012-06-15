@@ -32,5 +32,5 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {label: 'HTML/Remove Tag'});
 });

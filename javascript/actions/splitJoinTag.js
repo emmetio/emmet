@@ -64,5 +64,5 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {label: 'HTML/Split\\Join Tag Declaration'});
 });

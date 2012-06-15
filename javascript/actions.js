@@ -7,20 +7,37 @@
 zen_coding.define('actions', function(require, _, zc) {
 	var actions = {};
 	
+	/**
+	 * “Humanizes” action name, makes it more readable for people
+	 * @param {String} name Action name (like 'expand_abbreviation')
+	 * @return Humanized name (like 'Expand Abbreviation')
+	 */
+	function humanizeActionName(name) {
+		return require('utils').trim(name.charAt(0).toUpperCase() 
+			+ name.substring(1).replace(/_[a-z]/g, function(str) {
+				return ' ' + str.charAt(1).toUpperCase();
+			}));
+	}
+	
 	return {
 		/**
 		 * Registers new action
 		 * @param {String} name Action name
 		 * @param {Function} fn Action function
-		 * @param {String} label Action label. May be used to build menus
-		 * @memberOf zen_coding.actions
+		 * @param {Object} options Custom action options:<br>
+		 * <b>label</b> : (<code>String</code>) – Human-readable action name. 
+		 * May contain '/' symbols as submenu separators<br>
+		 * <b>hidden</b> : (<code>Boolean</code>) – Indicates whether action
+		 * should be displayed in menu (<code>getMenu()</code> method)
+		 * 
+		 * @memberOf actions
 		 */
-		add: function(name, fn, label) {
+		add: function(name, fn, options) {
 			name = name.toLowerCase();
 			actions[name] = {
 				name: name,
 				fn: fn,
-				label: label
+				options: options || {}
 			};
 		},
 		
@@ -73,6 +90,50 @@ zen_coding.define('actions', function(require, _, zc) {
 		 */
 		getList: function() {
 			return _.values(this.getAll());
+		},
+		
+		/**
+		 * Returns actions list as structured menu. If action has <i>label</i>,
+		 * it will be splitted by '/' symbol into submenus (for example: 
+		 * CSS/Reflect Value) and grouped with other items
+		 * @param {Array} skipActions List of action identifiers that should be 
+		 * skipped from menu
+		 * @returns {Object}
+		 */
+		getMenu: function(skipActions) {
+			var result = {};
+			skipActions = skipActions || [];
+			_.each(this.getList(), function(action) {
+				if (action.options.hidden || _.include(skipActions, action.name))
+					return;
+				
+				var actionName = humanizeActionName(action.name);
+				var ctx = result;
+				if (action.options.label) {
+					var parts = action.options.label.split('/');
+					actionName = parts.pop();
+					
+					// create submenus, if needed
+					var menuName;
+					while (menuName = parts.shift()) {
+						if (!(menuName in ctx)) {
+							ctx[menuName] = {
+								type: 'submenu',
+								items: {}
+							};
+						}
+						
+						ctx = ctx[menuName].items;
+					}
+				}
+				
+				ctx[actionName] = {
+					type: 'action',
+					name: action.name
+				};
+			});
+			
+			return result;
 		}
 	};
 });

@@ -67,14 +67,14 @@ zen_coding.exec(function(require, _) {
 		return false;
 	}
 	
-	actions.add('match_pair', matchPair);
+	actions.add('match_pair', matchPair, {hidden: true});
 	actions.add('match_pair_inward', function(editor){
 		return matchPair(editor, 'in');
-	});
+	}, {label: 'HTML/Match Pair Tag (inward)'});
 
 	actions.add('match_pair_outward', function(editor){
 		return matchPair(editor, 'out');
-	});
+	}, {label: 'HTML/Match Pair Tag (outward)'});
 	
 	/**
 	 * Moves caret to matching opening or closing tag
@@ -107,5 +107,5 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {label: 'HTML/Go To Matching Tag Pair'});
 });

@@ -41,7 +41,7 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
-	});
+	}, {label: 'Encode\\Decode data:URL image'});
 	
 	/**
 	 * Test if <code>text</code> starts with <code>token</code> at <code>pos</code>

@@ -52,6 +52,6 @@ zen_coding.exec(function(require, _) {
 		
 		actions.add(prefix + '_number_by_' + String(Math.abs(num)).replace('.', '').substring(0, 2), function(editor) {
 			return incrementNumber(editor, num);
-		});
+		}, {label: 'Numbers/' + prefix.charAt(0).toUpperCase() + prefix.substring(1) + ' number by ' + Math.abs(num)});
 	});
 });

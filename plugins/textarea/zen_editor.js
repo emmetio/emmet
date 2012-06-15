@@ -52,7 +52,6 @@ var zen_editor = (function(){
 	 */
 	function getSelectionRange() {
 		if ('selectionStart' in target) { // W3C's DOM
-			var length = target.selectionEnd - target.selectionStart;
 			return {
 				start: target.selectionStart, 
 				end: target.selectionEnd 
