@@ -5,9 +5,13 @@
 	<!-- List of Zen Coding JavaScript files -->
 	<filelist dir="${zencoding_javascript}" id="javascript.core">
 		<file name="underscore.js"/>
-		<file name="zen_settings.js"/>
+		
 		<file name="core.js"/>
 		<file name="utils.js"/>
+		<file name="range.js"/>
+		<file name="handlerList.js"/>
+		<file name="tokenIterator.js"/>
+		<file name="stringStream.js"/>
 		<file name="resources.js"/>
 		<file name="actions.js"/>
 		<file name="profile.js"/>
@@ -16,31 +20,51 @@
 		<file name="actionUtils.js"/>
 		<file name="base64.js"/>
 		<file name="html_matcher.js"/>
-		<file name="filters.js"/>
-		<file name="elements.js"/>
 		<file name="tabStops.js"/>
+		<file name="preferences.js"/>
+		<file name="filters.js"/>
 			
-		<file name="parsers/abbreviation.js"/>
-		<file name="parsers/cssParser.js"/>
-		<file name="parsers/xmlParser.js"/>
-		<file name="parsers/parserUtils.js"/>
-			
+		<file name="elements.js"/>
 		<file name="elements/parsedElements.js"/>
 		<file name="elements/ZenNode.js"/>
 		
-		<file name="resolvers/expando.js"/>
-		<file name="resolvers/generator.js"/>
+		<file name="parsers/abbreviationParser.js"/>
+		<file name="parsers/cssParser.js"/>
+		<file name="parsers/xmlParser.js"/>
+		<file name="parsers/editTree/editTree.js"/>
+		<file name="parsers/editTree/cssEditTree.js"/>
+		<file name="parsers/editTree/xmlEditTree.js"/>
 	</filelist>
 	
 	<fileset dir="${zencoding_javascript}/filters" id="javascript.filters">
 		<include name="*.js"/>
 	</fileset>
 	
-	<fileset dir="${zencoding_javascript}/actions" id="javascript.actions">
-		<include name="*.js"/>
-	</fileset>
+	<filelist dir="${zencoding_javascript}/actions" id="javascript.actions">
+		<file name="base64.js"/>
+		<file name="editPoints.js"/>
+		<file name="evaluateMath.js"/>
+		<file name="expandAbbreviation.js"/>
+		<file name="increment_decrement.js"/>
+		<file name="lineBreaks.js"/>
+		<file name="matchPair.js"/>
+		<file name="mergeLines.js"/>
+		<file name="reflectCSSValue.js"/>
+		<file name="removeTag.js"/>
+		<file name="selectItem.js"/>
+		<!-- <file name="selectLine.js"/> -->
+		<file name="splitJoinTag.js"/>
+		<file name="toggleComment.js"/>
+		<file name="wrapWithAbbreviation.js"/>
+		<file name="updateImageSize.js"/>
+	</filelist>
 	
 	<fileset dir="${zencoding_javascript}/generators" id="javascript.generators">
 		<include name="*.js"/>
 	</fileset>
+	
+	<fileset dir="${zencoding_javascript}/resolvers" id="javascript.resolvers">
+		<include name="*.js"/>
+	</fileset>
+
 </project>

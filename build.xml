@@ -4,72 +4,23 @@
 	
 	<import file="${basedir}/build/resources.xml"/>
 	
-	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
-	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
-	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
-	<import file="${zencoding_plugins_source}/komodo/build.xml"/>
-	<import file="${zencoding_plugins_source}/pspad/build.xml"/>
-	<import file="${zencoding_plugins_source}/npp/build.xml"/>
-	<import file="${zencoding_plugins_source}/e2/build.xml"/>
-	<import file="${zencoding_plugins_source}/codemirror/build.xml"/>
-	<import file="${zencoding_plugins_source}/coda/build.xml"/>
-	<import file="${zencoding_plugins_source}/espresso/build.xml"/>
-	
-	<!-- List of Zen Coding JavaScript files -->
-	<filelist dir="${zencoding_javascript}" id="javascript.files">
-		<file name="underscore.js"/>
-		<file name="zen_settings.js"/>
-		<file name="zen_resources.js"/>
-		<file name="zen_parser.js"/>
-		<file name="zen_coding.js"/>
-		<file name="zen_actions.js"/>
-		<file name="elements-factory.js"/>
-		<file name="generator.js"/>
-		<file name="html_matcher.js"/>
-		<file name="base64.js"/>
-			
-		<file name="parsers/parsexml.js"/>
-		<file name="parsers/sex.js"/>
-		<file name="parsers/parserutils.js"/>
-		<file name="parsers/actions.js"/>
-		<file name="parsers/traverse-actions.js"/>
-	</filelist>
-	
-	<fileset dir="${zencoding_javascript_filters}" id="javascript.filters">
-		<include name="*.js"/>
-	</fileset>
-	
 	<target name="init">
 		<mkdir dir="${zencoding_build_dir}"/>
 		<mkdir dir="${zencoding_plugins}"/>
 	</target>
 	
-	<target name="create_javascript" depends="init">
+	<target name="plugin.generic.js" depends="init">
 		<concat destfile="${zencoding_build_dir}/zencoding.js">
 			<filelist refid="javascript.core" />
+    		<filelist refid="javascript.actions" />
+    		<fileset refid="javascript.resolvers" />
     		<fileset refid="javascript.filters" />
-    		<fileset refid="javascript.actions" />
     		<fileset refid="javascript.generators" />
 		</concat>
 	</target>
-	
-    <target name="generic_java" description="Builds generic package for Java usage">
-        <mkdir dir="${zencoding_plugins}/java"/>
-    	<concat destfile="${zencoding_plugins}/java/zencoding.js">
-    		<filelist refid="javascript.core" />
-    		<fileset refid="javascript.filters" />
-    		<fileset refid="javascript.actions" />
-    		<fileset refid="javascript.generators" />
-    		<fileset dir="${zencoding_plugins_source}/java">
-    			<include name="*.js"/>
-    		</fileset>
-    	</concat>
-    </target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, 
-		npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin,
-		coda_bundle, espresso_bundle, textmate_bundle">
+	<target name="main" depends="plugin.generic.js">
 		<echo>Done</echo>
 	</target>
 </project>
