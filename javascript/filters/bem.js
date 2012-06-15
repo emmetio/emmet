@@ -9,12 +9,23 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
-	var separators = {
-		element: '__',
-		modifier: '_'
-	};
+	var prefs = require('preferences');
+	prefs.set('bem.elementSeparator', '__', 'Class name’s element separator.');
+	prefs.set('bem.modifierSeparator', '_', 'Class name’s modifier separator.');
+	prefs.set('bem.shortElementPrefix', '-', 
+			'Symbol for describing short “block-element” notation. Class names '
+			+ 'prefixed with this symbol will be treated as element name for parent‘s '
+			+ 'block name. Each symbol instance traverses one level up in parsed ' 
+			+ 'tree for block name lookup. Empty value will disable short notation.');
 	
 	var shouldRunHtmlFilter = false;
+	
+	function getSeparators() {
+		return {
+			element: prefs.get('bem.elementSeparator'),
+			modifier: prefs.get('bem.modifierSeparator')
+		};
+	}
 	
 	/**
 	 * @param {ZenNode} item
@@ -61,10 +72,15 @@ zen_coding.exec(function(require, _) {
 	 */
 	function normalizeClassName(className) {
 		var utils = require('utils');
-		className = ' ' + (className || '') + ' ';
-		className = className.replace(/\s+/g, ' ').replace(/\s(\-+)/g, function(str, p1) {
-			return ' ' + utils.repeatString(separators.element, p1.length);
-		});
+		className = (' ' + (className || '') + ' ').replace(/\s+/g, ' ');
+		
+		var shortSymbol = prefs.get('bem.shortElementPrefix');
+		if (shortSymbol) {
+			var re = new RegExp('\\s(' + utils.escapeForRegexp(shortSymbol) + '+)', 'g');
+			className = className.replace(re, function(str, p1) {
+				return ' ' + utils.repeatString(getSeparators().element, p1.length);
+			});
+		}
 		
 		return utils.trim(className);
 	}
@@ -87,6 +103,7 @@ zen_coding.exec(function(require, _) {
 		// * block__element_modifier1_modifier2
 		// * block_modifier
 		var block = '', element = '', modifier = '';
+		var separators = getSeparators();
 		if (~name.indexOf(separators.element)) {
 			var blockElem = name.split(separators.element);
 			var elemModifiers = blockElem[1].split(separators.modifier);
@@ -121,7 +138,6 @@ zen_coding.exec(function(require, _) {
 				result.push(prefix + separators.modifier + modifier);
 			}
 			
-			
 			item.__bem.block = block;
 			item.__bem.element = element;
 			item.__bem.modifier = modifier;
@@ -143,6 +159,7 @@ zen_coding.exec(function(require, _) {
 	 * transformed
 	 */
 	function transformClassName(name, item, entityType) {
+		var separators = getSeparators();
 		var reSep = new RegExp('^(' + separators[entityType] + ')+', 'g');
 		if (reSep.test(name)) {
 			var depth = 0; // parent lookup depth

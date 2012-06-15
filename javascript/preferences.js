@@ -1,5 +1,5 @@
 /**
- * Module for storing Zen Coding preferences and its modules. This module 
+ * Common module's preferences storage. This module 
  * provides general storage for all module preferences, their description and
  * default values.<br><br>
  * 

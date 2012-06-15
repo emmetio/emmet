@@ -45,6 +45,20 @@
 		
 		expand('.b>.__e1>.____e2|bem');
 		equal(editorStub.getContent(), '<div class="b">\n\t<div class="b__e1">\n\t\t<div class="b__e2"></div>\n\t</div>\n</div>');
+		
+		// test custom separators
+		var prefs = zen_coding.require('preferences');
+		prefs._startTest();
+		prefs.set('bem.shortElementPrefix', '');
+		prefs.set('bem.modifierSeparator', '--');
+		
+		expand('.b>.-e1|bem');
+		equal(editorStub.getContent(), '<div class="b">\n\t<div class="-e1"></div>\n</div>', 'Short notation disabled');
+		
+		expand('.b>.--m1>.--m2|bem');
+		equal(editorStub.getContent(), '<div class="b">\n\t<div class="b b--m1">\n\t\t<div class="b b--m2"></div>\n\t</div>\n</div>', 'Custom modifier separator');
+		
+		prefs._stopTest();
 	});
 	
 	test('Comment (c)', function() {
@@ -111,5 +125,4 @@
 		editorStub.setSyntax(oldSyntax);
 		editorStub.setProfileName(oldProfile);
 	});
-	
 })();
