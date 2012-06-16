@@ -134,6 +134,26 @@ zen_coding.define('actions', function(require, _, zc) {
 			});
 			
 			return result;
+		},
+
+		/**
+		 * Returns action name associated with menu item title
+		 * @param {String} title
+		 * @returns {String}
+		 */
+		getActionNameForMenuTitle: function(title, menu) {
+			var item = null;
+			_.find(menu || this.getMenu(), function(val, key) {
+				if (val.type == 'action') {
+					if (key == title || val.name == title) {
+						return item = val.name;
+					}
+				} else {
+					return item = this.getActionNameForMenuTitle(title, val.items);
+				}
+			}, this);
+			
+			return item || null;
 		}
 	};
 });
