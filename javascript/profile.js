@@ -55,7 +55,11 @@ zen_coding.define('profile', function(require, _) {
 		 * @returns {Object} New profile
 		 */
 		create: function(name, options) {
-			return createProfile(name, options);
+			if (arguments.length == 2)
+				return createProfile(name, options);
+			else
+				// create profile object only
+				return _.defaults(name || {}, defaultProfile);
 		},
 		
 		/**
@@ -79,7 +83,7 @@ zen_coding.define('profile', function(require, _) {
 			if (_.isString(name) && name.toLowerCase() in profiles)
 				return profiles[name.toLowerCase()];
 				
-			return name && 'tag_case' in name ? name : profiles['plain'];
+			return name && 'tag_case' in name ? this.create(name) : profiles['plain'];
 		},
 		
 		/**
