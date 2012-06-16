@@ -37,16 +37,17 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 			if (!range || range[0] == -1) // nothing to wrap
 				return false;
 			
-			var narrowedSel = utils.narrowToNonSpace(info.content, range[0], range[1]);
-			startOffset = narrowedSel[0];
-			endOffset = narrowedSel[1];
+			/** @type Range */
+			var narrowedSel = utils.narrowToNonSpace(info.content, range[0], range[1] - range[0]);
+			startOffset = narrowedSel.start;
+			endOffset = narrowedSel.end;
 		}
 		
 		var newContent = utils.escapeText(info.content.substring(startOffset, endOffset));
 		var result = require('wrapWithAbbreviation').wrap(abbr, editorUtils.unindent(editor, newContent), info.syntax, info.profile);
 		
 		if (result) {
-			editor.setCaretPos(endOffset);
+//			editor.setCaretPos(endOffset);
 			editor.replaceContent(result, startOffset, endOffset);
 			return true;
 		}
