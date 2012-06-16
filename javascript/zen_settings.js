@@ -644,6 +644,7 @@ var zen_settings = {
 			'bq': '<blockquote>',
 			'acr': '<acronym>',
 			'fig': '<figure>',
+			'figc': '<figcaption>',
 			'ifr': '<iframe>',
 			'emb': '<embed>',
 			'obj': '<object>',
