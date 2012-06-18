@@ -8,7 +8,7 @@
 	},
 	
 	"css": {
-		"filters": "html,css",
+		"filters": "html",
 		"snippets": {
 			"@i": "@import url(|);",
 			"@m": "@media print {\n\t|\n}",

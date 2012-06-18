@@ -405,9 +405,9 @@ zen_coding.define('cssEditTree', function(require, _) {
 			// search right for full rule set
 			while (offset < len) {
 				ch = content.charAt(offset);
-				if (ch == '{')
+				if (ch == '{') {
 					bracePos = offset;
-				else if (ch == '}') {
+				} else if (ch == '}') {
 					if (bracePos != -1)
 						result = content.substring(bracePos, offset + 1);
 					break;
@@ -428,7 +428,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 				
 				// also trim whitespace
 				selector = content.substring(offset + 1, bracePos).replace(/^[\s\n\r]+/m, '');
-				return require('range').create(bracePos - selector.length, bracePos + result.length);
+				return require('range').create(bracePos - selector.length, result.length);
 			}
 			
 			return null;
