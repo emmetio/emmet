@@ -41,21 +41,21 @@
 	</fileset>
 	
 	<filelist dir="${zencoding_javascript}/actions" id="javascript.actions">
-		<file name="base64.js"/>
-		<file name="editPoints.js"/>
-		<file name="evaluateMath.js"/>
 		<file name="expandAbbreviation.js"/>
+		<file name="wrapWithAbbreviation.js"/>
+		<file name="toggleComment.js"/>
+		<file name="editPoints.js"/>
+		<file name="selectItem.js"/>
+		<file name="matchPair.js"/>
+		<file name="removeTag.js"/>
+		<file name="splitJoinTag.js"/>
+		<file name="reflectCSSValue.js"/>
+		<file name="evaluateMath.js"/>
 		<file name="increment_decrement.js"/>
 		<file name="lineBreaks.js"/>
-		<file name="matchPair.js"/>
 		<file name="mergeLines.js"/>
-		<file name="reflectCSSValue.js"/>
-		<file name="removeTag.js"/>
-		<file name="selectItem.js"/>
 		<!-- <file name="selectLine.js"/> -->
-		<file name="splitJoinTag.js"/>
-		<file name="toggleComment.js"/>
-		<file name="wrapWithAbbreviation.js"/>
+		<file name="base64.js"/>
 		<file name="updateImageSize.js"/>
 	</filelist>
 	

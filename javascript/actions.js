@@ -150,9 +150,9 @@ zen_coding.define('actions', function(require, _, zc) {
 		 */
 		getActionNameForMenuTitle: function(title, menu) {
 			var item = null;
-			_.find(menu || this.getMenu(), function(val, key) {
+			_.find(menu || this.getMenu(), function(val) {
 				if (val.type == 'action') {
-					if (key == title || val.name == title) {
+					if (val.label == title || val.name == title) {
 						return item = val.name;
 					}
 				} else {
