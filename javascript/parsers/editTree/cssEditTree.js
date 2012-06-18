@@ -114,6 +114,11 @@ zen_coding.define('cssEditTree', function(require, _) {
 			
 			tokens.push(token);
 		}
+		
+		// reached the end of tokens list
+		if (tokens.length) {
+			return range(tokens[0].start, _.last(tokens).end - tokens[0].start);
+		}
 	}
 	
 	/**
@@ -428,7 +433,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 				
 				// also trim whitespace
 				selector = content.substring(offset + 1, bracePos).replace(/^[\s\n\r]+/m, '');
-				return require('range').create(bracePos - selector.length, result.length);
+				return require('range').create(bracePos - selector.length, result.length + selector.length);
 			}
 			
 			return null;
