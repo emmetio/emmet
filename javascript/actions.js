@@ -98,10 +98,10 @@ zen_coding.define('actions', function(require, _, zc) {
 		 * CSS/Reflect Value) and grouped with other items
 		 * @param {Array} skipActions List of action identifiers that should be 
 		 * skipped from menu
-		 * @returns {Object}
+		 * @returns {Array}
 		 */
 		getMenu: function(skipActions) {
-			var result = {};
+			var result = [];
 			skipActions = skipActions || [];
 			_.each(this.getList(), function(action) {
 				if (action.options.hidden || _.include(skipActions, action.name))
@@ -114,23 +114,30 @@ zen_coding.define('actions', function(require, _, zc) {
 					actionName = parts.pop();
 					
 					// create submenus, if needed
-					var menuName;
+					var menuName, submenu;
 					while (menuName = parts.shift()) {
-						if (!(menuName in ctx)) {
-							ctx[menuName] = {
+						submenu = _.find(ctx, function(item) {
+							return item.type == 'submenu' && item.name == menuName;
+						});
+						
+						if (!submenu) {
+							submenu = {
+								name: menuName,
 								type: 'submenu',
-								items: {}
+								items: []
 							};
+							ctx.push(submenu);
 						}
 						
-						ctx = ctx[menuName].items;
+						ctx = submenu.items;
 					}
 				}
 				
-				ctx[actionName] = {
+				ctx.push({
 					type: 'action',
-					name: action.name
-				};
+					name: action.name,
+					label: actionName
+				});
 			});
 			
 			return result;

@@ -52,10 +52,10 @@
 	<script src="../../javascript/parsers/editTree/cssEditTree.js"></script>
 	<script src="../../javascript/parsers/editTree/xmlEditTree.js"></script>
 	
-	<script src="../../javascript/actions/base64.js"></script>
+	<script src="../../javascript/actions/expandAbbreviation.js"></script>
+	<script src="../../javascript/actions/wrapWithAbbreviation.js"></script>
 	<script src="../../javascript/actions/editPoints.js"></script>
 	<script src="../../javascript/actions/evaluateMath.js"></script>
-	<script src="../../javascript/actions/expandAbbreviation.js"></script>
 	<script src="../../javascript/actions/increment_decrement.js"></script>
 	<script src="../../javascript/actions/lineBreaks.js"></script>
 	<script src="../../javascript/actions/matchPair.js"></script>
@@ -66,7 +66,7 @@
 	<script src="../../javascript/actions/selectLine.js"></script>
 	<script src="../../javascript/actions/splitJoinTag.js"></script>
 	<script src="../../javascript/actions/toggleComment.js"></script>
-	<script src="../../javascript/actions/wrapWithAbbreviation.js"></script>
+	<script src="../../javascript/actions/base64.js"></script>
 	<script src="../../javascript/actions/updateImageSize.js"></script>
 	
 	<script src="../../javascript/resolvers/css.js"></script>
@@ -112,6 +112,7 @@ item 3
 	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_editor.showInfo();" style="cursor:pointer; display: block;" />
 	<script type="text/javascript">
 		zen_editor.setup({pretty_break: true, use_tab: true});
+		console.log(zen_coding.require('actions').getMenu());
 	</script>
 </body>
 </html>
