@@ -251,7 +251,7 @@ zen_coding.define('cssGradient', function(require, _) {
 					var ruleEnd = ruleStart + cssRule.toString().length;
 					
 					pasteGradient(cssProp, gradient);
-					editor.replaceContent(cssRule.toString(), ruleStart, ruleEnd);
+					editor.replaceContent(cssRule.toString(), ruleStart, ruleEnd, true);
 					editor.setCaretPos(cssProp.valueRange(true).end);
 					return true;
 				}
