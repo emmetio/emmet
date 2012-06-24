@@ -686,5 +686,20 @@
 	"haml": {
 		"filters": "haml",
 		"extends": "html"
+	},
+	
+	"scss": {
+		"filters": "haml",
+		"extends": "css"
+	},
+	
+	"sass": {
+		"filters": "haml",
+		"extends": "css"
+	},
+	
+	"less": {
+		"filters": "haml",
+		"extends": "css"
 	}
 }
