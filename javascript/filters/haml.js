@@ -10,6 +10,10 @@
 zen_coding.exec(function(require, _) {
 	var childToken = '${child}';
 	
+	function transformClassName(className) {
+		return require('utils').trim(className).replace(/\s+/g, '.');
+	}
+	
 	/**
 	 * Creates HAML attributes string from tag according to profile settings
 	 * @param {ZenNode} tag
@@ -30,7 +34,7 @@ zen_coding.exec(function(require, _) {
 					attrs += '#' + (a.value || cursor);
 					break;
 				case 'class':
-					attrs += '.' + (a.value || cursor);
+					attrs += '.' + transformClassName(a.value || cursor);
 					break;
 				// process other attributes
 				default:
