@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Find all vendor-prefixed CSS properties</title>
+</head>
+<body>
+	<h2>All properties</h2>
+	<div id="all-props"></div>
+	
+	<script type="text/javascript">
+		(function() {
+			var style = window.getComputedStyle(document.body, null);
+			var prefixedProperties = [];
+			var re = /^\-[a-z]+\-/, p;
+			
+			if (style.length) {
+				for (var i = 0, il = style.length; i < il; i++) {
+					p = style.item(i);
+					if (re.test(p)) {
+						prefixedProperties.push(p.replace(re, ''));
+					}
+				}
+			} else {
+				// fucking Opera...
+				re = /^[A-Z][a-z]*/;
+				for (p in style) {
+					if (re.test(p)) {
+						prefixedProperties.push(
+							p
+								.replace(re, '')
+								.replace(/([a-z])([A-Z])/g, function(str, p1, p2) {
+									return p1 + '-' + p2.toLowerCase();
+								})
+								.toLowerCase()
+						);
+					}
+				}
+			}
+			
+			document.getElementById('all-props').innerHTML = prefixedProperties.join(', ');
+		})();
+	</script>
+</body>
+</html>
