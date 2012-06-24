@@ -24,7 +24,7 @@ zen_coding.exec(function(require, _) {
 			if (item.content)
 				item.content = item.content.replace(re, '');
 			
-			process(item);
+			process(item, re);
 		});
 		
 		return tree;
