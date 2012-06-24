@@ -90,7 +90,7 @@ zen_coding.define('cssResolver', function(require, _) {
 	
 	// XXX module preferences
 	var prefs = require('preferences');
-	prefs.set('css.valueSeparator', ': ',
+	prefs.define('css.valueSeparator', ': ',
 			'Defines a symbol that should be placed between CSS property and ' 
 			+ 'value when expanding CSS abbreviations.');
 	
@@ -100,11 +100,11 @@ zen_coding.define('cssResolver', function(require, _) {
 		+ 'abbreviations. Empty list means that all possible CSS values may ' 
 		+ 'have <code><%= vendor %></code> prefix.');
 	
-	prefs.set('css.webkitProperties', '', descTemplate({vendor: 'webkit'}));
-	prefs.set('css.mozProperties', '', descTemplate({vendor: 'moz'}));
-	prefs.set('css.msProperties', '', descTemplate({vendor: 'ms'}));
-	prefs.set('css.oProperties', '', descTemplate({vendor: 'o'}));
-	prefs.set('css.unitlessProperties', 'z-index, line-height', 
+	prefs.define('css.webkitProperties', '', descTemplate({vendor: 'webkit'}));
+	prefs.define('css.mozProperties', '', descTemplate({vendor: 'moz'}));
+	prefs.define('css.msProperties', '', descTemplate({vendor: 'ms'}));
+	prefs.define('css.oProperties', '', descTemplate({vendor: 'o'}));
+	prefs.define('css.unitlessProperties', 'z-index, line-height', 
 			'The list of properties whose values ​​must not contain units.');
 	
 	function isNumeric(ch) {

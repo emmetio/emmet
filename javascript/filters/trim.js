@@ -13,7 +13,7 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
-	require('preferences').set('filter.trimRegexp', '[\\s|\\u00a0]*[\\d|#|\\-|\*|\\u2022]+\\.?\\s*',
+	require('preferences').define('filter.trimRegexp', '[\\s|\\u00a0]*[\\d|#|\\-|\*|\\u2022]+\\.?\\s*',
 			'Regular expression used to remove list markers (numbers, dashes, ' 
 			+ 'bullets, etc.) in <code>t</code> (trim) filter. The trim filter '
 			+ 'is useful for wrapping with abbreviation lists, pased from other ' 

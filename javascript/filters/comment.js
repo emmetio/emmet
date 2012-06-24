@@ -12,7 +12,7 @@ zen_coding.exec(function(require, _) {
 	/** @type zen_coding.preferences */
 	var prefs = require('preferences');
 	
-	prefs.set('filter.commentAfter', 
+	prefs.define('filter.commentAfter', 
 			'\n<%= padding %><!-- /<%= attr("id", "#") %><%= attr("class", ".") %> -->',
 			'A definition of comment that should be placed <i>after</i> matched '
 			+ 'element when <code>comment</code> filter is applied. This definition '
@@ -35,14 +35,14 @@ zen_coding.exec(function(require, _) {
 			
 			+'</ul>');
 	
-	prefs.set('filter.commentBefore', 
+	prefs.define('filter.commentBefore', 
 			'',
 			'A definition of comment that should be placed <i>before</i> matched '
 			+ 'element when <code>comment</code> filter is applied. '
 			+ 'For more info, read description of <code>filter.commentAfter</code> '
 			+ 'property');
 	
-	prefs.set('filter.commentTrigger', 'id, class',
+	prefs.define('filter.commentTrigger', 'id, class',
 			'A comma-separated list of attribute names that should exist on tag '
 			+ 'where comment should be added. If you wish to add comment for '
 			+ 'every element, set this option to <code>*</code>');

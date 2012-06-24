@@ -49,8 +49,8 @@
 		// test custom separators
 		var prefs = zen_coding.require('preferences');
 		prefs._startTest();
-		prefs.set('bem.shortElementPrefix', '');
-		prefs.set('bem.modifierSeparator', '--');
+		prefs.define('bem.shortElementPrefix', '');
+		prefs.define('bem.modifierSeparator', '--');
 		
 		expand('.b>.-e1|bem');
 		equal(editorStub.getContent(), '<div class="b">\n\t<div class="-e1"></div>\n</div>', 'Short notation disabled');

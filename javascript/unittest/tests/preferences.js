@@ -4,15 +4,13 @@ test('Check preferences', function() {
 	var prefs = zen_coding.require('preferences');
 	prefs._startTest();
 	
-	prefs.set('a', 1, 'test');
+	prefs.define('a', 1, 'test');
 	equal(prefs.get('a'), 1, 'Preference "a" is set to 1');
 	equal(prefs.description('a'), 'test', 'Preference\'s "a" description is "test"');
 	
-	prefs.set({
+	prefs.define({
 		b: 'v1',
-		c: {
-			value: 'v2'
-		},
+		c: 'v2',
 		d: {p: 1}
 	});
 	

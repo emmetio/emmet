@@ -15,14 +15,14 @@ zen_coding.define('cssGradient', function(require, _) {
 	// XXX define preferences
 	/** @type preferences */
 	var prefs = require('preferences');
-	prefs.set('css.gradient.prefixes', 'webkit, moz, ms, o',
+	prefs.define('css.gradient.prefixes', 'webkit, moz, ms, o',
 			'A comma-separated list of vendor-prefixes for which values should ' 
 			+ 'be generated.');
 	
-	prefs.set('css.gradient.oldWebkit', true,
+	prefs.define('css.gradient.oldWebkit', true,
 			'Generate gradient definition for old Webkit implementations');
 	
-	prefs.set('css.gradient.omitDefaultDirection', true,
+	prefs.define('css.gradient.omitDefaultDirection', true,
 		'Do not output default direction definition in generated gradients.');
 	
 	function normalizeSpace(str) {

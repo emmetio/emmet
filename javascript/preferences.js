@@ -13,7 +13,9 @@
  */
 zen_coding.define('preferences', function(require, _) {
 	var preferences = {};
-	var _dbg = null;
+	var defaults = {};
+	var _dbgDefaults = null;
+	var _dbgPreferences = null;
 	
 	function isValueObj(obj) {
 		return _.isObject(obj) 
@@ -23,14 +25,14 @@ zen_coding.define('preferences', function(require, _) {
 	
 	return {
 		/**
-		 * Updates/creates new preference item
+		 * Creates new preference item with default value
 		 * @param {String} name Preference name. You can also pass object
 		 * with many options
 		 * @param {Object} value Preference default value
 		 * @param {String} description Item textual description
 		 * @memberOf preferences
 		 */
-		set: function(name, value, description) {
+		define: function(name, value, description) {
 			var prefs = name;
 			if (_.isString(name)) {
 				prefs = {};
@@ -41,7 +43,36 @@ zen_coding.define('preferences', function(require, _) {
 			}
 			
 			_.each(prefs, function(v, k) {
-				preferences[k] = isValueObj(v) ? v : {value: v};
+				defaults[k] = isValueObj(v) ? v : {value: v};
+			});
+		},
+		
+		/**
+		 * Updates preference item value. Preference value should be defined
+		 * first with <code>define</code> method.
+		 * @param {String} name Preference name. You can also pass object
+		 * with many options
+		 * @param {Object} value Preference default value
+		 * @memberOf preferences
+		 */
+		set: function(name, value) {
+			var prefs = name;
+			if (_.isString(name)) {
+				prefs = {};
+				prefs[name] = value;
+			}
+			
+			_.each(prefs, function(v, k) {
+				if (!(k in defaults)) {
+					throw 'Property "' + k + '" is not defined. You should define it first with `define` method of current module';
+				}
+				
+				// do not set value if it equals to default value
+				if (v !== defaults[k].value) {
+					preferences[k] = v;
+				} else if  (k in preferences) {
+					delete preferences[p];
+				}
 			});
 		},
 		
@@ -52,7 +83,13 @@ zen_coding.define('preferences', function(require, _) {
 		 * not defined
 		 */
 		get: function(name) {
-			return name in preferences ? preferences[name].value : void 0;
+			if (name in preferences)
+				return preferences[name];
+			
+			if (name in defaults)
+				return defaults[name].value;
+			
+			return void 0;
 		},
 		
 		/**
@@ -78,11 +115,11 @@ zen_coding.define('preferences', function(require, _) {
 		 * @returns {Object}
 		 */
 		description: function(name) {
-			return name in preferences ? preferences[name].description : void 0;
+			return name in defaults ? defaults[name].description : void 0;
 		},
 		
 		/**
-		 * Removes specified preference(s)
+		 * Completely removes specified preference(s)
 		 * @param {String} name Preference name (or array of names)
 		 */
 		remove: function(name) {
@@ -92,6 +129,9 @@ zen_coding.define('preferences', function(require, _) {
 			_.each(name, function(key) {
 				if (key in preferences)
 					delete preferences[key];
+				
+				if (key in defaults)
+					delete defaults[key];
 			});
 		},
 		
@@ -100,13 +140,13 @@ zen_coding.define('preferences', function(require, _) {
 		 * @returns {Array}
 		 */
 		list: function() {
-			return _.map(_.keys(preferences).sort(), function(key) {
+			return _.map(_.keys(defaults).sort(), function(key) {
 				return {
 					name: key,
-					value: preferences[key].value,
-					description: preferences[key].description
+					value: this.get(key),
+					description: defaults[key].description
 				};
-			});
+			}, this);
 		},
 		
 		/**
@@ -121,10 +161,20 @@ zen_coding.define('preferences', function(require, _) {
 		},
 		
 		/**
+		 * Reset to defaults
+		 * @returns
+		 */
+		reset: function() {
+			preferences = {};
+		},
+		
+		/**
 		 * For unit testing: use empty storage
 		 */
 		_startTest: function() {
-			_dbg = preferences;
+			_dbgDefaults = defaults;
+			_dbgPreferences = preferences;
+			defaults = {};
 			preferences = {};
 		},
 		
@@ -132,7 +182,8 @@ zen_coding.define('preferences', function(require, _) {
 		 * For unit testing: restore original storage
 		 */
 		_stopTest: function() {
-			preferences = _dbg;
+			defaults = _dbgDefaults;
+			preferences = _dbgPreferences;
 		}
 	};
 });

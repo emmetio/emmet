@@ -10,9 +10,9 @@
  */
 zen_coding.exec(function(require, _) {
 	var prefs = require('preferences');
-	prefs.set('bem.elementSeparator', '__', 'Class name’s element separator.');
-	prefs.set('bem.modifierSeparator', '_', 'Class name’s modifier separator.');
-	prefs.set('bem.shortElementPrefix', '-', 
+	prefs.define('bem.elementSeparator', '__', 'Class name’s element separator.');
+	prefs.define('bem.modifierSeparator', '_', 'Class name’s modifier separator.');
+	prefs.define('bem.shortElementPrefix', '-', 
 			'Symbol for describing short “block-element” notation. Class names '
 			+ 'prefixed with this symbol will be treated as element name for parent‘s '
 			+ 'block name. Each symbol instance traverses one level up in parsed ' 

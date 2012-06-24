@@ -10,7 +10,7 @@ zen_coding.exec(function(require, _) {
 	var prefs = require('preferences');
 	
 	// setup default preferences
-	prefs.set('css.closeBraceIndentation', '\n',
+	prefs.define('css.closeBraceIndentation', '\n',
 			'Indentation before closing brace of CSS rule. Some users prefere' 
 			+ 'indented closing brace of CSS rule for better readability. '
 			+ 'This preference’s value will be automatically inserted before '
