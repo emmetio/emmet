@@ -244,6 +244,10 @@
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 0, end: 1}, 'Selector matched (backward)');
 		
+		editorStub.setCaretPos(10);
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 10, end: 13}, 'Selected value under caret');
+		
 		editorStub.setSyntax('html');
 	});
 	
@@ -312,6 +316,10 @@
 		
 		run('select_previous_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 1, end: 4}, 'No movement (backward)');
+		
+		editorStub.setCaretPos(16);
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 23}, 'Selected attribute value first');
 	});
 	
 	test('Select current line', function() {

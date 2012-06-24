@@ -3,7 +3,7 @@
  * -- Search for next/previous items in HTML
  * -- Search for next/previous items in CSS
  * @constructor
- * @memberOf __zenSelectItemAction
+ * @memberOf __selectItemActionDefine
  * @param {Function} require
  * @param {Underscore} _
  */
@@ -207,11 +207,24 @@ zen_coding.exec(function(require, _) {
 		
 		// no selected range, find nearest one
 		if (isBackward)
+			// search backward
 			return _.find(ranges, function(r) {
 				return r.start < selRange.start;
 			});
 		
 		// search forward
+		// to deal with overlapping ranges (like full attribute definition
+		// and attribute value) let's find range under caret first
+		if (!curRange) {
+			var matchedRanges = _.filter(ranges, function(r) {
+				return r.inside(selRange.end);
+			});
+			
+			if (matchedRanges.length > 1)
+				return matchedRanges[1];
+		}
+		
+		
 		return _.find(ranges, function(r) {
 			return r.end > selRange.end;
 		});
@@ -348,6 +361,15 @@ zen_coding.exec(function(require, _) {
 			
 			if (!curRange) {
 				// no selection, select nearest item
+				var matchedRanges = _.filter(possibleRanges, function(r) {
+					return r.inside(selRange.end);
+				});
+				
+				if (matchedRanges.length > 1) {
+					curRange = matchedRanges[1];
+					break;
+				}
+				
 				if (curRange = _.find(possibleRanges, nearestItemFn))
 					break;
 			} else {
