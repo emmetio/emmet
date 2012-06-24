@@ -49,6 +49,8 @@ test('Value normalization', function() {
 test('Abbreviation expanding', function() {
 	var css = zen_coding.require('cssResolver');
 	
+	equal(css.expandToSnippet('p0'), 'padding: 0;', 'Expanded "p0" (no unit for zero)');
+	equal(css.expandToSnippet('z1'), 'z-index: 1;', 'Expanded "z1" (unitless value)');
 	equal(css.expandToSnippet('p5'), 'padding: 5px;', 'Expanded "p5"');
 	equal(css.expandToSnippet('p5-6'), 'padding: 5px 6px;', 'Expanded "p5-6"');
 	equal(css.expandToSnippet('padding5'), 'padding: 5px;', 'Expanded "padding5"');
@@ -58,10 +60,29 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('something'), 'something: ${1};', 'Expanded unknown property');
 });
 
-test('important declaration', function() {
+test('!important declaration', function() {
 	var css = zen_coding.require('cssResolver');
 	
 	equal(css.expandToSnippet('pos-a!'), 'position: absolute !important;', 'Expanded "pos-a" with !important');
 	equal(css.expandToSnippet('padding5!'), 'padding: 5px !important;', 'Expanded "padding5" with !important');
 	equal(css.expandToSnippet('-transform!'), '-webkit-transform: ${1} !important;\n-moz-transform: ${1} !important;\n-ms-transform: ${1} !important;\n-o-transform: ${1} !important;\ntransform: ${1} !important;', 'Expanded "-transform" with !important');
+});
+
+test('Expand Abbreviation action handler', function() {
+	editorStub.setSyntax('css');
+	
+	var actions = zen_coding.require('actions');
+	var run = function(name) {
+		actions.run(name, editorStub);
+	};
+	
+	editorStub.replaceContent('p0${0}');
+	run('expand_abbreviation');
+	equal(editorStub.getContent(), 'padding: 0;', 'Expanded "p0"');
+	
+	editorStub.replaceContent('p1.2${0}');
+	run('expand_abbreviation');
+	equal(editorStub.getContent(), 'padding: 1.2em;', 'Expanded "p1.2"');
+	
+	editorStub.setSyntax('html');
 });

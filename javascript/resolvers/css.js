@@ -104,6 +104,8 @@ zen_coding.define('cssResolver', function(require, _) {
 	prefs.set('css.mozProperties', '', descTemplate({vendor: 'moz'}));
 	prefs.set('css.msProperties', '', descTemplate({vendor: 'ms'}));
 	prefs.set('css.oProperties', '', descTemplate({vendor: 'o'}));
+	prefs.set('css.unitlessProperties', 'z-index, line-height', 
+			'The list of properties whose values ​​must not contain units.');
 	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
@@ -244,6 +246,10 @@ zen_coding.define('cssResolver', function(require, _) {
 		supports: prefs.getArray('css.oProperties')
 	});
 	
+	var unitlessProps = prefs.getArray('css.unitlessProperties');
+	var floatUnit = 'em';
+	var intUnit = 'px';
+	
 	// I think nobody uses it
 //	addPrefix('k', {
 //		prefix: 'khtml',
@@ -257,7 +263,7 @@ zen_coding.define('cssResolver', function(require, _) {
 	 */
 	require('resources').addResolver(function(node, syntax) {
 		if (syntax == 'css' && node.isElement()) {
-			return require('cssResolver').expandToSnippet(node.name);
+			return require('cssResolver').expandToSnippet(node.abbreviation);
 		}
 		
 		return null;
@@ -453,12 +459,17 @@ zen_coding.define('cssResolver', function(require, _) {
 		/**
 		 * Normalizes value, defined in abbreviation.
 		 * @param {String} value
+		 * @param {String} property
 		 * @returns {String}
 		 */
-		normalizeValue: function(value) {
+		normalizeValue: function(value, property) {
+			property = (property || '').toLowerCase();
 			return value.replace(/^(\-?[0-9\.]+)([a-z]*)$/, function(str, val, unit) {
+				if (!unit && (val == '0' || _.include(unitlessProps, property)))
+					return val;
+				
 				if (!unit)
-					return val + (~val.indexOf('.') ? 'em' : 'px');
+					return val + (~val.indexOf('.') ? floatUnit : intUnit);
 				
 				return val + (unit in unitAliases ? unitAliases[unit] : unit);
 			});
@@ -503,10 +514,11 @@ zen_coding.define('cssResolver', function(require, _) {
 			}
 			
 			var snippetObj = splitSnippet(snippet);
-			
 			var result = [];
 			if (!value && abbrData.values) {
-				value = _.map(abbrData.values, this.normalizeValue).join(' ') + ';';
+				value = _.map(abbrData.values, function(val) {
+					return this.normalizeValue(val, snippetObj.name);
+				}, this).join(' ') + ';';
 			}
 			
 			snippetObj.value = value || snippetObj.value;
