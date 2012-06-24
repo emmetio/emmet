@@ -38,7 +38,7 @@ zen_coding.exec(function(require, _) {
 			elemName = 'p';
 		}
 		
-		var elem = require('elements').create('parsedElement', node, syntax, elemName);
+		var elem = require('elements').create('parsedElement', node, syntax, elemName || '');
 		// override 'getContent()' method so it will output lorem ipsum dynamically,
 		// when tree will be rolled out
 		elem._content = function(el) {
