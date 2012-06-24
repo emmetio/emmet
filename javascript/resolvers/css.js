@@ -14,7 +14,7 @@
  * <br><br>
  * This module will capture all expanded properties and upgrade them with values, 
  * vendor prefixes and !important declarations. All unmatched abbreviations will 
- * be automatically transformed into <code>property-name: ${0}</code> snippets. 
+ * be automatically transformed into <code>property-name: ${1}</code> snippets. 
  * 
  * <b>Vendor prefixes<b><br>
  * 
@@ -34,9 +34,9 @@
  * CSS property. For example, <code>-wm-float</code> will produce
  * 
  * <pre><code>
- * -webkit-float: ${0};
- * -moz-float: ${0};
- * float: ${0};
+ * -webkit-float: ${1};
+ * -moz-float: ${1};
+ * float: ${1};
  * </code></pre>
  * 
  * Although this example looks pointless, users can use this feature to write
@@ -86,7 +86,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		'x': 'ex'
 	};
 	
-	var defaultValue = '${0};';
+	var defaultValue = '${1};';
 	
 	// XXX module preferences
 	var prefs = require('preferences');
