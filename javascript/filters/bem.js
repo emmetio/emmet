@@ -51,7 +51,10 @@ zen_coding.exec(function(require, _) {
 		
 		// guessing doesn't worked, pick first class name as block name
 		if (!item.__bem.block) {
-			item.__bem.block = classNames[0];
+			reBlockName = /^[a-z]/i;
+			item.__bem.block = _.find(classNames, function(name) {
+				return reBlockName.test(name);
+			}) || '';
 		}
 		
 		classNames = _.chain(classNames)
