@@ -113,7 +113,7 @@ zen_coding.exec(function(require, _) {
 		var iterations = Math.min(len, count);
 		var result = [];
 		while (result.length < iterations) {
-			var randIx = randint(0, len);
+			var randIx = randint(0, len - 1);
 			if (!_.include(result, randIx))
 				result.push(randIx);
 		}
