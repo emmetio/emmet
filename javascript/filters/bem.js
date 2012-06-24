@@ -42,26 +42,25 @@ zen_coding.exec(function(require, _) {
 		};
 		
 		var classNames = normalizeClassName(item.getAttribute('class')).split(' ');
-		var allClassNames = _.chain(classNames)
+		
+		// guess best match for block name
+		var reBlockName = /^[a-z]\-/i;
+		item.__bem.block = _.find(classNames, function(name) {
+			return reBlockName.test(name);
+		});
+		
+		// guessing doesn't worked, pick first class name as block name
+		if (!item.__bem.block) {
+			item.__bem.block = classNames[0];
+		}
+		
+		classNames = _.chain(classNames)
 			.map(function(name) {return processClassName(name, item);})
 			.flatten()
 			.uniq()
 			.value();
 		
-		item.setAttribute('class', allClassNames.join(' '));
-		
-		if (!item.__bem.block) {
-			// guess best match for block name
-			var reBlockName = /^[a-z]\-/i;
-			item.__bem.block = _.find(allClassNames, function(name) {
-				return reBlockName.test(name);
-			});
-			
-			// guessing doesn't worked, pick first class name as block name
-			if (!item.__bem.block) {
-				item.__bem.block = allClassNames[0];
-			}
-		}
+		item.setAttribute('class', classNames.join(' '));
 		
 		return item;
 	}
@@ -222,11 +221,11 @@ zen_coding.exec(function(require, _) {
 	 */
 	function process(tree, profile) {
 		if (tree.name)
-			bemParse(tree);
+			bemParse(tree, profile);
 		
 		var elements = require('elements');
 		_.each(tree.children, function(item) {
-			process(bemParse(item), profile);
+			process(item, profile);
 			if (elements.is(item.source, 'parsedElement') && item.start)
 				shouldRunHtmlFilter = true;
 		});

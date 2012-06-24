@@ -46,6 +46,9 @@
 		expand('.b>.__e1>.____e2|bem');
 		equal(editorStub.getContent(), '<div class="b">\n\t<div class="b__e1">\n\t\t<div class="b__e2"></div>\n\t</div>\n</div>');
 		
+		expand('.b._mod|bem');
+		equal(editorStub.getContent(), '<div class="b b_mod"></div>');
+		
 		// test custom separators
 		var prefs = zen_coding.require('preferences');
 		prefs._startTest();
