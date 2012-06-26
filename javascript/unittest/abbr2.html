@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Abbreviation parser 2</title>
+	<script type="text/javascript" src="../underscore.js"></script>
+	<script type="text/javascript" src="../core.js"></script>
+	<script type="text/javascript" src="../stringStream.js"></script>
+	<script type="text/javascript" src="../utils.js"></script>
+	<script type="text/javascript" src="../parsers/abbreviationParser2.js"></script>
+</head>
+<body>
+	<script type="text/javascript">
+		//console.log(zen_coding.require('abbreviationParser2').parse('a.class>b++c+>d[a b]^^e{some text}').toString());
+		//console.log(zen_coding.require('abbreviationParser2').parse('a>(b.sample*2+c[title="Hello world"]+(d>f+c))*2+d').toString());
+		console.log(zen_coding.require('abbreviationParser2').parse('a.sample.other.class#id[title rel=ss q="quotes"]{Hello world}+{text}').toString());
+	</script>
+</body>
+</html>
