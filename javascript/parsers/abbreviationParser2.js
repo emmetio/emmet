@@ -9,7 +9,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */zen_coding.define('abbreviationParser2', function(require, _) {
-	var reValidName = /^[\w\d\-_\$\:@!]+\+?$/i;
+	var reValidName = /^[\w\-\$\:@\!]+\+?$/i;
 	var reWord = /[\w\-:\$]/;
 	
 	var pairs = {
@@ -18,18 +18,7 @@
 		'{': '}'
 	};
 	
-	function isPairChar(ch) {
-		return ch in pairs;
-	}
-	
-	/**
-	 * Returns stripped string: a string without first and last character
-	 * @param {String} str
-	 * @returns {String}
-	 */
-	function stripped(str) {
-		return str.substring(1, str.length - 1);
-	}
+	var spliceFn = Array.prototype.splice;
 	
 	/**
 	 * @type AbbreviationNode
@@ -46,20 +35,35 @@
 		this.name = null;
 		this.text = null;
 		this.repeatCount = 1;
-		this.hasImplicitName = false;
 		this.hasImplicitRepeat = false;
+		/** Custom data dictionary */
+		this._data = {};
+		
+		// output properties
+		this.start = '';
+		this.end = '';
+		this.content = '';
+		this.padding = '';
 	}
 	
 	AbbreviationNode.prototype = {
 		/**
 		 * Adds passed node as child or creates new child
 		 * @param {AbbreviationNode} child
+		 * @param {Number} position Index in children array where child chould 
+		 * be inserted
 		 * @return {AbbreviationNode}
 		 */
-		addChild: function(child) {
+		addChild: function(child, position) {
 			child = child || new AbbreviationNode;
 			child.parent = this;
-			this.children.push(child);
+			
+			if (_.isUndefined(position)) {
+				this.children.push(child);
+			} else {
+				this.children.splice(position, 0, child);
+			}
+			
 			return child;
 		},
 		
@@ -69,7 +73,7 @@
 		 */
 		clone: function() {
 			var node = new AbbreviationNode();
-			var attrs = ['abbreviation', 'counter', 'name', 'text', 'repeatCount', 'hasImplicitName', 'hasImplicitRepeat'];
+			var attrs = ['abbreviation', 'counter', 'name', 'text', 'repeatCount', 'hasImplicitRepeat'];
 			_.each(attrs, function(a) {
 				node[a] = this[a];
 			}, this);
@@ -79,12 +83,28 @@
 				return _.clone(attr);
 			});
 			
+			node._data = _.clone(this._data);
+			
 			// clone children
 			node.children = _.map(this.children, function(child) {
-				return child.clone();
+				child = child.clone();
+				child.parent = node;
+				return child;
 			});
 			
 			return node;
+		},
+		
+		/**
+		 * Removes current node from parent‘s child list
+		 * @returns {AbbreviationNode} Current node itself
+		 */
+		remove: function() {
+			if (this.parent) {
+				this.parent.children = _.without(this.parent.children, this);
+			}
+			
+			return this;
 		},
 		
 		/**
@@ -101,21 +121,65 @@
 		},
 		
 		/**
-		 * Replace current node in parent's child list with another node
-		 * @param {AbbreviationNode} node
+		 * Finds first child node that matches truth test for passed 
+		 * <code>fn</code> function
+		 * @param {Function} fn
+		 * @returns {AbbreviationNode}
 		 */
-		replaceWith: function(node) {
-			if (this.parent) {
-				var ix = _.indexOf(this.parent.children, this);
-				if (!ix) {
-					this.parent.children[ix] = node;
-					node.parent = this.parent;
-					this.parent = null;
-					return true;
+		find: function(fn) {
+			var result = null;
+			_.find(this.children, function(child) {
+				if (fn(child)) {
+					return result = child;
 				}
-			}
+				
+				return result = child.find(fn);
+			});
 			
-			return false;
+			return result;
+		},
+		
+		/**
+		 * Finds all child nodes that matches truth test for passed 
+		 * <code>fn</code> function
+		 * @param {Function} fn
+		 * @returns {Array}
+		 */
+		findAll: function(fn) {
+			var result = [];
+			_.each(this.children, function(child) {
+				if (fn(child))
+					result.push(child);
+				
+				result = result.concat(child.findAll(fn));
+			});
+			
+			return _.compact(result);
+		},
+		
+		/**
+		 * Sets/gets custom data
+		 * @param {String} name
+		 * @param {Object} value
+		 * @returns {Object}
+		 */
+		data: function(name, value) {
+			if (arguments.length == 2)
+				this._data[name] = value;
+			
+			return this._data[name];
+		},
+		
+		/**
+		 * Sets how many times current element should be repeated
+		 * @private
+		 */
+		_setRepeat: function(count) {
+			if (count) {
+				this.repeatCount = parseInt(count, 10) || 1;
+			} else {
+				this.hasImplicitRepeat = true;
+			}
 		},
 		
 		/**
@@ -124,20 +188,16 @@
 		 */
 		setAbbreviation: function(abbr) {
 			abbr = abbr || '';
-			this.abbreviation = abbr;
-			
 			
 			var that = this;
 			
 			// find multiplier
 			abbr = abbr.replace(/\*(\d+)?$/, function(str, repeatCount) {
-				if (repeatCount) {
-					that.repeatCount = parseInt(repeatCount, 10) || 1;
-				} else {
-					// TODO set implicit repeat count
-					that.hasImplicitRepeat = true;
-				}
+				that._setRepeat(repeatCount);
+				return '';
 			});
+			
+			this.abbreviation = abbr;
 			
 			var abbrText = extractText(abbr);
 			if (abbrText) {
@@ -146,7 +206,6 @@
 			}
 			
 			var abbrAttrs = parseAttributes(abbr);
-			console.log('found attributes', abbrAttrs);
 			if (abbrAttrs) {
 				abbr = abbrAttrs.element;
 				this.attributes = abbrAttrs.attributes;
@@ -158,13 +217,6 @@
 			if (this.name && !reValidName.test(this.name)) {
 				throw 'Invalid abbreviation';
 			}
-		},
-		
-		/**
-		 * @return {String}
-		 */
-		getAbbreviation: function() {
-			return this.expr;
 		},
 		
 		/**
@@ -194,12 +246,37 @@
 		},
 		
 		/**
+		 * Check if current node has implied name that should be resolved
+		 * @returns {Boolean}
+		 */
+		hasImplicitName: function() {
+			return !this.name && this.attributes.length;
+		},
+		
+		/**
+		 * Indicates that current element is a grouping one, e.g. has no 
+		 * representation but serves as a container for other nodes
+		 * @returns {Boolean}
+		 */
+		isGroup: function() {
+			return !this.abbreviation;
+		},
+		
+		/**
 		 * Indicates empty node (i.e. without abbreviation). It may be a 
 		 * grouping node and should not be outputted
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
 			return !this.abbreviation && !this.children.length;
+		},
+		
+		/**
+		 * Indicates that current node should be repeated
+		 * @returns {Boolean}
+		 */
+		isRepeating: function() {
+			return this.repeatCount > 1 || this.hasImplicitRepeat;
 		},
 		
 		/**
@@ -219,30 +296,29 @@
 		},
 		
 		/**
-		 * Returns attribute value (might be empty string) or <code>null</code> 
-		 * if attribute wasn't found 
-		 * @param {String} name
-		 * @returns {String}
+		 * Returns latest and deepest child of current tree
+		 * @returns {AbbreviationNode}
 		 */
-		getAttribute: function(name) {
-			var attr = _.find(this.attributes, function(attr) {
-				return attr.name == name; 
-			});
+		deepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepestChild = this;
+			while (deepestChild.children.length) {
+				deepestChild = _.last(deepestChild.children);
+			}
 			
-			return attr ? attr.value : null;
+			return deepestChild;
 		}
 	};
 	
 	/**
-	 * Check if character is numeric
-	 * @requires {Stirng} ch
-	 * @return {Boolean}
+	 * Returns stripped string: a string without first and last character
+	 * @param {String} str
+	 * @returns {String}
 	 */
-	function isNumeric(ch) {
-		if (typeof(ch) == 'string')
-			ch = ch.charCodeAt(0);
-			
-		return (ch && ch > 47 && ch < 58);
+	function stripped(str) {
+		return str.substring(1, str.length - 1);
 	}
 	
 	/**
@@ -254,15 +330,14 @@
 		for (var i = node.children.length - 1; i >= 0; i--) {
 			/** @type {AbbreviationNode} */
 			var n = node.children[i];
-			if (n.isEmpty()) {
-				var args = [i, 1];
-				for (var j = 0, jl = n.children.length; j < jl; j++) {
-					args.push(n.children[j]);
-				}
-				
-				Array.prototype.splice.apply(node.children, args);
+			if (n.isGroup()) {
+				spliceFn.apply(node.children, [i, 1].concat(n.children));
+			} else if (n.isEmpty()) {
+				n.remove();
 			}
 		}
+		
+		_.each(node.children, squash);
 		
 		return node;
 	}
@@ -278,6 +353,91 @@
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Parses abbreviation into a tree
+	 * @param {String} abbr
+	 * @returns {AbbreviationNode}
+	 */
+	function parseAbbreviation(abbr) {
+		abbr = require('utils').trim(abbr);
+		
+		var root = new AbbreviationNode;
+		var context = root.addChild(), ch;
+		
+		/** @type StringStream */
+		var stream = require('stringStream').create(abbr);
+		var loopProtector = 1000, multiplier;
+		
+		while (!stream.eol() && --loopProtector > 0) {
+			ch = stream.peek();
+			
+			switch (ch) {
+				case '(': // abbreviation group
+					stream.start = stream.pos;
+					if (stream.skipToPair('(', ')')) {
+						var inner = parseAbbreviation(stripped(stream.current()));
+						if (multiplier = stream.match(/^\*(\d+)?/, true)) {
+							context._setRepeat(multiplier[1]);
+						}
+						
+						_.each(inner.children, function(child) {
+							context.addChild(child);
+						});
+					} else {
+						throw 'Invalid abbreviation: mo matching ")" found for character at ' + stream.pos;
+					}
+					break;
+					
+				case '>': // child operator
+					context = context.addChild();
+					stream.next();
+					break;
+					
+				case '+': // sibling operator
+					context = context.parent.addChild();
+					stream.next();
+					break;
+					
+				case '^': // climb up operator
+					var parent = context.parent || context;
+					context = (parent.parent || parent).addChild();
+					stream.next();
+					break;
+					
+				default: // consume abbreviation
+					stream.start = stream.pos;
+					stream.eatWhile(function(c) {
+						if (c == '[' || c == '{') {
+							if (stream.skipToPair(c, pairs[c])) {
+								stream.backUp(1);
+								return true;
+							}
+							
+							throw 'Invalid abbreviation: mo matching "' + pairs[c] + '" found for character at ' + stream.pos;
+						}
+						
+						if (c == '+') {
+							// let's see if this is an expando marker
+							stream.next();
+							var isMarker = stream.eol() ||  ~'+>^*'.indexOf(stream.peek());
+							stream.backUp(1);
+							return isMarker;
+						}
+						
+						return c != '(' && isAllowedChar(c);
+					});
+					
+					context.setAbbreviation(stream.current());
+					stream.start = stream.pos;
+			}
+		}
+		
+		if (loopProtector < 1)
+			throw 'Endless loop detected';
+		
+		return root;
 	}
 	
 	/**
@@ -455,13 +615,51 @@
 		}
 	}
 	
+	/**
+	 * “Un-rolls“ contents of current node: recursively replaces all repeating 
+	 * children with their repeated clones
+	 * @param {AbbreviationNode} node
+	 * @returns {AbbreviationNode}
+	 */
+	function unroll(node) {
+		for (var i = node.children.length - 1, j, child; i >= 0; i--) {
+			child = node.children[i];
+			
+			if (child.isRepeating()) {
+				j = child.repeatCount;
+				child.repeatCount = 1;
+				child.updateProperty('counter', 1);
+				while (--j > 0) {
+					child.parent.addChild(child.clone(), i + 1)
+						.updateProperty('counter', j + 1);
+				}
+			}
+		}
+		
+		// to keep proper 'counter' property, we need to walk
+		// on children once again
+		_.each(node.children, unroll);
+		
+		return node;
+	}
+	
+	/**
+	 * Inserts special content that should be outputted inside implicilty
+	 * repeated elements
+	 * @param {AbbreviationNode} tree
+	 * @param {String} content
+	 */
+	function pasteContent(tree, content) {
+		
+	}
+	
 	function isAllowedChar(ch) {
 		var charCode = ch.charCodeAt(0);
 		var specialChars = '#.*:$-_!@|';
 		
 		return (charCode > 64 && charCode < 91)       // uppercase letter
 				|| (charCode > 96 && charCode < 123)  // lowercase letter
-				|| isNumeric(ch)                      // number
+				|| (charCode > 47 && charCode < 58)   // number
 				|| specialChars.indexOf(ch) != -1;    // special character
 	}
 	
@@ -473,92 +671,47 @@
 		 * result
 		 * @memberOf abbreviationParser2
 		 * @param {String} abbr Abbreviation to parse
+		 * @param {String} content Content that should be pasted inside 
+		 * implicitly repeated elements (used in “Wrap with abbreviation” action)
+		 * 
 		 * @return {AbbreviationNode}
 		 */
-		parse: function(abbr) {
-			var root = new AbbreviationNode;
-			var context = root.addChild(), ch;
+		parse: function(abbr, content) {
+			var tree = parseAbbreviation(abbr);
 			
-			abbr = require('utils').trim(abbr);
-			
-			/** @type StringStream */
-			var stream = require('stringStream').create(abbr);
-			var loopProtector = 500;
-			
-			while (!stream.eol() && --loopProtector > 0) {
-				ch = stream.peek();
+			if (content) {
+				var lines = require('utils').splitByLines(content, true);
+				// set repeat count for implicitly repeated elements before
+				// tree is unrolled
+				var targets = tree.findAll(function(item) {
+					if (item.hasImplicitRepeat)
+						return item.repeatCount = lines.length;
+				});
 				
-				switch (ch) {
-					case '(': // abbreviation group
-						stream.start = stream.pos;
-						if (stream.skipToPair('(', ')')) {
-							var inner = this.parse(stripped(stream.current()));
-							var multiplier = stream.match(/^\*(\d+)?/, true);
-							if (multiplier) {
-								if (multiplier[1]) {
-									context.repeatCount = parseInt(multiplier[1], 10) || 1;
-								} else {
-									// TODO set implicit repeat count
-									context.hasImplicitRepeat = true;
-								}
-							}
-							
-							_.each(inner.children, function(child) {
-								this.addChild(child);
-							}, context);
-						} else {
-							throw 'Invalid abbreviation: mo matching ")" found for character at ' + stream.pos;
-						}
-						break;
-						
-					case '>': // child operator
-						context = context.addChild();
-						stream.next();
-						break;
-						
-					case '+': // sibling operator
-						context = context.parent.addChild();
-						stream.next();
-						break;
-						
-					case '^': // climb up operator
-						var parent = context.parent || context;
-						context = (parent.parent || parent).addChild();
-						stream.next();
-						break;
-						
-					default: // consume abbreviation
-						stream.start = stream.pos;
-						stream.eatWhile(function(c) {
-							if (c == '[' || c == '{') {
-								if (stream.skipToPair(c, pairs[c])) {
-									stream.backUp(1);
-									return true;
-								}
-								
-								throw 'Invalid abbreviation: mo matching "' + pairs[c] + '" found for character at ' + stream.pos;
-							}
-							
-							if (c == '+') {
-								// let's see if this is an expando marker
-								stream.next();
-								var isMarker = stream.eol() ||  ~'+>^'.indexOf(stream.peek());
-								stream.backUp(1);
-								return isMarker;
-							}
-							
-							return c != '(' && isAllowedChar(c);
+				tree = unroll(tree);
+				
+				// now, put one line of content on each repeated elements
+				if (targets.length) {
+					_.each(targets, function(item) {
+						var children = item.parent.children;
+						var ix = _.indexOf(children, item);
+						_.each(_.range(ix, ix + lines.length), function(i, j) {
+							children[i].data('paste', lines[j]);
 						});
-						
-						context.setAbbreviation(stream.current());
-						stream.start = stream.pos;
+					});
+				} else {
+					// no implicitly repeated elements, put pasted content in
+					// the deepest child
+					var deepest = tree.deepestChild();
+					if (deepest)
+						deepest.data('paste', content);
 				}
+				
+			} else {
+				tree = unroll(tree);
 			}
 			
-			if (loopProtector < 1)
-				throw 'Endless loop detected';
-			
-			return root;
+			return squash(tree);
 		},
 		
 		/**
@@ -569,9 +722,6 @@
 		isAllowedChar: function(ch) {
 			ch = String(ch); // convert Java object to JS
 			return isAllowedChar(ch) || ~'>+^[](){}'.indexOf(ch);
-		},
-		
-		AbbreviationNode: AbbreviationNode,
-		optimizeTree: optimizeTree
+		}
 	};
 });

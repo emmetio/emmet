@@ -87,7 +87,12 @@ zen_coding.define('utils', function(require, _) {
 		 * @returns {String}
 		 */
 		getNewline: function() {
-			var nl = require('resources').getVariable('newline');
+			var res = require('resources');
+			if (!res) {
+				return '\n';
+			}
+			
+			var nl = res.getVariable('newline');
 			return _.isString(nl) ? nl : '\n';
 		},
 		
@@ -105,7 +110,7 @@ zen_coding.define('utils', function(require, _) {
 		 * Split text into lines. Set <code>remove_empty</code> to true to filter
 		 * empty lines
 		 * @param {String} text Text to split
-		 * @param {Boolean} remove_empty Remove empty lines from result
+		 * @param {Boolean} removeEmpty Remove empty lines from result
 		 * @return {Array}
 		 */
 		splitByLines: function(text, removeEmpty) {
@@ -121,10 +126,9 @@ zen_coding.define('utils', function(require, _) {
 				.split(nl);
 			
 			if (removeEmpty) {
-				var that = this;
-				_.filter(lines, function(line) {
-					return !!that.trim(line);
-				});
+				lines = _.filter(lines, function(line) {
+					return line.length && !!this.trim(line);
+				}, this);
 			}
 			
 			return lines;

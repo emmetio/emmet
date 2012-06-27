@@ -13,7 +13,13 @@
 	<script type="text/javascript">
 		//console.log(zen_coding.require('abbreviationParser2').parse('a.class>b++c+>d[a b]^^e{some text}').toString());
 		//console.log(zen_coding.require('abbreviationParser2').parse('a>(b.sample*2+c[title="Hello world"]+(d>f+c))*2+d').toString());
-		console.log(zen_coding.require('abbreviationParser2').parse('a.sample.other.class#id[title rel=ss q="quotes"]{Hello world}+{text}').toString());
+		//console.log(zen_coding.require('abbreviationParser2').parse('a.sample.other.class#id[title rel=ss q="quotes"]{Hello world}+{text}').toString());
+		
+		var tree = zen_coding.require('abbreviationParser2').parse('a*>b', '1\n2');
+		console.log(tree);
+		console.log(tree.find(function(item) {
+			return item.name == 'c';
+		}));
 	</script>
 </body>
 </html>
