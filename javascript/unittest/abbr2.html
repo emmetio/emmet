@@ -5,9 +5,24 @@
 	<title>Abbreviation parser 2</title>
 	<script type="text/javascript" src="../underscore.js"></script>
 	<script type="text/javascript" src="../core.js"></script>
+	<script type="text/javascript" src="../parsers/abbreviationParser2.js"></script>
+	<script type="text/javascript" src="../parsers/processors/pasted-content.js"></script>
+	
+	<script type="text/javascript" src="../handlerList.js"></script>
 	<script type="text/javascript" src="../stringStream.js"></script>
 	<script type="text/javascript" src="../utils.js"></script>
-	<script type="text/javascript" src="../parsers/abbreviationParser2.js"></script>
+	<script type="text/javascript" src="../elements.js"></script>
+	<script type="text/javascript" src="../resources2.js"></script>
+	
+	<script src="../loaders/ajaxLoader.js"></script>
+	<script>
+		(function() {
+			var res = ajaxLoader.loadJSON('../../snippets.json');
+			if (res) {
+				zen_coding.require('resources').setVocabulary(res, 'system');
+			}
+		})();
+	</script>
 </head>
 <body>
 	<script type="text/javascript">
@@ -15,11 +30,9 @@
 		//console.log(zen_coding.require('abbreviationParser2').parse('a>(b.sample*2+c[title="Hello world"]+(d>f+c))*2+d').toString());
 		//console.log(zen_coding.require('abbreviationParser2').parse('a.sample.other.class#id[title rel=ss q="quotes"]{Hello world}+{text}').toString());
 		
-		var tree = zen_coding.require('abbreviationParser2').parse('a*>b', '1\n2');
+		var tree = zen_coding.require('abbreviationParser2').parse('a.sample*>b', {pastedContent: '1\n2'});
 		console.log(tree);
-		console.log(tree.find(function(item) {
-			return item.name == 'c';
-		}));
+		console.log(tree.find('a').attributeList());
 	</script>
 </body>
 </html>

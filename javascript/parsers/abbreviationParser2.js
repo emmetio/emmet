@@ -20,6 +20,9 @@
 	
 	var spliceFn = Array.prototype.splice;
 	
+	var preprocessors = [];
+	var postprocessors = [];
+	
 	/**
 	 * @type AbbreviationNode
 	 */
@@ -27,13 +30,13 @@
 		/** @type AbbreviationNode */
 		this.parent = null;
 		this.children = [];
-		this.attributes = [];
+		this._attributes = [];
 		
 		/** @type String Raw abbreviation for current node */
 		this.abbreviation = '';
 		this.counter = 1;
-		this.name = null;
-		this.text = null;
+		this._name = null;
+		this._text = '';
 		this.repeatCount = 1;
 		this.hasImplicitRepeat = false;
 		/** Custom data dictionary */
@@ -42,7 +45,6 @@
 		// output properties
 		this.start = '';
 		this.end = '';
-		this.content = '';
 		this.padding = '';
 	}
 	
@@ -50,7 +52,7 @@
 		/**
 		 * Adds passed node as child or creates new child
 		 * @param {AbbreviationNode} child
-		 * @param {Number} position Index in children array where child chould 
+		 * @param {Number} position Index in children array where child should 
 		 * be inserted
 		 * @return {AbbreviationNode}
 		 */
@@ -73,13 +75,13 @@
 		 */
 		clone: function() {
 			var node = new AbbreviationNode();
-			var attrs = ['abbreviation', 'counter', 'name', 'text', 'repeatCount', 'hasImplicitRepeat'];
+			var attrs = ['abbreviation', 'counter', '_name', '_text', 'repeatCount', 'hasImplicitRepeat'];
 			_.each(attrs, function(a) {
 				node[a] = this[a];
 			}, this);
 			
 			// clone attributes
-			node.attributes = _.map(this.attributes, function(attr) {
+			node._attributes = _.map(this._attributes, function(attr) {
 				return _.clone(attr);
 			});
 			
@@ -108,6 +110,22 @@
 		},
 		
 		/**
+		 * Replaces current node in parent‘s children list with passed nodes
+		 * @param {AbbreviationNode} node Replacement node or array of nodes
+		 */
+		replace: function() {
+			var parent = this.parent;
+			var ix = _.indexOf(parent.children, this);
+			var items = _.flatten(arguments);
+			spliceFn.apply(parent.children, [ix, 1].concat(items));
+			
+			// update parent
+			_.each(items, function(item) {
+				item.parent = parent;
+			});
+		},
+		
+		/**
 		 * Recursively sets <code>property</code> to <code>value</code> of current
 		 * node and its children 
 		 * @param {String} name Property to update
@@ -127,6 +145,11 @@
 		 * @returns {AbbreviationNode}
 		 */
 		find: function(fn) {
+			if (!_.isFunction(fn)) {
+				var elemName = fn.toLowerCase();
+				fn = function(item) {return item.name().toLowerCase() == elemName;};
+			}
+			
 			var result = null;
 			_.find(this.children, function(child) {
 				if (fn(child)) {
@@ -146,6 +169,11 @@
 		 * @returns {Array}
 		 */
 		findAll: function(fn) {
+			if (!_.isFunction(fn)) {
+				var elemName = fn.toLowerCase();
+				fn = function(item) {return item.name().toLowerCase() == elemName;};
+			}
+				
 			var result = [];
 			_.each(this.children, function(child) {
 				if (fn(child))
@@ -168,6 +196,54 @@
 				this._data[name] = value;
 			
 			return this._data[name];
+		},
+		
+		/**
+		 * Returns name of current node
+		 * @returns {String}
+		 */
+		name: function() {
+			var res = this.matchedResource();
+			if (require('elements').is(res, 'element')) {
+				return res.name;
+			}
+			
+			return this._name;
+		},
+		
+		/**
+		 * Returns list of attributes for current node
+		 * @returns {Array}
+		 */
+		attributeList: function() {
+			var attrs = [];
+			
+			var res = this.matchedResource();
+			if (require('elements').is(res, 'element')) {
+				attrs = attrs.concat(res.attributes);
+			}
+			
+			return optimizeAttributes(attrs.concat(this._attributes));
+		},
+		
+		/**
+		 * Returns attribute value
+		 * @param {String} name Attribute name
+		 * @returns {String}
+		 */
+		attribute: function(name) {
+			return (_.find(this.attributeList(), function(attr) {
+				return attr.name == name;
+			}) || {}).name;
+		},
+		
+		/**
+		 * Returns reference to the matched <code>element</code>, if any.
+		 * See {@link elements} module for a list of available elements
+		 * @returns {Object}
+		 */
+		matchedResource: function() {
+			return this.data('resource');
 		},
 		
 		/**
@@ -202,36 +278,33 @@
 			var abbrText = extractText(abbr);
 			if (abbrText) {
 				abbr = abbrText.element;
-				this.text = abbrText.text;
+				this._text = abbrText.text;
 			}
 			
 			var abbrAttrs = parseAttributes(abbr);
 			if (abbrAttrs) {
 				abbr = abbrAttrs.element;
-				this.attributes = abbrAttrs.attributes;
+				this._attributes = abbrAttrs.attributes;
 			}
 			
-			this.name = abbr;
+			this._name = abbr;
 			
 			// validate name
-			if (this.name && !reValidName.test(this.name)) {
+			if (this._name && !reValidName.test(this._name)) {
 				throw 'Invalid abbreviation';
 			}
 		},
 		
 		/**
-		 * Dump current tree node into a formatted string
+		 * Returns string representation of current node
 		 * @return {String}
 		 */
 		toString: function(level) {
-			level = level || 0;
-			var output = this.abbreviation || '(empty)';
+			var innerContent = _.map(this.children, function(child) {
+				return child.toString();
+			}).join('');
 			
-			return require('utils').repeatString('-', level)
-				+ output + '\n' 
-				+ _.map(this.children, function(item) {
-					return item.toString(level + 1);
-				}).join('');
+			return this.start + this._text + innerContent + this.end;
 		},
 		
 		/**
@@ -250,7 +323,7 @@
 		 * @returns {Boolean}
 		 */
 		hasImplicitName: function() {
-			return !this.name && this.attributes.length;
+			return !this.name() && this._attributes.length;
 		},
 		
 		/**
@@ -284,7 +357,7 @@
 		 * @return {Boolean}
 		 */
 		isTextNode: function() {
-			return !this.name && this.text;
+			return !this._name && this._text;
 		},
 		
 		/**
@@ -319,27 +392,6 @@
 	 */
 	function stripped(str) {
 		return str.substring(1, str.length - 1);
-	}
-	
-	/**
-	 * Optimizes tree node: replaces empty nodes with their children
-	 * @param {AbbreviationNode} node
-	 * @return {AbbreviationNode}
-	 */
-	function squash(node) {
-		for (var i = node.children.length - 1; i >= 0; i--) {
-			/** @type {AbbreviationNode} */
-			var n = node.children[i];
-			if (n.isGroup()) {
-				spliceFn.apply(node.children, [i, 1].concat(n.children));
-			} else if (n.isEmpty()) {
-				n.remove();
-			}
-		}
-		
-		_.each(node.children, squash);
-		
-		return node;
 	}
 	
 	function consumeQuotedValue(stream, quote) {
@@ -547,39 +599,39 @@
 		if (!result.length)
 			return null;
 		
-		// optimize attribute set: remove duplicates and merge class attributes
-		var lookup = {};
-		result = _.filter(result, function(attr) {
-			if (!(attr.name in lookup)) {
-				return lookup[attr.name] = attr;
-			}
-			
-			if (attr.name.toLowerCase() == 'class') {
-				lookup[attr.name].value += ' ' + attr.value;
-			} else {
-				lookup[attr.name].value = attr.value;
-			}
-			
-			return false;
-		});
-		
 		return {
 			element: abbr.substring(0, nameEnd),
-			attributes: result
+			attributes: optimizeAttributes(result)
 		};
 	}
 	
 	/**
-	 * @param {AbbreviationNode} node
-	 * @return {AbbreviationNode}
+	 * Optimize attribute set: remove duplicates and merge class attributes
+	 * @param attrs
 	 */
-	function optimizeTree(node) {
-		while (node.hasEmptyChildren())
-			squash(node);
+	function optimizeAttributes(attrs) {
+		// clone all attributes to make sure that original objects are 
+		// not modified
+		attrs  = _.map(attrs, function(attr) {
+			return _.clone(attr);
+		});
 		
-		_.each(node.children, optimizeTree);
-		
-		return node;
+		var lookup = {};
+		return _.filter(attrs, function(attr) {
+			if (!(attr.name in lookup)) {
+				return lookup[attr.name] = attr;
+			}
+			
+			var la = lookup[attr.name];
+			
+			if (attr.name.toLowerCase() == 'class') {
+				la.value += (la.value.length ? ' ' : '') + attr.value;
+			} else {
+				la.value = attr.value;
+			}
+			
+			return false;
+		});
 	}
 	
 	/**
@@ -644,13 +696,24 @@
 	}
 	
 	/**
-	 * Inserts special content that should be outputted inside implicilty
-	 * repeated elements
-	 * @param {AbbreviationNode} tree
-	 * @param {String} content
+	 * Optimizes tree node: replaces empty nodes with their children
+	 * @param {AbbreviationNode} node
+	 * @return {AbbreviationNode}
 	 */
-	function pasteContent(tree, content) {
+	function squash(node) {
+		for (var i = node.children.length - 1; i >= 0; i--) {
+			/** @type {AbbreviationNode} */
+			var n = node.children[i];
+			if (n.isGroup()) {
+				n.replace(n.children);
+			} else if (n.isEmpty()) {
+				n.remove();
+			}
+		}
 		
+		_.each(node.children, squash);
+		
+		return node;
 	}
 	
 	function isAllowedChar(ch) {
@@ -671,47 +734,72 @@
 		 * result
 		 * @memberOf abbreviationParser2
 		 * @param {String} abbr Abbreviation to parse
-		 * @param {String} content Content that should be pasted inside 
-		 * implicitly repeated elements (used in “Wrap with abbreviation” action)
+		 * @param {Object} options Additional options for parser and processors
 		 * 
 		 * @return {AbbreviationNode}
 		 */
-		parse: function(abbr, content) {
+		parse: function(abbr, options) {
+			options = options || {};
+			
 			var tree = parseAbbreviation(abbr);
 			
-			if (content) {
-				var lines = require('utils').splitByLines(content, true);
-				// set repeat count for implicitly repeated elements before
-				// tree is unrolled
-				var targets = tree.findAll(function(item) {
-					if (item.hasImplicitRepeat)
-						return item.repeatCount = lines.length;
-				});
-				
-				tree = unroll(tree);
-				
-				// now, put one line of content on each repeated elements
-				if (targets.length) {
-					_.each(targets, function(item) {
-						var children = item.parent.children;
-						var ix = _.indexOf(children, item);
-						_.each(_.range(ix, ix + lines.length), function(i, j) {
-							children[i].data('paste', lines[j]);
-						});
-					});
-				} else {
-					// no implicitly repeated elements, put pasted content in
-					// the deepest child
-					var deepest = tree.deepestChild();
-					if (deepest)
-						deepest.data('paste', content);
-				}
-				
-			} else {
-				tree = unroll(tree);
-			}
+			// apply preprocessors
+			_.each(preprocessors, function(fn) {
+				fn(tree, options);
+			});
 			
-			return squash(tree);
+			tree = squash(unroll(tree));
+			
+			// apply postprocessors
+			_.each(postprocessors, function(fn) {
+				fn(tree, options);
+			});
+			
+			return tree;
+		},
+		
+		AbbreviationNode: AbbreviationNode,
+		
+		/**
+		 * Add new abbreviation preprocessor. <i>Preprocessor</i> is a function
+		 * that applies to a parsed abbreviation tree right after it get parsed.
+		 * The passed tree is in unoptimized state.
+		 * @param {Function} fn Preprocessor function. This function receives
+		 * two arguments: parsed abbreviation tree (<code>AbbreviationNode</code>)
+		 * and <code>options</code> hash that was passed to <code>parse</code>
+		 * method
+		 */
+		addPreprocessor: function(fn) {
+			if (!_.include(preprocessors, fn))
+				preprocessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered preprocessor
+		 */
+		removeFilter: function(fn) {
+			preprocessor = _.without(preprocessors, fn);
+		},
+		
+		/**
+		 * Adds new abbreviation postprocessor. <i>Postprocessor</i> is a 
+		 * functinon that applies to <i>optimized</i> parsed abbreviation tree
+		 * right before it returns from <code>parse()</code> method
+		 * @param {Function} fn Postprocessor function. This function receives
+		 * two arguments: parsed abbreviation tree (<code>AbbreviationNode</code>)
+		 * and <code>options</code> hash that was passed to <code>parse</code>
+		 * method
+		 */
+		addPostprocessor: function(fn) {
+			if (!_.include(postprocessors, fn))
+				postprocessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered postprocessor function
+		 */
+		removePostprocessor: function(fn) {
+			postprocessors = _.without(postprocessors, fn);
 		},
 		
 		/**
