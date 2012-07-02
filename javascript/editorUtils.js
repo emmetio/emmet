@@ -10,19 +10,22 @@ zen_coding.define('editorUtils', function(require, _) {
 		 * Returns context-aware node counter
 		 * @param {node} ZenNode
 		 * @return {Number}
-		 * @memberOf zen_coding.editorUtils
+		 * @memberOf editorUtils
 		 */
 		getCounterForNode: function(node) {
-			// find nearest repeating parent
-			var counter = node.counter;
-			if (!node.is_repeating && !node.repeat_by_lines) {
-				while (node = node.parent) {
-					if (node.is_repeating || node.repeat_by_lines)
-						return node.counter;
-				}
-			}
+			console.log('deprecated');
+			return node.counter;
 			
-			return counter;
+			// find nearest repeating parent
+//			var counter = node.counter;
+//			if (!node.is_repeating && !node.repeat_by_lines) {
+//				while (node = node.parent) {
+//					if (node.is_repeating || node.repeat_by_lines)
+//						return node.counter;
+//				}
+//			}
+//			
+//			return counter;
 		},
 		
 		/**

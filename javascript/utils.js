@@ -276,17 +276,19 @@ zen_coding.define('utils', function(require, _) {
 			};
 			
 			var res = require('resources');
-			return str.replace(/\$\{([a-z_\-][\w\-]*)\}/g, function(str, p1) {
-				var newValue = resolver(str, p1);
-				if (newValue === null) {
-					// try to find variable in zen_settings
-					newValue = res.getVariable(p1);
+			return require('tabStops').processText(str, {
+				variable: function(data) {
+					var newValue = resolver(data.token, data.name, data);
+					if (newValue === null) {
+						// try to find variable in zen_settings
+						newValue = res.getVariable(data.name);
+					}
+					
+					if (newValue === null || _.isUndefined(newValue))
+						// nothing found, return token itself
+						newValue = data.token;
+					return newValue;
 				}
-				
-				if (newValue === null || _.isUndefined(newValue))
-					// nothing found, return token itself
-					newValue = str;
-				return newValue;
 			});
 		},
 		
@@ -374,6 +376,18 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
+		 * Helper function that returns padding of line of <code>pos</code>
+		 * position in <code>content</code>
+		 * @param {String} content
+		 * @param {Number} pos
+		 * @returns {String}
+		 */
+		getLinePaddingFromPosition: function(content, pos) {
+			var lineRange = this.findNewlineBounds(content, pos);
+			return this.getLinePadding(lineRange.substring(content));
+		},
+		
+		/**
 		 * Escape special regexp chars in string, making it usable for creating dynamic
 		 * regular expressions
 		 * @param {String} str
@@ -420,8 +434,14 @@ zen_coding.define('utils', function(require, _) {
 				start = start.start;
 			}
 			
+			if (_.isString(end))
+				end = start + end.length;
+			
 			if (_.isUndefined(end))
 				end = start;
+			
+			if (start < 0 || start >= str.length)
+				return str;
 			
 			return str.substring(0, start) + value + str.substring(end);
 		},

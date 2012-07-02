@@ -30,11 +30,25 @@ zen_coding.exec(function(require, _) {
 		this.has_implicit_name = !!node.has_implict_name;
 		this.children = [];
 		this.options = _.extend({}, options || {});
+		this.counter = node.counter;
 		
 		this.setContent(node.text);
 	}
 
 	ParsedElement.prototype = {
+		/**
+		 * Recursively sets <code>property</code> to <code>value</code> of current
+		 * node and its children 
+		 * @param {String} name Property to update
+		 * @param {Object} value New property value
+		 */
+		updateProperty: function(name, value) {
+			this[name] = value;
+			_.each(this.children, function(child) {
+				child.updateProperty(name, value);
+			});
+		},
+		
 		/**
 		 * Adds new child tag to current one
 		 * @param {ParsedElement} elem

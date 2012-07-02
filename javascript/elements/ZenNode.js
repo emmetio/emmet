@@ -34,11 +34,11 @@ zen_coding.exec(function(require, _) {
 		
 		this.nodeType = elems.is(elem, 'parsedSnippet') ? 'snippet' : 'element';
 		this.children = [];
-		this.counter = 1;
+		this.counter = elem.counter;
 		this.options = _.extend({}, elem.options, options || {});
 		
 		// copy attributes
-		_.each('name,real_name,is_repeating,repeat_by_lines,has_implicit_name'.split(','), function(p) {
+		_.each('name,real_name,is_repeating,repeat_by_lines,has_implicit_name,groupNumber'.split(','), function(p) {
 			this[p] = elem[p];
 		}, this);
 		

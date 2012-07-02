@@ -6,6 +6,8 @@
  * @link http://chikuyonok.ru
  * @memberOf __abbreviationParser
  * @constructor
+ * @param {Function} require
+ * @param {Underscore} _
  */zen_coding.define('abbreviationParser', function(require, _) {
 	var reValidName = /^[\w\d\-_\$\:@!]+\+?$/i;
 	
@@ -14,10 +16,11 @@
 	 */
 	function TreeNode(parent) {
 		this.abbreviation = '';
-		/** @type {TreeNode} */
+		/** @type TreeNode */
 		this.parent = null;
 		this.children = [];
 		this.count = 1;
+		this.counter = 1;
 		this.name = null;
 		this.text = null;
 		this.attributes = [];
@@ -27,8 +30,8 @@
 	
 	TreeNode.prototype = {
 		/**
-		 * Adds passed or creates new child
-		 * @param {TreeNode} [child]
+		 * Adds passed node as child or creates new child
+		 * @param {TreeNode} child
 		 * @return {TreeNode}
 		 */
 		addChild: function(child) {
@@ -39,19 +42,55 @@
 		},
 		
 		/**
+		 * Creates a deep copy of current node
+		 * @returns {TreeNode}
+		 */
+		clone: function() {
+			var node = new TreeNode();
+			var attrs = ['abbreviation', 'name', 'text', 'is_repeating', 'has_implict_name', 'text', 'counter'];
+			_.each(attrs, function(a) {
+				node[a] = this[a];
+			}, this);
+			
+			// clone attributes
+			node.attributes = _.map(this.attributes, function(attr) {
+				return _.clone(attr);
+			});
+			
+			// clone children
+			node.children = _.map(this.children, function(child) {
+				return child.clone();
+			});
+			
+			return node;
+		},
+		
+		/**
+		 * Recursively sets <code>property</code> to <code>value</code> of current
+		 * node and its children 
+		 * @param {String} name Property to update
+		 * @param {Object} value New property value
+		 */
+		updateProperty: function(name, value) {
+			this[name] = value;
+			_.each(this.children, function(child) {
+				child.updateProperty(name, value);
+			});
+		},
+		
+		/**
 		 * Replace current node in parent's child list with another node
 		 * @param {TreeNode} node
 		 */
 		replace: function(node) {
 			if (this.parent) {
-				var children = this.parent.children;
-				for (var i = 0, il = children.length; i < il; i++) {
-					if (children[i] === this) {
-						children[i] = node;
+				_.find(this.parent.children, function(child, i) {
+					if (child === this) {
+						this.parent.children[i] = node;
 						this.parent = null;
-						return;
+						return true;
 					}
-				}
+				}, this);
 			}
 		},
 		
@@ -96,7 +135,7 @@
 		},
 		
 		/**
-		 * Dump current tree node into a foramtted string
+		 * Dump current tree node into a formatted string
 		 * @return {String}
 		 */
 		toString: function(level) {
@@ -134,12 +173,9 @@
 		 * @return {Boolean}
 		 */
 		hasEmptyChildren: function() {
-			for (var i = 0, il = this.children.length; i < il; i++) {
-				if (this.children[i].isEmpty())
-					return true;
-			}
-			
-			return false;
+			return !!_.find(this.children, function(child) {
+				return child.isEmpty();
+			});
 		},
 		
 		/**
@@ -174,12 +210,11 @@
 		 * @returns {String}
 		 */
 		getAttribute: function(name) {
-			for (var i = 0, il = this.attributes.length; i < il; i++) {
-				if (this.attributes[i].name == name)
-					return this.attributes[i].value;
-			}
+			var attr = _.find(this.attributes, function(attr) {
+				return attr.name == name; 
+			});
 			
-			return null;
+			return attr ? attr.value : null;
 		}
 	};
 	
@@ -201,7 +236,7 @@
 	 * @return {TreeNode}
 	 */
 	function squash(node) {
-		for (var i = node.children.length - 1; i >=0; i--) {
+		for (var i = node.children.length - 1; i >= 0; i--) {
 			/** @type {TreeNode} */
 			var n = node.children[i];
 			if (n.isEmpty()) {
@@ -223,7 +258,7 @@
 	 * @return {String}
 	 */
 	function trim(text) {
-		return (text || "").replace( /^\s+|\s+$/g, "" );
+		return (text || "").replace(/^\s+|\s+$/g, '');
 	}
 	
 	/**
@@ -514,19 +549,29 @@
 							
 							if (i < il - 1 && abbr.charAt(i + 1) == '*') {
 								// group multiplication
-								var group_mul = '', n_ch;
+								var groupMultiplier = '', nextCh, clone;
 								for (var j = i + 2; j < il; j++) {
-									n_ch = abbr.charAt(j);
-									if (isNumeric(n_ch))
-										group_mul += n_ch;
+									nextCh = abbr.charAt(j);
+									if (isNumeric(nextCh))
+										groupMultiplier += nextCh;
 									else 
 										break;
 								}
 								
-								i += group_mul.length + 1;
-								group_mul = parseInt(group_mul || 1, 10);
-								while (1 < group_mul--)
-									context.parent.addChild(context);
+								i += groupMultiplier.length + 1;
+								groupMultiplier = parseInt(groupMultiplier || 1, 10);
+								
+								for (var j = 1; j < groupMultiplier; j++) {
+									clone = context.clone();
+									clone.updateProperty('counter', j + 1);
+									context.parent.addChild(clone);
+								}
+								
+//								while (1 < groupMultiplier--) {
+//									clone = context.clone();
+//									clone.number = 
+//									context.parent.addChild(context);
+//								}
 //									last_parent.addChild(cur_item);
 							}
 							

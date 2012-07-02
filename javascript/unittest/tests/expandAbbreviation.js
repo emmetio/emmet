@@ -179,6 +179,11 @@
 		runTest('div>(i+b)*2+(span+em)*3', '<div><i></i><b></b><i></i><b></b><span></span><em></em><span></span><em></em><span></span><em></em></div>');
 	});
 	
+	test('Group multiplication', function() {
+		runTest('(span.i$)*3', '<span class="i1"></span><span class="i2"></span><span class="i3"></span>');
+		runTest('p.p$*2>(i.i$+b.b$)*3', '<p class="p1"><i class="i1"></i><b class="b1"></b><i class="i2"></i><b class="b2"></b><i class="i3"></i><b class="b3"></b></p><p class="p2"><i class="i1"></i><b class="b1"></b><i class="i2"></i><b class="b2"></b><i class="i3"></i><b class="b3"></b></p>');
+	});
+	
 	test('Escaping', function() {
 		var utils = zen_coding.require('utils');
 		equal(utils.escapeText('<xsl:apply-templates select="$item | other"/>'), '<xsl:apply-templates select="\\$item | other"/>');

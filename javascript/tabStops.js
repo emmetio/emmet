@@ -18,15 +18,49 @@ zen_coding.define('tabStops', function(require, _) {
 	 */
 	var startPlaceholderNum = 100;
 	
+	var tabstopIndex = 0;
+	
 	var defaultOptions = {
 		replaceCarets: true,
 		escape: function(ch) {
-			return ch;
+			return '\\' + ch;
 		},
 		tabstop: function(data) {
 			return data.token;
+		},
+		variable: function(data) {
+			return data.token;
 		}
 	};
+	
+	// XXX register output processor that will upgrade tabstops of parsed node
+	// in order to prevent tabstop index conflicts
+	require('abbreviationParser2').addOutputProcessor(function(text, node, type) {
+		var maxNum = 0;
+		var tabstops = require('tabStops');
+		var utils = require('utils');
+		
+		// upgrade tabstops
+		text = tabstops.processText(text, {
+			tabstop: function(data) {
+				var group = parseInt(data.group);
+				if (group > maxNum) maxNum = group;
+				
+				if (data.placeholder)
+					return '${' + (group + tabstopIndex) + ':' + data.placeholder + '}';
+				else
+					return '${' + (group + tabstopIndex) + '}';
+			}
+		});
+		
+		// resolve variables
+		text = utils.replaceVariables(text, tabstops.variablesResolver(node));
+		
+		
+		tabstopIndex += maxNum + 1;
+		
+		return text;
+	});
 	
 	return {
 		/**
@@ -49,6 +83,11 @@ zen_coding.define('tabStops', function(require, _) {
 		 * <b>tabstop</b> : <code>Function</code> – a tabstop handler. Receives 
 		 * a single argument – an object describing token: its position, number 
 		 * group, placeholder and token itself. Should return a replacement 
+		 * string that will appear in final output
+		 * 
+		 * <b>variable</b> : <code>Function</code> – variable handler. Receives 
+		 * a single argument – an object describing token: its position, name 
+		 * and original token itself. Should return a replacement 
 		 * string that will appear in final output
 		 * 
 		 * @returns {Object} Object with processed <code>text</code> property
@@ -162,6 +201,13 @@ zen_coding.define('tabStops', function(require, _) {
 							group: stream.current().substr(1),
 							token: stream.current()
 						});
+					} else if (m = stream.match(/^\{([a-z_\-][\w\-]*)\}/)) {
+						// ${variable}
+						a = options.variable({
+							start: buf.length, 
+							name: m[1],
+							token: stream.current()
+						});
 					} else if (m = stream.match(/^\{([0-9]+)(:.+?)?\}/)) {
 						// ${N:value} or ${N} placeholder
 						var obj = {
@@ -193,9 +239,6 @@ zen_coding.define('tabStops', function(require, _) {
 		upgrade: function(node, offset) {
 			var maxNum = 0;
 			var options = {
-				escape: function(ch) {
-					return '\\' + ch;
-				},
 				tabstop: function(data) {
 					var group = parseInt(data.group);
 					if (group > maxNum) maxNum = group;
@@ -203,7 +246,7 @@ zen_coding.define('tabStops', function(require, _) {
 					if (data.placeholder)
 						return '${' + (group + offset) + ':' + data.placeholder + '}';
 					else
-						return '$' + (group + offset);
+						return '${' + (group + offset) + '}';
 				}
 			};
 			
@@ -227,8 +270,13 @@ zen_coding.define('tabStops', function(require, _) {
 			var placeholderMemo = {};
 			var res = require('resources');
 			return function(str, varName) {
-				var attr = node.getAttribute(varName);
-				if (attr !== null)
+				// do not mark `child` variable as placeholder – it‘s a reserved
+				// variable name
+				if (varName == 'child')
+					return str;
+				
+				var attr = node.attribute(varName);
+				if (!_.isUndefined(attr))
 					return attr;
 				
 				var varValue = res.getVariable(varName);
@@ -244,6 +292,25 @@ zen_coding.define('tabStops', function(require, _) {
 		},
 		
 		resetPlaceholderCounter: function() {
+			console.log('deprecated');
+			startPlaceholderNum = 100;
+		},
+		
+		/**
+		 * Resets global tabstop index. When parsed tree is converted to output
+		 * string (<code>AbbreviationNode.toString()</code>), all tabstops 
+		 * defined in snippets and elements are upgraded in order to prevent
+		 * naming conflicts of nested. For example, <code>${1}</code> of a node
+		 * should not be linked with the same placehilder of the child node.
+		 * By default, <code>AbbreviationNode.toString()</code> automatically
+		 * upgrades tabstops of the same index for each node and writes maximum
+		 * tabstop index into the <code>tabstopIndex</code> variable. To keep
+		 * this variable at reasonable value, it is recommended to call 
+		 * <code>resetTabstopIndex()</code> method each time you expand variable 
+		 * @returns
+		 */
+		resetTabstopIndex: function() {
+			tabstopIndex = 0;
 			startPlaceholderNum = 100;
 		}
 	};

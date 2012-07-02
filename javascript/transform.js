@@ -147,6 +147,7 @@ zen_coding.define('transform', function(require, _) {
 			
 			if (!abbrTree)
 				return null;
+			
 			abbrTree = parser.optimizeTree(abbrTree);
 			
 			// recursively expand each group item
@@ -186,10 +187,12 @@ zen_coding.define('transform', function(require, _) {
 			var utils = require('utils');
 			var howMany = 1;
 			var tagContent = '';
+			var shouldUpdateCounter = false;
 			
 			parent = parent || elements.create('ZenNode', tree);
 			_.each(tree.children, function(child) {
 				howMany = child.count;
+				shouldUpdateCounter = child.is_repeating || child.repeat_by_lines;
 				
 				if (child.repeat_by_lines) {
 					// it's a repeating element
@@ -200,9 +203,12 @@ zen_coding.define('transform', function(require, _) {
 				}
 				
 				for (var j = 0; j < howMany; j++) {
+					if (shouldUpdateCounter)
+						child.updateProperty('counter', j + 1);
+					
 					var elem = elements.create('ZenNode', child);
 					parent.addChild(elem);
-					elem.counter = j + 1;
+//					elem.counter = j + 1;
 					
 					if (child.hasChildren())
 						this.rolloutTree(child, elem);

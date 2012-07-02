@@ -32,12 +32,91 @@ zen_coding.define('profile', function(require, _) {
 	};
 	
 	/**
+	 * @constructor
+	 * @type OutputProfile
+	 * @param {Object} options
+	 */
+	function OutputProfile(options) {
+		_.extend(this, defaultProfile, options);
+	}
+	
+	OutputProfile.prototype = {
+		/**
+		 * Transforms tag name case depending on current profile settings
+		 * @param {String} name String to transform
+		 * @returns {String}
+		 */
+		tagName: function(name) {
+			return stringCase(name, this.tag_case);
+		},
+		
+		/**
+		 * Transforms attribute name case depending on current profile settings 
+		 * @param {String} name String to transform
+		 * @returns {String}
+		 */
+		attributeName: function(name) {
+			return stringCase(name, this.attr_case);
+		},
+		
+		/**
+		 * Returns quote character for current profile
+		 * @returns {String}
+		 */
+		attributeQuote: function() {
+			return this.attr_quotes == 'single' ? "'" : '"';
+		},
+		
+		/**
+		 * Returns self-closing tag symbol for current profile
+		 * @param {String} param
+		 * @returns {String}
+		 */
+		selfClosing: function(param) {
+			if (this.self_closing_tag == 'xhtml')
+				return ' /';
+			
+			if (this.self_closing_tag === true)
+				return '/';
+			
+			return '';
+		},
+		
+		/**
+		 * Returns cursor token based on current profile settings
+		 * @returns {String}
+		 */
+		cursor: function() {
+			return this.place_cursor ? require('utils').getCaretPlaceholder() : '';
+		}
+	};
+	
+	/**
+	 * Helper function that converts string case depending on 
+	 * <code>caseValue</code> 
+	 * @param {String} str String to transform
+	 * @param {String} caseValue Case value: can be <i>lower</i>, 
+	 * <i>upper</i> and <i>leave</i>
+	 * @returns {String}
+	 */
+	function stringCase(str, caseValue) {
+		switch (String(caseValue || '').toLowerCase()) {
+			case 'lower':
+				return str.toLowerCase();
+			case 'upper':
+				return str.toUpperCase();
+		}
+		
+		return str;
+	}
+	
+	/**
 	 * Creates new output profile
 	 * @param {String} name Profile name
 	 * @param {Object} options Profile options
 	 */
 	function createProfile(name, options) {
-		return profiles[name.toLowerCase()] = _.defaults(options || {}, defaultProfile);
+		return profiles[name.toLowerCase()] = new OutputProfile(options);
 	}
 	
 	// create default profiles
@@ -104,24 +183,17 @@ zen_coding.define('profile', function(require, _) {
 		 * <i>upper</i> and <i>leave</i>
 		 * @returns {String}
 		 */
-		stringCase: function(str, caseValue) {
-			switch (String(caseValue || '').toLowerCase()) {
-				case 'lower':
-					return str.toLowerCase();
-				case 'upper':
-					return str.toUpperCase();
-			}
-			
-			return str;
-		},
+		stringCase: stringCase,
 		
 		/**
 		 * Returns quote character based on profile parameter
 		 * @param {String} param Quote parameter, can be <i>single</i> or
 		 * <i>double</i>
 		 * @returns {String}
+		 * @deprecated
 		 */
 		quote: function(param) {
+			console.log('deprecated');
 			return param == 'single' ? "'" : '"';
 		},
 		
@@ -129,8 +201,10 @@ zen_coding.define('profile', function(require, _) {
 		 * Returns self-closing tag symbol, based on passed parameter
 		 * @param {String} param
 		 * @returns {String}
+		 * @deprecated
 		 */
 		selfClosing: function(param) {
+			console.log('deprecated');
 			if (param == 'xhtml')
 				return ' /';
 			

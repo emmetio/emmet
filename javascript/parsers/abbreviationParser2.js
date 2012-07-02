@@ -22,6 +22,7 @@
 	
 	var preprocessors = [];
 	var postprocessors = [];
+	var outputProcessors = [];
 	
 	/**
 	 * @type AbbreviationNode
@@ -247,6 +248,14 @@
 		},
 		
 		/**
+		 * Returns index of current node in parent‘s children list
+		 * @returns {Number}
+		 */
+		index: function() {
+			return this.parent ? _.indexOf(this.parent.children, this) : -1;
+		},
+		
+		/**
 		 * Sets how many times current element should be repeated
 		 * @private
 		 */
@@ -296,15 +305,59 @@
 		},
 		
 		/**
+		 * Returns text content of current node. If it has matched resource
+		 * and it‘s a snippet, returns snippet content. Otherwise, returns 
+		 * text extracted from abbreviation
+		 */
+		content: function() {
+			var res = this.matchedResource();
+			if (require('elements').is(res, 'snippet')) {
+				return res.data;
+			}
+			
+			return this._text;
+		},
+		
+		/**
 		 * Returns string representation of current node
 		 * @return {String}
 		 */
-		toString: function(level) {
+		toString: function() {
+			var utils = require('utils');
+			
+			var start = this.start;
+			var end = this.end;
+			var content = this.content();
+			
+			// apply output processors
+			var node = this;
+			_.each(outputProcessors, function(fn) {
+				start = fn(start, node, 'start');
+				content = fn(content, node, 'content');
+				end = fn(end, node, 'end');
+			});
+			
+			
+			var childVariableReplaced = false;
 			var innerContent = _.map(this.children, function(child) {
 				return child.toString();
 			}).join('');
 			
-			return this.start + this._text + innerContent + this.end;
+			content = utils.replaceVariables(content, function(variable, name, data) {
+				if (name == 'child') {
+					childVariableReplaced = true;
+					// add correct indentation
+					return utils.padString(innerContent, 
+							utils.getLinePaddingFromPosition(content, data.start));
+				}
+				
+				return variable;
+			});
+			
+			if (!childVariableReplaced)
+				content += innerContent;
+			
+			return start + utils.padString(content, this.padding) + end;
 		},
 		
 		/**
@@ -726,6 +779,11 @@
 				|| specialChars.indexOf(ch) != -1;    // special character
 	}
 	
+	// XXX add counter replacer function as output processor
+	outputProcessors.push(function(text, node) {
+		return require('utils').replaceCounter(text, node.counter);
+	});
+	
 	return {
 		/**
 		 * Parses abbreviation into tree with respect of groups, 
@@ -800,6 +858,24 @@
 		 */
 		removePostprocessor: function(fn) {
 			postprocessors = _.without(postprocessors, fn);
+		},
+		
+		/**
+		 * Registers output postprocessor. <i>Output processor</i> is a 
+		 * function that applies to output part (<code>start</code>, 
+		 * <code>end</code> and <code>content</code>) when 
+		 * <code>AbbreviationNode.toString()</code> method is called
+		 */
+		addOutputProcessor: function(fn) {
+			if (!_.include(outputProcessors, fn))
+				outputProcessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered output processor
+		 */
+		removeOutputProcessor: function(fn) {
+			outputProcessors = _.without(outputProcessors, fn);
 		},
 		
 		/**
