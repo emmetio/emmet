@@ -28,10 +28,10 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	/**
-	 * @param {ZenNode} item
+	 * @param {AbbreviationNode} item
 	 */
 	function bemParse(item) {
-		if (!require('elements').is(item.source, 'parsedElement'))
+		if (require('abbreviationUtils').isSnippet(item))
 			return item;
 		
 		// save BEM stuff in cache for faster lookups
@@ -41,7 +41,7 @@ zen_coding.exec(function(require, _) {
 			modifier: ''
 		};
 		
-		var classNames = normalizeClassName(item.getAttribute('class')).split(' ');
+		var classNames = normalizeClassName(item.attribute('class')).split(' ');
 		
 		// guess best match for block name
 		var reBlockName = /^[a-z]\-/i;
@@ -63,7 +63,7 @@ zen_coding.exec(function(require, _) {
 			.uniq()
 			.value();
 		
-		item.setAttribute('class', classNames.join(' '));
+		item.attribute('class', classNames.join(' '));
 		
 		return item;
 	}
@@ -90,7 +90,7 @@ zen_coding.exec(function(require, _) {
 	/**
 	 * Processes class name
 	 * @param {String} name Class name item to process
-	 * @param {ZenNode} item Host node for provided class name
+	 * @param {AbbreviationNode} item Host node for provided class name
 	 * @returns {String} Processed class name. May return <code>Array</code> of
 	 * class names 
 	 */
@@ -154,7 +154,7 @@ zen_coding.exec(function(require, _) {
 	/**
 	 * Low-level function to transform user-typed class name into full BEM class
 	 * @param {String} name Class name item to process
-	 * @param {ZenNode} item Host node for provided class name
+	 * @param {AbbreviationNode} item Host node for provided class name
 	 * @param {String} entityType Type of entity to be tried to transform 
 	 * ('element' or 'modifier')
 	 * @returns {String} Processed class name or original one if it can't be
@@ -226,10 +226,10 @@ zen_coding.exec(function(require, _) {
 		if (tree.name)
 			bemParse(tree, profile);
 		
-		var elements = require('elements');
+		var abbrUtils = require('abbreviationUtils');
 		_.each(tree.children, function(item) {
 			process(item, profile);
-			if (elements.is(item.source, 'parsedElement') && item.start)
+			if (!abbrUtils.isSnippet(item) && item.start)
 				shouldRunHtmlFilter = true;
 		});
 		

@@ -159,10 +159,10 @@ zen_coding.define('actionUtils', function(require, _) {
 					var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 					var startTag = tags[0];
 					var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
-					var parser = require('abbreviationParser');
-					/** @type TreeNode */
-					var contextNode = new parser.TreeNode;
-					contextNode.name = startTag.name;
+					var contextNode = {
+						name: startTag.name,
+						attributes: []
+					};
 					
 					// parse attributes
 					var m;

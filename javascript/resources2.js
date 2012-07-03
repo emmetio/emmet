@@ -181,36 +181,6 @@ zen_coding.define('resources', function(require, _) {
 		}
 	}
 	
-	/**
-	 * Finds matched resources for child nodes of passed <code>node</code> 
-	 * element. A matched resource is a reference to <i>snippets.json</i> entry
-	 * that describes output of parsed node 
-	 * @param {AbbreviationNode} node
-	 * @param {String} syntax
-	 */
-	function matchResources(node, syntax) {
-		var resources = require('resources');
-		var elements = require('elements');
-		
-		_.each(node.children, function(child) {
-			var r = resources.getMatchedResource(child, syntax);
-			if (_.isString(r))
-				r = elements.create('snippet', r);
-			child.data('resource', r);
-			matchResources(child, syntax);
-		});
-	}
-	
-	// XXX register abbreviation filter that creates references to resources
-	// on abbreviation nodes
-	/**
-	 * @param {AbbreviationNode} tree
-	 */
-	require('abbreviationParser2').addPostprocessor(function(tree, options) {
-		var syntax = options.syntax || zen_coding.defaultSyntax();
-		matchResources(tree, syntax);
-	});
-	
 	return {
 		/**
 		 * Sets new unparsed data for specified settings vocabulary

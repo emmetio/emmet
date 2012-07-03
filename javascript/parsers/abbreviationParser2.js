@@ -1,14 +1,23 @@
 /**
- * Zen Coding abbreviation parser. This module is designed to be stand-alone
- * (e.g. without any dependencies) so authors can copy this file into their
- * projects
+ * Zen Coding abbreviation parser.
+ * Takes string abbreviation and recursively parses it into a tree. The parsed 
+ * tree can be transformed into a string representation with 
+ * <code>toString()</code> method. Note that string representation is defined
+ * by custom processors (called <i>filters</i>), not by abbreviation parser 
+ * itself.
+ * 
+ * This module can be extended with custom pre-/post-processors to shape-up
+ * final tree or its representation. Actually, many features of abbreviation 
+ * engine are defined in other modules as tree processors
+ * 
+ * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @memberOf __abbreviationParser
  * @constructor
  * @param {Function} require
  * @param {Underscore} _
- */zen_coding.define('abbreviationParser2', function(require, _) {
+ */zen_coding.define('abbreviationParser', function(require, _) {
 	var reValidName = /^[\w\-\$\:@\!]+\+?$/i;
 	var reWord = /[\w\-:\$]/;
 	
@@ -220,7 +229,7 @@
 			var attrs = [];
 			
 			var res = this.matchedResource();
-			if (require('elements').is(res, 'element')) {
+			if (require('elements').is(res, 'element') && _.isArray(res.attributes)) {
 				attrs = attrs.concat(res.attributes);
 			}
 			
@@ -228,14 +237,23 @@
 		},
 		
 		/**
-		 * Returns attribute value
+		 * Returns or sets attribute value
 		 * @param {String} name Attribute name
+		 * @param {String} value New attribute value
 		 * @returns {String}
 		 */
-		attribute: function(name) {
+		attribute: function(name, value) {
+			if (arguments.length == 2) {
+				// modifying attribute
+				var ix = _.indexOf(_.pluck(this._attributes, 'name'), name.toLowerCase());
+				if (~ix) {
+					this._attributes[ix].value = value;
+				}
+			}
+			
 			return (_.find(this.attributeList(), function(attr) {
 				return attr.name == name;
-			}) || {}).name;
+			}) || {}).value;
 		},
 		
 		/**
@@ -572,7 +590,7 @@
 						attrValue = stream.current();
 						// strip quotes
 						attrValue = attrValue.substring(1, attrValue.length - 1);
-					} else if (stream.eatWhile(reWord)) {
+					} else if (stream.eatWhile(/[^\s\]]/)) {
 						attrValue = stream.current();
 					} else {
 						throw 'Invalid attribute value';
@@ -755,10 +773,10 @@
 	 */
 	function squash(node) {
 		for (var i = node.children.length - 1; i >= 0; i--) {
-			/** @type {AbbreviationNode} */
+			/** @type AbbreviationNode */
 			var n = node.children[i];
 			if (n.isGroup()) {
-				n.replace(n.children);
+				n.replace(squash(n).children);
 			} else if (n.isEmpty()) {
 				n.remove();
 			}
@@ -790,7 +808,7 @@
 		 * text nodes and attributes. Each node of the tree is a single 
 		 * abbreviation. Tree represents actual structure of the outputted 
 		 * result
-		 * @memberOf abbreviationParser2
+		 * @memberOf abbreviationParser
 		 * @param {String} abbr Abbreviation to parse
 		 * @param {Object} options Additional options for parser and processors
 		 * 
@@ -800,6 +818,28 @@
 			options = options || {};
 			
 			var tree = parseAbbreviation(abbr);
+			
+			if (options.contextNode) {
+				// add info about context node –
+				// a parent XHTML node in editor inside which abbreviation is 
+				// expanded
+				tree._name = options.contextNode.name;
+				var attrLookup = {};
+				_.each(tree._attributes, function(attr) {
+					attrLookup[attr.name] = attr;
+				});
+				
+				_.each(options.contextNode.attributes, function(attr) {
+					if (attr.name in attrLookup) {
+						attrLookup[attr.name].value = attr.value;
+					} else {
+						attr = _.clone(attr);
+						tree._attributes.push(attr);
+						attrLookup[attr.name] = attr;
+					}
+				});
+			}
+			
 			
 			// apply preprocessors
 			_.each(preprocessors, function(fn) {

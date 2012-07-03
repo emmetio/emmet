@@ -440,7 +440,7 @@ zen_coding.define('utils', function(require, _) {
 			if (_.isUndefined(end))
 				end = start;
 			
-			if (start < 0 || start >= str.length)
+			if (start < 0 || start > str.length)
 				return str;
 			
 			return str.substring(0, start) + value + str.substring(end);

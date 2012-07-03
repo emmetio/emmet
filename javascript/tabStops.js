@@ -35,7 +35,7 @@ zen_coding.define('tabStops', function(require, _) {
 	
 	// XXX register output processor that will upgrade tabstops of parsed node
 	// in order to prevent tabstop index conflicts
-	require('abbreviationParser2').addOutputProcessor(function(text, node, type) {
+	require('abbreviationParser').addOutputProcessor(function(text, node, type) {
 		var maxNum = 0;
 		var tabstops = require('tabStops');
 		var utils = require('utils');

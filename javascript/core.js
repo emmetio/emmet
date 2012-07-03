@@ -140,12 +140,16 @@
 			
 			var filters = this.require('filters');
 			var utils = this.require('utils');
-			var transform = this.require('transform');
+			var parser = this.require('abbreviationParser');
 			
 			profile = this.require('profile').get(profile, syntax);
+			this.require('tabStops').resetTabstopIndex();
 			
 			var data = filters.extractFromAbbreviation(abbr);
-			var outputTree = transform.transform(data[0], syntax, contextNode);
+			var outputTree = parser.parse(data[0], {
+				syntax: syntax, 
+				contextNode: contextNode
+			});
 			var filtersList = filters.composeList(syntax, profile, data[1]);
 			filters.apply(outputTree, filtersList, profile);
 			return utils.replaceVariables(outputTree.toString());

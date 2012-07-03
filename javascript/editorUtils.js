@@ -15,17 +15,6 @@ zen_coding.define('editorUtils', function(require, _) {
 		getCounterForNode: function(node) {
 			console.log('deprecated');
 			return node.counter;
-			
-			// find nearest repeating parent
-//			var counter = node.counter;
-//			if (!node.is_repeating && !node.repeat_by_lines) {
-//				while (node = node.parent) {
-//					if (node.is_repeating || node.repeat_by_lines)
-//						return node.counter;
-//				}
-//			}
-//			
-//			return counter;
 		},
 		
 		/**

@@ -90,10 +90,11 @@ var editorStub = (function() {
 			if (_.isUndefined(start)) start = 0;
 			var utils = require('utils');
 			
+			value = utils.unescapeText(value);
+			
 			// indent new value
 			if (!noIndent) {
-				var lineRange = utils.findNewlineBounds(content, start);
-				value = utils.padString(value, utils.getLinePadding(lineRange.substring(content)));
+				value = utils.padString(value, utils.getLinePaddingFromPosition(content, start));
 			}
 			
 			// find new caret position

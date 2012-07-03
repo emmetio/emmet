@@ -12,9 +12,10 @@ zen_coding.exec(function(require, _) {
 	var reNl = /[\n\r]/g;
 	
 	require('filters').add('s', function process(tree, profile, level) {
-		var elements = require('elements');
+		var abbrUtils = require('abbreviationUtils');
+		
 		_.each(tree.children, function(item) {
-			if (elements.is(item.source, 'parsedElement')) {
+			if (!abbrUtils.isSnippet(item)) {
 				// remove padding from item 
 				item.start = item.start.replace(rePad, '');
 				item.end = item.end.replace(rePad, '');
@@ -23,7 +24,7 @@ zen_coding.exec(function(require, _) {
 			// remove newlines 
 			item.start = item.start.replace(reNl, '');
 			item.end = item.end.replace(reNl, '');
-			item.content = item.content.replace(reNl, '');
+//			item.content = item.content.replace(reNl, '');
 			
 			process(item);
 		});

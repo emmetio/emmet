@@ -7,15 +7,17 @@
 zen_coding.exec(function(require, _) {
 	var res = require('resources');
 	/**
-	 * @param {TreeNode} node
+	 * @param {AbbreviationNode} node
 	 * @param {String} syntax
 	 */
 	res.addResolver(function(node, syntax) {
-		if (node.isElement() && ~node.name.indexOf('+')) {
+		if (node.isElement() && ~node.name().indexOf('+')) {
 			// it's expando
-			var a = res.getAbbreviation(syntax, node.name);
+			var a = res.getAbbreviation(syntax, node.name());
 			if (a) {
-				return require('transform').createParsedTree(a.data, syntax);
+				return require('abbreviationParser').parse(a.data, {
+					syntax: syntax
+				});
 			}
 		}
 		

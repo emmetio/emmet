@@ -31,7 +31,8 @@
 	
 	function runTest() {
 		var args = _.toArray(arguments);
-		equal(zen_coding.expandAbbreviation.apply(zen_coding, _.initial(args)), _.last(args), args[0]);
+		var result = zen_coding.expandAbbreviation.apply(zen_coding, _.initial(args));
+		equal(zen_coding.require('utils').unescapeText(result), _.last(args), args[0]);
 	}
 	
 	test("'+' operator", function() {

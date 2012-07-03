@@ -23,10 +23,10 @@
 	}
 	
 	require('filters').add('xsl', function process(tree) {
-		var elements = require('elements');
+		var abbrUtils = require('abbreviationUtils');
 		_.each(tree.children, function(item) {
-			if (elements.is(item.source, 'parsedElement')
-					&& (item.name || '').toLowerCase() in tags 
+			if (!abbrUtils.isSnippet(item)
+					&& (item.name() || '').toLowerCase() in tags 
 					&& item.children.length)
 				trimAttribute(item);
 			process(item);

@@ -75,10 +75,10 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	handlers.add(function(editor, syntax, profile) {
 		var info = require('editorUtils').outputInfo(editor, syntax, profile);
 		var caretPos = editor.getSelectionRange().end;
-		var abbr;
 		var content = '';
+		var abbr = findAbbreviation(editor);
 			
-		if ( (abbr = findAbbreviation(editor)) ) {
+		if (abbr) {
 			content = zen_coding.expandAbbreviation(abbr, info.syntax, info.profile, 
 					require('actionUtils').captureContext(editor));
 			if (content) {

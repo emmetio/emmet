@@ -71,30 +71,21 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 			var filters = require('filters');
 			/** @type zen_coding.utils */
 			var utils = require('utils');
-			/** @type zen_coding.transform */
-			var transform = require('transform');
-			
-			var pasted = false;
 			
 			syntax = syntax || zen_coding.defaultSyntax();
 			profile = profile || zen_coding.defaultProfile();
 			
+			require('tabStops').resetTabstopIndex();
+			
 			var data = filters.extractFromAbbreviation(abbr);
-			var parsedTree = transform.createParsedTree(data[0], syntax);
+			var parsedTree = require('abbreviationParser').parse(data[0], {
+				syntax: syntax,
+				pastedContent: text
+			});
 			if (parsedTree) {
-				if (parsedTree.multiply_elem) {
-					// we have a repeating element, put content in
-					parsedTree.multiply_elem.setPasteContent(text);
-					parsedTree.multiply_elem.repeat_by_lines = pasted = true;
-				}
-				
-				var outputTree = transform.rolloutTree(parsedTree);
-				if (!pasted) 
-					outputTree.pasteContent(text);
-				
 				var filtersList = filters.composeList(syntax, profile, data[1]);
-				filters.apply(outputTree, filtersList, profile);
-				return utils.replaceVariables(outputTree.toString());
+				filters.apply(parsedTree, filtersList, profile);
+				return utils.replaceVariables(parsedTree.toString());
 			}
 			
 			return null;

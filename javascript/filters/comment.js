@@ -13,7 +13,7 @@ zen_coding.exec(function(require, _) {
 	var prefs = require('preferences');
 	
 	prefs.define('filter.commentAfter', 
-			'\n<%= padding %><!-- /<%= attr("id", "#") %><%= attr("class", ".") %> -->',
+			'\n<!-- /<%= attr("id", "#") %><%= attr("class", ".") %> -->',
 			'A definition of comment that should be placed <i>after</i> matched '
 			+ 'element when <code>comment</code> filter is applied. This definition '
 			+ 'is an ERB-style template passed to <code>_.template()</code> '
@@ -43,13 +43,13 @@ zen_coding.exec(function(require, _) {
 			+ 'property');
 	
 	prefs.define('filter.commentTrigger', 'id, class',
-			'A comma-separated list of attribute names that should exist on tag '
+			'A comma-separated list of attribute names that should exist in abbreviatoin '
 			+ 'where comment should be added. If you wish to add comment for '
 			+ 'every element, set this option to <code>*</code>');
 	
 	/**
 	 * Add comments to tag
-	 * @param {ZenNode} node
+	 * @param {AbbreviationNode} node
 	 */
 	function addComments(node, templateBefore, templateAfter) {
 		var utils = require('utils');
@@ -58,18 +58,19 @@ zen_coding.exec(function(require, _) {
 		var trigger = prefs.get('filter.commentTrigger');
 		if (trigger != '*') {
 			var shouldAdd = _.find(trigger.split(','), function(name) {
-				return !!node.getAttribute(utils.trim(name));
+				return !!node.attribute(utils.trim(name));
 			});
 			if (!shouldAdd) return;
 		}
 		
 		var ctx = {
 			node: node,
-			name: node.name,
+			name: node.name(),
 			padding: node.parent ? node.parent.padding : '',
 			attr: function(name, before, after) {
-				if (node.getAttribute(name)) {
-					return (before || '') + node.getAttribute(name) + (after || '');
+				var attr = node.attribute(name);
+				if (attr) {
+					return (before || '') + attr + (after || '');
 				}
 				
 				return '';
@@ -84,9 +85,9 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	function process(tree, before, after) {
-		var elements = require('elements');
+		var abbrUtils = require('abbreviationUtils');
 		_.each(tree.children, function(item) {
-			if (item.isBlock() && elements.is(item.source, 'parsedElement'))
+			if (abbrUtils.isBlock(item))
 				addComments(item, before, after);
 			
 			process(item, before, after);
