@@ -8,84 +8,45 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
-	var childToken = '${child}';
-	var tabstops = 0;
-		
 	/**
 	 * Creates HTML attributes string from tag according to profile settings
-	 * @param {ZenNode} tag
-	 * @param {Object} profile
+	 * @param {AbbreviationNode} node
+	 * @param {OutputProfile} profile
 	 */
-	function makeAttributesString(tag, profile) {
-		var p = require('profile');
-		// make attribute string
-		var attrQuote = p.quote(profile.attr_quotes);
-		var cursor = profile.place_cursor ? require('utils').getCaretPlaceholder() : '';
+	function makeAttributesString(node, profile) {
+		var attrQuote = profile.attributeQuote();
+		var cursor = profile.cursor();
 		
-		return _.map(tag.attributes, function(a) {
-			var attrName = p.stringCase(a.name, profile.attr_case);
+		return _.map(node.attributeList(), function(a) {
+			var attrName = profile.attributeName(a.name);
 			return ' ' + attrName + '=' + attrQuote + (a.value || cursor) + attrQuote;
 		}).join('');
 	}
 	
 	/**
-	 * Processes element with <code>snippet</code> type
-	 * @param {ZenNode} item
-	 * @param {Object} profile
-	 * @param {Number} level Depth level
-	 */
-	function processSnippet(item, profile, level) {
-		var data = item.source.value;
-		if (!data)
-			// snippet wasn't found, process it as tag
-			return processTag(item, profile, level);
-			
-		var utils = require('utils');
-		var parts = data.split(childToken);
-		var padding = item.parent ? item.parent.padding : '';
-			
-		item.start = item.start.replace('%s', utils.padString(parts[0] || '', padding));
-		item.end = item.end.replace('%s', utils.padString(parts[1] || '', padding));
-		
-		var cb = require('tabStops').variablesResolver(item);
-		item.start = utils.replaceVariables(item.start, cb);
-		item.end = utils.replaceVariables(item.end, cb);
-		
-		return item;
-	}
-	
-	/**
-	 * Test if passed node has block-level sibling element
-	 * @param {ZenNode} item
-	 * @return {Boolean}
-	 */
-	function hasBlockSibling(item) {
-		return item.parent && item.parent.hasBlockChildren();
-	}
-	
-	/**
 	 * Processes element with <code>tag</code> type
-	 * @param {ZenNode} item
-	 * @param {Object} profile
+	 * @param {AbbreviationNode} item
+	 * @param {OutputProfile} profile
 	 * @param {Number} level Depth level
 	 */
 	function processTag(item, profile, level) {
-		if (!item.name) // looks like it's root element
+		if (!item.parent) // looks like it's root element
 			return item;
 		
-		var p = require('profile');
+		var abbrUtils = require('abbreviationUtils');
+		var utils = require('utils');
 		
 		var attrs = makeAttributesString(item, profile); 
-		var cursor = profile.place_cursor ? require('utils').getCaretPlaceholder() : '';
-		var isUnary = item.isUnary() && !item.children.length;
+		var cursor = profile.cursor();
+		var isUnary = abbrUtils.isUnary(item);
 		var start= '';
 		var end = '';
 			
 		// define opening and closing tags
-		if (item.type != 'text') {
-			var tagName = p.stringCase(item.name, profile.tag_case);
+		if (!item.isTextNode()) {
+			var tagName = profile.tagName(item.name());
 			if (isUnary) {
-				start = '<' + tagName + attrs + p.selfClosing(profile.self_closing_tag) + '>';
+				start = '<' + tagName + attrs + profile.selfClosing() + '>';
 				item.end = '';
 			} else {
 				start = '<' + tagName + attrs + '>';
@@ -96,12 +57,9 @@ zen_coding.exec(function(require, _) {
 		var placeholder = '%s';
 		// We can't just replace placeholder with new value because
 		// JavaScript will treat double $ character as a single one, assuming
-		// we're using RegExp literal. 
-		var pos = item.start.indexOf(placeholder);
-		item.start = item.start.substring(0, pos) + start + item.start.substring(pos + placeholder.length);
-		
-		pos = item.end.indexOf(placeholder);
-		item.end = item.end.substring(0, pos) + end + item.end.substring(pos + placeholder.length);
+		// we're using RegExp literal.
+		item.start = utils.replaceSubstring(item.start, start, item.start.indexOf(placeholder), placeholder);
+		item.end = utils.replaceSubstring(item.end, end, item.end.indexOf(placeholder), placeholder);
 		
 		if (!item.children.length && !isUnary && item.content.indexOf(cursor) == -1)
 			item.start += cursor;
@@ -117,30 +75,15 @@ zen_coding.exec(function(require, _) {
 	 */
 	require('filters').add('html', function process(tree, profile, level) {
 		level = level || 0;
-		var ts = require('tabStops');
+		var abbrUtils = require('abbreviationUtils');
 		
-		if (level == 0) {
+		if (!level) {
 			tree = require('filters').apply(tree, '_format', profile);
-			tabstops = 0;
-			ts.resetPlaceholderCounter();
 		}
 		
-		var utils = require('utils');
-		var editorUtils = require('editorUtils');
-		var elements = require('elements');
-		
 		_.each(tree.children, function(item) {
-			item = elements.is(item.source, 'parsedElement') 
-				? processTag(item, profile, level) 
-				: processSnippet(item, profile, level);
-			
-			// replace counters
-			var counter = editorUtils.getCounterForNode(item);
-			item.start = utils.unescapeText(utils.replaceCounter(item.start, counter));
-			item.end = utils.unescapeText(utils.replaceCounter(item.end, counter));
-			item.content = utils.unescapeText(utils.replaceCounter(item.content, counter));
-			
-			tabstops += ts.upgrade(item, tabstops) + 1;
+			if (!abbrUtils.isSnippet(item))
+				processTag(item, profile, level);
 			
 			process(item, profile, level + 1);
 		});

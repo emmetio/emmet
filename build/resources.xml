@@ -7,6 +7,14 @@
 		<file name="underscore.js"/>
 		
 		<file name="core.js"/>
+		
+		<file name="parsers/abbreviationParser.js"/>
+		<file name="parsers/processors/resource-matcher.js"/>
+		<file name="parsers/processors/pasted-content.js"/>
+		<file name="parsers/processors/tag-name.js"/>
+		<file name="parsers/cssParser.js"/>
+		<file name="parsers/xmlParser.js"/>
+		
 		<file name="utils.js"/>
 		<file name="range.js"/>
 		<file name="handlerList.js"/>
@@ -15,22 +23,16 @@
 		<file name="resources.js"/>
 		<file name="actions.js"/>
 		<file name="profile.js"/>
-		<file name="transform.js"/>
 		<file name="editorUtils.js"/>
 		<file name="actionUtils.js"/>
+		<file name="abbreviationUtils.js"/>
 		<file name="base64.js"/>
 		<file name="html_matcher.js"/>
 		<file name="tabStops.js"/>
 		<file name="preferences.js"/>
 		<file name="filters.js"/>
-			
 		<file name="elements.js"/>
-		<file name="elements/parsedElements.js"/>
-		<file name="elements/ZenNode.js"/>
-		
-		<file name="parsers/abbreviationParser.js"/>
-		<file name="parsers/cssParser.js"/>
-		<file name="parsers/xmlParser.js"/>
+			
 		<file name="parsers/editTree/editTree.js"/>
 		<file name="parsers/editTree/cssEditTree.js"/>
 		<file name="parsers/editTree/xmlEditTree.js"/>

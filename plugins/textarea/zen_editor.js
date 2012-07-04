@@ -388,6 +388,8 @@ var zen_editor = (function(){
 			var content = getContent();
 			var utils = zen_coding.require('utils');
 			
+			value = utils.unescapeText(value);
+			
 			if (_.isUndefined(end)) 
 				end = _.isUndefined(start) ? content.length : start;
 			if (_.isUndefined(start)) start = 0;

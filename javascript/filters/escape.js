@@ -19,6 +19,7 @@
 		_.each(tree.children, function(item) {
 			item.start = escapeChars(item.start);
 			item.end = escapeChars(item.end);
+			item.content = escapeChars(item.content);
 			process(item);
 		});
 		

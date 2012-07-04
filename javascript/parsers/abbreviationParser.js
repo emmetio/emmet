@@ -1,68 +1,140 @@
 /**
- * Zen Coding abbreviation parser. This module is designed to be stand-alone
- * (e.g. without any dependencies) so authors can copy this file into their
- * projects
+ * Zen Coding abbreviation parser.
+ * Takes string abbreviation and recursively parses it into a tree. The parsed 
+ * tree can be transformed into a string representation with 
+ * <code>toString()</code> method. Note that string representation is defined
+ * by custom processors (called <i>filters</i>), not by abbreviation parser 
+ * itself.
+ * 
+ * This module can be extended with custom pre-/post-processors to shape-up
+ * final tree or its representation. Actually, many features of abbreviation 
+ * engine are defined in other modules as tree processors
+ * 
+ * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @memberOf __abbreviationParser
  * @constructor
  * @param {Function} require
  * @param {Underscore} _
- */zen_coding.define('abbreviationParser', function(require, _) {
-	var reValidName = /^[\w\d\-_\$\:@!]+\+?$/i;
+ */
+zen_coding.define('abbreviationParser', function(require, _) {
+	var reValidName = /^[\w\-\$\:@\!]+\+?$/i;
+	var reWord = /[\w\-:\$]/;
+	
+	var pairs = {
+		'[': ']',
+		'(': ')',
+		'{': '}'
+	};
+	
+	var spliceFn = Array.prototype.splice;
+	
+	var preprocessors = [];
+	var postprocessors = [];
+	var outputProcessors = [];
 	
 	/**
-	 * @type TreeNode
+	 * @type AbbreviationNode
 	 */
-	function TreeNode(parent) {
-		this.abbreviation = '';
-		/** @type TreeNode */
+	function AbbreviationNode(parent) {
+		/** @type AbbreviationNode */
 		this.parent = null;
 		this.children = [];
-		this.count = 1;
+		this._attributes = [];
+		
+		/** @type String Raw abbreviation for current node */
+		this.abbreviation = '';
 		this.counter = 1;
-		this.name = null;
-		this.text = null;
-		this.attributes = [];
-		this.is_repeating = false;
-		this.has_implict_name = false;
+		this._name = null;
+		this._text = '';
+		this.repeatCount = 1;
+		this.hasImplicitRepeat = false;
+		/** Custom data dictionary */
+		this._data = {};
+		
+		// output properties
+		this.start = '';
+		this.end = '';
+		this.content = '';
+		this.padding = '';
 	}
 	
-	TreeNode.prototype = {
+	AbbreviationNode.prototype = {
 		/**
 		 * Adds passed node as child or creates new child
-		 * @param {TreeNode} child
-		 * @return {TreeNode}
+		 * @param {AbbreviationNode} child
+		 * @param {Number} position Index in children array where child should 
+		 * be inserted
+		 * @return {AbbreviationNode}
 		 */
-		addChild: function(child) {
-			child = child || new TreeNode;
+		addChild: function(child, position) {
+			child = child || new AbbreviationNode;
 			child.parent = this;
-			this.children.push(child);
+			
+			if (_.isUndefined(position)) {
+				this.children.push(child);
+			} else {
+				this.children.splice(position, 0, child);
+			}
+			
 			return child;
 		},
 		
 		/**
 		 * Creates a deep copy of current node
-		 * @returns {TreeNode}
+		 * @returns {AbbreviationNode}
 		 */
 		clone: function() {
-			var node = new TreeNode();
-			var attrs = ['abbreviation', 'name', 'text', 'is_repeating', 'has_implict_name', 'text', 'counter'];
+			var node = new AbbreviationNode();
+			var attrs = ['abbreviation', 'counter', '_name', '_text', 'repeatCount', 'hasImplicitRepeat', 'start', 'end', 'content', 'padding'];
 			_.each(attrs, function(a) {
 				node[a] = this[a];
 			}, this);
 			
 			// clone attributes
-			node.attributes = _.map(this.attributes, function(attr) {
+			node._attributes = _.map(this._attributes, function(attr) {
 				return _.clone(attr);
 			});
 			
+			node._data = _.clone(this._data);
+			
 			// clone children
 			node.children = _.map(this.children, function(child) {
-				return child.clone();
+				child = child.clone();
+				child.parent = node;
+				return child;
 			});
 			
 			return node;
+		},
+		
+		/**
+		 * Removes current node from parent‘s child list
+		 * @returns {AbbreviationNode} Current node itself
+		 */
+		remove: function() {
+			if (this.parent) {
+				this.parent.children = _.without(this.parent.children, this);
+			}
+			
+			return this;
+		},
+		
+		/**
+		 * Replaces current node in parent‘s children list with passed nodes
+		 * @param {AbbreviationNode} node Replacement node or array of nodes
+		 */
+		replace: function() {
+			var parent = this.parent;
+			var ix = _.indexOf(parent.children, this);
+			var items = _.flatten(arguments);
+			spliceFn.apply(parent.children, [ix, 1].concat(items));
+			
+			// update parent
+			_.each(items, function(item) {
+				item.parent = parent;
+			});
 		},
 		
 		/**
@@ -79,18 +151,150 @@
 		},
 		
 		/**
-		 * Replace current node in parent's child list with another node
-		 * @param {TreeNode} node
+		 * Finds first child node that matches truth test for passed 
+		 * <code>fn</code> function
+		 * @param {Function} fn
+		 * @returns {AbbreviationNode}
 		 */
-		replace: function(node) {
-			if (this.parent) {
-				_.find(this.parent.children, function(child, i) {
-					if (child === this) {
-						this.parent.children[i] = node;
-						this.parent = null;
-						return true;
+		find: function(fn) {
+			if (!_.isFunction(fn)) {
+				var elemName = fn.toLowerCase();
+				fn = function(item) {return item.name().toLowerCase() == elemName;};
+			}
+			
+			var result = null;
+			_.find(this.children, function(child) {
+				if (fn(child)) {
+					return result = child;
+				}
+				
+				return result = child.find(fn);
+			});
+			
+			return result;
+		},
+		
+		/**
+		 * Finds all child nodes that matches truth test for passed 
+		 * <code>fn</code> function
+		 * @param {Function} fn
+		 * @returns {Array}
+		 */
+		findAll: function(fn) {
+			if (!_.isFunction(fn)) {
+				var elemName = fn.toLowerCase();
+				fn = function(item) {return item.name().toLowerCase() == elemName;};
+			}
+				
+			var result = [];
+			_.each(this.children, function(child) {
+				if (fn(child))
+					result.push(child);
+				
+				result = result.concat(child.findAll(fn));
+			});
+			
+			return _.compact(result);
+		},
+		
+		/**
+		 * Sets/gets custom data
+		 * @param {String} name
+		 * @param {Object} value
+		 * @returns {Object}
+		 */
+		data: function(name, value) {
+			if (arguments.length == 2) {
+				this._data[name] = value;
+				
+				if (name == 'resource' && require('elements').is(value, 'snippet')) {
+					// setting snippet as matched resource: update `content`
+					// property with snippet value
+					this.content = value.data;
+					if (this._text) {
+						this.content = require('abbreviationUtils')
+							.insertChildContent(value.data, this._text);
 					}
-				}, this);
+				}
+			}
+			
+			return this._data[name];
+		},
+		
+		/**
+		 * Returns name of current node
+		 * @returns {String}
+		 */
+		name: function() {
+			var res = this.matchedResource();
+			if (require('elements').is(res, 'element')) {
+				return res.name;
+			}
+			
+			return this._name;
+		},
+		
+		/**
+		 * Returns list of attributes for current node
+		 * @returns {Array}
+		 */
+		attributeList: function() {
+			var attrs = [];
+			
+			var res = this.matchedResource();
+			if (require('elements').is(res, 'element') && _.isArray(res.attributes)) {
+				attrs = attrs.concat(res.attributes);
+			}
+			
+			return optimizeAttributes(attrs.concat(this._attributes));
+		},
+		
+		/**
+		 * Returns or sets attribute value
+		 * @param {String} name Attribute name
+		 * @param {String} value New attribute value
+		 * @returns {String}
+		 */
+		attribute: function(name, value) {
+			if (arguments.length == 2) {
+				// modifying attribute
+				var ix = _.indexOf(_.pluck(this._attributes, 'name'), name.toLowerCase());
+				if (~ix) {
+					this._attributes[ix].value = value;
+				}
+			}
+			
+			return (_.find(this.attributeList(), function(attr) {
+				return attr.name == name;
+			}) || {}).value;
+		},
+		
+		/**
+		 * Returns reference to the matched <code>element</code>, if any.
+		 * See {@link elements} module for a list of available elements
+		 * @returns {Object}
+		 */
+		matchedResource: function() {
+			return this.data('resource');
+		},
+		
+		/**
+		 * Returns index of current node in parent‘s children list
+		 * @returns {Number}
+		 */
+		index: function() {
+			return this.parent ? _.indexOf(this.parent.children, this) : -1;
+		},
+		
+		/**
+		 * Sets how many times current element should be repeated
+		 * @private
+		 */
+		_setRepeat: function(count) {
+			if (count) {
+				this.repeatCount = parseInt(count, 10) || 1;
+			} else {
+				this.hasImplicitRepeat = true;
 			}
 		},
 		
@@ -99,72 +303,67 @@
 		 * @param {String} abbr
 		 */
 		setAbbreviation: function(abbr) {
+			abbr = abbr || '';
+			
+			var that = this;
+			
+			// find multiplier
+			abbr = abbr.replace(/\*(\d+)?$/, function(str, repeatCount) {
+				that._setRepeat(repeatCount);
+				return '';
+			});
+			
 			this.abbreviation = abbr;
-			var m = abbr.match(/\*(\d+)?$/);
-			if (m) {
-				this.count = parseInt(m[1] || 1, 10);
-				this.is_repeating = !m[1];
-				abbr = abbr.substr(0, abbr.length - m[0].length);
+			
+			var abbrText = extractText(abbr);
+			if (abbrText) {
+				abbr = abbrText.element;
+				this.content = this._text = abbrText.text;
 			}
 			
-			if (abbr) {
-				var name_text = splitExpression(abbr);
-				var name = name_text[0];
-				if (name_text.length == 2)
-					this.text = name_text[1];
-					
-				if (name) {
-					var attr_result = parseAttributes(name);
-					this.name = attr_result[0] || '';
-					this.has_implict_name = !attr_result[0];
-					this.attributes = attr_result[1];
-				}
+			var abbrAttrs = parseAttributes(abbr);
+			if (abbrAttrs) {
+				abbr = abbrAttrs.element;
+				this._attributes = abbrAttrs.attributes;
 			}
+			
+			this._name = abbr;
 			
 			// validate name
-			if (this.name && !reValidName.test(this.name)) {
-				throw new Error('InvalidAbbreviation');
+			if (this._name && !reValidName.test(this._name)) {
+				throw 'Invalid abbreviation';
 			}
 		},
 		
 		/**
+		 * Returns string representation of current node
 		 * @return {String}
 		 */
-		getAbbreviation: function() {
-			return this.expr;
-		},
-		
-		/**
-		 * Dump current tree node into a formatted string
-		 * @return {String}
-		 */
-		toString: function(level) {
-			level = level || 0;
-			var output = '(empty)';
-			if (this.abbreviation) {
-				output = '';
-				if (this.name)
-					output = this.name;
-					
-				if (this.text !== null)
-					output += (output ? ' ' : '') + '{text: "' + this.text + '"}';
-					
-				if (this.attributes.length) {
-					var attrs = [];
-					for (var i = 0, il = this.attributes.length; i < il; i++) {
-						attrs.push(this.attributes[i].name + '="' + this.attributes[i].value + '"'); 
-					}
-					output += ' [' + attrs.join(', ') + ']';
-				}
-			}
-			var result = require('utils').repeatString('-', level)
-				+ output 
-				+ '\n';
-			for (var i = 0, il = this.children.length; i < il; i++) {
-				result += this.children[i].toString(level + 1);
-			}
+		toString: function() {
+			var utils = require('utils');
 			
-			return result;
+			var start = this.start;
+			var end = this.end;
+			var content = this.content;
+			
+			// apply output processors
+			var node = this;
+			_.each(outputProcessors, function(fn) {
+				start = fn(start, node, 'start');
+				content = fn(content, node, 'content');
+				end = fn(end, node, 'end');
+			});
+			
+			
+			var innerContent = _.map(this.children, function(child) {
+				return child.toString();
+			}).join('');
+			
+			content = require('abbreviationUtils').insertChildContent(content, innerContent, {
+				keepVariable: false
+			});
+			
+			return start + utils.padString(content, this.padding) + end;
 		},
 		
 		/**
@@ -179,12 +378,38 @@
 		},
 		
 		/**
+		 * Check if current node has implied name that should be resolved
+		 * @returns {Boolean}
+		 */
+		hasImplicitName: function() {
+//			return !this.name() && this._attributes.length;
+			return !this._name && !this.isTextNode();
+		},
+		
+		/**
+		 * Indicates that current element is a grouping one, e.g. has no 
+		 * representation but serves as a container for other nodes
+		 * @returns {Boolean}
+		 */
+		isGroup: function() {
+			return !this.abbreviation;
+		},
+		
+		/**
 		 * Indicates empty node (i.e. without abbreviation). It may be a 
 		 * grouping node and should not be outputted
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
-			return !this.abbreviation;
+			return !this.abbreviation && !this.children.length;
+		},
+		
+		/**
+		 * Indicates that current node should be repeated
+		 * @returns {Boolean}
+		 */
+		isRepeating: function() {
+			return this.repeatCount > 1 || this.hasImplicitRepeat;
 		},
 		
 		/**
@@ -192,7 +417,8 @@
 		 * @return {Boolean}
 		 */
 		isTextNode: function() {
-			return !this.name && this.text;
+//			return !this._name && this._text;
+			return !this.name() && !this.attributeList().length;
 		},
 		
 		/**
@@ -204,133 +430,186 @@
 		},
 		
 		/**
-		 * Returns attribute value (might be empty string) or <code>null</code> 
-		 * if attribute wasn't found 
-		 * @param {String} name
-		 * @returns {String}
+		 * Returns latest and deepest child of current tree
+		 * @returns {AbbreviationNode}
 		 */
-		getAttribute: function(name) {
-			var attr = _.find(this.attributes, function(attr) {
-				return attr.name == name; 
-			});
+		deepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepestChild = this;
+			while (deepestChild.children.length) {
+				deepestChild = _.last(deepestChild.children);
+			}
 			
-			return attr ? attr.value : null;
+			return deepestChild;
 		}
 	};
 	
 	/**
-	 * Check if character is numeric
-	 * @requires {Stirng} ch
-	 * @return {Boolean}
+	 * Returns stripped string: a string without first and last character.
+	 * Used for “unquoting” strings
+	 * @param {String} str
+	 * @returns {String}
 	 */
-	function isNumeric(ch) {
-		if (typeof(ch) == 'string')
-			ch = ch.charCodeAt(0);
+	function stripped(str) {
+		return str.substring(1, str.length - 1);
+	}
+	
+	function consumeQuotedValue(stream, quote) {
+		var ch;
+		while (ch = stream.next()) {
+			if (ch === quote)
+				return true;
 			
-		return (ch && ch > 47 && ch < 58);
+			if (ch == '\\')
+				continue;
+		}
+		
+		return false;
 	}
 	
 	/**
-	 * Optimizes tree node: replaces empty nodes with their children
-	 * @param {TreeNode} node
-	 * @return {TreeNode}
+	 * Parses abbreviation into a tree
+	 * @param {String} abbr
+	 * @returns {AbbreviationNode}
 	 */
-	function squash(node) {
-		for (var i = node.children.length - 1; i >= 0; i--) {
-			/** @type {TreeNode} */
-			var n = node.children[i];
-			if (n.isEmpty()) {
-				var args = [i, 1];
-				for (var j = 0, jl = n.children.length; j < jl; j++) {
-					args.push(n.children[j]);
-				}
-				
-				Array.prototype.splice.apply(node.children, args);
+	function parseAbbreviation(abbr) {
+		abbr = require('utils').trim(abbr);
+		
+		var root = new AbbreviationNode;
+		var context = root.addChild(), ch;
+		
+		/** @type StringStream */
+		var stream = require('stringStream').create(abbr);
+		var loopProtector = 1000, multiplier;
+		
+		while (!stream.eol() && --loopProtector > 0) {
+			ch = stream.peek();
+			
+			switch (ch) {
+				case '(': // abbreviation group
+					stream.start = stream.pos;
+					if (stream.skipToPair('(', ')')) {
+						var inner = parseAbbreviation(stripped(stream.current()));
+						if (multiplier = stream.match(/^\*(\d+)?/, true)) {
+							context._setRepeat(multiplier[1]);
+						}
+						
+						_.each(inner.children, function(child) {
+							context.addChild(child);
+						});
+					} else {
+						throw 'Invalid abbreviation: mo matching ")" found for character at ' + stream.pos;
+					}
+					break;
+					
+				case '>': // child operator
+					context = context.addChild();
+					stream.next();
+					break;
+					
+				case '+': // sibling operator
+					context = context.parent.addChild();
+					stream.next();
+					break;
+					
+				case '^': // climb up operator
+					var parent = context.parent || context;
+					context = (parent.parent || parent).addChild();
+					stream.next();
+					break;
+					
+				default: // consume abbreviation
+					stream.start = stream.pos;
+					stream.eatWhile(function(c) {
+						if (c == '[' || c == '{') {
+							if (stream.skipToPair(c, pairs[c])) {
+								stream.backUp(1);
+								return true;
+							}
+							
+							throw 'Invalid abbreviation: mo matching "' + pairs[c] + '" found for character at ' + stream.pos;
+						}
+						
+						if (c == '+') {
+							// let's see if this is an expando marker
+							stream.next();
+							var isMarker = stream.eol() ||  ~'+>^*'.indexOf(stream.peek());
+							stream.backUp(1);
+							return isMarker;
+						}
+						
+						return c != '(' && isAllowedChar(c);
+					});
+					
+					context.setAbbreviation(stream.current());
+					stream.start = stream.pos;
 			}
 		}
 		
-		return node;
+		if (loopProtector < 1)
+			throw 'Endless loop detected';
+		
+		return root;
 	}
 	
 	/**
-	 * Trim whitespace from string
-	 * @param {String} text
-	 * @return {String}
-	 */
-	function trim(text) {
-		return (text || "").replace(/^\s+|\s+$/g, '');
-	}
-	
-	/**
-	 * Get word, starting at <code>ix</code> character of <code>str</code>
-	 */
-	function getWord(ix, str) {
-		var m = str.substring(ix).match(/^[\w\-:\$]+/);
-		return m ? m[0] : '';
-	}
-	
-	/**
-	 * Extract attributes and their values from attribute set 
+	 * Extract attributes and their values from attribute set: 
+	 * <code>[attr col=3 title="Quoted string"]</code>
 	 * @param {String} attrSet
+	 * @returns {Array}
 	 */
-	function extractAttributes(attrSet) {
-		attrSet = trim(attrSet);
-		var loopCount = 1000; // endless loop protection
-		var reString = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/;
+	function extractAttributes(attrSet, attrs) {
+		attrSet = require('utils').trim(attrSet);
 		var result = [];
-		var attr;
-			
-		while (attrSet && loopCount--) {
-			var attrName = getWord(0, attrSet);
-			attr = null;
-			if (attrName) {
-				attr = {name: attrName, value: ''};
-				// let's see if attribute has value
-				var ch = attrSet.charAt(attrName.length);
-				switch (ch) {
-					case '=':
-						var ch2 = attrSet.charAt(attrName.length + 1);
-						if (ch2 == '"' || ch2 == "'") {
-							// we have a quoted string
-							var m = attrSet.substring(attrName.length + 1).match(reString);
-							if (m) {
-								attr.value = m[2];
-								attrSet = trim(attrSet.substring(attrName.length + m[0].length + 1));
-							} else {
-								// something wrong, break loop
-								attrSet = '';
-							}
-						} else {
-							// unquoted string
-							var m = attrSet.substring(attrName.length + 1).match(/(.+?)(\s|$)/);
-							if (m) {
-								attr.value = m[1];
-								attrSet = trim(attrSet.substring(attrName.length + m[1].length + 1));
-							} else {
-								// something wrong, break loop
-								attrSet = '';
-							}
-						}
-						break;
-					default:
-						attrSet = trim(attrSet.substring(attrName.length));
-						break;
+		
+		/** @type StringStream */
+		var stream = require('stringStream').create(attrSet);
+		stream.eatSpace();
+		
+		while (!stream.eol()) {
+			stream.start = stream.pos;
+			if (stream.eatWhile(reWord)) {
+				var attrName = stream.current();
+				var attrValue = '';
+				if (stream.peek() == '=') {
+					stream.next();
+					stream.start = stream.pos;
+					var quote = stream.next();
+					if ((quote == '"' || quote == "'") && consumeQuotedValue(stream, quote)) {
+						attrValue = stream.current();
+						// strip quotes
+						attrValue = attrValue.substring(1, attrValue.length - 1);
+					} else if (stream.eatWhile(/[^\s\]]/)) {
+						attrValue = stream.current();
+					} else {
+						throw 'Invalid attribute value';
+					}
 				}
+				
+				result.push({
+					name: attrName, 
+					value: attrValue
+				});
+				stream.eatSpace();
 			} else {
-				// something wrong, can't extract attribute name
 				break;
 			}
-			
-			if (attr) result.push(attr);
 		}
+		
 		return result;
 	}
 	
 	/**
-	 * Parses tag attributes extracted from abbreviation
-	 * @param {String} str
+	 * Parses tag attributes extracted from abbreviation. If attributes found, 
+	 * returns object with <code>element</code> and <code>attributes</code>
+	 * properties
+	 * @param {String} abbr
+	 * @returns {Object} Returns <code>null</code> if no attributes found in 
+	 * abbreviation
 	 */
-	function parseAttributes(str) {
+	function parseAttributes(abbr) {
 		/*
 		 * Example of incoming data:
 		 * #header
@@ -340,135 +619,179 @@
 		 * #item[attr=Hello other="World"].class
 		 */
 		var result = [];
-		var name = '';
-		var collectName = true;
-		var className = null;
-		var charMap = {'#': 'id', '.': 'class'};
+		var attrMap = {'#': 'id', '.': 'class'};
+		var nameEnd = null;
 		
-		// walk char-by-char
-		var i = 0;
-		var il = str.length;
-		var val;
-			
-		while (i < il) {
-			var ch = str.charAt(i);
-			switch (ch) {
+		/** @type StringStream */
+		var stream = require('stringStream').create(abbr);
+		while (!stream.eol()) {
+			switch (stream.peek()) {
 				case '#': // id
-					val = getWord(i, str.substring(1));
-					result.push({name: charMap[ch], value: val});
-					i += val.length + 1;
-					collectName = false;
-					break;
 				case '.': // class
-					val = getWord(i, str.substring(1));
-					if (!className) {
-						// remember object pointer for value modification
-						className = {name: charMap[ch], value: ''};
-						result.push(className);
-					}
+					if (nameEnd === null)
+						nameEnd = stream.pos;
 					
-					className.value += (className.value ? ' ' : '') + val;
-					i += val.length + 1;
-					collectName = false;
+					var attrName = attrMap[stream.peek()];
+					
+					stream.next();
+					stream.start = stream.pos;
+					stream.eatWhile(reWord);
+					result.push({
+						name: attrName, 
+						value: stream.current()
+					});
 					break;
 				case '[': //begin attribute set
-					// search for end of set
-					var endIx = str.indexOf(']', i);
-					if (endIx == -1) {
-						// invalid attribute set, stop searching
-						i = str.length;
-					} else {
-						var attrs = extractAttributes(str.substring(i + 1, endIx));
-						for (var j = 0, jl = attrs.length; j < jl; j++) {
-							result.push(attrs[j]);
-						}
-						i = endIx;
-					}
-					collectName = false;
+					if (nameEnd === null)
+						nameEnd = stream.pos;
+					
+					stream.start = stream.pos;
+					if (!stream.skipToPair('[', ']')) 
+						throw 'Invalid attribute set definition';
+					
+					result = result.concat(
+						extractAttributes(stripped(stream.current()))
+					);
 					break;
 				default:
-					if (collectName)
-						name += ch;
-					i++;
+					stream.next();
 			}
 		}
 		
-		return [name, result];
+		if (!result.length)
+			return null;
+		
+		return {
+			element: abbr.substring(0, nameEnd),
+			attributes: optimizeAttributes(result)
+		};
 	}
 	
 	/**
-	 * @param {TreeNode} node
-	 * @return {TreeNode}
+	 * Optimize attribute set: remove duplicates and merge class attributes
+	 * @param attrs
 	 */
-	function optimizeTree(node) {
-		while (node.hasEmptyChildren())
-			squash(node);
+	function optimizeAttributes(attrs) {
+		// clone all attributes to make sure that original objects are 
+		// not modified
+		attrs  = _.map(attrs, function(attr) {
+			return _.clone(attr);
+		});
+		
+		var lookup = {};
+		return _.filter(attrs, function(attr) {
+			if (!(attr.name in lookup)) {
+				return lookup[attr.name] = attr;
+			}
 			
-		for (var i = 0, il = node.children.length; i < il; i++) {
-			optimizeTree(node.children[i]);
+			var la = lookup[attr.name];
+			
+			if (attr.name.toLowerCase() == 'class') {
+				la.value += (la.value.length ? ' ' : '') + attr.value;
+			} else {
+				la.value = attr.value;
+			}
+			
+			return false;
+		});
+	}
+	
+	/**
+	 * Extract text data from abbreviation: if <code>a{hello}</code> abbreviation
+	 * is passed, returns object <code>{element: 'a', text: 'hello'}</code>.
+	 * If nothing found, returns <code>null</code>
+	 * @param {String} abbr
+	 * 
+	 */
+	function extractText(abbr) {
+		if (!~abbr.indexOf('{'))
+			return null;
+		
+		/** @type StringStream */
+		var stream = require('stringStream').create(abbr);
+		while (!stream.eol()) {
+			switch (stream.peek()) {
+				case '[':
+				case '(':
+					stream.skipToPair(stream.peek(), pairs[stream.peek()]); break;
+					
+				case '{':
+					stream.start = stream.pos;
+					stream.skipToPair('{', '}');
+					return {
+						element: abbr.substring(0, stream.start),
+						text: stripped(stream.current())
+					};
+					
+				default:
+					stream.next();
+			}
 		}
+	}
+	
+	/**
+	 * “Un-rolls“ contents of current node: recursively replaces all repeating 
+	 * children with their repeated clones
+	 * @param {AbbreviationNode} node
+	 * @returns {AbbreviationNode}
+	 */
+	function unroll(node) {
+		for (var i = node.children.length - 1, j, child; i >= 0; i--) {
+			child = node.children[i];
+			
+			if (child.isRepeating()) {
+				j = child.repeatCount;
+				child.repeatCount = 1;
+				child.updateProperty('counter', 1);
+				while (--j > 0) {
+					child.parent.addChild(child.clone(), i + 1)
+						.updateProperty('counter', j + 1);
+				}
+			}
+		}
+		
+		// to keep proper 'counter' property, we need to walk
+		// on children once again
+		_.each(node.children, unroll);
 		
 		return node;
 	}
 	
 	/**
-	 * Split expression by node name and its content, if exists. E.g. if we pass
-	 * <code>a{Text}</code> expression, it will be splitted into <code>a</code>
-	 * and <code>Text</code>
-	 * @param {String} expr
-	 * @return {Array} Result with one or two elements (if expression contains
-	 * text node)
+	 * Optimizes tree node: replaces empty nodes with their children
+	 * @param {AbbreviationNode} node
+	 * @return {AbbreviationNode}
 	 */
-	function splitExpression(expr) {
-		// fast test on text node
-		if (expr.indexOf('{') == -1)
-			return [expr];
-			
-		var attrLvl = 0;
-		var textLvl = 0;
-		var braceStack = [];
-		var i = 0;
-		var il = expr.length;
-		var ch;
-			
-		while (i < il) {
-			ch = expr.charAt(i);
-			switch (ch) {
-				case '[':
-					if (!textLvl)
-						attrLvl++;
-					break;
-				case ']':
-					if (!textLvl)
-						attrLvl--;
-					break;
-				case '{':
-					if (!attrLvl) {
-						textLvl++;
-						braceStack.push(i);
-					}
-					break;
-				case '}':
-					if (!attrLvl) {
-						textLvl--;
-						var brace_start = braceStack.pop();
-						if (textLvl === 0) {
-							// found braces bounds
-							return [
-								expr.substring(0, brace_start),
-								expr.substring(brace_start + 1, i)
-							];
-						}
-					}
-					break;
+	function squash(node) {
+		for (var i = node.children.length - 1; i >= 0; i--) {
+			/** @type AbbreviationNode */
+			var n = node.children[i];
+			if (n.isGroup()) {
+				n.replace(squash(n).children);
+			} else if (n.isEmpty()) {
+				n.remove();
 			}
-			i++;
 		}
 		
-		// if we are here, then no valid text node found
-		return [expr];
+		_.each(node.children, squash);
+		
+		return node;
 	}
 	
+	function isAllowedChar(ch) {
+		var charCode = ch.charCodeAt(0);
+		var specialChars = '#.*:$-_!@|';
+		
+		return (charCode > 64 && charCode < 91)       // uppercase letter
+				|| (charCode > 96 && charCode < 123)  // lowercase letter
+				|| (charCode > 47 && charCode < 58)   // number
+				|| specialChars.indexOf(ch) != -1;    // special character
+	}
+	
+	// XXX add counter replacer function as output processor
+	outputProcessors.push(function(text, node) {
+		return require('utils').replaceCounter(text, node.counter);
+	});
 	
 	return {
 		/**
@@ -478,133 +801,112 @@
 		 * result
 		 * @memberOf abbreviationParser
 		 * @param {String} abbr Abbreviation to parse
-		 * @return {TreeNode}
+		 * @param {Object} options Additional options for parser and processors
+		 * 
+		 * @return {AbbreviationNode}
 		 */
-		parse: function(abbr) {
-			var root = new TreeNode;
-			var context = root.addChild();
-			var i = 0;
-			var il = abbr.length;
-			var textLvl = 0;
-			var attrLvl = 0;
-			var groupStack = [root];
-			var ch, prevCh, token = '';
-				
-			groupStack.last = function() {
-				return this[this.length - 1];
-			};
+		parse: function(abbr, options) {
+			options = options || {};
 			
-			var dumpToken = function() {
-				if (token)
-					context.setAbbreviation(token);
-				token = '';
-			};
+			var tree = parseAbbreviation(abbr);
+			
+			if (options.contextNode) {
+				// add info about context node –
+				// a parent XHTML node in editor inside which abbreviation is 
+				// expanded
+				tree._name = options.contextNode.name;
+				var attrLookup = {};
+				_.each(tree._attributes, function(attr) {
+					attrLookup[attr.name] = attr;
+				});
 				
-			while (i < il) {
-				ch = abbr.charAt(i);
-				prevCh = i ? abbr.charAt(i - 1) : '';
-				switch (ch) {
-					case '{':
-						if (!attrLvl)
-							textLvl++;
-						token += ch;
-						break;
-					case '}':
-						if (!attrLvl)
-							textLvl--;
-						token += ch;
-						break;
-					case '[':
-						if (!textLvl)
-							attrLvl++;
-						token += ch;
-						break;
-					case ']':
-						if (!textLvl)
-							attrLvl--;
-						token += ch;
-						break;
-					case '(':
-						if (!textLvl && !attrLvl) {
-							// beginning of the new group
-							dumpToken();
-							
-							if (prevCh != '+' && prevCh != '>') {
-								// previous char is not an operator, assume it's
-								// a sibling
-								context = context.parent.addChild();
-							}
-							
-							groupStack.push(context);
-							context = context.addChild();
-						} else {
-							token += ch;
-						}
-						break;
-					case ')':
-						if (!textLvl && !attrLvl) {
-							// end of the group, pop stack
-							dumpToken();
-							context = groupStack.pop();
-							
-							if (i < il - 1 && abbr.charAt(i + 1) == '*') {
-								// group multiplication
-								var groupMultiplier = '', nextCh, clone;
-								for (var j = i + 2; j < il; j++) {
-									nextCh = abbr.charAt(j);
-									if (isNumeric(nextCh))
-										groupMultiplier += nextCh;
-									else 
-										break;
-								}
-								
-								i += groupMultiplier.length + 1;
-								groupMultiplier = parseInt(groupMultiplier || 1, 10);
-								
-								for (var j = 1; j < groupMultiplier; j++) {
-									clone = context.clone();
-									clone.updateProperty('counter', j + 1);
-									context.parent.addChild(clone);
-								}
-								
-//								while (1 < groupMultiplier--) {
-//									clone = context.clone();
-//									clone.number = 
-//									context.parent.addChild(context);
-//								}
-//									last_parent.addChild(cur_item);
-							}
-							
-						} else {
-							token += ch;
-						}
-						break;
-					case '+': // sibling operator
-						if (!textLvl && !attrLvl && i != il - 1 /* expando? */) {
-							dumpToken();
-							context = context.parent.addChild();
-						} else {
-							token += ch;
-						}
-						break;
-					case '>': // child operator
-						if (!textLvl && !attrLvl) {
-							dumpToken();
-							context = context.addChild();
-						} else {
-							token += ch;
-						}
-						break;
-					default:
-						token += ch;
-				}
-				
-				i++;
+				_.each(options.contextNode.attributes, function(attr) {
+					if (attr.name in attrLookup) {
+						attrLookup[attr.name].value = attr.value;
+					} else {
+						attr = _.clone(attr);
+						tree._attributes.push(attr);
+						attrLookup[attr.name] = attr;
+					}
+				});
 			}
-			// put the final token
-			dumpToken();
 			
-			return optimizeTree(root);
+			
+			// apply preprocessors
+			_.each(preprocessors, function(fn) {
+				fn(tree, options);
+			});
+			
+			tree = squash(unroll(tree));
+			
+			// apply postprocessors
+			_.each(postprocessors, function(fn) {
+				fn(tree, options);
+			});
+			
+			return tree;
+		},
+		
+		AbbreviationNode: AbbreviationNode,
+		
+		/**
+		 * Add new abbreviation preprocessor. <i>Preprocessor</i> is a function
+		 * that applies to a parsed abbreviation tree right after it get parsed.
+		 * The passed tree is in unoptimized state.
+		 * @param {Function} fn Preprocessor function. This function receives
+		 * two arguments: parsed abbreviation tree (<code>AbbreviationNode</code>)
+		 * and <code>options</code> hash that was passed to <code>parse</code>
+		 * method
+		 */
+		addPreprocessor: function(fn) {
+			if (!_.include(preprocessors, fn))
+				preprocessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered preprocessor
+		 */
+		removeFilter: function(fn) {
+			preprocessor = _.without(preprocessors, fn);
+		},
+		
+		/**
+		 * Adds new abbreviation postprocessor. <i>Postprocessor</i> is a 
+		 * functinon that applies to <i>optimized</i> parsed abbreviation tree
+		 * right before it returns from <code>parse()</code> method
+		 * @param {Function} fn Postprocessor function. This function receives
+		 * two arguments: parsed abbreviation tree (<code>AbbreviationNode</code>)
+		 * and <code>options</code> hash that was passed to <code>parse</code>
+		 * method
+		 */
+		addPostprocessor: function(fn) {
+			if (!_.include(postprocessors, fn))
+				postprocessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered postprocessor function
+		 */
+		removePostprocessor: function(fn) {
+			postprocessors = _.without(postprocessors, fn);
+		},
+		
+		/**
+		 * Registers output postprocessor. <i>Output processor</i> is a 
+		 * function that applies to output part (<code>start</code>, 
+		 * <code>end</code> and <code>content</code>) when 
+		 * <code>AbbreviationNode.toString()</code> method is called
+		 */
+		addOutputProcessor: function(fn) {
+			if (!_.include(outputProcessors, fn))
+				outputProcessors.push(fn);
+		},
+		
+		/**
+		 * Removes registered output processor
+		 */
+		removeOutputProcessor: function(fn) {
+			outputProcessors = _.without(outputProcessors, fn);
 		},
 		
 		/**
@@ -614,16 +916,7 @@
 		 */
 		isAllowedChar: function(ch) {
 			ch = String(ch); // convert Java object to JS
-			var charCode = ch.charCodeAt(0);
-			var specialChars = '#.>+*:$-_!@[]()|';
-			
-			return (charCode > 64 && charCode < 91)       // uppercase letter
-					|| (charCode > 96 && charCode < 123)  // lowercase letter
-					|| isNumeric(ch)                 // number
-					|| specialChars.indexOf(ch) != -1;    // special character
-		},
-		
-		TreeNode: TreeNode,
-		optimizeTree: optimizeTree
+			return isAllowedChar(ch) || ~'>+^[](){}'.indexOf(ch);
+		}
 	};
 });
