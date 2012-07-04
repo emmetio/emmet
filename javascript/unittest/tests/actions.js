@@ -435,6 +435,10 @@
 		equal(wrap('ul>li*', 'one\ntwo\nthree'), '<ul><li>one</li><li>two</li><li>three</li></ul>');
 		equal(wrap('li*>a', 'one\ntwo\nthree'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>');
 		
+		// test output placeholders
+		equal(wrap('li[title=$#]*>em', 'one\ntwo\nthree'), '<li title="one"><em></em></li><li title="two"><em></em></li><li title="three"><em></em></li>');
+		equal(wrap('li[title=$# class=item-$#]*>em{Label: $#}', 'one\ntwo\nthree'), '<li title="one" class="item-one"><em>Label: one</em></li><li title="two" class="item-two"><em>Label: two</em></li><li title="three" class="item-three"><em>Label: three</em></li>');
+		
 		// wrap with snippet
 		equal(wrap('cc:ie', 'hello world'), '<!--[if IE]>\n\thello world|\n<![endif]-->');
 	});

@@ -50,6 +50,7 @@ zen_coding.define('abbreviationParser', function(require, _) {
 		this._text = '';
 		this.repeatCount = 1;
 		this.hasImplicitRepeat = false;
+		
 		/** Custom data dictionary */
 		this._data = {};
 		
@@ -382,7 +383,6 @@ zen_coding.define('abbreviationParser', function(require, _) {
 		 * @returns {Boolean}
 		 */
 		hasImplicitName: function() {
-//			return !this.name() && this._attributes.length;
 			return !this._name && !this.isTextNode();
 		},
 		
@@ -417,7 +417,6 @@ zen_coding.define('abbreviationParser', function(require, _) {
 		 * @return {Boolean}
 		 */
 		isTextNode: function() {
-//			return !this._name && this._text;
 			return !this.name() && !this.attributeList().length;
 		},
 		
