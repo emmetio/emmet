@@ -124,6 +124,17 @@ zen_coding.define('resources', function(require, _) {
 	}
 	
 	/**
+	 * Normalizes caret plceholder in passed text: replaces | character with
+	 * default caret placeholder
+	 * @param {String} text
+	 * @returns {String}
+	 */
+	function normalizeCaretPlaceholder(text) {
+		var utils = require('utils');
+		return utils.replaceUnescapedSymbol(text, '|', utils.getCaretPlaceholder());
+	}
+	
+	/**
 	 * Returns parsed item located in specified vocabulary by its syntax and
 	 * name
 	 * @param {String} vocabulary Resource vocabulary
@@ -141,14 +152,14 @@ zen_coding.define('resources', function(require, _) {
 			res = chain[i];
 			if (item in res) {
 				if (!isParsed(res[item])) {
+					var value = normalizeCaretPlaceholder(res[item]);
 					switch(name) {
 						case 'abbreviations':
-							var value = res[item];
 							res[item] = parseAbbreviation(item, value);
 							res[item].__ref = value;
 							break;
 						case 'snippets':
-							res[item] = elements.create('snippet', res[item]);
+							res[item] = elements.create('snippet', value);
 							break;
 					}
 					

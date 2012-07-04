@@ -105,7 +105,6 @@ zen_coding.define('elements', function(require, _) {
 	});
 	
 	result.add('snippet', commonFactory);
-	result.add('expando', commonFactory);
 	result.add('reference', commonFactory);
 	result.add('empty', function() {
 		return {};

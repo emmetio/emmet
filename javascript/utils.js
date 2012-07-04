@@ -8,7 +8,7 @@ zen_coding.define('utils', function(require, _) {
 	 * Special token used as a placeholder for caret positions inside 
 	 * generated output 
 	 */
-	var caretPlaceholder = '{%::zen-caret::%}';
+	var caretPlaceholder = '${0}';
 	
 	/**
 	 * A simple string builder, optimized for faster text concatenation
