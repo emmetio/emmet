@@ -37,7 +37,7 @@
 	
 	test("'+' operator", function() {
 		runTest('p+p', '<p></p><p></p>');
-		runTest('p+P', '<p></p><p></p>');
+		runTest('p+P', '<p></p><P></P>');
 		runTest('p.name+p+p', '<p class="name"></p><p></p><p></p>');
 	});
 	

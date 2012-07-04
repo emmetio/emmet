@@ -8,8 +8,8 @@ zen_coding.define('profile', function(require, _) {
 	var profiles = {};
 	
 	var defaultProfile = {
-		tag_case: 'lower',
-		attr_case: 'lower',
+		tag_case: 'asis',
+		attr_case: 'asis',
 		attr_quotes: 'double',
 		
 		// each tag on new line
