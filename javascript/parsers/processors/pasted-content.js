@@ -30,29 +30,32 @@ zen_coding.exec(function(require, _) {
 	 * @param {Object} options
 	 */
 	parser.addPostprocessor(function(tree, options) {
+		var abbrUtils = require('abbreviationUtils');
 		// for each node with pasted content, update text data
 		var targets = tree.findAll(function(item) {
-			var pastedContent = item.data('paste');
-			if (_.isArray(pastedContent)) {
-				item._text += pastedContent[item.counter - 1];
-				return true;
-			} else if (_.isFunction(pastedContent)) {
-				item._text = pastedContent(item.counter - 1, item._text);
-				return true;
-			} else if (pastedContent) {
-				item._text += pastedContent;
-				return true;
+			var pastedContentObj = item.data('paste');
+			var pastedContent = '';
+			if (_.isArray(pastedContentObj)) {
+				pastedContent = pastedContentObj[item.counter - 1];
+			} else if (_.isFunction(pastedContentObj)) {
+				pastedContent = pastedContentObj(item.counter - 1, item.content);
+			} else if (pastedContentObj) {
+				pastedContent = pastedContentObj;
+			}
+			
+			if (pastedContent) {
+				item.content = abbrUtils.insertChildContent(item.content, pastedContent);
 			}
 			
 			item.data('paste', null);
+			return !_.isUndefined(pastedContentObj);
 		});
 		
 		if (!targets.length && options.pastedContent) {
 			// no implicitly repeated elements, put pasted content in
 			// the deepest child
-			var deepest = tree.deepestChild();
-			if (deepest)
-				deepest._text += options.pastedContent;
+			var deepest = tree.deepestChild() || tree;
+			deepest.content = abbrUtils.insertChildContent(deepest.content, options.pastedContent);
 		}
 	});
 });

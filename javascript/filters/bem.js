@@ -91,7 +91,7 @@ zen_coding.exec(function(require, _) {
 	 * Processes class name
 	 * @param {String} name Class name item to process
 	 * @param {AbbreviationNode} item Host node for provided class name
-	 * @returns {String} Processed class name. May return <code>Array</code> of
+	 * @returns Processed class name. May return <code>Array</code> of
 	 * class names 
 	 */
 	function processClassName(name, item) {
@@ -120,7 +120,11 @@ zen_coding.exec(function(require, _) {
 			modifier = blockModifiers.join(separators.modifier);
 		}
 		
-		if (block) {
+		if (block || element || modifier) {
+			if (!block) {
+				block = item.__bem.block;
+			}
+			
 			// inherit parent bem element, if exists
 //			if (item.parent && item.parent.__bem && item.parent.__bem.element)
 //				element = item.parent.__bem.element + separators.element + element;

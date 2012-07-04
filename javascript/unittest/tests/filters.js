@@ -9,6 +9,14 @@
 	}
 	
 	module('Filters');
+	test('Yandex BEM2 (bem)', function() {
+		expand('.b_m1._m2|bem');
+		equal(editorStub.getContent(), '<div class="b b_m1 b_m2"></div>');
+		
+		expand('.b._mod|bem');
+		equal(editorStub.getContent(), '<div class="b b_mod"></div>');
+	});
+	
 	test('Yandex BEM (bem)', function() {
 		expand('.b_m|bem');
 		equal(editorStub.getContent(), '<div class="b b_m"></div>');

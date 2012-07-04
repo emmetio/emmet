@@ -186,7 +186,7 @@ zen_coding.define('resources', function(require, _) {
 		 * Sets new unparsed data for specified settings vocabulary
 		 * @param {Object} data
 		 * @param {String} type Vocabulary type ('system' or 'user')
-		 * @memberOf zen_coding.resources
+		 * @memberOf resources
 		 */
 		setVocabulary: function(data, type) {
 			if (type == VOC_SYSTEM)

@@ -56,7 +56,7 @@ zen_coding.define('abbreviationUtils', function(require, _) {
 		 * @returns {Boolean}
 		 */
 		hasTagsInContent: function(node) {
-			return require('utils').matchesTag(node.content());
+			return require('utils').matchesTag(node.content);
 		},
 		
 		/**
@@ -69,6 +69,42 @@ zen_coding.define('abbreviationUtils', function(require, _) {
 				|| _.any(node.children, function(child) {
 					return this.isBlock(child);
 				}, this);
+		},
+		
+		/**
+		 * Utility function that inserts content instead of <code>${child}</code>
+		 * variables on <code>text</code>
+		 * @param {String} text Text where child content should be inserted
+		 * @param {String} childContent Content to insert
+		 * @param {Object} options
+		 * @returns {String
+		 */
+		insertChildContent: function(text, childContent, options) {
+			options = _.extend({
+				keepVariable: true,
+				appendIfNoChild: true
+			}, options || {});
+			
+			var childVariableReplaced = false;
+			var utils = require('utils');
+			text = utils.replaceVariables(text, function(variable, name, data) {
+				var output = variable;
+				if (name == 'child') {
+					// add correct indentation
+					output = utils.padString(childContent, utils.getLinePaddingFromPosition(text, data.start));
+					childVariableReplaced = true;
+					if (options.keepVariable)
+						output += variable;
+				}
+				
+				return output;
+			});
+			
+			if (!childVariableReplaced && options.appendIfNoChild) {
+				text += childContent;
+			}
+			
+			return text;
 		}
 	};
 });

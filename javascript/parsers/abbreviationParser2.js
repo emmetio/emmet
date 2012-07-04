@@ -55,6 +55,7 @@
 		// output properties
 		this.start = '';
 		this.end = '';
+		this.content = '';
 		this.padding = '';
 	}
 	
@@ -85,7 +86,7 @@
 		 */
 		clone: function() {
 			var node = new AbbreviationNode();
-			var attrs = ['abbreviation', 'counter', '_name', '_text', 'repeatCount', 'hasImplicitRepeat'];
+			var attrs = ['abbreviation', 'counter', '_name', '_text', 'repeatCount', 'hasImplicitRepeat', 'start', 'end', 'content', 'padding'];
 			_.each(attrs, function(a) {
 				node[a] = this[a];
 			}, this);
@@ -202,8 +203,19 @@
 		 * @returns {Object}
 		 */
 		data: function(name, value) {
-			if (arguments.length == 2)
+			if (arguments.length == 2) {
 				this._data[name] = value;
+				
+				if (name == 'resource' && require('elements').is(value, 'snippet')) {
+					// setting snippet as matched resource: update `content`
+					// property with snippet value
+					this.content = value.data;
+					if (this._text) {
+						this.content = require('abbreviationUtils')
+							.insertChildContent(value.data, this._text);
+					}
+				}
+			}
 			
 			return this._data[name];
 		},
@@ -305,7 +317,7 @@
 			var abbrText = extractText(abbr);
 			if (abbrText) {
 				abbr = abbrText.element;
-				this._text = abbrText.text;
+				this.content = this._text = abbrText.text;
 			}
 			
 			var abbrAttrs = parseAttributes(abbr);
@@ -323,20 +335,6 @@
 		},
 		
 		/**
-		 * Returns text content of current node. If it has matched resource
-		 * and it‘s a snippet, returns snippet content. Otherwise, returns 
-		 * text extracted from abbreviation
-		 */
-		content: function() {
-			var res = this.matchedResource();
-			if (require('elements').is(res, 'snippet')) {
-				return res.data;
-			}
-			
-			return this._text;
-		},
-		
-		/**
 		 * Returns string representation of current node
 		 * @return {String}
 		 */
@@ -345,7 +343,7 @@
 			
 			var start = this.start;
 			var end = this.end;
-			var content = this.content();
+			var content = this.content;
 			
 			// apply output processors
 			var node = this;
@@ -356,24 +354,13 @@
 			});
 			
 			
-			var childVariableReplaced = false;
 			var innerContent = _.map(this.children, function(child) {
 				return child.toString();
 			}).join('');
 			
-			content = utils.replaceVariables(content, function(variable, name, data) {
-				if (name == 'child') {
-					childVariableReplaced = true;
-					// add correct indentation
-					return utils.padString(innerContent, 
-							utils.getLinePaddingFromPosition(content, data.start));
-				}
-				
-				return variable;
+			content = require('abbreviationUtils').insertChildContent(content, innerContent, {
+				keepVariable: false
 			});
-			
-			if (!childVariableReplaced)
-				content += innerContent;
 			
 			return start + utils.padString(content, this.padding) + end;
 		},
@@ -394,7 +381,8 @@
 		 * @returns {Boolean}
 		 */
 		hasImplicitName: function() {
-			return !this.name() && this._attributes.length;
+//			return !this.name() && this._attributes.length;
+			return !this._name && !this.isTextNode();
 		},
 		
 		/**
@@ -428,7 +416,8 @@
 		 * @return {Boolean}
 		 */
 		isTextNode: function() {
-			return !this._name && this._text;
+//			return !this._name && this._text;
+			return !this.name() && !this.attributeList().length;
 		},
 		
 		/**
@@ -457,7 +446,8 @@
 	};
 	
 	/**
-	 * Returns stripped string: a string without first and last character
+	 * Returns stripped string: a string without first and last character.
+	 * Used for “unquoting” strings
 	 * @param {String} str
 	 * @returns {String}
 	 */

@@ -18,48 +18,28 @@
  */
 zen_coding.exec(function(require, _) {
 	/**
-	 * @param {Array} match
-	 * @param {TreeNode} node
-	 * @param {String} syntax
+	 * @param {AbbreviationNode} tree
+	 * @param {Object} options
 	 */
-	require('resources').addGenerator(/^(?:lorem|lipsum)(\d*)$/i, function(match, node, syntax) {
-		var wordCound = match[1] || 30;
-		var elemName = '';
-		var outputCount = node.count || 1;
+	require('abbreviationParser').addPreprocessor(function(tree, options) {
+		var re = /^(?:lorem|lipsum)(\d*)$/i, match;
 		
-		if (!elemName && node.parent.name) {
-			// guess element name from TreeNode
-			elemName = require('tagName').getMapping(node.parent.name);
-		}
-		
-		// if output tag name is undefined and user wants to output more than one
-		// block, assume the element name is "P"
-		if (!elemName && outputCount > 1) {
-			elemName = 'p';
-		}
-		
-		var elem = require('elements').create('parsedElement', node, syntax, elemName || '');
-		// override 'getContent()' method so it will output lorem ipsum dynamically,
-		// when tree will be rolled out
-		elem._content = function(el) {
-			var isStarted = !!el.options.loremStarted;
-			el.options.loremStarted = true;
-			return paragraph(wordCound, !isStarted);
-		};
-		
-		return elem;
+		/** @param {AbbreviationNode} node */
+		tree.findAll(function(node) {
+			if (node._name && (match = node._name.match(re))) {
+				var wordCound = match[1] || 30;
+				
+				// force node name resolving if node should be repeated
+				// or contains attributes. In this case, node should be outputtet
+				// as tag, otherwise as text-only node
+				node._name = '';
+				node.data('forceNameResolving', node.isRepeating() || node.attributeList().length);
+				node.data('paste', function(i, content) {
+					return paragraph(wordCound, !i);
+				});
+			}
+		});
 	});
-	
-	/**
-	 * Find root element
-	 * @param {TreeNode} node
-	 * @returns {TreeNode}
-	 */
-	function findRoot(node) {
-		while (node.parent)
-			node = node.parent;
-		return node;
-	}
 	
 	var COMMON_P = 'lorem ipsum dolor sit amet consectetur adipisicing elit'.split(' ');
 	
@@ -97,7 +77,7 @@ zen_coding.exec(function(require, _) {
 	 * Returns random integer between <code>from</code> and <code>to</code> values
 	 * @param {Number} from
 	 * @param {Number} to
-	 * @returns {String}
+	 * @returns {Number}
 	 */
 	function randint(from, to) {
 		return Math.round(Math.random() * (to - from) + from);

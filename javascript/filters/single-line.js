@@ -24,7 +24,7 @@ zen_coding.exec(function(require, _) {
 			// remove newlines 
 			item.start = item.start.replace(reNl, '');
 			item.end = item.end.replace(reNl, '');
-//			item.content = item.content.replace(reNl, '');
+			item.content = item.content.replace(reNl, '');
 			
 			process(item);
 		});

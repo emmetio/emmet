@@ -26,7 +26,7 @@ zen_coding.exec(function(require, _) {
 			
 			generators.add(function(node, syntax) {
 				var m;
-				if ((m = regexp.exec(node.name))) {
+				if ((m = regexp.exec(node.name()))) {
 					return fn(m, node, syntax);
 				}
 				

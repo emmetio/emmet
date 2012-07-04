@@ -51,7 +51,7 @@ zen_coding.exec(function(require, _) {
 	/**
 	 * @param {AbbreviationNode} tree
 	 */
-	require('abbreviationParser').addPostprocessor(function(tree, options) {
+	require('abbreviationParser').addPreprocessor(function(tree, options) {
 		var syntax = options.syntax || zen_coding.defaultSyntax();
 		matchResources(tree, syntax);
 	});

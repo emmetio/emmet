@@ -61,7 +61,7 @@ zen_coding.exec(function(require, _) {
 		item.start = utils.replaceSubstring(item.start, start, item.start.indexOf(placeholder), placeholder);
 		item.end = utils.replaceSubstring(item.end, end, item.end.indexOf(placeholder), placeholder);
 		
-		if (!item.children.length && !isUnary && item.content().indexOf(cursor) == -1)
+		if (!item.children.length && !isUnary && item.content.indexOf(cursor) == -1)
 			item.start += cursor;
 		
 		return item;

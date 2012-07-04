@@ -9,7 +9,7 @@ zen_coding.exec(function(require, _) {
 	function resolveNodeNames(tree) {
 		var tagName = require('tagName');
 		_.each(tree.children, function(node) {
-			if (node.hasImplicitName()) {
+			if (node.hasImplicitName() || node.data('forceNameResolving')) {
 				node._name = tagName.resolve(node.parent.name());
 			}
 			resolveNodeNames(node);
