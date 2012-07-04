@@ -424,6 +424,7 @@
 		equal(editorStub.getContent(), '<ul>\n\t<li class="i1">one</li>\n\t<li class="i2">two</li>\n\t<li class="i3">three</li>\n</ul>', 'Wrapped multiline abbreviation');
 		
 		var wrap = function(abbr, content) {
+			content = zen_coding.require('utils').escapeText(content);
 			return zen_coding.require('wrapWithAbbreviation').wrap(abbr, content);
 		};
 		
@@ -434,6 +435,9 @@
 		equal(wrap('li*', 'one\ntwo\nthree'), '<li>one</li><li>two</li><li>three</li>');
 		equal(wrap('ul>li*', 'one\ntwo\nthree'), '<ul><li>one</li><li>two</li><li>three</li></ul>');
 		equal(wrap('li*>a', 'one\ntwo\nthree'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>');
+		
+		equal(wrap('span', '$2'), '<span>\\$2</span>');
+		
 		
 		// test output placeholders
 		equal(wrap('li[title=$#]*>em', 'one\ntwo\nthree'), '<li title="one"><em></em></li><li title="two"><em></em></li><li title="three"><em></em></li>');

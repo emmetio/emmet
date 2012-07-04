@@ -90,15 +90,17 @@ var editorStub = (function() {
 			if (_.isUndefined(start)) start = 0;
 			var utils = require('utils');
 			
-			value = utils.unescapeText(value);
-			
 			// indent new value
 			if (!noIndent) {
 				value = utils.padString(value, utils.getLinePaddingFromPosition(content, start));
 			}
 			
 			// find new caret position
-			var tabstopData = require('tabStops').extract(value);
+			var tabstopData = require('tabStops').extract(value, {
+				escape: function(ch) {
+					return ch;
+				}
+			});
 			value = tabstopData.text;
 			var firstTabStop = tabstopData.tabstops[0];
 			
