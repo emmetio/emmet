@@ -575,11 +575,17 @@ zen_coding.define('abbreviationParser', function(require, _) {
 				if (stream.peek() == '=') {
 					stream.next();
 					stream.start = stream.pos;
-					var quote = stream.next();
-					if ((quote == '"' || quote == "'") && consumeQuotedValue(stream, quote)) {
-						attrValue = stream.current();
-						// strip quotes
-						attrValue = attrValue.substring(1, attrValue.length - 1);
+					var quote = stream.peek();
+					
+					if (quote == '"' || quote == "'") {
+						stream.next();
+						if (consumeQuotedValue(stream, quote)) {
+							attrValue = stream.current();
+							// strip quotes
+							attrValue = attrValue.substring(1, attrValue.length - 1);
+						} else {
+							throw 'Invalid attribute value';
+						}
 					} else if (stream.eatWhile(/[^\s\]]/)) {
 						attrValue = stream.current();
 					} else {
