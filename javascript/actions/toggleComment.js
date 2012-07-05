@@ -46,7 +46,7 @@ zen_coding.exec(function(require, _) {
 			/** @type CSSRule */
 			var rule = require('cssEditTree').parseFromPosition(info.content, editor.getCaretPos());
 			if (rule) {
-				var property = rule.itemFromPosition(editor.getCaretPos(), true);
+				var property = cssItemFromPosition(rule, editor.getCaretPos());
 				range = property 
 					? property.range(true) 
 					: require('range').create(rule.nameRange(true).start, rule.source);
@@ -60,6 +60,29 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return genericCommentToggle(editor, '/*', '*/', range);
+	}
+	
+	/**
+	 * Returns CSS property from <code>rule</code> that matches passed position
+	 * @param {EditContainer} rule
+	 * @param {Number} absPos
+	 * @returns {EditElement}
+	 */
+	function cssItemFromPosition(rule, absPos) {
+		// do not use default EditContainer.itemFromPosition() here, because
+		// we need to make a few assumptions to make CSS commenting more reliable
+		var relPos = absPos - (rule.options.offset || 0);
+		var reSafeChar = /^[\s\n\r]/;
+		return _.find(rule.list(), function(item) {
+			if (item.range().end === relPos) {
+				// at the end of property, but outside of it
+				// if there’s a space character at current position,
+				// use current property
+				return reSafeChar.test(rule.source.charAt(relPos));
+			}
+			
+			return item.range().inside(relPos);
+		});
 	}
 
 	/**
