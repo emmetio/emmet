@@ -248,6 +248,13 @@
 		run('select_next_item');
 		deepEqual(editorStub.getSelectionRange(), {start: 10, end: 13}, 'Selected value under caret');
 		
+		editorStub.replaceContent('a{bg:${0}lg(rgba(0,0,0,0));}');
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 5, end: 22}, 'Selected full value');
+		
+		run('select_next_item');
+		deepEqual(editorStub.getSelectionRange(), {start: 8, end: 21}, 'Selected inner function');
+		
 		editorStub.setSyntax('html');
 	});
 	

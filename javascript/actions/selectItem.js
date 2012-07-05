@@ -295,7 +295,7 @@ zen_coding.exec(function(require, _) {
 				// we have a function, find values in it.
 				// but first add function contents
 				stream.start = stream.pos;
-				stream.skipTo(')');
+				stream.skipToPair('(', ')');
 				var fnBody = stream.current();
 				result.push(range.create(clone.start + stream.start, fnBody));
 				
