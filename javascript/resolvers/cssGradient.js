@@ -184,9 +184,13 @@ zen_coding.define('cssGradient', function(require, _) {
 	 * Pastes gradient definition into CSS rule with correct vendor-prefixes
 	 * @param {EditElement} property Matched CSS property
 	 * @param {Object} gradient Parsed gradient
+	 * @param {Range} valueRange If passed, only this range within property 
+	 * value will be replaced with gradient. Otherwise, full value will be 
+	 * replaced
 	 */
-	function pasteGradient(property, gradient) {
+	function pasteGradient(property, gradient, valueRange) {
 		var rule = property.parent;
+		var utils = require('utils');
 		
 		// first, remove all properties within CSS rule with the same name and
 		// gradient definition
@@ -196,23 +200,56 @@ zen_coding.define('cssGradient', function(require, _) {
 			}
 		});
 		
+		var value = property.value();
+		if (!valueRange)
+			valueRange = require('range').create(0, property.value());
+		
+		var val = function(v) {
+			return utils.replaceSubstring(value, v, valueRange);
+		};
+		
 		// put vanilla-clean gradient definition into current rule
 		var cssGradient = require('cssGradient');
-		property.value(cssGradient.toString(gradient));
+		property.value(val(cssGradient.toString(gradient)));
 		
 		// put vendor-prefixed definitions before current rule
 		_.each(prefs.getArray('css.gradient.prefixes'), function(prefix) {
 			if (prefix == 'webkit' && prefs.get('css.gradient.oldWebkit')) {
 				try {
-					rule.add(property.name(), cssGradient.oldWebkitLinearGradient(gradient), rule.indexOf(property));
+					rule.add(property.name(), 
+							val(cssGradient.oldWebkitLinearGradient(gradient)), 
+							rule.indexOf(property));
 				} catch(e) {}
 			}
 			
-			rule.add(property.name(), cssGradient.toString(gradient, prefix), rule.indexOf(property));
+			rule.add(property.name(),
+					val(cssGradient.toString(gradient, prefix)),
+					rule.indexOf(property));
 		});
 	}
 	
-	// XXX register expand handler
+	/**
+	 * Search for gradient definition inside CSS property value
+	 */
+	function findGradient(cssProp) {
+		var value = cssProp.value();
+		var cssGradient = require('cssGradient');
+		var gradient = null;
+		var matchedPart = _.find(cssProp.valueParts(), function(part) {
+			return gradient = cssGradient.parse(part.substring(value));
+		});
+		
+		if (matchedPart && gradient) {
+			return {
+				gradient: gradient,
+				valueRange: matchedPart
+			};
+		}
+		
+		return null;
+	}
+	
+	// XXX register expand abbreviation handler
 	/**
 	 * @param {IZenEditor} editor
 	 * @param {String} syntax
@@ -224,7 +261,7 @@ zen_coding.define('cssGradient', function(require, _) {
 			return false;
 		
 		// let's see if we are expanding gradient definition
-		var caret = editor.getCaretPos(), gradient;
+		var caret = editor.getCaretPos();
 		/** @type EditContainer */
 		var cssRule = require('cssEditTree').parseFromPosition(info.content, caret, true);
 		if (cssRule) {
@@ -238,19 +275,17 @@ zen_coding.define('cssGradient', function(require, _) {
 			}
 			
 			if (cssProp) {
-				// make sure that caret is right after gradient definition
-				var r = _.find(cssProp.valueParts(true), function(range) {
-					return range.end == caret;
-				});
-				
-				if (r && (gradient = require('cssGradient').parse(r.substring(info.content)))) {
+				// make sure that caret is inside property value with gradient 
+				// definition
+				var g = findGradient(cssProp);
+				if (g) {
 					// make sure current property has terminating semicolon
 					cssProp.end(';');
 					
 					var ruleStart = cssRule.options.offset || 0;
 					var ruleEnd = ruleStart + cssRule.toString().length;
 					
-					pasteGradient(cssProp, gradient);
+					pasteGradient(cssProp, g.gradient, g.valueRange);
 					editor.replaceContent(cssRule.toString(), ruleStart, ruleEnd, true);
 					editor.setCaretPos(cssProp.valueRange(true).end);
 					return true;
@@ -267,9 +302,16 @@ zen_coding.define('cssGradient', function(require, _) {
 	 */
 	require('reflectCSSValue').addHandler(function(property) {
 		var cssGradient = require('cssGradient');
-		var gradient = cssGradient.parse(property.value());
-		if (!gradient)
+		var utils = require('utils');
+		
+		var g = findGradient(property);
+		if (!g)
 			return false;
+		
+		var value = property.value();
+		var val = function(v) {
+			return utils.replaceSubstring(value, v, g.valueRange);
+		};
 		
 		// reflect value for properties with the same name
 		_.each(property.parent.getAll(property.name()), function(prop) {
@@ -279,10 +321,10 @@ zen_coding.define('cssGradient', function(require, _) {
 			// check if property value starts with gradient definition
 			var m = prop.value().match(/^\s*(\-([a-z]+)\-)?linear\-gradient/);
 			if (m) {
-				prop.value(cssGradient.toString(gradient, m[2] || ''));
+				prop.value(val(cssGradient.toString(g.gradient, m[2] || '')));
 			} else if (m = prop.value().match(/\s*\-webkit\-gradient/)) {
 				// old webkit gradient definition
-				prop.value(cssGradient.oldWebkitLinearGradient(gradient));
+				prop.value(val(cssGradient.oldWebkitLinearGradient(g.gradient)));
 			}
 		});
 		
