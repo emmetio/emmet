@@ -165,6 +165,22 @@ zen_coding.define('cssResolver', function(require, _) {
 	}
 	
 	/**
+	 * Check if passed CSS property support specified vendor prefix 
+	 * @param {String} property
+	 * @param {String} prefix
+	 */
+	function hasPrefix(property, prefix) {
+		var info = vendorPrefixes[prefix];
+		
+		if (!info)
+			info = _.find(vendorPrefixes, function(data) {
+				return data.prefix == prefix;
+			});
+		
+		return info && info.supports && _.include(info.supports, property);
+	}
+	
+	/**
 	 * Search for a list of supported prefixes for CSS property. This list
 	 * is used to generate all-prefixed snippet
 	 * @param {String} property CSS property name
@@ -173,7 +189,7 @@ zen_coding.define('cssResolver', function(require, _) {
 	function findPrefixes(property) {
 		var result = [];
 		_.each(vendorPrefixes, function(obj, prefix) {
-			if (obj.supports && _.include(obj.supports, property)) {
+			if (hasPrefix(property, prefix)) {
 				result.push(prefix);
 			}
 		});
@@ -285,6 +301,36 @@ zen_coding.define('cssResolver', function(require, _) {
 		 * @memberOf cssResolver
 		 */
 		addPrefix: addPrefix,
+		
+		/**
+		 * Check if passed CSS property supports specified vendor prefix
+		 * @param {String} property
+		 * @param {String} prefix
+		 */
+		supportsPrefix: hasPrefix,
+		
+		/**
+		 * Returns prefixed version of passed CSS property, only if this
+		 * property supports such prefix
+		 * @param {String} property
+		 * @param {String} prefix
+		 * @returns
+		 */
+		prefixed: function(property, prefix) {
+			return hasPrefix(property, prefix) 
+				? '-' + prefix + '-' + property 
+				: property;
+		},
+		
+		/**
+		 * Returns list of all registered vendor prefixes
+		 * @returns {Array}
+		 */
+		listPrefixes: function() {
+			return _.map(vendorPrefixes, function(obj) {
+				return obj.prefix;
+			});
+		},
 		
 		/**
 		 * Returns object describing vendor prefix

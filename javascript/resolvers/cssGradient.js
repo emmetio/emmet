@@ -180,6 +180,16 @@ zen_coding.define('cssGradient', function(require, _) {
 		return v('right') + ' ' + v('bottom') + ', ' + v('left') + ' ' + v('top');
 	}
 	
+	function getPrefixedNames(name) {
+		var prefixes = prefs.getArray('css.gradient.prefixes');
+		var names = _.map(prefixes, function(p) {
+			return '-' + p + '-' + name;
+		});
+		names.push(name);
+		
+		return names;
+	}
+	
 	/**
 	 * Pastes gradient definition into CSS rule with correct vendor-prefixes
 	 * @param {EditElement} property Matched CSS property
@@ -191,10 +201,13 @@ zen_coding.define('cssGradient', function(require, _) {
 	function pasteGradient(property, gradient, valueRange) {
 		var rule = property.parent;
 		var utils = require('utils');
+		var css = require('cssResolver');
+		/** @type Array */
+		var prefixes = prefs.getArray('css.gradient.prefixes');
 		
 		// first, remove all properties within CSS rule with the same name and
 		// gradient definition
-		_.each(rule.getAll(property.name()), function(item) {
+		_.each(rule.getAll(getPrefixedNames(property.name())), function(item) {
 			if (item != property && /gradient/i.test(item.value())) {
 				rule.remove(item);
 			}
@@ -212,19 +225,33 @@ zen_coding.define('cssGradient', function(require, _) {
 		var cssGradient = require('cssGradient');
 		property.value(val(cssGradient.toString(gradient)));
 		
-		// put vendor-prefixed definitions before current rule
-		_.each(prefs.getArray('css.gradient.prefixes'), function(prefix) {
+		// create list of properties to insert
+		var propsToInsert = [];
+		_.each(prefixes, function(prefix) {
+			var name = css.prefixed(property.name(), prefix);
 			if (prefix == 'webkit' && prefs.get('css.gradient.oldWebkit')) {
 				try {
-					rule.add(property.name(), 
-							val(cssGradient.oldWebkitLinearGradient(gradient)), 
-							rule.indexOf(property));
+					propsToInsert.push({
+						name: name,
+						value: val(cssGradient.oldWebkitLinearGradient(gradient))
+					});
 				} catch(e) {}
 			}
 			
-			rule.add(property.name(),
-					val(cssGradient.toString(gradient, prefix)),
-					rule.indexOf(property));
+			propsToInsert.push({
+				name: name,
+				value: val(cssGradient.toString(gradient, prefix))
+			});
+		});
+		
+		// sort properties by name length
+		propsToInsert = propsToInsert.sort(function(a, b) {
+			return b.name.length - a.name.length;
+		});
+		
+		// put vendor-prefixed definitions before current rule
+		_.each(propsToInsert, function(prop) {
+			rule.add(prop.name, prop.value, rule.indexOf(property));
 		});
 	}
 	
@@ -314,7 +341,7 @@ zen_coding.define('cssGradient', function(require, _) {
 		};
 		
 		// reflect value for properties with the same name
-		_.each(property.parent.getAll(property.name()), function(prop) {
+		_.each(property.parent.getAll(getPrefixedNames(property.name())), function(prop) {
 			if (prop === property)
 				return;
 			
