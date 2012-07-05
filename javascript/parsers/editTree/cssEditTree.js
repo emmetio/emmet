@@ -224,9 +224,22 @@ zen_coding.define('cssEditTree', function(require, _) {
 		_saveStyle: function() {
 			var start = this._positions.contentStart;
 			var source = this.source;
+			var utils = require('utils');
 			
 			_.each(this.list(), /** @param {CSSEditProperty} p */ function(p) {
 				p.styleBefore = source.substring(start, p.namePosition());
+				// a small hack here:
+				// Sometimes users add empty lines before properties to logically
+				// separate groups of properties. In this case, a blind copy of
+				// characters between rules may lead to undesired behavior,
+				// especially when current rule is duplicated or used as a donor
+				// to create new rule.
+				// To solve this issue, we‘ll take only last newline indentation
+				var lines = utils.splitByLines(p.styleBefore);
+				if (lines.length > 1) {
+					p.styleBefore = '\n' + _.last(lines);
+				}
+				
 				p.styleSeparator = source.substring(p.nameRange().end, p.valuePosition());
 				
 				// graceful and naive comments removal 
