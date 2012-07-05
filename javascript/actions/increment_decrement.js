@@ -34,9 +34,24 @@ zen_coding.exec(function(require, _) {
 		});
 			
 		if (r && r.length()) {
-			var num = parseFloat(r.substring(String(editor.getContent())));
-			if (!isNaN(num)) {
+			var strNum = r.substring(String(editor.getContent()));
+			var num = parseFloat(strNum);
+			if (!_.isNaN(num)) {
 				num = utils.prettifyNumber(num + step);
+				
+				// do we have zero-padded number?
+				if (/^(\-?)0+[1-9]/.test(strNum)) {
+					var minus = '';
+					if (RegExp.$1) {
+						minus = '-';
+						num = num.substring(1);
+					}
+						
+					var parts = num.split('.');
+					parts[0] = utils.zeroPadString(parts[0], intLength(strNum));
+					num = minus + parts.join('.');
+				}
+				
 				editor.replaceContent(num, r.start, r.end);
 				editor.createSelection(r.start, r.start + num.length);
 				return true;
@@ -44,6 +59,19 @@ zen_coding.exec(function(require, _) {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Returns length of integer part of number
+	 * @param {String} num
+	 */
+	function intLength(num) {
+		num = num.replace(/^\-/, '');
+		if (~num.indexOf('.')) {
+			return num.split('.')[0].length;
+		}
+		
+		return num.length;
 	}
 	
 	var actions = require('actions');
