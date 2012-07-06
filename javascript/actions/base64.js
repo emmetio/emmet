@@ -45,7 +45,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Test if <code>text</code> starts with <code>token</code> at <code>pos</code>
-	 * position. If <code>pos</code> is ommited, search from beginning of text 
+	 * position. If <code>pos</code> is omitted, search from beginning of text 
 	 * @param {String} token Token to test
 	 * @param {String} text Where to search
 	 * @param {Number} pos Position where to start search
@@ -61,7 +61,7 @@ zen_coding.exec(function(require, _) {
 	 * Encodes image to base64
 	 * @requires zen_file
 	 * 
-	 * @param {zen_editor} editor
+	 * @param {IZenEditor} editor
 	 * @param {String} imgPath Path to image
 	 * @param {Number} pos Caret position where image is located in the editor
 	 * @return {Boolean}

@@ -21,7 +21,7 @@ zen_coding.define('tabStops', function(require, _) {
 	var tabstopIndex = 0;
 	
 	var defaultOptions = {
-		replaceCarets: true,
+		replaceCarets: false,
 		escape: function(ch) {
 			return '\\' + ch;
 		},
@@ -44,8 +44,10 @@ zen_coding.define('tabStops', function(require, _) {
 		text = tabstops.processText(text, {
 			tabstop: function(data) {
 				var group = parseInt(data.group);
-				if (group > maxNum) maxNum = group;
+				if (group == 0)
+					return '${0}';
 				
+				if (group > maxNum) maxNum = group;
 				if (data.placeholder)
 					return '${' + (group + tabstopIndex) + ':' + data.placeholder + '}';
 				else
@@ -56,9 +58,7 @@ zen_coding.define('tabStops', function(require, _) {
 		// resolve variables
 		text = utils.replaceVariables(text, tabstops.variablesResolver(node));
 		
-		
 		tabstopIndex += maxNum + 1;
-		
 		return text;
 	});
 	
@@ -274,6 +274,9 @@ zen_coding.define('tabStops', function(require, _) {
 				// variable name
 				if (varName == 'child')
 					return str;
+				
+				if (varName == 'cursor')
+					return require('utils').getCaretPlaceholder();
 				
 				var attr = node.attribute(varName);
 				if (!_.isUndefined(attr))

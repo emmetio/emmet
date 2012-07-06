@@ -138,7 +138,7 @@ zen_coding.define('profile', function(require, _) {
 				return createProfile(name, options);
 			else
 				// create profile object only
-				return _.defaults(name || {}, defaultProfile);
+				return new OutputProfile(_.defaults(name || {}, defaultProfile));
 		},
 		
 		/**
