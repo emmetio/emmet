@@ -7,17 +7,6 @@
 zen_coding.define('editorUtils', function(require, _) {
 	return  {
 		/**
-		 * Returns context-aware node counter
-		 * @param {node} ZenNode
-		 * @return {Number}
-		 * @memberOf editorUtils
-		 */
-		getCounterForNode: function(node) {
-			console.log('deprecated');
-			return node.counter;
-		},
-		
-		/**
 		 * Check if cursor is placed inside XHTML tag
 		 * @param {String} html Contents of the document
 		 * @param {Number} caretPos Current caret position inside tag
