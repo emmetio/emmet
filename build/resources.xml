@@ -54,7 +54,7 @@
 		<file name="reflectCSSValue.js"/>
 		<file name="evaluateMath.js"/>
 		<file name="increment_decrement.js"/>
-		<file name="lineBreaks.js"/>
+		<!-- <file name="lineBreaks.js"/> -->
 		<file name="mergeLines.js"/>
 		<!-- <file name="selectLine.js"/> -->
 		<file name="base64.js"/>

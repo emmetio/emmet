@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Zen Coding" default="main" basedir=".">
 	<property file="build.properties"/>
-	
 	<import file="${basedir}/build/resources.xml"/>
+	
+	<taskdef resource="org/apache/tools/ant/taskdefs/default.properties">
+		<classpath>
+			<pathelement location="${builder.dir}/frontend-builder.jar" />
+			<pathelement location="${builder.dir}/compiler.jar"/>
+			<pathelement location="${builder.dir}/yuicompressor.jar"/>
+		</classpath>
+	</taskdef>
 	
 	<target name="init">
 		<mkdir dir="${zencoding_build_dir}"/>
 		<mkdir dir="${zencoding_plugins}"/>
 	</target>
 	
-	<target name="plugin.generic.js" depends="init">
-		<concat destfile="${zencoding_build_dir}/zencoding.js">
+	<target name="plugin.generic" depends="init">
+		<concat destfile="${zencoding_build_dir}/zencoding.js" force="yes">
 			<filelist refid="javascript.core" />
     		<filelist refid="javascript.actions" />
     		<fileset refid="javascript.resolvers" />
@@ -18,9 +25,54 @@
     		<fileset refid="javascript.generators" />
 		</concat>
 	</target>
+	
+	<target name="plugin.generic-full" depends="plugin.generic">
+		<concat destfile="${zencoding_build_dir}/zencoding-full.js" force="yes">
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding.js"/>
+			</filelist>
+			<filelist dir="${zencoding_javascript}/actions">
+				<file name="lineBreaks.js"/>
+				<file name="selectLine.js"/>
+			</filelist>
+			<string>zen_coding.require('resources').setVocabulary(</string>
+			<fileset dir="${basedir}" file="snippets.json"/>
+			<string>, 'system');</string>
+		</concat>
+	</target>
+	
+	<!-- CodeMirror2 plugin -->
+	<target name="plugin.codemirror2" depends="plugin.generic-full" description="Plugin for CodeMirror2 editor">
+		<mkdir dir="${zencoding_build_dir}/CodeMirror2"/>
+		<concat destfile="${zencoding_build_dir}/CodeMirror2/zencoding.js">
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding-full.js"/>
+			</filelist>
+			<filelist dir="${zencoding_plugins_source}/codemirror2">
+				<file name="editor.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js destfile="${zencoding_build_dir}/CodeMirror2/zencoding.min.js">
+			<filelist dir="${zencoding_build_dir}/CodeMirror2">
+				<file name="zencoding.js"/>
+			</filelist>
+		</compile-js>
+		
+		<copy 
+			file="${zencoding_plugins_source}/codemirror2/README.md" 
+			todir="${zencoding_build_dir}/CodeMirror2"/>
+		
+		<zip 
+			basedir="${zencoding_build_dir}/CodeMirror2"
+			compress="yes"
+			level="9"
+			destfile="${zencoding_build_dir}/CodeMirror2/ZenCoding-CodeMirror2-v${zencoding_version}-alpha.zip"
+			excludes="*.zip"/>
+	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="plugin.generic.js">
+	<target name="main" depends="plugin.generic, plugin.codemirror2">
 		<echo>Done</echo>
 	</target>
 </project>
