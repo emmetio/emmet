@@ -4,6 +4,7 @@ module_ver = '@VERSION@';
 menu_name = 'Zen Coding';
 
 function Init() {
+	// TODO read action names from 'actions' module
 	addMenuItem('Expand Abbreviation', menu_name, 'zc_expandAbbreviation', 'Ctrl+,');
 	addMenuItem('Wrap with Abbreviation', menu_name, 'zc_wrapWithAbbreviation', 'Ctrl+Shift+Alt+a');
 	addMenuItem('Balance Tag', menu_name, 'zc_balanceTag', 'Ctrl+Alt+d');
@@ -109,7 +110,7 @@ function zc_reflectCSS() {
 	return zc_manager('reflect_css_value');
 }
 
-function zc_manager(action_name) {
+function zc_manager(actionName) {
 	var ed = newEditor();
 	try {
 		ed.assignActiveEditor();
@@ -117,6 +118,6 @@ function zc_manager(action_name) {
 		return false;
 	}
 	
-	zen_editor.setContext(ed);
-	return zen_coding.runAction(action_name, zen_editor);
+	editorProxy.setContext(ed);
+	return zen_coding.require('actions').run(actionName, editorProxy);
 }

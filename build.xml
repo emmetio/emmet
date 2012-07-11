@@ -70,6 +70,51 @@
 			destfile="${zencoding_build_dir}/CodeMirror2/ZenCoding-CodeMirror2-v${zencoding_version}-alpha.zip"
 			excludes="*.zip"/>
 	</target>
+	
+	<!-- Plugn for Komodo Edit -->
+	<target name="plugin.komodo" depends="plugin.generic-full">
+		<mkdir dir="${zencoding_build_dir}/komodo"/>
+		
+		<copy todir="${zencoding_build_dir}/komodo">
+			<fileset dir="${zencoding_plugins_source}/komodo"/>
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${zencoding_version}"/>
+				</replacetokens>
+			</filterchain>
+		</copy>
+		
+		<copy
+			file="${zencoding_build_dir}/zencoding-full.js"
+			tofile="${zencoding_build_dir}/komodo/content/js/zencoding.js" />
+		
+		<exec dir="${zencoding_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
+			<arg value="build"/>
+		</exec>
+	</target>
+	
+	<!-- Plugn for PSPad -->
+	<target name="plugin.pspad" depends="plugin.generic-full">
+		<mkdir dir="${zencoding_build_dir}/pspad"/>
+		
+		<concat destfile="${zencoding_build_dir}/pspad/zencoding.js">
+			<filelist dir="${zencoding_plugins_source}/pspad">
+				<file name="controller.js"/>
+			</filelist>
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding-full.js"/>
+			</filelist>
+			<filelist dir="${zencoding_plugins_source}/pspad">
+				<file name="editor.js"/>
+			</filelist>
+			
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${zencoding_version}"/>
+				</replacetokens>
+			</filterchain>
+		</concat>
+	</target>
 
 	<!-- Main build routine -->
 	<target name="main" depends="plugin.generic, plugin.codemirror2">
