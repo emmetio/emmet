@@ -86,10 +86,10 @@
 		})();
 	</script>
 	
-	
-	<script src="../codemirror/shortcut.js"></script>
+	<script src="./shortcut.js"></script>
+	<script src="./editor.js"></script>
+	<script src="./controller.js"></script>
 	<script src="customSnippets.js"></script>
-	<script src="zen_editor.js"></script>
 </head>
 <body>
 	<textarea class="zc-syntax-html">
@@ -109,9 +109,9 @@ ul>li.item$*4>a[href=/sample/]>lipsum3
 	background: lg(red, black);
 }
 </textarea>
-	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_editor.showInfo();" style="cursor:pointer; display: block;" />
+	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_coding.require('textarea').showInfo();" style="cursor:pointer; display: block;" />
 	<script type="text/javascript">
-		zen_editor.setup({pretty_break: true, use_tab: true});
+		zen_coding.require('textarea').setup({pretty_break: true, use_tab: true});
 	</script>
 </body>
 </html>

@@ -115,6 +115,42 @@
 			</filterchain>
 		</concat>
 	</target>
+	
+	<!-- Plugn for textarea -->
+	<target name="plugin.textarea" depends="plugin.generic-full">
+		<mkdir dir="${zencoding_build_dir}/textarea"/>
+		
+		<concat destfile="${zencoding_build_dir}/textarea/zencoding.js">
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding-full.js"/>
+			</filelist>
+			<filelist dir="${zencoding_plugins_source}/textarea">
+				<file name="shortcut.js"/>
+				<file name="editor.js"/>
+				<file name="controller.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js destfile="${zencoding_build_dir}/textarea/zencoding.min.js">
+			<filelist dir="${zencoding_build_dir}/textarea">
+				<file name="zencoding.js"/>
+			</filelist>
+		</compile-js>
+		
+		<copy todir="${zencoding_build_dir}/textarea">
+			<filelist dir="${zencoding_plugins_source}/textarea">
+				<file name="index.html"></file>
+				<file name="zc-powered.png"></file>
+			</filelist>
+		</copy>
+		
+		<zip 
+			basedir="${zencoding_build_dir}/textarea"
+			compress="yes"
+			level="9"
+			destfile="${zencoding_build_dir}/textarea/ZenCoding-textarea-v${zencoding_version}-alpha.zip"
+			excludes="*.zip"/>
+	</target>
 
 	<!-- Main build routine -->
 	<target name="main" depends="plugin.generic, plugin.codemirror2">

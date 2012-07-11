@@ -34,10 +34,15 @@ zen_coding.define('actions', function(require, _, zc) {
 		 */
 		add: function(name, fn, options) {
 			name = name.toLowerCase();
+			options = options || {};
+			if (!options.label) {
+				options.label = humanizeActionName(name);
+			}
+			
 			actions[name] = {
 				name: name,
 				fn: fn,
-				options: options || {}
+				options: options
 			};
 		},
 		
