@@ -8,8 +8,8 @@
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/zen_editor.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/zen_controller.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/editor.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/controller.js" />
 
 	<menupopup id="popup_tools">
 		<menu id="menu_zencoding" label="Zen Coding">
