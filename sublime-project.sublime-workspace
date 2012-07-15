@@ -1,0 +1,1428 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"cre",
+				"create_env"
+			],
+			[
+				"JSC",
+				"JSCTX"
+			],
+			[
+				"file",
+				"file_name"
+			],
+			[
+				"pack",
+				"package_file"
+			],
+			[
+				"core",
+				"core_files"
+			],
+			[
+				"a",
+				"a	<a>"
+			],
+			[
+				"sty",
+				"stylesheet	@=stylesheet"
+			],
+			[
+				"fun",
+				"fun	Function"
+			],
+			[
+				"ex",
+				"expandAbbreviation"
+			],
+			[
+				"R",
+				"Range"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "#!/usr/bin/env python\n#coding: utf8\n#################################### IMPORTS ###################################\n\n# Std Libs\nimport unittest\nimport functools\nimport sys\nimport os\nimport re\nimport pprint\n\n\n# Sublime modules\ntry:\n    import sublime\nexcept ImportError:\n    sublime = None\n\n#################################### HELPERS ###################################\n\ndef active_view():\n    return sublime.active_window().active_view()\n\n################################################################################\n\nclass ZenEditor():\n    def __init__(self):\n        pass\n\n    def get_selection_range(self):\n        \"\"\"\n        Returns character indexes of selected text\n        @return: list of start and end indexes\n        @example\n        start, end = zen_editor.get_selection_range();\n        print('%s, %s' % (start, end))\n        \"\"\"\n        view = active_view()\n        sel = view.sel()[0]\n        return sel.begin(), sel.end()\n\n    def create_selection(self, start=None, end=None, sels=[]):\n        \"\"\"\n        Creates selection from *start* to *end* character\n        indexes. If *end* is ommited, this method should place caret\n        and *start* index\n        @type start: int\n        @type end: int\n        @example\n        zen_editor.create_selection(10, 40)\n        # move caret to 15th character\n        zen_editor.create_selection(15)\n        \"\"\"\n\n        view = active_view()\n        view.sel().clear()\n\n        for start, end in (sels or [(start, end)]):\n            view.sel().add(sublime.Region(start, end or start))\n\n        view.show(view.sel())\n\n    def get_current_line_range(self):\n        \"\"\"\n        Returns current line's start and end indexes\n        @return: list of start and end indexes\n        @example\n        start, end = zen_editor.get_current_line_range();\n        print('%s, %s' % (start, end))\n        \"\"\"\n        view = active_view()\n        selection = view.sel()[0]\n        line = view.line(selection)\n        return line.begin(), line.end()\n\n    def get_file_path(self):\n        return active_view().file_name()\n\n    def get_caret_pos(self):\n        \"\"\" Returns current caret position \"\"\"\n        view = active_view()\n        return len(view.sel()) and view.sel()[0].begin() or 0\n\n    def set_caret_pos(self, pos):\n        \"\"\"\n        Set new caret position\n        @type pos: int\n        \"\"\"\n        self.create_selection(pos)\n\n    def get_current_line(self):\n        \"\"\"\n        Returns content of current line\n        @return: str\n        \"\"\"\n        view = active_view()\n        return view.substr(view.line(view.sel()[0]))\n\n    def replace_content(self, value, start=None, end=None, zero_stops=False, \n                              escape = True):\n        \"\"\"\n        Replace editor's content or it's part (from *start* to\n        *end* index). If *value* contains\n        *caret_placeholder*, the editor will put caret into\n        this position. If you skip *start* and *end*\n        arguments, the whole target's content will be replaced with\n        *value*.\n\n        If you pass *start* argument only,\n        the *value* will be placed at *start* string\n        index of current content.\n\n        If you pass *start* and *end* arguments,\n        the corresponding substring of current target's content will be\n        replaced with *value*\n        @param value: Content you want to paste\n        @type value: str\n        @param start: Start index of editor's content\n        @type start: int\n        @param end: End index of editor's content\n        @type end: int\n        \"\"\"\n        view = active_view()\n        edit = view.begin_edit()\n\n        if start is None: start = 0\n        if end is None:   end   = start\n\n        self.create_selection(start, end)\n\n        # print value\n        if escape:\n            value = value.replace('$', r'\\$')\n\n        value = self.add_placeholders(value,\n            selection     = 0, \n            explicit_zero = zero_stops\n        )\n\n        if '\\n' in value:\n            for sel in view.sel():\n                trailing = sublime.Region(sel.end(), view.line(sel).end())\n                if view.substr(trailing).isspace():\n                    view.erase(edit, trailing)\n\n        view.run_command('insert_snippet', {'contents': value})\n        view.end_edit(edit)\n\n    def get_content(self):\n        \"\"\"\n        Returns editor's content\n        @return: str\n        \"\"\"\n        view = active_view()\n        return view.substr(sublime.Region(0, view.size()))\n\n    def get_syntax(self):\n        \"\"\"\n        Returns current editor's syntax mode\n        @return: str\n        \"\"\"\n        view = active_view()\n        scope = view.syntax_name(view.sel()[0].begin())\n        default_type = 'html'\n        doc_type = None\n\n        try:\n            if 'xsl' in scope:\n                doc_type = 'xsl'\n            else:\n                doc_type = re.findall(r'\\bhtml|js|less|scss|sass|css|xml|haml|stylus\\b', scope)[0]\n                # if doc_type == 'stylus': doc_type = 'css'\n                # Sublime has back to front scopes ....\n        except:\n            doc_type = default_type\n\n        if not doc_type: doc_type = default_type\n        return doc_type\n\n    def get_profile_name(self):\n        \"\"\"\n        Returns current output profile name (@see zen_coding#setup_profile)\n        @return {String}\n        \"\"\"\n\n        KEY     = 'zencoding.profile'\n        view    = active_view()\n\n        profile = view.settings().get(KEY, None)\n        if profile is not None: return profile\n\n        pos     = self.get_caret_pos()\n\n        if view.match_selector(pos, 'text.xml'):\n            return 'xml'\n\n        if view.match_selector(pos, 'text.html'):\n            if 'xhtml' in view.substr(sublime.Region(0, 1000)).lower():\n                return 'xhtml'\n            else:\n                return 'html'\n        else:\n            return 'plain'\n\n    def prompt(self, title):\n        \"\"\"\n        Ask user to enter something\n        @param title: Dialog title\n        @type title: str\n        @return: Entered data\n        @since: 0.65\n        \"\"\"\n        raise NotImplementedError('Ask Skinner')\n        return ''\n\n    def get_selection(self):\n        \"\"\"\n        Returns current selection\n        @return: str\n        @since: 0.65\n        \"\"\"\n        view = active_view()\n        return view.substr(view.sel()[0]) if view.sel() else ''\n\n    def add_placeholders(self, text, selection=True, explicit_zero=False):\n        _ix = [-1 if explicit_zero else 1000]\n\n        def get_ix(m):\n            _ix[0] += 1\n            return '$%s' % _ix[0]\n\n        # text = re.sub(r'\\$', '\\\\$', text)\n        text = re.sub(utils.get_caret_placeholder(), get_ix, text)\n\n        if selection:\n            # The last placeholder will contain the selected text, if any\n            text = re.sub('\\$(%s)' % _ix[0], r'${\\1:$SELECTION}', text)\n\n        return text\n\n# create shared instance of editor class: this instance\n# will be used in JS context\nshared_instance = ZenEditor()",
+			"file": "pyv8/editor.py",
+			"file_size": 7243,
+			"file_write_time": 1342218477000000,
+			"settings":
+			{
+				"buffer_size": 6950,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/plugin.py",
+			"settings":
+			{
+				"buffer_size": 583,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/bootstrap.py",
+			"settings":
+			{
+				"buffer_size": 1642,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "var editorProxy = {\n	getSelectionRange: function() {\n		return \n		var caretPos = this.getCaretPos();\n		return {\n			start: caretPos,\n			end: caretPos + this.getSelection().length\n		};\n	},\n\n	createSelection: function(start, end) {\n		if (start == end) {\n			this.context.setCursor(this.context.posFromIndex(start));\n		} else {\n			this.context.setSelection(this.context.posFromIndex(start), this.context.posFromIndex(end));\n		}\n	},\n\n	getCurrentLineRange: function() {\n		var caret = this.context.getCursor(true);\n		return {\n			start: this.context.indexFromPos({line: caret.line, ch: 0}),\n			end:   this.context.indexFromPos({line: caret.line, ch: this.context.getLine(caret.line).length})\n		};\n	},\n\n	getCaretPos: function(){\n		return this.context.indexFromPos(this.context.getCursor(true));\n	},\n\n	setCaretPos: function(pos){\n		this.createSelection(pos, pos);\n	},\n\n	getCurrentLine: function() {\n		return this.context.getLine( this.context.getCursor(true).line ) || '';\n	},\n\n	replaceContent: function(value, start, end, noIndent) {\n		\n		if (_.isUndefined(end)) \n			end = _.isUndefined(start) ? content.length : start;\n		if (_.isUndefined(start)) start = 0;\n		var utils = require('utils');\n		\n		// indent new value\n		if (!noIndent) {\n			value = utils.padString(value, utils.getLinePaddingFromPosition(this.getContent(), start));\n		}\n		\n		// find new caret position\n		var tabstopData = require('tabStops').extract(value, {\n			escape: function(ch) {\n				return ch;\n			}\n		});\n		value = tabstopData.text;\n		var firstTabStop = tabstopData.tabstops[0];\n		\n		if (firstTabStop) {\n			firstTabStop.start += start;\n			firstTabStop.end += start;\n		} else {\n			firstTabStop = {\n				start: value.length + start,\n				end: value.length + start\n			};\n		}\n			\n		// do a compound change to record all changes into single undo event\n		var that = this;\n		this.context.compoundChange(function() {\n			that.context.replaceRange(value, that.context.posFromIndex(start), that.context.posFromIndex(end));\n			that.createSelection(firstTabStop.start, firstTabStop.end);\n		});\n	},\n\n	getContent: function(){\n		return this.context.getValue();\n	},\n\n	getSyntax: function() {\n		var syntax = this.context.getOption('mode');\n		if (syntax in modeMap)\n			syntax = modeMap[syntax];\n		\n		var caretPos = this.getCaretPos();\n\n		if (!require('resources').hasSyntax(syntax))\n			syntax = 'html';\n\n		if (syntax == 'html') {\n			// get the context tag\n			var pair = require('html_matcher').getTags(this.getContent(), caretPos);\n			if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {\n				// check that we're actually inside the tag\n				if (pair[0].end <= caretPos && pair[1].start >= caretPos)\n					syntax = 'css';\n			}\n		}\n\n		return syntax;\n	},\n\n	/**\n	 * Returns current output profile name (@see zen_coding#setupProfile)\n	 * @return {String}\n	 */\n	getProfileName: function() {\n		if (this.context.getOption('profile'))\n			return this.context.getOption('profile');\n\n		switch(this.getSyntax()) {\n			 case 'xml':\n			 case 'xsl':\n			 	return 'xml';\n			 case 'html':\n			 	var profile = require('resources').getVariable('profile');\n			 	if (!profile) { // no forced profile, guess from content\n				 	// html or xhtml?\n			 		profile = this.getContent().search(/<!DOCTYPE[^>]+XHTML/i) != -1 ? 'xhtml': 'html';\n			 	}\n\n			 	return profile;\n		}\n\n		return 'xhtml';\n	},\n\n	/**\n	 * Ask user to enter something\n	 * @param {String} title Dialog title\n	 * @return {String} Entered data\n	 * @since 0.65\n	 */\n	prompt: function(title) {\n		return prompt(title);\n	},\n\n	/**\n	 * Returns current selection\n	 * @return {String}\n	 * @since 0.65\n	 */\n	getSelection: function() {\n		return this.context.getSelection() || '';\n	},\n\n	/**\n	 * Returns current editor's file path\n	 * @return {String}\n	 * @since 0.65 \n	 */\n	getFilePath: function() {\n		return location.href;\n	}\n};\n\n\nfunction pyRunAction(name) {\n	return zen_coding.require('actions').run(name, this.pyEditor);\n}",
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/js/python-wrapper.js",
+			"file_size": 94,
+			"file_write_time": 1342289589000000,
+			"settings":
+			{
+				"buffer_size": 3919,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/Default.sublime-commands",
+			"settings":
+			{
+				"buffer_size": 75,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/Default (OSX).sublime-keymap",
+			"settings":
+			{
+				"buffer_size": 62,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/delete_word.py",
+			"settings":
+			{
+				"buffer_size": 2355,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/sublimezenplugin.py",
+			"settings":
+			{
+				"buffer_size": 15569,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/Default (OSX).sublime-keymap",
+			"settings":
+			{
+				"buffer_size": 13766,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+			"settings":
+			{
+				"buffer_size": 29349,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 226.0,
+		"selected_items":
+		[
+			[
+				"linter",
+				"SublimeLinter: Disable Linting"
+			],
+			[
+				"lower",
+				"Convert Case: Lower Case"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"disc",
+				"Package Control: Discover Packages"
+			],
+			[
+				"list ",
+				"Package Control: List Packages"
+			]
+		],
+		"width": 588.0
+	},
+	"console":
+	{
+		"height": 124.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/Sergey/Projects/zen-coding/plugins/codemirror2/editor.js",
+		"/Users/Sergey/Projects/zen-coding/plugins/textarea/editor.js",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Default.sublime-commands",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/exec.py",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Delete to EOL.sublime-macro",
+		"/Users/Sergey/Projects/PyV8/test.py",
+		"/Users/Sergey/Projects/sublime-v8/core.py",
+		"/Users/Sergey/Projects/sublime-v8/jshint.py",
+		"/Users/Sergey/Projects/zen-coding/pyv8/bootstrap.py",
+		"/Users/Sergey/Projects/sublime-v8/cross_platform.sublime-settings",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/sublimezenplugin.py",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/sublimezen.py",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/zencoding/interface/editor.py",
+		"/Users/Sergey/Projects/zen-coding/pyv8/editor.py",
+		"/Users/Sergey/Projects/pyv8/setup.py",
+		"/Users/Sergey/Projects/zen-coding/dist/komodo/content/overlay.xul",
+		"/Users/Sergey/Projects/sublime-v8/lib/PyV8/osx/PyV8.py",
+		"/Users/Sergey/Projects/sublime-v8/test.js",
+		"/Users/Sergey/Projects/sublime-v8/jscontext/commonjs.py",
+		"/Users/Sergey/Projects/sublime-v8/jscontext/runtime.py",
+		"/Users/Sergey/Projects/sublime-v8/jscontext/dom.py",
+		"/Users/Sergey/Projects/sublime-v8/base.js",
+		"/Users/Sergey/Projects/PyV8/PyV8.py",
+		"/Users/Sergey/Downloads/boost_1_50_0/INSTALL",
+		"/Users/Sergey/Downloads/boost_1_50_0/b2",
+		"/Users/Sergey/Projects/PyV8/PyV8/osx/PyV8.py",
+		"/Users/Sergey/Projects/sublime-v8/jscontext/demo/HelloWorld.js",
+		"/Users/Sergey/Projects/sublime-v8/Console.tmLanguage",
+		"/Users/Sergey/Projects/zen-coding/javascript/tabStops.js",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/content/overlay.xul",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/chrome.manifest",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/install.rdf",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/zencoding/install.rdf",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/zencoding/chrome.manifest",
+		"/Users/Sergey/Projects/zen-coding/plugins/codemirror2/index.html",
+		"/Users/Sergey/Projects/zen-coding/plugins/codemirror2/lib/codemirror.js",
+		"/Users/Sergey/Projects/imobilco-ws/imobilco-frontend/build/build.xml",
+		"/Users/Sergey/Downloads/CodeMirror-2.3/mode/htmlmixed/htmlmixed.js",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/44C9EF58-4E85-4727-BAB0-D5FB6665E3BD/index.html",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/zencoding/content/commandsOverlay.xul",
+		"/Users/Sergey/Projects/zen-coding/plugins/komodo/zencoding/content/overlay.xul",
+		"/Users/Sergey/Projects/zen-coding/javascript/core.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/unittest/tests/editorStub.js",
+		"/Users/Sergey/Projects/xcode/ZenCoding/ZenCoding/zencoding.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/unittest/tests/expandAbbreviation.js",
+		"/Users/Sergey/Projects/plugin-dev-ws/eclipse-zencoding/src/ru/zencoding/eclipse/EclipseZenEditor.java",
+		"/Users/Sergey/Projects/plugin-dev-ws/eclipse-zencoding/src/ru/zencoding/java-wrapper.js",
+		"/Users/Sergey/Projects/plugin-dev-ws/eclipse-zencoding/src/ru/zencoding/TabStopStructure.java",
+		"/Users/Sergey/Projects/zen-coding/javascript/interfaces/IZenFile.js",
+		"/Users/Sergey/Projects/xcode/ZenCoding/ZenCoding/objc-zeneditor-wrap.js",
+		"/Users/Sergey/Projects/plugin-dev-ws/eclipse-zencoding/src/ru/zencoding/file-interface.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/actions/updateImageSize.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/actionUtils.js",
+		"/Users/Sergey/Projects/xcode/ZenCoding/ZenCoding/file-interface.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/actions.js",
+		"/Users/Sergey/Projects/zc-ext/sample.js",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/B45A7319-A2B6-4F3C-9742-18F4DB51A303/site.xml",
+		"/Users/Sergey/Projects/zen-coding/javascript/interfaces/IZenEditor.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/utils.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/editorUtils.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/actions/wrapWithAbbreviation.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/range.js",
+		"/Users/Sergey/Projects/zen-coding/snippets.json",
+		"/Users/Sergey/Projects/plugin-dev-ws/eclipse-zencoding/js/META-INF/MANIFEST.MF",
+		"/Users/Sergey/Projects/zen-coding/javascript/filters.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/profile.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/resources.js",
+		"/Users/Sergey/Projects/zen-coding/plugins/coda/TextActions.plist",
+		"/Users/Sergey/Projects/zen-coding/plugins/java/addons.js",
+		"/Users/Sergey/Projects/xcode/ZenCoding/change_name.sh",
+		"/Users/Sergey/Downloads/Sample Plug-ins/Cocoa Plug-ins/Capitalize/CapitalizePlugIn.h",
+		"/Users/Sergey/Downloads/Sample Plug-ins/Cocoa Plug-ins/Capitalize/CapitalizePlugIn.m",
+		"/Users/Sergey/Projects/xcode/CodaSample/ZenCoding.framework/Versions/A/Resources/zencoding.js",
+		"/Users/Sergey/Projects/xcode/Sample/Sample.xcodeproj/project.pbxproj",
+		"/Users/Sergey/Projects/zen-coding/javascript/unittest/index.html",
+		"/Users/Sergey/Projects/zen-coding/javascript/filters/html.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/parsers/cssEditTree.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/actions/expandAbbreviation.js",
+		"/Users/Sergey/Projects/gradients.html",
+		"/Users/Sergey/Projects/gradients/cssgradient.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/resolvers/cssGradient.js",
+		"/Users/Sergey/Projects/xcode/ZenCoding/zencoding.js",
+		"/Users/Sergey/Projects/zen-coding/dist/zencoding.js",
+		"/Users/Sergey/Projects/imobilco-ws/hunger/js/lib/zepto.js",
+		"/Users/Sergey/Projects/zen-coding/dist/index.html",
+		"/Users/Sergey/Projects/lib/backbone.js",
+		"/Users/Sergey/Projects/zen-coding/javascript/parsers/cssParser.js",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/SublimeLinter.py",
+		"/Users/Sergey/Projects/pyjon/eval_js.py",
+		"/Users/Sergey/Projects/pyjon/zencoding.js",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/sublimelinter/modules/libs/jsengines/jsc.js",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/sublimelinter/modules/base_linter.py",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeCodeIntel/Base File.sublime-settings",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/sublimelinter/modules/javascript.py",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/sublimelinter/modules/libs/jshint/jshint.js",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/SublimeLinter/Default (OSX).sublime-keymap",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/Sergey/Projects/reader/index.html",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/Sergey/Projects/reader/js/reader-src.js",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/1FC21AB8-C88B-43FD-8A6C-C1E10C9C0B2B/500.html",
+		"/Users/Sergey/Projects/imobilco-ws/hunger/hunger/gallery/models.py",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/DB577A7A-58BF-4F61-81A0-4551B79E98FB/settings.py",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/86D18048-B8DD-46BA-A3A2-7C24DD31192C/urls.py",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/066E5B26-FA10-4E5C-8AA3-65AA2EFAC33A/nginx.conf",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/401DFAB0-DD89-49C6-BA1C-5D3DC3309DC3/hungerattack.conf",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/E9D928D1-CB99-4547-959A-C3FF67896676/hungerattack_error.log",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/7E6C2AEA-B827-45A5-A8FA-8B1F81A6B3F3/wsgi.py",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/AE8AD74C-514E-4828-9C96-E83CE3735C12/webapps.xml",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/615BB2AF-F7CE-4A9C-A04E-7A1C1BD2DE6B/webapps.xml",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/A38D9790-32A1-4E56-9A35-1C53C832536D/uwsgi_params",
+		"/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/Sergey/Projects/CodeMirror2/mode/css/css.js",
+		"/Applications/CSS3Toolkit.app/Contents/Resources/gradient.html",
+		"/Applications/CSS3Toolkit.app/Contents/Resources/info.html",
+		"/Users/Sergey/Projects/imobilco-ws/hunger/js/map-controller.js",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/976A225E-90D2-4565-B42E-62C10AC899FA/index-ru.html",
+		"/Users/Sergey/Library/Caches/Cleanup At Startup/Transmit/09F47C17-7C45-4478-9CDC-3AA986A27907/index.html",
+		"/Users/Sergey/Projects/jsdt-docs/canvas.js",
+		"/Users/Sergey/Projects/jsdt-docs/underscore.js"
+	],
+	"find":
+	{
+		"height": 33.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"dele",
+			"JSContext",
+			"BOOST_HOME",
+			")\n",
+			"lib",
+			"Cmd",
+			"zen_controller.runAction",
+			"extraKeys",
+			"defaults",
+			"keyMap",
+			"keyNames",
+			"+",
+			"addShortcut\\('(.+?)', '(.+?)'\\);",
+			"Meta",
+			"encodeToBase64",
+			"writing mode",
+			"\\n",
+			"-ms-",
+			"log",
+			"console",
+			"expandAbbre",
+			"wrap_with_abb",
+			"expandAbbreviation",
+			"expandAbbre",
+			"expandAbbreviation",
+			"script",
+			"define('fil",
+			"10683",
+			"define('fil",
+			"></script>",
+			"<script src=\"../actions/",
+			"../",
+			"></script>",
+			"<script src",
+			"'",
+			"\"",
+			"color",
+			"xhr",
+			"xmlhttpre",
+			"ajax",
+			"'",
+			"\"",
+			"\\w+\\((\\[.+?\\])\\s*,\\s*\\w+\\((.+?)\\)\\)",
+			"\\s*",
+			"assertEqual\\((['\"].+?['\"])\\s*,\\s*\\w+\\((['\"].+?['\"])\\)\\)",
+			"assertEqual\\((['\"].+?['\"])\\s*,\\s*expandAbbr\\((['\"].+?['\"])\\)\\)",
+			"inherit",
+			"extend",
+			"name",
+			"setMoverPosition"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Meta",
+			"runZenCodingAction",
+			"-",
+			"'\\1': '\\2',",
+			"Cmd",
+			", ",
+			"",
+			"/>",
+			"<file name=\"",
+			"",
+			"/>",
+			"<file name",
+			"\"",
+			"\\\\\"",
+			"\"",
+			"\\\\\"",
+			"\\\"",
+			"deepEqual(matcher(\\2), \\1)",
+			"runTest(\\2, \\1)"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "pyv8/editor.py",
+					"settings":
+					{
+						"buffer_size": 6950,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								207,
+								207
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1955.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/plugin.py",
+					"settings":
+					{
+						"buffer_size": 583,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								45,
+								45
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Python/Python.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/bootstrap.py",
+					"settings":
+					{
+						"buffer_size": 1642,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 473.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/js/python-wrapper.js",
+					"settings":
+					{
+						"buffer_size": 3919,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								62,
+								62
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/Default.sublime-commands",
+					"settings":
+					{
+						"buffer_size": 75,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								55,
+								67
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/PyV8/Default (OSX).sublime-keymap",
+					"settings":
+					{
+						"buffer_size": 62,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20,
+								20
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/delete_word.py",
+					"settings":
+					{
+						"buffer_size": 2355,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 396.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/sublimezenplugin.py",
+					"settings":
+					{
+						"buffer_size": 15569,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6045,
+								6559
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/Python/Python.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2878.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/ZenCoding/Default (OSX).sublime-keymap",
+					"settings":
+					{
+						"buffer_size": 13766,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1212,
+								1226
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 628.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/Users/Sergey/Library/Application Support/Sublime Text 2/Packages/Default/Default (OSX).sublime-keymap",
+					"settings":
+					{
+						"buffer_size": 29349,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9515,
+								9521
+							]
+						],
+						"settings":
+						{
+							"annotations":
+							[
+								"TODO",
+								"README",
+								"FIXME"
+							],
+							"csslint_options":
+							{
+								"adjoining-classes": "warning",
+								"box-model": true,
+								"box-sizing": "warning",
+								"compatible-vendor-prefixes": "warning",
+								"display-property-grouping": true,
+								"duplicate-background-images": "warning",
+								"duplicate-properties": true,
+								"empty-rules": true,
+								"errors": true,
+								"fallback-colors": "warning",
+								"floats": "warning",
+								"font-faces": "warning",
+								"font-sizes": "warning",
+								"gradients": "warning",
+								"ids": "warning",
+								"import": "warning",
+								"important": "warning",
+								"known-properties": true,
+								"outline-none": "warning",
+								"overqualified-elements": "warning",
+								"qualified-headings": "warning",
+								"regex-selectors": "warning",
+								"rules-count": "warning",
+								"shorthand": "warning",
+								"text-indent": "warning",
+								"unique-headings": "warning",
+								"universal-selector": "warning",
+								"vendor-prefix": true,
+								"zero-units": "warning"
+							},
+							"gjslint_ignore":
+							[
+								110.0
+							],
+							"gjslint_options":
+							[
+							],
+							"javascript_linter": "jshint",
+							"jshint_options":
+							{
+								"browser": true,
+								"evil": true,
+								"regexdash": true,
+								"sub": true,
+								"trailing": true,
+								"wsh": true
+							},
+							"pep8": true,
+							"pep8_ignore":
+							[
+								"E501"
+							],
+							"perl_linter": "perlcritic",
+							"pyflakes_ignore":
+							[
+							],
+							"pyflakes_ignore_import_*": true,
+							"sublimelinter": true,
+							"sublimelinter_delay": 0.0,
+							"sublimelinter_disable":
+							[
+							],
+							"sublimelinter_executable_map":
+							{
+							},
+							"sublimelinter_fill_outlines": false,
+							"sublimelinter_gutter_marks": false,
+							"sublimelinter_notes": false,
+							"sublimelinter_objj_check_ascii": false,
+							"sublimelinter_popup_errors_on_save": false,
+							"sublimelinter_syntax_map":
+							{
+								"Python Django": "python"
+							},
+							"sublimelinter_wrap_find": true,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3177.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 89.0,
+	"status_bar_visible": true
+}

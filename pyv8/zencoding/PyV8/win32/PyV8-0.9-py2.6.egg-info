@@ -1,0 +1,26 @@
+Metadata-Version: 1.0
+Name: PyV8
+Version: 0.9
+Summary: Python Wrapper for Google V8 Engine
+Home-page: http://code.google.com/p/pyv8/
+Author: Flier Lu
+Author-email: flier.lu@gmail.com
+License: Apache Software License
+Download-URL: http://code.google.com/p/pyv8/downloads/list
+Description: PyV8? is a python wrapper for Google V8 engine, it act as a bridge between the Python and JavaScript? objects, and support to hosting Google's v8 engine in a python script.
+Platform: x86
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Plugins
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Natural Language :: English
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Utilities
