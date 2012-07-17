@@ -32,7 +32,16 @@
 	function runTest() {
 		var args = _.toArray(arguments);
 		var result = zen_coding.expandAbbreviation.apply(zen_coding, _.initial(args));
-		equal(zen_coding.require('utils').unescapeText(result), _.last(args), args[0]);
+		result = zen_coding.require('tabStops').processText(result, {
+			escape: function(ch) {
+				return ch;
+			},
+			
+			tabstop: function(data) {
+				return data.placeholder || '';
+			}
+		});
+		equal(result, _.last(args), args[0]);
 	}
 	
 	test("'+' operator", function() {
