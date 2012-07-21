@@ -95,7 +95,7 @@
 			"bxz": "box-sizing:|;",
 			"bxz:cb": "box-sizing:content-box;",
 			"bxz:bb": "box-sizing:border-box;",
-			"bxsh": "box-shadow:|;",
+			"bxsh": "box-shadow:${1:hoff} ${2:voff} ${3:radius} ${4:color};",
 			"bxsh:n": "box-shadow:none;",
 			"m": "margin:|;",
 			"m:a": "margin:auto;",
