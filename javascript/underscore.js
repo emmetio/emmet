@@ -6,7 +6,7 @@
 //     For all details and documentation:
 //     http://documentcloud.github.com/underscore
 
-(function() {
+var _ = (function() {
 
   // Baseline setup
   // --------------
@@ -1055,5 +1055,5 @@
   wrapper.prototype.value = function() {
     return this._wrapped;
   };
-
-}).call(this);
+  return _;
+}).call({});

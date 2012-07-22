@@ -1,7 +1,7 @@
 /**
  * Core Zen Coding object, available in global scope
  */
-(function(global, _) {
+var zen_coding = (function(global, _) {
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
@@ -71,7 +71,7 @@
 	 */
 	var moduleLoader = null;
 	
-	global.zen_coding = {
+	return {
 		/**
 		 * Simple, AMD-like module definition. The module will be added into
 		 * <code>zen_coding</code> object and will be available via
@@ -120,6 +120,9 @@
 		extend: function(protoProps, classProps) {
 			var child = inherits(this, protoProps, classProps);
 			child.extend = this.extend;
+			// a hack required to WSH inherit `toString` method
+			if (protoProps.hasOwnProperty('toString'))
+				child.prototype.toString = protoProps.toString;
 			return child;
 		},
 		

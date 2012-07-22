@@ -64,7 +64,7 @@ IZenFile.prototype = {
 	
 	/**
 	 * Saves <code>content</code> as <code>file</code>
-	 * @param {String} file File's asolute path
+	 * @param {String} file File's absolute path
 	 * @param {String} content File content
 	 */
 	save: function(file, content) {
@@ -72,7 +72,7 @@ IZenFile.prototype = {
 	},
 	
 	/**
-	 * Returns file extention in lower case
+	 * Returns file extension in lower case
 	 * @param {String} file
 	 * @return {String}
 	 */

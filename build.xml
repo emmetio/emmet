@@ -151,6 +151,35 @@
 			destfile="${zencoding_build_dir}/textarea/ZenCoding-textarea-v${zencoding_version}-alpha.zip"
 			excludes="*.zip"/>
 	</target>
+	
+	<!-- Plugn for Notepad++ -->
+	<target name="plugin.npp" depends="plugin.generic">
+		<mkdir dir="${zencoding_build_dir}/npp"/>
+		
+		<copy todir="${zencoding_build_dir}/npp">
+			<fileset dir="${zencoding_plugins_source}/npp/contrib"/>
+		</copy>
+		
+		<mkdir dir="${zencoding_build_dir}/npp/jN/includes"/>
+		
+		<copy todir="${zencoding_build_dir}/npp/jN/includes">
+			<fileset dir="${zencoding_plugins_source}/npp" includes="*.json"/>
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+		</copy>
+		
+		<concat destfile="${zencoding_build_dir}/npp/jN/includes/zencoding.js">
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding.js"/>
+			</filelist>
+			<filelist dir="${zencoding_plugins_source}/npp">
+				<file name="file.js"/>
+				<file name="editor.js"/>
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+	</target>
 
 	<!-- Main build routine -->
 	<target name="main" depends="plugin.generic, plugin.codemirror2">

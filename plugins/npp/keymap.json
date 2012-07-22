@@ -1,0 +1,27 @@
+{
+	"expand_abbreviation": "Ctrl+E",
+	"wrap_with_abbreviation": "Ctrl+Shift+A",
+	"match_pair_outward": "Ctrl+Shift+D",
+	"next_edit_point": "Ctrl+Alt+]",
+	"prev_edit_point": "Ctrl+Alt+[",
+	"matching_pair": "Ctrl+Alt+L",
+	"merge_lines": "Ctrl+Alt+M",
+	"toggle_comment": "Alt+/",
+	"split_join_tag": "Ctrl+'",
+	"remove_tag": "Ctrl+Shift+'",
+
+	// v0.7
+	"evaluate_math_expression": "Ctrl+Shift+Y",
+
+	// don't know how up & down key codes should be written so I commented out this section
+	// "increment_number_by_1": "Ctrl+VK_UP",
+	// "decrement_number_by_1": "Ctrl+Down",
+	// "increment_number_by_01": "Alt+Up",
+	// "decrement_number_by_01": "Alt+Down",
+	// "increment_number_by_10": "Ctrl+Alt+Up",
+	// "decrement_number_by_10": "Ctrl+Alt+Down",
+
+	"select_next_item": "Ctrl+.",
+	"select_previous_item": "Ctrl+,",
+	"reflect_css_value": "Ctrl+Shift+B"
+}

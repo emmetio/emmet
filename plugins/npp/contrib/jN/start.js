@@ -1,20 +1,10 @@
-﻿// Please place or include your code in body 
-// of Start function
-function Start(){
-	var includeDir = Editor.nppDir+"\\Plugins\\NppScripting\\includes";
-	var incDirObj = fso.GetFolder(includeDir);
-	
-	if (incDirObj){
-		var filesEnum = new Enumerator(incDirObj.files);
-		for (; !filesEnum.atEnd(); filesEnum.moveNext()){
-			var file = filesEnum.item().Path;
-			if (/\.js/i.test(file)){
-				include(file);
-			}
-		}
-	}
-}
-/* 	Use GlobalListener.addListener(yoursCfg); to add new event listener
+﻿/**
+ *	Please place your code in *.js files in includes folder
+ */
+
+/**
+
+ 	Use GlobalListener.addListener(yoursCfg); to add new event listener
 	and  GlobalListener.removeListener(yoursCfg); to remove your event listener
 
 	For example
@@ -33,43 +23,85 @@ function Start(){
 			var files = v.files;
 			this.myOwnMethod("bufferactivated "+files[pos]);
 		},
-		READONLYCHANGED:function(){
-			this.myOwnMethod("readonly");
+		READONLYCHANGED:function(v,pos){
+			this.myOwnMethod("readonly "+pos);
 		},
-		LANGCHANGED:function(){
-			this.myOwnMethod("langchanged");
+		LANGCHANGED:function(v,pos){
+			this.myOwnMethod("langchanged "+pos);
 		},
 		FILECLOSED:function(){
 			//this.myOwnMethod("FILECLOSED");
 		},
-		FILEOPENED:function(){
-			this.myOwnMethod("FILEOPENED");
+		FILEOPENED:function(v,pos){
+			this.myOwnMethod("FILEOPENED "+ pos);
 		},		
-		FILESAVED:function(){
-			//this.myOwnMethod("FILESAVED");
+		FILESAVED:function(v,pos){
+			this.myOwnMethod("FILESAVED "+pos);
+		},
+		CHARADDED:function(v, pos){
+			//alert(v.selection);
+		},
+		DOUBLECLICK:function(v, pos){
+			if (v.selection.length > 2){
+				MenuCmds.SEARCH_UNMARKALLEXT1();
+				MenuCmds.SEARCH_MARKALLEXT1();
+			}
 		}
 	});
 */
+
 /**
 	calls fn for each el in an Array. Returns an new array of results of fn calls
+	XXX: had to make this function closer to ECMA-262 5th spec since original
+	implementation breaks compatibility for Underscore library
 */
-Array.prototype.forEach = function(fn){
-	var result = [];
-	for(var i=0, c=this.length; i<c; i++)
-		result.push(fn(this[i]));
+if (!Array.prototype.forEach) {
+	Array.prototype.forEach = function(fn, scope) {
+		var result = [];
+		for (var i = 0, len = this.length; i < len; ++i) {
+			result.push(fn.call(scope || this, this[i], i, this));
+		}
 
-	return result;
-};
+		return result;
+	};
+}
 /**
-	returns index of el in an Array, otherwise -1
-*/
-Array.prototype.indexOf = function(el){
-	for(var i=0, c=this.length; i<c; i++)
-		if (el == this[i]) 
-			return i;
+ * returns index of el in an Array, otherwise -1
+ * XXX ECMA-262 implemetation
+ */
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
+        "use strict";
+        if (this == null) {
+            throw new TypeError();
+        }
+        var t = Object(this);
+        var len = t.length >>> 0;
+        if (len === 0) {
+            return -1;
+        }
+        var n = 0;
+        if (arguments.length > 0) {
+            n = Number(arguments[1]);
+            if (n != n) { // shortcut for verifying if it's NaN
+                n = 0;
+            } else if (n != 0 && n != Infinity && n != -Infinity) {
+                n = (n > 0 || -1) * Math.floor(Math.abs(n));
+            }
+        }
+        if (n >= len) {
+            return -1;
+        }
+        var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+        for (; k < len; k++) {
+            if (k in t && t[k] === searchElement) {
+                return k;
+            }
+        }
+        return -1;
+    };
+}
 
-	return -1;
-};
 /**
 	for internal use
 */
@@ -86,27 +118,7 @@ function stringifyException(e){
 		
 	return result;
 }
-/** 
-	Reads and runs your JavaScript file.
-	Use UTF-8 or UTF-8 with BOM for new include files!
-*/
-var fso = new ActiveXObject("Scripting.FileSystemObject");
-function include(file){
-	if (fso.FileExists(file)){
-		var f = fso.OpenTextFile(file,1, false,0);
-		var scr = Editor.decodeFrom(65001,f.ReadAll());
-		if (scr && scr.length>0){
-			try{
-				if (scr.charCodeAt(0)==65279) 	// is UTF-8 with BOM
-					scr[0] = ' ';				// replace BOM with space symbol
-				eval(scr);
-			}catch(e){
-				debug(e); 
-			}
-		}
-		f.Close();
-	}
-}
+
 /**
 	for internal use only, see GlobalListener
 */
@@ -180,6 +192,7 @@ function Settings(file){
 	
 	
 	var save = function(){
+		var fso = new ActiveXObject("Scripting.FileSystemObject");
 		var f,e;
 		try{
 			f = fso.OpenTextFile(file,2, true,-1); // for writing ASCII
@@ -192,6 +205,7 @@ function Settings(file){
 	};
 	
 	this.get = function(name){
+		var fso = new ActiveXObject("Scripting.FileSystemObject");
 		if (settings == null){ // try to read
 			if (fso.FileExists(file)){
 
@@ -228,10 +242,50 @@ function Settings(file){
 	};
 };
 
-GlobalSettings = new Settings(Editor.nppDir+"\\Plugins\\NppScripting\\settings.js");
+GlobalSettings = new Settings(Editor.nppDir+"\\Plugins\\jN\\settings.js");
 
 // initialize Listener with known event names
-GlobalListener = new Listener(['SHUTDOWN','READONLYCHANGED','LANGCHANGED','BUFFERACTIVATED','FILESAVED','FILECLOSED','FILEOPENED']);
+GlobalListener = new Listener(['SHUTDOWN','READONLYCHANGED','LANGCHANGED','BUFFERACTIVATED','FILESAVED','FILECLOSED','FILEOPENED','CHARADDED','DOUBLECLICK','CLICK','UPDATEUI']);
 Editor.setListener(GlobalListener);
 
-Start();
+var loadIdleHandler = {
+	fso : new ActiveXObject("Scripting.FileSystemObject"),
+	errors : [],
+	/** 
+		Reads and runs your JavaScript file.
+		Use UTF-8 or UTF-8 with BOM for new include files!
+	*/
+	include : function (file){
+		if (this.fso.FileExists(file)){
+			var f = this.fso.OpenTextFile(file,1, false,0);
+			var scr = decodeFrom(65001,f.ReadAll());
+			if (scr && scr.length>0){
+				try{
+					if (scr.charCodeAt(0)==65279) 	// is UTF-8 with BOM
+						scr[0] = ' ';				// replace BOM with space symbol
+					addScript(scr);//eval(scr);
+				}catch(e){
+					this.errors.push(e);
+				}
+			}
+			f.Close();
+		}
+	},	
+	cmd:function(){
+		var includeDir = Editor.nppDir+"\\Plugins\\jN\\includes";
+		var incDirObj = this.fso.GetFolder(includeDir);
+		if (incDirObj){
+			var filesEnum = new Enumerator(incDirObj.files);
+			for (; !filesEnum.atEnd(); filesEnum.moveNext()){
+				var file = filesEnum.item().Path;
+				if (/\.js$/i.test(file)){
+					this.include(file);
+				}
+			}
+		}
+	},
+	millis:1000
+}
+//loadIdleHandler.cmd();
+//Editor.addIdleHandler(loadIdleHandler);
+setTimeout(loadIdleHandler);
