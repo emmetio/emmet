@@ -158,6 +158,9 @@
 		
 		<copy todir="${zencoding_build_dir}/npp">
 			<fileset dir="${zencoding_plugins_source}/npp/contrib"/>
+			<filelist dir="${zencoding_plugins_source}/npp">
+				<file name="README.md"/>
+			</filelist>
 		</copy>
 		
 		<mkdir dir="${zencoding_build_dir}/npp/jN/includes"/>
@@ -179,6 +182,13 @@
 				<file name="bootstrap.js"/>
 			</filelist>
 		</concat>
+		
+		<zip 
+			basedir="${zencoding_build_dir}/npp"
+			compress="yes"
+			level="9"
+			destfile="${zencoding_build_dir}/npp/ZenCoding-NotepadPlusPlus-v${zencoding_version}.zip"
+			excludes="*.zip"/>
 	</target>
 
 	<!-- Main build routine -->
