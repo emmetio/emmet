@@ -176,3 +176,26 @@ class WrapZenAsYouType(CommandsAsYouTypeBase):
 			return ctx.js().locals.pyWrapAsYouType(abbr, self.selection)
 		except Exception:
 			"dont litter the console"
+
+class HandleEnterKey(sublime_plugin.TextCommand):
+	def run(self, edit, **kw):
+		view = active_view()
+		if settings.get('clear_fields_on_enter_key', False):
+			view.run_command('clear_fields')
+
+		# let's see if we have to insert formatted linebreak
+		scope = view.syntax_name(view.sel()[0].begin())
+		if sublime.score_selector(scope, 'meta.scope.between-tag-pair.html') > 0:
+			view.run_command('insert_snippet', {'contents': '\n\t${0}\n'})
+		else:
+			view.run_command('insert_snippet', {'contents': '\n${0}'})
+
+class RenameTag(sublime_plugin.TextCommand):
+	def run(self, edit, **kw):
+		ranges = ctx.js().locals.pyGetTagNameRanges()
+		if ranges:
+			view = active_view()
+			view.sel().clear()
+			for r in ranges:
+				view.sel().add(sublime.Region(r[0], r[1]))
+			view.show(view.sel())
