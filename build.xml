@@ -32,7 +32,6 @@
 				<file name="zencoding.js"/>
 			</filelist>
 			<filelist dir="${zencoding_javascript}/actions">
-				<file name="lineBreaks.js"/>
 				<file name="selectLine.js"/>
 			</filelist>
 			<string>zen_coding.require('resources').setVocabulary(</string>
