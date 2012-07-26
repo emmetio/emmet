@@ -176,6 +176,27 @@ zen_coding.define('cssEditTree', function(require, _) {
 	}
 	
 	/**
+	 * A bit hacky way to identify invalid CSS property definition: when user
+	 * starts writing new abbreviation in CSS rule, he actually creates invalid
+	 * CSS property definition and this method tries to identify such abbreviation
+	 * and prevent it from being added to CSS edit tree 
+	 * @param {TokenIterator} it
+	 */
+	function isValidIdentifier(it) {
+//		return true;
+		var tokens = it.tokens;
+		for (var i = it._i + 1, il = tokens.length; i < il; i++) {
+			if (tokens[i].type == ':')
+				return true;
+			
+			if (tokens[i].type == 'identifier' || tokens[i].type == 'line')
+				return false;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * @class
 	 * @extends EditContainer
 	 */
@@ -200,7 +221,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 	 		// consume properties
 	 		var propertyRange, valueRange, token;
 			while (token = it.next()) {
-				if (token.type == 'identifier') {
+				if (token.type == 'identifier' && isValidIdentifier(it)) {
 					propertyRange = range(token);
 					valueRange = findValueRange(it);
 					var end = (it.current() && it.current().type == ';') 

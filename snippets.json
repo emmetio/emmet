@@ -358,7 +358,7 @@
 			"tw:no": "text-wrap:none;",
 			"tw:u": "text-wrap:unrestricted;",
 			"tw:s": "text-wrap:suppress;",
-			"tsh": "text-shadow:|;",
+			"tsh": "text-shadow:${1:hoff} ${2:voff} ${3:blur} ${4:#000};",
 			"tsh+": "text-shadow:${1:0} ${2:0} ${3:0} ${4:#000};",
 			"tsh:n": "text-shadow:none;",
 			"lh": "line-height:|;",

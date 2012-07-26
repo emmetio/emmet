@@ -97,3 +97,13 @@ test('Check value parts', function() {
 	
 	deepEqual(parts, ['fn1(a)', 'fn2(fn3(b))'], 'Correctly splitted complex value with nested functions');
 });
+
+test('Check CSS Parser', function() {
+	var source = 'a{b\nc:d;}';
+	var parser = zen_coding.require('cssParser');
+	console.log(parser.parse(source));
+	/** @type EditContainer */
+	var rule = zen_coding.require('cssEditTree').parse(source);
+	equal(rule.get(0).name(), 'c', 'Correctly parsed invalid CSS rule');
+
+});
