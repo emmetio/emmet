@@ -16,6 +16,15 @@ zen_coding.define('preferences', function(require, _) {
 	var defaults = {};
 	var _dbgDefaults = null;
 	var _dbgPreferences = null;
+
+	function toBoolean(val) {
+		if (_.isString(val)) {
+			val = val.toLowerCase();
+			return val == 'yes' || val == 'true' || val == '1';
+		}
+
+		return !!val;
+	}
 	
 	function isValueObj(obj) {
 		return _.isObject(obj) 
@@ -69,6 +78,18 @@ zen_coding.define('preferences', function(require, _) {
 				
 				// do not set value if it equals to default value
 				if (v !== defaults[k].value) {
+					// make sure we have value of correct type
+					switch (typeof defaults[k].value) {
+						case 'boolean':
+							v = toBoolean(v);
+							break;
+						case 'number':
+							v = parseInt(v + '', 10) || 0;
+							break;
+						default: // convert to string
+							v += '';
+					}
+
 					preferences[k] = v;
 				} else if  (k in preferences) {
 					delete preferences[p];
@@ -144,6 +165,7 @@ zen_coding.define('preferences', function(require, _) {
 				return {
 					name: key,
 					value: this.get(key),
+					type: typeof defaults[key].value,
 					description: defaults[key].description
 				};
 			}, this);
@@ -158,6 +180,14 @@ zen_coding.define('preferences', function(require, _) {
 			_.each(json, function(value, key) {
 				this.set(key, value);
 			}, this);
+		},
+
+		/**
+		 * Returns hash of user-modified preferences
+		 * @returns {Object}
+		 */
+		exportModified: function() {
+			return _.clone(preferences);
 		},
 		
 		/**
