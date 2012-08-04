@@ -26,6 +26,17 @@
 		</concat>
 	</target>
 	
+	<target name="plugin.app" depends="plugin.generic">
+		<concat destfile="${zencoding_build_dir}/zencoding-app.js" force="yes">
+			<filelist dir="${zencoding_build_dir}">
+				<file name="zencoding.js"/>
+			</filelist>
+			<filelist dir="${zencoding_javascript}/loaders">
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+	</target>
+	
 	<target name="plugin.generic-full" depends="plugin.generic">
 		<concat destfile="${zencoding_build_dir}/zencoding-full.js" force="yes">
 			<filelist dir="${zencoding_build_dir}">
@@ -152,7 +163,7 @@
 	</target>
 	
 	<!-- Plugn for Notepad++ -->
-	<target name="plugin.npp" depends="plugin.generic">
+	<target name="plugin.npp" depends="plugin.app">
 		<mkdir dir="${zencoding_build_dir}/npp"/>
 		
 		<copy todir="${zencoding_build_dir}/npp">

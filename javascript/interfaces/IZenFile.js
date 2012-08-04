@@ -31,23 +31,23 @@ IZenFile.prototype = {
 	 * Many modern editors have a "project" support as information unit, but you
 	 * should not rely on project path to find file with absolute path. First,
 	 * it requires user to create a project before using this method (and this 
-	 * is not acutually Zen). Second, project path doesn't always points to
+	 * is not actually Zen). Second, project path doesn't always points to
 	 * to website's document root folder: it may point, for example, to an 
 	 * upper folder which contains server-side scripts.
 	 * 
 	 * For better result, you should use the following algorithm in locating
 	 * absolute resources:
-	 * 1) Get parent folder for <code>editor_file</code> as a start point
-	 * 2) Append required <code>file_name</code> to start point and test if
+	 * 1) Get parent folder for <code>editorFile</code> as a start point
+	 * 2) Append required <code>fileName</code> to start point and test if
 	 * file exists
 	 * 3) If it doesn't exists, move start point one level up (to parent folder)
 	 * and repeat step 2.
 	 * 
-	 * @param {String} editor_file
-	 * @param {String} file_name
-	 * @return {String|null} Returns null if <code>file_name</code> cannot be located
+	 * @param {String} editorFile
+	 * @param {String} fileName
+	 * @return {String} Returns null if <code>fileName</code> cannot be located
 	 */
-	locateFile: function(editor_file, file_name) {
+	locateFile: function(editorFile, fileName) {
 		return '';
 	},
 	
@@ -58,7 +58,7 @@ IZenFile.prototype = {
 	 * @param {String} file_name
 	 * @return {String}
 	 */
-	createPath: function(parent, file_name) {
+	createPath: function(parent, fileName) {
 		return '';
 	},
 	
