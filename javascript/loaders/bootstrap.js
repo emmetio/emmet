@@ -39,6 +39,7 @@ zen_coding.define('bootstrap', function(require, _) {
 		 */
 		loadExtensions: function(fileList) {
 			var file = require('file');
+			var payload = {};
 			_.each(fileList, function(f) {
 				switch (file.getExt(f)) {
 					case 'js':
@@ -49,15 +50,13 @@ zen_coding.define('bootstrap', function(require, _) {
 						}
 						break;
 					case 'json':
-						var fileName = getFileName(f).toLowerCase();
-						if (fileName == 'snippets.json') {
-							this.loadSnippets(file.read(f));
-						} else if (fileName == 'preferences.json') {
-							this.loadPreferences(file.read(f));
-						}
+						var fileName = getFileName(f).toLowerCase().replace(/\.json$/, '');
+						payload[fileName] = file.read(f);
 						break;
 				}
 			});
+			
+			this.loadUserData(payload);
 		},
 		
 		/**
@@ -106,10 +105,6 @@ zen_coding.define('bootstrap', function(require, _) {
 		 * @param {Object} data
 		 */
 		loadUserData: function(data) {
-			// TODO: load
-			// - variables
-			// - profiles
-
 			data = this.parseJSON(data);
 			if (data.snippets) {
 				this.loadSnippets(data.snippets);
@@ -118,6 +113,43 @@ zen_coding.define('bootstrap', function(require, _) {
 			if (data.preferences) {
 				this.loadPreferences(data.preferences);
 			}
+			
+			if (data.profiles) {
+				this.loadProfiles(data.profiles);
+			}
+			
+			if (data.syntaxProfiles) {
+				this.loadSyntaxProfiles(data.syntaxProfiles);
+			}
+		},
+		
+		/**
+		 * Load syntax-specific output profiles. These are essentially 
+		 * an extension to syntax snippets 
+		 * @param {Object} profiles Dictionary of profiles
+		 */
+		loadSyntaxProfiles: function(profiles) {
+			profiles = this.parseJSON(profiles);
+			var snippets = {};
+			_.each(profiles, function(options, syntax) {
+				if (!(syntax in snippets)) {
+					snippets[syntax] = {};
+				}
+				snippets[syntax].profile = options;
+			});
+			
+			this.loadSnippets(snippets);
+		},
+		
+		/**
+		 * Load named profiles
+		 * @param {Object} profiles
+		 */
+		loadProfiles: function(profiles) {
+			var profile = require('profile');
+			_.each(this.parseJSON(profiles), function(options, name) {
+				profile.create(name, options);
+			});
 		},
 		
 		/**

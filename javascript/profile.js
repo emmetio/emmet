@@ -159,11 +159,16 @@ zen_coding.define('profile', function(require, _) {
 				}
 			}
 			
+			if (!name)
+				return profiles.plain;
+			
+			if (name instanceof OutputProfile)
+				return name;
 			
 			if (_.isString(name) && name.toLowerCase() in profiles)
 				return profiles[name.toLowerCase()];
-				
-			return name && 'tag_case' in name ? this.create(name) : profiles['plain'];
+			
+			return this.create(name);
 		},
 		
 		/**
@@ -184,35 +189,6 @@ zen_coding.define('profile', function(require, _) {
 		 * <i>upper</i> and <i>leave</i>
 		 * @returns {String}
 		 */
-		stringCase: stringCase,
-		
-		/**
-		 * Returns quote character based on profile parameter
-		 * @param {String} param Quote parameter, can be <i>single</i> or
-		 * <i>double</i>
-		 * @returns {String}
-		 * @deprecated
-		 */
-		quote: function(param) {
-			console.log('deprecated');
-			return param == 'single' ? "'" : '"';
-		},
-		
-		/**
-		 * Returns self-closing tag symbol, based on passed parameter
-		 * @param {String} param
-		 * @returns {String}
-		 * @deprecated
-		 */
-		selfClosing: function(param) {
-			console.log('deprecated');
-			if (param == 'xhtml')
-				return ' /';
-			
-			if (param === true)
-				return '/';
-			
-			return '';
-		}
+		stringCase: stringCase
 	};
 });
