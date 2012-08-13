@@ -5,43 +5,30 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
-	var file = zen_coding.require('file');
+	var file = require('file');
 	var coreDir = file.createPath(Editor.nppDir, 'plugins\\jN\\includes');
 	
 	// path to Zen Coding extensions and user's custom snippets
 	var extensionsDir = file.createPath(Editor.nppDir, 'plugins\\zencoding-extensions');
 	
-	function toJSON(data) {
-		// do non-strict parsing of JSON data
-		try {
-			return (new Function('return ' + data))();
-		} catch(e) {
-			return {};
-		}
-	}
+	var bootstrap = require('bootstrap');
 	
 	// load snippets
-	var snippets = toJSON(file.read(file.createPath(coreDir, 'snippets.json')));
-	require('resources').setVocabulary(snippets, 'system');
+	bootstrap.loadSystemSnippets(file.read(file.createPath(coreDir, 'snippets.json')));
 	
 	// get keymap
-	var keymap = toJSON(file.read(file.createPath(coreDir, 'keymap.json')));
+	var keymap = bootstrap.parseJSON(file.read(file.createPath(coreDir, 'keymap.json')));
 	
 	// load extensions
 	var fso = new ActiveXObject("Scripting.FileSystemObject");
 	if (fso.FolderExists(extensionsDir)) {
+		var fileList = [];
 		var extensionFiles = fso.GetFolder(extensionsDir).Files;
-		var extFile;
 		for (var i = 0, il = extensionFiles.Count; i < il; i++) {
-			extFile = extensionFiles.Item(i);
-			if (file.getExt(extFile.Name) == 'js') {
-				addScript(file.read(extFile.Path));
-			} else if (extFile.Name.toLowerCase() == 'snippets.json') {
-				require('resources').setVocabulary(toJSON(file.read(extFile.Path)), 'user');
-			} else if (extFile.Name.toLowerCase() == 'preferences.json') {
-				require('preferences').load(toJSON(file.read(extFile.Path)));
-			}
+			fileList.push(extensionFiles.Item(i).Path);
 		}
+		
+		bootstrap.loadExtensions(fileList);
 	}
 	
 	function setupHotkey(cfg, keystroke) {
@@ -77,7 +64,6 @@ zen_coding.exec(function(require, _) {
 						return require('actions').run(item.name, require('editorProxy'));
 					}
 				};
-				
 				
 				if (item.name in keymap) {
 					System.addHotkey(setupHotkey(cfg, keymap[item.name]));

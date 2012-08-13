@@ -184,7 +184,7 @@
 		
 		<concat destfile="${zencoding_build_dir}/npp/jN/includes/zencoding.js">
 			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding.js"/>
+				<file name="zencoding-app.js"/>
 			</filelist>
 			<filelist dir="${zencoding_plugins_source}/npp">
 				<file name="file.js"/>
