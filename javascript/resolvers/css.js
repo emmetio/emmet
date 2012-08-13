@@ -158,9 +158,12 @@ zen_coding.define('cssResolver', function(require, _) {
 		}
 		
 		var pair = snippet.split(':');
+		
 		return {
 			name: utils.trim(pair.shift()),
-			value: utils.trim(pair.join(':'))
+			// replace ${0} tabstop since to produce valid vendor-prefixed values
+			// where possible
+			value: utils.trim(pair.join(':')).replace(/^(\$\{0\}|\$0)(\s*;?)$/, '\$$2')
 		};
 	}
 	
