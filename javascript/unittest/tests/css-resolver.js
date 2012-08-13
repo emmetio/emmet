@@ -58,6 +58,7 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('-pos-a'), '-webkit-position: absolute;\n-moz-position: absolute;\n-ms-position: absolute;\n-o-position: absolute;\nposition: absolute;', 'Expanded "-pos-a"');
 	equal(css.expandToSnippet('pos-a'), 'position: absolute;', 'Expanded "pos-a" (no processing)');
 	equal(css.expandToSnippet('something'), 'something: ${1};', 'Expanded unknown property');
+	equal(css.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\n-moz-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\nbox-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};', 'Expanded property with multiple tabstops');
 });
 
 test('!important declaration', function() {

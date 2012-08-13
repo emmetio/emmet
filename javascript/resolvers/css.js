@@ -157,10 +157,10 @@ zen_coding.define('cssResolver', function(require, _) {
 			};
 		}
 		
-		var pair = snippet.split(':', 2);
+		var pair = snippet.split(':');
 		return {
-			name: utils.trim(pair[0]),
-			value: utils.trim(pair[1])
+			name: utils.trim(pair.shift()),
+			value: utils.trim(pair.join(':'))
 		};
 	}
 	
