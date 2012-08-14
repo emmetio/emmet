@@ -7,7 +7,7 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding-full.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding-app.js" />
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/io.js" />
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/file.js" />
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/editor.js" />

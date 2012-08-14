@@ -82,7 +82,7 @@
 	</target>
 	
 	<!-- Plugn for Komodo Edit -->
-	<target name="plugin.komodo" depends="plugin.generic-full">
+	<target name="plugin.komodo" depends="plugin.app">
 		<mkdir dir="${zencoding_build_dir}/komodo"/>
 		
 		<copy todir="${zencoding_build_dir}/komodo">
@@ -95,8 +95,12 @@
 		</copy>
 		
 		<copy
-			file="${zencoding_build_dir}/zencoding-full.js"
-			tofile="${zencoding_build_dir}/komodo/content/js/zencoding-full.js" />
+			file="${zencoding_build_dir}/zencoding-app.js"
+			todir="${zencoding_build_dir}/komodo/content/js" />
+		
+		<copy
+			file="${basedir}/snippets.json"
+			todir="${zencoding_build_dir}/komodo/content/js" />
 		
 		<exec dir="${zencoding_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
 			<arg value="build"/>
