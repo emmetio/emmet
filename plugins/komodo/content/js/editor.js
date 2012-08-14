@@ -205,15 +205,17 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		getContent: function(){
 			return this.scimoz.text;
 		},
+		
+		_doc: function() {
+			return this.context.koDoc || this.context.document; 
+		},
 
 		/**
 		 * Returns current editor's syntax mode
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			var syntax = this.context.koDoc 
-				? this.context.koDoc.language.toLowerCase() 
-				: this.context.document.language.toLowerCase();
+			var syntax = this._doc().language.toLowerCase();
 			var caretPos = this.getCaretPos();
 
 			if (!require('resources').hasSyntax(syntax))
@@ -272,7 +274,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		 * @since 0.65
 		 */
 		getFilePath: function() {
-			return ko.views.manager.currentView.document.file.URI;
+			return this._doc().file.URI;
 		}
 	};
 });

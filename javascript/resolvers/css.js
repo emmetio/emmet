@@ -603,8 +603,6 @@ zen_coding.define('cssResolver', function(require, _) {
 						
 					}
 				});
-			if (abbrData.prefixes || autoInsertPrefixes) {
-			}
 			
 			// put the original property
 			result.push(transformSnippet(snippetObj.name + ':' + snippetObj.value, isImportant));

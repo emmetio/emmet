@@ -108,6 +108,16 @@
         key="key_cmd_zencoding_reflect_css_value"
         desc="Zen Coding: Reflect CSS Value"
         oncommand="runZenCodingAction('reflect_css_value');"/>
+      <broadcaster
+        id="cmd_zencoding_update_image_size"
+        key="key_cmd_zencoding_update_image_size"
+        desc="Zen Coding: Update Image Size"
+        oncommand="runZenCodingAction('update_image_size');"/>
+      <broadcaster
+        id="cmd_zencoding_data_url"
+        key="key_cmd_zencoding_data_url"
+        desc="Zen Coding: Encode/Decode image to data:URL"
+        oncommand="runZenCodingAction('encode_decode_data_url');"/>
    </broadcasterset>
 
 </overlay>

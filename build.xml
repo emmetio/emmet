@@ -96,7 +96,7 @@
 		
 		<copy
 			file="${zencoding_build_dir}/zencoding-full.js"
-			tofile="${zencoding_build_dir}/komodo/content/js/zencoding.js" />
+			tofile="${zencoding_build_dir}/komodo/content/js/zencoding-full.js" />
 		
 		<exec dir="${zencoding_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
 			<arg value="build"/>

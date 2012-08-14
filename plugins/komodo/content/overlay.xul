@@ -7,7 +7,9 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding-full.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/io.js" />
+	<script type="application/x-javascript" src="chrome://zencoding/content/js/file.js" />
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/editor.js" />
 	<script type="application/x-javascript" src="chrome://zencoding/content/js/controller.js" />
 
@@ -114,7 +116,17 @@
 					
 				<menuitem id="zencoding_toggle_comment"
 					label="Toggle Comment"
-					oncommand="cmd_zencoding_toggle_comment"
+					observes="cmd_zencoding_toggle_comment"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_update_image_size"
+					label="Update Image Size"
+					observes="cmd_zencoding_update_image_size"
+					class="menu-iconic-wide"/>
+					
+				<menuitem id="zencoding_data_url"
+					label="Encode/Decode image to data:URL"
+					observes="cmd_zencoding_data_url"
 					class="menu-iconic-wide"/>
 			</menupopup>
 		</menu>
