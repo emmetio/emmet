@@ -239,7 +239,21 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		 * @return {String}
 		 */
 		getProfileName: function() {
-			return require('resources').getVariable('profile') || 'xhtml';
+			switch(this.getSyntax()) {
+				 case 'xml':
+				 case 'xsl':
+				 	return 'xml';
+				 case 'html':
+				 	var profile = require('resources').getVariable('profile');
+				 	if (!profile) { // no forced profile, guess from content
+					 	// html or xhtml?
+				 		profile = this.getContent().search(/<!DOCTYPE[^>]+XHTML/i) != -1 ? 'xhtml': 'html';
+				 	}
+	
+				 	return profile;
+			}
+	
+			return 'xhtml';
 		},
 
 		/**
