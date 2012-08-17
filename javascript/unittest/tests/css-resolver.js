@@ -77,6 +77,10 @@ test('Expand Abbreviation action handler', function() {
 		actions.run(name, editorStub);
 	};
 	
+	editorStub.replaceContent('p${0}');
+	run('expand_abbreviation');
+	equal(editorStub.getContent(), 'padding: ;', 'Expanded "p"');
+	
 	editorStub.replaceContent('p0${0}');
 	run('expand_abbreviation');
 	equal(editorStub.getContent(), 'padding: 0;', 'Expanded "p0"');
