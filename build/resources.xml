@@ -2,8 +2,8 @@
 <project name="Zen Coding resources" basedir="..">
 	<property file="${basedir}/build.properties"/>
 	
-	<!-- List of Zen Coding JavaScript files -->
-	<filelist dir="${zencoding_javascript}" id="javascript.core">
+	<!-- List of Emmet core JavaScript files -->
+	<filelist dir="${emmet_javascript}" id="javascript.core">
 		<file name="underscore.js"/>
 		
 		<file name="core.js"/>
@@ -38,11 +38,11 @@
 		<file name="parsers/editTree/xmlEditTree.js"/>
 	</filelist>
 	
-	<fileset dir="${zencoding_javascript}/filters" id="javascript.filters">
+	<fileset dir="${emmet_javascript}/filters" id="javascript.filters">
 		<include name="*.js"/>
 	</fileset>
 	
-	<filelist dir="${zencoding_javascript}/actions" id="javascript.actions">
+	<filelist dir="${emmet_javascript}/actions" id="javascript.actions">
 		<file name="expandAbbreviation.js"/>
 		<file name="wrapWithAbbreviation.js"/>
 		<file name="toggleComment.js"/>
@@ -61,11 +61,11 @@
 		<file name="updateImageSize.js"/>
 	</filelist>
 	
-	<fileset dir="${zencoding_javascript}/generators" id="javascript.generators">
+	<fileset dir="${emmet_javascript}/generators" id="javascript.generators">
 		<include name="*.js"/>
 	</fileset>
 	
-	<fileset dir="${zencoding_javascript}/resolvers" id="javascript.resolvers">
+	<fileset dir="${emmet_javascript}/resolvers" id="javascript.resolvers">
 		<include name="*.js"/>
 	</fileset>
 

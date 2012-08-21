@@ -1,10 +1,10 @@
-To add Zen Coding support for CodeMirror2 editor, simply add `zencoding.js` as a `<script>` tag into your HTML page right after CodeMirror script.
+To add Emmet support for CodeMirror2 editor, simply add `emmet.js` as a `<script>` tag into your HTML page right after CodeMirror script.
 
-Additionally, you can pass `profile` option into your into CodeMirror's init script to change Zen Coding’s HTML output style: 
+Additionally, you can pass `profile` option into your into CodeMirror's init script to change Emmet’s HTML output style: 
 
 	CodeMirror.fromTextArea(document.getElementById("code"), {
 		mode : 'text/html',
-		profile: 'xhtml' /* define Zen Coding output profile */
+		profile: 'xhtml' /* define Emmet output profile */
 	});
 
 Available profiles are: _html_, _xhtml_, _xml_, but you can create your own output profile with 

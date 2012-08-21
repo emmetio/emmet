@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="Zen Coding" default="main" basedir=".">
+<project name="Emmet toolkit" default="main" basedir=".">
 	<property file="build.properties"/>
 	<import file="${basedir}/build/resources.xml"/>
 	
@@ -12,12 +12,12 @@
 	</taskdef>
 	
 	<target name="init">
-		<mkdir dir="${zencoding_build_dir}"/>
-		<mkdir dir="${zencoding_plugins}"/>
+		<mkdir dir="${emmet_build_dir}"/>
+		<mkdir dir="${emmet_plugins}"/>
 	</target>
 	
 	<target name="plugin.generic" depends="init">
-		<concat destfile="${zencoding_build_dir}/zencoding.js" force="yes">
+		<concat destfile="${emmet_build_dir}/emmet.js" force="yes">
 			<filelist refid="javascript.core" />
     		<filelist refid="javascript.actions" />
     		<fileset refid="javascript.resolvers" />
@@ -27,22 +27,22 @@
 	</target>
 	
 	<target name="plugin.app" depends="plugin.generic">
-		<concat destfile="${zencoding_build_dir}/zencoding-app.js" force="yes">
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding.js"/>
+		<concat destfile="${emmet_build_dir}/emmet-app.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
 			</filelist>
-			<filelist dir="${zencoding_javascript}/loaders">
+			<filelist dir="${emmet_javascript}/loaders">
 				<file name="bootstrap.js"/>
 			</filelist>
 		</concat>
 	</target>
 	
 	<target name="plugin.generic-full" depends="plugin.generic">
-		<concat destfile="${zencoding_build_dir}/zencoding-full.js" force="yes">
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding.js"/>
+		<concat destfile="${emmet_build_dir}/emmet-full.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
 			</filelist>
-			<filelist dir="${zencoding_javascript}/actions">
+			<filelist dir="${emmet_javascript}/actions">
 				<file name="selectLine.js"/>
 			</filelist>
 			<string>zen_coding.require('resources').setVocabulary(</string>
@@ -53,78 +53,78 @@
 	
 	<!-- CodeMirror2 plugin -->
 	<target name="plugin.codemirror2" depends="plugin.generic-full" description="Plugin for CodeMirror2 editor">
-		<mkdir dir="${zencoding_build_dir}/CodeMirror2"/>
-		<concat destfile="${zencoding_build_dir}/CodeMirror2/zencoding.js">
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding-full.js"/>
+		<mkdir dir="${emmet_build_dir}/CodeMirror2"/>
+		<concat destfile="${emmet_build_dir}/CodeMirror2/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
 			</filelist>
-			<filelist dir="${zencoding_plugins_source}/codemirror2">
+			<filelist dir="${emmet_plugins_source}/codemirror2">
 				<file name="editor.js"/>
 			</filelist>
 		</concat>
 		
-		<compile-js destfile="${zencoding_build_dir}/CodeMirror2/zencoding.min.js">
-			<filelist dir="${zencoding_build_dir}/CodeMirror2">
-				<file name="zencoding.js"/>
+		<compile-js destfile="${emmet_build_dir}/CodeMirror2/emmet.min.js">
+			<filelist dir="${emmet_build_dir}/CodeMirror2">
+				<file name="emmet.js"/>
 			</filelist>
 		</compile-js>
 		
 		<copy 
-			file="${zencoding_plugins_source}/codemirror2/README.md" 
-			todir="${zencoding_build_dir}/CodeMirror2"/>
+			file="${emmet_plugins_source}/codemirror2/README.md" 
+			todir="${emmet_build_dir}/CodeMirror2"/>
 		
 		<zip 
-			basedir="${zencoding_build_dir}/CodeMirror2"
+			basedir="${emmet_build_dir}/CodeMirror2"
 			compress="yes"
 			level="9"
-			destfile="${zencoding_build_dir}/CodeMirror2/ZenCoding-CodeMirror2-v${zencoding_version}-alpha.zip"
+			destfile="${emmet_build_dir}/CodeMirror2/Emmet-CodeMirror2-v${emmet_version}.zip"
 			excludes="*.zip"/>
 	</target>
 	
 	<!-- Plugn for Komodo Edit -->
 	<target name="plugin.komodo" depends="plugin.app">
-		<mkdir dir="${zencoding_build_dir}/komodo"/>
+		<mkdir dir="${emmet_build_dir}/komodo"/>
 		
-		<copy todir="${zencoding_build_dir}/komodo">
-			<fileset dir="${zencoding_plugins_source}/komodo"/>
+		<copy todir="${emmet_build_dir}/komodo">
+			<fileset dir="${emmet_plugins_source}/komodo"/>
 			<filterchain>
 				<replacetokens>
-					<token key="VERSION" value="${zencoding_version}"/>
+					<token key="VERSION" value="${emmet_version}"/>
 				</replacetokens>
 			</filterchain>
 		</copy>
 		
 		<copy
-			file="${zencoding_build_dir}/zencoding-app.js"
-			todir="${zencoding_build_dir}/komodo/content/js" />
+			file="${emmet_build_dir}/emmet-app.js"
+			todir="${emmet_build_dir}/komodo/content/js" />
 		
 		<copy
 			file="${basedir}/snippets.json"
-			todir="${zencoding_build_dir}/komodo/content/js" />
+			todir="${emmet_build_dir}/komodo/content/js" />
 		
-		<exec dir="${zencoding_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
+		<exec dir="${emmet_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
 			<arg value="build"/>
 		</exec>
 	</target>
 	
 	<!-- Plugn for PSPad -->
 	<target name="plugin.pspad" depends="plugin.generic-full">
-		<mkdir dir="${zencoding_build_dir}/pspad"/>
+		<mkdir dir="${emmet_build_dir}/pspad"/>
 		
-		<concat destfile="${zencoding_build_dir}/pspad/zencoding.js">
-			<filelist dir="${zencoding_plugins_source}/pspad">
+		<concat destfile="${emmet_build_dir}/pspad/emmet.js">
+			<filelist dir="${emmet_plugins_source}/pspad">
 				<file name="controller.js"/>
 			</filelist>
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding-full.js"/>
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
 			</filelist>
-			<filelist dir="${zencoding_plugins_source}/pspad">
+			<filelist dir="${emmet_plugins_source}/pspad">
 				<file name="editor.js"/>
 			</filelist>
 			
 			<filterchain>
 				<replacetokens>
-					<token key="VERSION" value="${zencoding_version}"/>
+					<token key="VERSION" value="${emmet_version}"/>
 				</replacetokens>
 			</filterchain>
 		</concat>
@@ -132,65 +132,65 @@
 	
 	<!-- Plugn for textarea -->
 	<target name="plugin.textarea" depends="plugin.generic-full">
-		<mkdir dir="${zencoding_build_dir}/textarea"/>
+		<mkdir dir="${emmet_build_dir}/textarea"/>
 		
-		<concat destfile="${zencoding_build_dir}/textarea/zencoding.js">
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding-full.js"/>
+		<concat destfile="${emmet_build_dir}/textarea/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
 			</filelist>
-			<filelist dir="${zencoding_plugins_source}/textarea">
+			<filelist dir="${emmet_plugins_source}/textarea">
 				<file name="shortcut.js"/>
 				<file name="editor.js"/>
 				<file name="controller.js"/>
 			</filelist>
 		</concat>
 		
-		<compile-js destfile="${zencoding_build_dir}/textarea/zencoding.min.js">
-			<filelist dir="${zencoding_build_dir}/textarea">
-				<file name="zencoding.js"/>
+		<compile-js destfile="${emmet_build_dir}/textarea/emmet.min.js">
+			<filelist dir="${emmet_build_dir}/textarea">
+				<file name="emmet.js"/>
 			</filelist>
 		</compile-js>
 		
-		<copy todir="${zencoding_build_dir}/textarea">
-			<filelist dir="${zencoding_plugins_source}/textarea">
+		<copy todir="${emmet_build_dir}/textarea">
+			<filelist dir="${emmet_plugins_source}/textarea">
 				<file name="index.html"></file>
 				<file name="zc-powered.png"></file>
 			</filelist>
 		</copy>
 		
 		<zip 
-			basedir="${zencoding_build_dir}/textarea"
+			basedir="${emmet_build_dir}/textarea"
 			compress="yes"
 			level="9"
-			destfile="${zencoding_build_dir}/textarea/ZenCoding-textarea-v${zencoding_version}-alpha.zip"
+			destfile="${emmet_build_dir}/textarea/Emmet-textarea-v${emmet_version}.zip"
 			excludes="*.zip"/>
 	</target>
 	
 	<!-- Plugn for Notepad++ -->
 	<target name="plugin.npp" depends="plugin.app">
-		<mkdir dir="${zencoding_build_dir}/npp"/>
+		<mkdir dir="${emmet_build_dir}/npp"/>
 		
-		<copy todir="${zencoding_build_dir}/npp">
-			<fileset dir="${zencoding_plugins_source}/npp/contrib"/>
-			<filelist dir="${zencoding_plugins_source}/npp">
+		<copy todir="${emmet_build_dir}/npp">
+			<fileset dir="${emmet_plugins_source}/npp/contrib"/>
+			<filelist dir="${emmet_plugins_source}/npp">
 				<file name="README.md"/>
 			</filelist>
 		</copy>
 		
-		<mkdir dir="${zencoding_build_dir}/npp/jN/includes"/>
+		<mkdir dir="${emmet_build_dir}/npp/jN/includes"/>
 		
-		<copy todir="${zencoding_build_dir}/npp/jN/includes">
-			<fileset dir="${zencoding_plugins_source}/npp" includes="*.json"/>
+		<copy todir="${emmet_build_dir}/npp/jN/includes">
+			<fileset dir="${emmet_plugins_source}/npp" includes="*.json"/>
 			<filelist dir="${basedir}">
 				<file name="snippets.json"/>
 			</filelist>
 		</copy>
 		
-		<concat destfile="${zencoding_build_dir}/npp/jN/includes/zencoding.js">
-			<filelist dir="${zencoding_build_dir}">
-				<file name="zencoding-app.js"/>
+		<concat destfile="${emmet_build_dir}/npp/jN/includes/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-app.js"/>
 			</filelist>
-			<filelist dir="${zencoding_plugins_source}/npp">
+			<filelist dir="${emmet_plugins_source}/npp">
 				<file name="file.js"/>
 				<file name="editor.js"/>
 				<file name="bootstrap.js"/>
@@ -198,10 +198,10 @@
 		</concat>
 		
 		<zip 
-			basedir="${zencoding_build_dir}/npp"
+			basedir="${emmet_build_dir}/npp"
 			compress="yes"
 			level="9"
-			destfile="${zencoding_build_dir}/npp/ZenCoding-NotepadPlusPlus-v${zencoding_version}.zip"
+			destfile="${emmet_build_dir}/npp/Emmet-NotepadPlusPlus-v${emmet_version}.zip"
 			excludes="*.zip"/>
 	</target>
 
