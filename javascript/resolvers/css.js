@@ -120,7 +120,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		prefs.define('css.' + k + 'Properties', v, descTemplate({vendor: k}));
 	});
 	
-	prefs.define('css.unitlessProperties', 'z-index, line-height', 
+	prefs.define('css.unitlessProperties', 'z-index, line-height, opacity', 
 			'The list of properties whose values ​​must not contain units.');
 	
 	function isNumeric(ch) {
