@@ -102,7 +102,7 @@ zen_coding.exec(function(require, _){
 			
 		// formatting output
 		if (profile.tag_nl !== false) {
-			var forceNl = profile.tag_nl === true;
+			var forceNl = profile.tag_nl === true && (profile.tag_nl_leaf || item.children.length);
 			
 			// formatting block-level elements
 			if (!item.isTextNode()) {

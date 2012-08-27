@@ -178,7 +178,7 @@
 		runTest('bq+p', 'html', 'xhtml', '<blockquote>|</blockquote>\n<p>|</p>');
 		runTest('img+p', 'html', 'xhtml', '<img src="|" alt="|" />\n<p>|</p>');
 		runTest('vare', 'xsl', 'xml', '<xsl:variable name="|" select="|"/>');
-		runTest('vare+p', 'xsl', 'xml', '<xsl:variable name="|" select="|"/>\n<p>\n\t|\n</p>');
+		runTest('vare+p', 'xsl', 'xml', '<xsl:variable name="|" select="|"/>\n<p>|</p>');
 		
 		runTest('div>span*2', 'html', 'xhtml', '<div><span>|</span><span>|</span></div>');
 		runTest('div>span*3', 'html', 'xhtml', '<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>');

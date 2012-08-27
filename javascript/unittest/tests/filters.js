@@ -131,7 +131,7 @@
 		equal(editorStub.getContent(), '<xsl:variable name="" select=""/>', 'Expanded variable template, no attribute removal');
 		
 		expand('vare>p|xsl');
-		equal(editorStub.getContent(), '<xsl:variable name="">\n\t<p>\n\t\t\n\t</p>\n</xsl:variable>', 'Expanded variable template, "select" attribute removed');
+		equal(editorStub.getContent(), '<xsl:variable name="">\n\t<p></p>\n</xsl:variable>', 'Expanded variable template, "select" attribute removed');
 		
 		editorStub.setSyntax(oldSyntax);
 		editorStub.setProfileName(oldProfile);

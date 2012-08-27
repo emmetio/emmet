@@ -15,6 +15,10 @@ zen_coding.define('profile', function(require, _) {
 		// each tag on new line
 		tag_nl: 'decide',
 		
+		// with tag_nl === true, defines if leaf node (e.g. node with no children)
+		// should have formatted line breaks
+		tag_nl_leaf: false,
+		
 		place_cursor: true,
 		
 		// indent tags
