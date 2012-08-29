@@ -49,6 +49,12 @@
 			<fileset dir="${basedir}" file="snippets.json"/>
 			<string>, 'system');</string>
 		</concat>
+		
+		<compile-js destfile="${emmet_build_dir}/emmet-full.min.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
+			</filelist>
+		</compile-js>
 	</target>
 	
 	<!-- CodeMirror2 plugin -->
