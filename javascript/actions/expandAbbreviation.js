@@ -18,24 +18,8 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 */
 	var handlers = require('handlerList').create();
 	
-	/**
-	 * Search for abbreviation in editor from current caret position
-	 * @param {IZenEditor} editor Editor instance
-	 * @return {String}
-	 */
-	function findAbbreviation(editor) {
-		/** @type Range */
-		var range = require('range').create(editor.getSelectionRange());
-		var content = String(editor.getContent());
-		if (range.length()) {
-			// abbreviation is selected by user
-			return range.substring(content);
-		}
-		
-		// search for new abbreviation from current caret position
-		var curLine = editor.getCurrentLineRange();
-		return require('actionUtils').extractAbbreviation(content.substring(curLine.start, range.start));
-	}
+	/** Back-reference to module */
+	var module = null;
 	
 	var actions = require('actions');
 	/**
@@ -47,7 +31,14 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 * successfully
 	 */
 	actions.add('expand_abbreviation', function(editor, syntax, profile) {
-		return handlers.exec(false, _.toArray(arguments));
+		var args = _.toArray(arguments);
+		
+		// normalize incoming arguments
+		var info = require('editorUtils').outputInfo(editor, syntax, profile);
+		args[1] = info.syntax;
+		args[2] = info.profile;
+		
+		return handlers.exec(false, args);
 	});
 	
 	/**
@@ -62,7 +53,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 			editor.replaceContent(require('resources').getVariable('indentation'), editor.getCaretPos());
 	}, {hidden: true});
 	
-	// setup default handler
+	// XXX setup default handler
 	/**
 	 * Extracts abbreviation from current caret 
 	 * position and replaces it with formatted output 
@@ -73,13 +64,11 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	 * successfully
 	 */
 	handlers.add(function(editor, syntax, profile) {
-		var info = require('editorUtils').outputInfo(editor, syntax, profile);
 		var caretPos = editor.getSelectionRange().end;
-		var content = '';
-		var abbr = findAbbreviation(editor);
+		var abbr = module.findAbbreviation(editor);
 			
 		if (abbr) {
-			content = zen_coding.expandAbbreviation(abbr, info.syntax, info.profile, 
+			var content = zen_coding.expandAbbreviation(abbr, syntax, profile, 
 					require('actionUtils').captureContext(editor));
 			if (content) {
 				editor.replaceContent(content, caretPos - abbr.length, caretPos);
@@ -90,7 +79,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		return false;
 	}, {order: -1});
 	
-	return {
+	return module = {
 		/**
 		 * Adds custom expand abbreviation handler. The passed function should 
 		 * return <code>true</code> if it was performed successfully, 
@@ -98,6 +87,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		 * 
 		 * Added handlers will be called when 'Expand Abbreviation' is called
 		 * in order they were added
+		 * @memberOf expandAbbreviation
 		 * @param {Function} fn
 		 * @param {Object} options
 		 */
@@ -111,6 +101,25 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		 */
 		removeHandler: function(fn) {
 			handlers.remove(fn, options);
+		},
+		
+		/**
+		 * Search for abbreviation in editor from current caret position
+		 * @param {IZenEditor} editor Editor instance
+		 * @return {String}
+		 */
+		findAbbreviation: function(editor) {
+			/** @type Range */
+			var range = require('range').create(editor.getSelectionRange());
+			var content = String(editor.getContent());
+			if (range.length()) {
+				// abbreviation is selected by user
+				return range.substring(content);
+			}
+			
+			// search for new abbreviation from current caret position
+			var curLine = editor.getCurrentLineRange();
+			return require('actionUtils').extractAbbreviation(content.substring(curLine.start, range.start));
 		}
 	};
 });

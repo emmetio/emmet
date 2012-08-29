@@ -48,6 +48,9 @@
  * @param {Underscore} _
  */
 zen_coding.define('cssResolver', function(require, _) {
+	/** Back-reference to module */
+	var module = null;
+	
 	var prefixObj = {
 		/** Real vendor prefix name */
 		prefix: 'zen',
@@ -291,20 +294,55 @@ zen_coding.define('cssResolver', function(require, _) {
 //		obsolete: true
 //	});
 	
+	var cssSyntaxes = ['css', 'less', 'sass', 'scss'];
+	
 	/**
 	 * XXX register resolver
 	 * @param {TreeNode} node
 	 * @param {String} syntax
 	 */
 	require('resources').addResolver(function(node, syntax) {
-		if (syntax == 'css' && node.isElement()) {
-			return require('cssResolver').expandToSnippet(node.abbreviation);
+		if (_.include(cssSyntaxes, syntax) && node.isElement()) {
+			return module.expandToSnippet(node.abbreviation);
 		}
 		
 		return null;
 	});
 	
-	return {
+	var ea = require('expandAbbreviation');
+	/**
+	 * For CSS-like syntaxes, we need to handle a special use case. Some editors
+	 * (like Sublime Text 2) may insert semicolons automatically when user types
+	 * abbreviation. After expansion, user receives a double semicolon. This
+	 * handler automatically removes semicolon from generated content in such cases.
+	 * @param {IZenEditor} editor
+	 * @param {String} syntax
+	 * @param {String} profile
+	 */
+	ea.addHandler(function(editor, syntax, profile) {
+		if (!_.include(cssSyntaxes, syntax)) {
+			return false;
+		}
+		
+		var caretPos = editor.getSelectionRange().end;
+		var abbr = ea.findAbbreviation(editor);
+			
+		if (abbr) {
+			var content = zen_coding.expandAbbreviation(abbr, syntax, profile);
+			if (content) {
+				if (editor.getContent().charAt(caretPos) == ';') {
+					content = content.replace(/;+$/, '');
+				}
+				
+				editor.replaceContent(content, caretPos - abbr.length, caretPos);
+				return true;
+			}
+		}
+		
+		return false;
+	});
+	
+	return module = {
 		/**
 		 * Adds vendor prefix
 		 * @param {String} name One-character prefix name
