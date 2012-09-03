@@ -19,16 +19,30 @@ zen_coding.exec(function(require, _) {
 		
 		// do a shallow copy because the children list can be modified during
 		// resource matching
-		_.each(_.clone(node.children), function(child) {
+		_.each(_.clone(node.children), /** @param {AbbreviationNode} child */ function(child) {
 			var r = resources.getMatchedResource(child, syntax);
 			if (_.isString(r)) {
 				child.data('resource', elements.create('snippet', r));
 			} else if (elements.is(r, 'reference')) {
 				// it’s a reference to another abbreviation:
 				// parse it and insert instead of current child
+				/** @type AbbreviationNode */
 				var subtree = parser.parse(r.data, {
 					syntax: syntax
 				});
+				
+				// if context element should be repeated, check if we need to 
+				// transfer repeated element to specific child node
+				if (child.repeatCount > 1) {
+					var repeatedChildren = subtree.findAll(function(node) {
+						return node.hasImplicitRepeat;
+					});
+					
+					_.each(repeatedChildren, function(node) {
+						node.repeatCount = child.repeatCount;
+						node.hasImplicitRepeat = false;
+					});
+				}
 				
 				// move child‘s children into the deepest child of new subtree
 				var deepestChild = subtree.deepestChild();

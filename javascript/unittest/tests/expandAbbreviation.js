@@ -7,7 +7,8 @@
 		'html': {
 			'abbreviations': {
 				'jq': '<scr' + 'ipt type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></scr' + 'ipt>',
-				'demo': '<div id="demo"></div>'
+				'demo': '<div id="demo"></div>',
+				'nav': 'ul.nav>li*>a'
 			},
 			'snippets': {
 				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$'
@@ -233,5 +234,11 @@
 		runTest('span{Hello world}', '<span>Hello world</span>');
 		runTest('span>{Hello}+{ world}', '<span>Hello world</span>');
 		runTest('span>{Click }+(a[href=/url/]{here})+{ for more info}', '<span>Click <a href="/url/">here</a> for more info</span>');
+	});
+	
+	test('Repeating elements in aliases', function() {
+		runTest('nav*5', '<ul class="nav"><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li></ul>');
+		runTest('div>nav*5>span', '<div><ul class="nav"><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li></ul></div>');
+		runTest('nav', '<ul class="nav"><li><a href=""></a></li></ul>');
 	});
 })();

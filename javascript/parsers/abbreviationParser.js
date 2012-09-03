@@ -158,21 +158,22 @@ zen_coding.define('abbreviationParser', function(require, _) {
 		 * @returns {AbbreviationNode}
 		 */
 		find: function(fn) {
-			if (!_.isFunction(fn)) {
-				var elemName = fn.toLowerCase();
-				fn = function(item) {return item.name().toLowerCase() == elemName;};
-			}
-			
-			var result = null;
-			_.find(this.children, function(child) {
-				if (fn(child)) {
-					return result = child;
-				}
-				
-				return result = child.find(fn);
-			});
-			
-			return result;
+			return this.findAll(fn)[0];
+//			if (!_.isFunction(fn)) {
+//				var elemName = fn.toLowerCase();
+//				fn = function(item) {return item.name().toLowerCase() == elemName;};
+//			}
+//			
+//			var result = null;
+//			_.find(this.children, function(child) {
+//				if (fn(child)) {
+//					return result = child;
+//				}
+//				
+//				return result = child.find(fn);
+//			});
+//			
+//			return result;
 		},
 		
 		/**
