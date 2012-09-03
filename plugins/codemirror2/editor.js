@@ -4,6 +4,8 @@
  * @param {Underscore} _
  */
 zen_coding.exec(function(require, _) {
+	var ios = /AppleWebKit/.test(navigator.userAgent) && /Mobile\/\w+/.test(navigator.userAgent);
+	var mac = ios || /Mac/.test(navigator.platform);
 	var keymap = {
 		'Cmd-E': 'expand_abbreviation',
 		'Tab': 'expand_abbreviation',
@@ -40,6 +42,21 @@ zen_coding.exec(function(require, _) {
 		'text/css': 'css',
 		'text/x-less': 'less'
 	};
+	
+	if (!mac) {
+		// replace Cmd modifier for non-Mac environment
+		var pcKeymap = {};
+		_.each(keymap, function(v, k) {
+			console.log(k.replace('Cmd', 'Ctrl'));
+			pcKeymap[k.replace('Cmd', 'Ctrl')] = v;
+		});
+		
+		keymap = pcKeymap;
+	}
+	
+	// add “profile” property to CodeMirror defaults so in won’t be lost
+	// then CM instance is instantiated with “profile” property
+	CodeMirror.defaults.profile = 'html';
 	
 	var editorProxy = {
 		context: null,
