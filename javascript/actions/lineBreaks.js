@@ -33,7 +33,7 @@ zen_coding.exec(function(require, _) {
 		var caretPos = editor.getCaretPos();
 		var nl = utils.getNewline();
 		
-		if (info.syntax == 'html') {
+		if (_.include(['html', 'xml', 'xsl'], info.syntax)) {
 			var pad = res.getVariable('indentation');
 			// let's see if we're breaking newly created tag
 			var pair = require('html_matcher').getTags(info.content, caretPos, info.profile);
