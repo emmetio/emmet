@@ -9,7 +9,7 @@
     <em:creator>Sergey Chikuyonok</em:creator>
     <em:homepageURL>http://emmet.io</em:homepageURL>
     <em:type>2</em:type> <!-- type=extension --> 
-    <em:iconURL>chrome://emmet/content/icon.png</em:iconURL>
+    <!-- <em:iconURL>chrome://emmet/content/icon.png</em:iconURL> -->
 
     <em:targetApplication> <!-- Komodo IDE -->
       <Description>
