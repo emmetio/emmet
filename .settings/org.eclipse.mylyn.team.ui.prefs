@@ -1,0 +1,2 @@
+commit.comment.template=Fixed \#${task.key}\: ${task.description}
+eclipse.preferences.version=1
