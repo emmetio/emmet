@@ -1,5 +1,5 @@
 (function() {
-	var actions = zen_coding.require('actions');
+	var actions = emmet.require('actions');
 	var run = function(name) {
 		actions.run(name, editorStub);
 	};

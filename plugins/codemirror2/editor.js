@@ -1,9 +1,9 @@
 /**
- * Implementation of {@link IZenEditor} interface for CodeMirror2
+ * Implementation of {@link IEmmetEditor} interface for CodeMirror2
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var ios = /AppleWebKit/.test(navigator.userAgent) && /Mobile\/\w+/.test(navigator.userAgent);
 	var mac = ios || /Mac/.test(navigator.platform);
 	var keymap = {
@@ -47,7 +47,6 @@ zen_coding.exec(function(require, _) {
 		// replace Cmd modifier for non-Mac environment
 		var pcKeymap = {};
 		_.each(keymap, function(v, k) {
-			console.log(k.replace('Cmd', 'Ctrl'));
 			pcKeymap[k.replace('Cmd', 'Ctrl')] = v;
 		});
 		
@@ -164,7 +163,7 @@ zen_coding.exec(function(require, _) {
 		},
 
 		/**
-		 * Returns current output profile name (@see zen_coding#setupProfile)
+		 * Returns current output profile name (@see emmet#setupProfile)
 		 * @return {String}
 		 */
 		getProfileName: function() {

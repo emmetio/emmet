@@ -4,7 +4,7 @@
  * @param {Underscore} _
  * @author Sergey Chikuyonok (serge.che@gmail.com) <http://chikuyonok.ru>
  */
-zen_coding.define('editorUtils', function(require, _) {
+emmet.define('editorUtils', function(require, _) {
 	return  {
 		/**
 		 * Check if cursor is placed inside XHTML tag
@@ -35,7 +35,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		/**
 		 * Sanitizes incoming editor data and provides default values for
 		 * output-specific info
-		 * @param {IZenEditor} editor
+		 * @param {IEmmetEditor} editor
 		 * @param {String} syntax
 		 * @param {String} profile
 		 */
@@ -50,7 +50,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		
 		/**
 		 * Unindent content, thus preparing text for tag wrapping
-		 * @param {IZenEditor} editor Editor instance
+		 * @param {IEmmetEditor} editor Editor instance
 		 * @param {String} text
 		 * @return {String}
 		 */
@@ -60,7 +60,7 @@ zen_coding.define('editorUtils', function(require, _) {
 		
 		/**
 		 * Returns padding of current editor's line
-		 * @param {IZenEditor} Editor instance
+		 * @param {IEmmetEditor} Editor instance
 		 * @return {String}
 		 */
 		getCurrentLinePadding: function(editor) {

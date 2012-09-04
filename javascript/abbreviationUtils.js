@@ -3,7 +3,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('abbreviationUtils', function(require, _) {
+emmet.define('abbreviationUtils', function(require, _) {
 	return {
 		/**
 		 * Check if passed abbreviation node has matched snippet resource

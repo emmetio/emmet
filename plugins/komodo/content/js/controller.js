@@ -1,19 +1,19 @@
 /**
- * Runs Zen Coding action
+ * Runs Emmet action
  * @param {String} name Action name
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
-function runZenCodingAction(name) {
+function runEmmetAction(name) {
 	try {
 		editorProxy.setContext(ko.views.manager.currentView);
 		var args = [editorProxy];
 		if (arguments.length > 1)
 			args = args.concat(Array.prototype.slice.call(arguments, 1));
 		
-		return zen_coding.require('actions').run(name, args);
+		return emmet.require('actions').run(name, args);
 	} catch(e) {
-		alert('Error while running Zen Coding action: ' + e.message);
+		alert('Error while running Emmet action: ' + e.message);
 	}
 }
 
@@ -21,7 +21,7 @@ function runZenCodingAction(name) {
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	function getContents(aURL) {
 		var ioService = Components.classes["@mozilla.org/network/io-service;1"]
 				.getService(Components.interfaces.nsIIOService);
@@ -40,11 +40,11 @@ zen_coding.exec(function(require, _) {
 //	window.openDialog('chrome://global/content/console.xul', '_blank');
 	
 	// Load snippets
-	var snippets = getContents('chrome://zencoding/content/js/snippets.json') || '{}';
+	var snippets = getContents('chrome://emmet/content/js/snippets.json') || '{}';
 	require('bootstrap').loadSystemSnippets(snippets);
 	
 	// Load extensions
-	var extPath = require('file').createPath(DirIO.get('Home').path, 'zencoding');
+	var extPath = require('file').createPath(DirIO.get('Home').path, 'emmet');
 	var rootDir = FileIO.open(extPath);
 	
 	if (rootDir.exists() && rootDir.isDirectory()) {

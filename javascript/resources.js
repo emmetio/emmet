@@ -1,5 +1,5 @@
 /**
- * Parsed resources (snippets, abbreviations, variables, etc.) for Zen Coding.
+ * Parsed resources (snippets, abbreviations, variables, etc.) for Emmet.
  * Contains convenient method to get access for snippets with respect of 
  * inheritance. Also provides ability to store data in different vocabularies
  * ('system' and 'user') for fast and safe resource update
@@ -11,7 +11,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('resources', function(require, _) {
+emmet.define('resources', function(require, _) {
 	var VOC_SYSTEM = 'system';
 	var VOC_USER = 'user';
 		
@@ -25,20 +25,20 @@ zen_coding.define('resources', function(require, _) {
 	var resolvers = require('handlerList').create();
 	
 	/**
-	 * Check if specified resource is parsed by Zen Coding
+	 * Check if specified resource is parsed by Emmet
 	 * @param {Object} obj
 	 * @return {Boolean}
 	 */
 	function isParsed(obj) {
-		return obj && obj.__zen_parsed__;
+		return obj && obj.__emmet_parsed__;
 	}
 	
 	/**
-	 * Marks object as parsed by Zen Coding
+	 * Marks object as parsed by Emmet
 	 * @param {Object}
 	 */
 	function setParsed(obj) {
-		obj.__zen_parsed__ = true;
+		obj.__emmet_parsed__ = true;
 	}
 	
 	/**

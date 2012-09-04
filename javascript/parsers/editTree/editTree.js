@@ -30,7 +30,7 @@
  * @constructor
  * @memberOf __editTreeDefine
  */
-zen_coding.define('editTree', function(require, _, core) {
+emmet.define('editTree', function(require, _, core) {
 	var range = require('range').create;
 	
 	/**

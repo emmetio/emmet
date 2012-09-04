@@ -6,7 +6,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('xmlParser', function(require, _) {
+emmet.define('xmlParser', function(require, _) {
 	var Kludges = {
 		autoSelfClosers : {},
 		implicitlyClosed : {},
@@ -310,7 +310,7 @@ zen_coding.define('xmlParser', function(require, _) {
 
 	return {
 		/**
-		 * @memberOf zen_coding.xmlParser
+		 * @memberOf emmet.xmlParser
 		 * @returns
 		 */
 		parse: function(data, offset) {

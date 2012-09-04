@@ -1,6 +1,6 @@
 /**
  * Utility module that provides ordered storage of function handlers. 
- * Many Zen Coding module's functionality can be extended/overridden by custom
+ * Many Emmet modules' functionality can be extended/overridden by custom
  * function. This modules provides unified storage of handler functions, their 
  * management and execution
  * 
@@ -9,7 +9,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('handlerList', function(require, _) {
+emmet.define('handlerList', function(require, _) {
 	/**
 	 * @type HandlerList
 	 * @constructor

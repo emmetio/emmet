@@ -7,12 +7,12 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var startTag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/;
 	
 	/**
 	 * Generic function for searching for items to select
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {Boolean} isBackward Search backward (search forward otherwise)
 	 * @param {Function} extractFn Function that extracts item content
 	 * @param {Function} rangeFn Function that search for next token range
@@ -56,7 +56,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Find next HTML item
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	function findNextHTMLItem(editor) {
 		var isFirst = true;
@@ -74,7 +74,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Find previous HTML item
-	 * @param {zen_editor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	function findPrevHTMLItem(editor) {
 		return findItem(editor, true, getOpeningTagFromPosition, function (tag, offset, selRange) {

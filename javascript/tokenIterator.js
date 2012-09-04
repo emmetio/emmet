@@ -1,7 +1,7 @@
 /**
  * Helper class for convenient token iteration
  */
-zen_coding.define('tokenIterator', function(require, _) {
+emmet.define('tokenIterator', function(require, _) {
 	/**
 	 * @type TokenIterator
 	 * @param {Array} tokens

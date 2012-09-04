@@ -2,7 +2,7 @@ module('CSS Edit Tree');
 test('Check internals', function() {
 	var source = 'a{b:c;}';
 	/** @type EditContainer */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	
 	equal(rule.nameRange().start, 0, 'Selector position of "' + source + '"');
 	equal(rule._positions.contentStart, 2, 'Content position of "' + source + '"');
@@ -25,7 +25,7 @@ test('Check internals', function() {
 test('Check modifications', function() {
 	var source = 'a{c:d;}';
 	/** @type CSSRule */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	
 	rule.value('c', 'abc');
 	equal(rule.value('c'), 'abc', 'New value');
@@ -43,7 +43,7 @@ test('Check modifications', function() {
 test('Check semicolor auto-insertion', function() {
 	var source = 'a{f:g}';
 	/** @type CSSRule */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	
 	rule.add('h', 'hello');
 	equal(rule.source, 'a{f:g;h:hello;}', 'Source with auto-inserted semi-colon');
@@ -52,18 +52,18 @@ test('Check semicolor auto-insertion', function() {
 test('Check source with formatting', function() {
 	var source = 'img {\n\tborder: 1px solid red !important; /* comment */\n\tfont: "arial", sans-serif;\n}';
 	/** @type CSSRule */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	
 	rule.add('color', 'red');
 	equal(rule.source, 'img {\n\tborder: 1px solid red !important; /* comment */\n\tfont: "arial", sans-serif;\n\tcolor: red;\n}', 'Source with formatting 1');
 	
 	/** @type CSSRule */
-	var rule2 = zen_coding.require('cssEditTree').parse('.a {\n\tcolor: black;\n\t}');
+	var rule2 = emmet.require('cssEditTree').parse('.a {\n\tcolor: black;\n\t}');
 	rule2.add('font', 'bold');
 	equal(rule2.source, '.a {\n\tcolor: black;\n\tfont: bold;\n\t}', 'Source with formatting 2');
 	
 	/** @type CSSRule */
-	var rule3 = zen_coding.require('cssEditTree').parse('a {\n\tb: c;\n\t/* c */\n\td: e;\n}');
+	var rule3 = emmet.require('cssEditTree').parse('a {\n\tb: c;\n\t/* c */\n\td: e;\n}');
 	rule3.add('f', 'g', 1);
 	equal(rule3.source, 'a {\n\tb: c;\n\t/* c */\n\tf: g;\n\td: e;\n}', 'Source with formatting 3');
 	
@@ -74,7 +74,7 @@ test('Check source with formatting', function() {
 test('Check value parts', function() {
 	var source = '.a {b:hello "lorem ipsum",     func(lorem ipsum) 123 ""; c: fn1(a), fn2(fn3(b))}';
 	/** @type EditContainer */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	
 	var prop = rule.get('b');
 	var parts = _.map(prop.valueParts(), function(r) {
@@ -101,7 +101,7 @@ test('Check value parts', function() {
 test('Check CSS Parser', function() {
 	var source = 'a{b\nc:d;}';
 	/** @type EditContainer */
-	var rule = zen_coding.require('cssEditTree').parse(source);
+	var rule = emmet.require('cssEditTree').parse(source);
 	equal(rule.get(0).name(), 'c', 'Correctly parsed invalid CSS rule');
 
 });

@@ -4,9 +4,9 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var actions = require('actions');
-	/** @type zen_coding.preferences */
+	/** @type emmet.preferences */
 	var prefs = require('preferences');
 	
 	// setup default preferences
@@ -21,12 +21,12 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Inserts newline character with proper indentation in specific positions only.
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @return {Boolean} Returns <code>true</code> if line break was inserted 
 	 */
 	actions.add('insert_formatted_line_break_only', function(editor) {
 		var utils = require('utils');
-		/** @type zen_coding.resources */
+		/** @type emmet.resources */
 		var res = require('resources');
 		
 		var info = require('editorUtils').outputInfo(editor);
@@ -88,7 +88,7 @@ zen_coding.exec(function(require, _) {
 	 * Inserts newline character with proper indentation. This action is used in
 	 * editors that doesn't have indentation control (like textarea element) to 
 	 * provide proper indentation
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 */
 	actions.add('insert_formatted_line_break', function(editor) {
 		if (!actions.run('insert_formatted_line_break_only', editor)) {

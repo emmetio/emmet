@@ -1,7 +1,7 @@
 /**
  * A trimmed version of CodeMirror's StringStream module for string parsing
  */
-zen_coding.define('stringStream', function(require, _) {
+emmet.define('stringStream', function(require, _) {
 	/**
 	 * @type StringStream
 	 * @constructor

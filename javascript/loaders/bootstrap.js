@@ -3,7 +3,7 @@
  * @param {Function} require
  * @param {Underscore} _  
  */
-zen_coding.define('bootstrap', function(require, _) {
+emmet.define('bootstrap', function(require, _) {
 	
 	/**
 	 * Returns file name part from path
@@ -27,14 +27,14 @@ zen_coding.define('bootstrap', function(require, _) {
 	
 	return {
 		/**
-		 * Loads Zen Coding extensions. Extensions are simple .js files that
-		 * uses Zen Coding modules and resources to create new actions, modify
+		 * Loads Emmet extensions. Extensions are simple .js files that
+		 * uses Emmet modules and resources to create new actions, modify
 		 * existing ones etc.
 		 * @param {Array} fileList List of absolute paths to files in extensions 
 		 * folder. Back-end app should not filter this list (e.g. by extension) 
 		 * but return it "as-is" so bootstrap can decide how to load contents 
 		 * of each file.
-		 * This method requires a <code>file</code> module of <code>IZenFile</code> 
+		 * This method requires a <code>file</code> module of <code>IEmmetFile</code> 
 		 * interface to be implemented.
 		 */
 		loadExtensions: function(fileList) {
@@ -46,7 +46,7 @@ zen_coding.define('bootstrap', function(require, _) {
 						try {
 							eval(file.read(f));
 						} catch (e) {
-							zen_coding.log('Unable to eval "' + f + '" file: '+ e);
+							emmet.log('Unable to eval "' + f + '" file: '+ e);
 						}
 						break;
 					case 'json':

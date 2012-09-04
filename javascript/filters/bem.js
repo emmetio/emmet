@@ -8,7 +8,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var prefs = require('preferences');
 	prefs.define('bem.elementSeparator', '__', 'Class name’s element separator.');
 	prefs.define('bem.modifierSeparator', '_', 'Class name’s modifier separator.');
@@ -223,7 +223,7 @@ zen_coding.exec(function(require, _) {
 	 * </li>
 	 * </ul>
 	 * 
-	 * @param {ZenNode} tree
+	 * @param {AbbreviationNode} tree
 	 * @param {Object} profile
 	 */
 	function process(tree, profile) {

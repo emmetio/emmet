@@ -3,11 +3,11 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Extract number from current caret position of the <code>editor</code> and
 	 * increment it by <code>step</code>
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {Number} step Increment step (may be negative)
 	 */
 	function incrementNumber(editor, step) {

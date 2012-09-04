@@ -1,4 +1,4 @@
-var editorProxy = zen_coding.exec(function(require, _) {
+var editorProxy = emmet.exec(function(require, _) {
 	function activeView() {
 		return sublime.active_window().active_view();
 	}
@@ -82,7 +82,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		getProfileName: function() {
 			var view = activeView();
 
-			var profile = view.settings()['zencoding.profile'] || null;
+			var profile = view.settings()['emmet.profile'] || null;
 			if (profile)
 				return profile;
 
@@ -117,7 +117,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 });
 
 function require(name) {
-	return zen_coding.require(name);
+	return emmet.require(name);
 }
 
 function pyUpdateTabStops(value) {

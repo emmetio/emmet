@@ -1,5 +1,5 @@
 /**
- * Editor stub for unit testing. Implements {@link IZenEditor} interface.
+ * Editor stub for unit testing. Implements {@link IEmmetEditor} interface.
  * @type __editorStub
  * @constructor
  */
@@ -14,7 +14,7 @@ var editorStub = (function() {
 	var profile = 'xhtml';
 	var promptValue = '';
 	
-	var require = _.bind(zen_coding.require, zen_coding);
+	var require = _.bind(emmet.require, emmet);
 	
 	return {
 		/** @memberOf editorStub */
@@ -144,7 +144,7 @@ var editorStub = (function() {
 		},
 		
 		/**
-		 * Returns current output profile name (@see zen_coding#setupProfile)
+		 * Returns current output profile name (@see emmet#setupProfile)
 		 * @return {String}
 		 */
 		getProfileName: function() {

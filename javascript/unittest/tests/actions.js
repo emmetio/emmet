@@ -1,5 +1,5 @@
 (function() {
-	var actions = zen_coding.require('actions');
+	var actions = emmet.require('actions');
 	var run = function(name) {
 		actions.run(name, editorStub);
 	};
@@ -418,8 +418,8 @@
 		equal(editorStub.getContent(), '<ul>\n\t<li class="i1">one</li>\n\t<li class="i2">two</li>\n\t<li class="i3">three</li>\n</ul>', 'Wrapped multiline abbreviation');
 		
 		var wrap = function(abbr, content) {
-			content = zen_coding.require('utils').escapeText(content);
-			return zen_coding.require('wrapWithAbbreviation').wrap(abbr, content);
+			content = emmet.require('utils').escapeText(content);
+			return emmet.require('wrapWithAbbreviation').wrap(abbr, content);
 		};
 		
 		equal(wrap('p.test', 'hello world'), '<p class="test">hello world</p>');

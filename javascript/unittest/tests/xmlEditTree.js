@@ -2,7 +2,7 @@ module('XML Edit Tree');
 test('Check internals', function() {
 	var source = '<div class="hello" b=1>';
 	/** @type XMLEditElement */
-	var elem = zen_coding.require('xmlEditTree').parse(source);
+	var elem = emmet.require('xmlEditTree').parse(source);
 	
 	equal(elem.name(), 'div', 'Element name is "div"');
 	equal(elem.nameRange().toString(), '{1, 3}', 'Name range is correct');
@@ -28,7 +28,7 @@ test('Check internals', function() {
 
 test('Check modifications', function() {
 	/** @type XMLEditElement */
-	var elem = zen_coding.require('xmlEditTree').parse('<div b=1 class="hello">');
+	var elem = emmet.require('xmlEditTree').parse('<div b=1 class="hello">');
 	
 	elem.value('b', 'test');
 	equal(elem.value('b'), 'test', 'New value');
@@ -48,7 +48,7 @@ test('Check modifications', function() {
 	equal(elem.source, '<div b=test class="hello" title="test2">', 'Source with removed attribute');
 	equal(elem.get('class').namePosition(), 12, 'Attibute next to removed one has correct name position');
 	
-	elem = zen_coding.require('xmlEditTree').parse('<div>');
+	elem = emmet.require('xmlEditTree').parse('<div>');
 	elem.add('class', 'test');
 	equal(elem.source, '<div class="test">', 'Added attribute to empty element');
 	equal(elem.get('class').namePosition(), 5, 'Added attribute has correct position');
@@ -60,7 +60,7 @@ test('Check modifications', function() {
 
 test('Check tag extraction', function() {
 	var source = '<a> <b class="d"> <c>';
-	var module = zen_coding.require('xmlEditTree');
+	var module = emmet.require('xmlEditTree');
 	
 	equal(module.extractTag(source, 10), '{4, 13}', 'Extracted <b> tag');
 	equal(module.extractTag(source, 17), '{18, 3}', 'Extracted <c> tag');

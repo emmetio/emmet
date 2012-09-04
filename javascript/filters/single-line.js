@@ -7,7 +7,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var rePad = /^\s+/;
 	var reNl = /[\n\r]/g;
 	

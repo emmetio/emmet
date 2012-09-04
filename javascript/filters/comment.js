@@ -7,9 +7,9 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	// define some preferences
-	/** @type zen_coding.preferences */
+	/** @type emmet.preferences */
 	var prefs = require('preferences');
 	
 	prefs.define('filter.commentAfter', 
@@ -26,7 +26,7 @@ zen_coding.exec(function(require, _) {
 			+ 'and <code>after</code> strings. If attribute doesn\'t exists, the ' 
 			+ 'empty string will be returned.</li>'
 			
-			+ '<li><code>node</code> – current node (instance of <code>ZenNode</code>)</li>'
+			+ '<li><code>node</code> – current node (instance of <code>AbbreviationNode</code>)</li>'
 			
 			+ '<li><code>name</code> – name of current tag</li>'
 			

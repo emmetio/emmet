@@ -45,7 +45,7 @@
 			<filelist dir="${emmet_javascript}/actions">
 				<file name="selectLine.js"/>
 			</filelist>
-			<string>zen_coding.require('resources').setVocabulary(</string>
+			<string>emmet.require('resources').setVocabulary(</string>
 			<fileset dir="${basedir}" file="snippets.json"/>
 			<string>, 'system');</string>
 		</concat>
@@ -118,14 +118,14 @@
 		<mkdir dir="${emmet_build_dir}/pspad"/>
 		
 		<concat destfile="${emmet_build_dir}/pspad/emmet.js">
-			<filelist dir="${emmet_plugins_source}/pspad">
-				<file name="controller.js"/>
-			</filelist>
 			<filelist dir="${emmet_build_dir}">
 				<file name="emmet-full.js"/>
 			</filelist>
 			<filelist dir="${emmet_plugins_source}/pspad">
 				<file name="editor.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/pspad">
+				<file name="controller.js"/>
 			</filelist>
 			
 			<filterchain>
@@ -160,7 +160,6 @@
 		<copy todir="${emmet_build_dir}/textarea">
 			<filelist dir="${emmet_plugins_source}/textarea">
 				<file name="index.html"></file>
-				<file name="zc-powered.png"></file>
 			</filelist>
 		</copy>
 		
@@ -212,7 +211,7 @@
 	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="plugin.generic, plugin.codemirror2">
+	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea">
 		<echo>Done</echo>
 	</target>
 </project>

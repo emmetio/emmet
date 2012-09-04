@@ -8,7 +8,7 @@
  * @param {Function} require
  * @param {Underscore} _ 
  */
-zen_coding.define('xmlEditTree', function(require, _) {
+emmet.define('xmlEditTree', function(require, _) {
 	var defaultOptions = {
 		styleBefore: ' ',
 		styleSeparator: '=',
@@ -175,7 +175,7 @@ zen_coding.define('xmlEditTree', function(require, _) {
 		 * Parses HTML element into editable tree
 		 * @param {String} source
 		 * @param {Object} options
-		 * @memberOf zen_coding.htmlEditTree
+		 * @memberOf emmet.htmlEditTree
 		 * @returns {EditContainer}
 		 */
 		parse: function(source, options) {

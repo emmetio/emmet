@@ -1,7 +1,7 @@
 /**
- * Core Zen Coding object, available in global scope
+ * Core Emmet object, available in global scope
  */
-var zen_coding = (function(global, _) {
+var emmet = (function(global, _) {
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
@@ -74,11 +74,11 @@ var zen_coding = (function(global, _) {
 	return {
 		/**
 		 * Simple, AMD-like module definition. The module will be added into
-		 * <code>zen_coding</code> object and will be available via
-		 * <code>zen_coding.require(name)</code> or <code>zen_coding[name]</code>
+		 * <code>emmet</code> object and will be available via
+		 * <code>emmet.require(name)</code> or <code>emmet[name]</code>
 		 * @param {String} name
 		 * @param {Function} factory
-		 * @memberOf zen_coding
+		 * @memberOf emmet
 		 */
 		define: function(name, factory) {
 			// do not let redefine existing properties
@@ -90,7 +90,7 @@ var zen_coding = (function(global, _) {
 		},
 		
 		/**
-		 * Returns reference to Zen Coding module
+		 * Returns reference to Emmet module
 		 * @param {String} name Module name
 		 */
 		require: function(name) {
@@ -127,7 +127,7 @@ var zen_coding = (function(global, _) {
 		},
 		
 		/**
-		 * The essential function that expands Zen Coding abbreviation
+		 * The essential function that expands Emmet abbreviation
 		 * @param {String} abbr Abbreviation to parse
 		 * @param {String} syntax Abbreviation's context syntax
 		 * @param {String} profile Output profile (or its name)

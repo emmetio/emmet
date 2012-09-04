@@ -8,7 +8,7 @@
  * @param {Function} require
  * @param {Underscore} _ 
  */
-zen_coding.define('cssEditTree', function(require, _) {
+emmet.define('cssEditTree', function(require, _) {
 	var defaultOptions = {
 		styleBefore: '\n\t',
 		styleSeparator: ': ',
@@ -389,7 +389,7 @@ zen_coding.define('cssEditTree', function(require, _) {
 		 * Parses CSS rule into editable tree
 		 * @param {String} source
 		 * @param {Object} options
-		 * @memberOf zen_coding.cssEditTree
+		 * @memberOf emmet.cssEditTree
 		 * @returns {EditContainer}
 		 */
 		parse: function(source, options) {

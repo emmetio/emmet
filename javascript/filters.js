@@ -4,7 +4,7 @@
  * @param {Underscore} _
  * @author Sergey Chikuyonok (serge.che@gmail.com) <http://chikuyonok.ru>
  */
-zen_coding.define('filters', function(require, _) {
+emmet.define('filters', function(require, _) {
 	/** List of registered filters */
 	var registeredFilters = {};
 	
@@ -33,14 +33,14 @@ zen_coding.define('filters', function(require, _) {
 		
 		/**
 		 * Apply filters for final output tree
-		 * @param {ZenNode} tree Output tree
+		 * @param {AbbreviationNode} tree Output tree
 		 * @param {Array} filters List of filters to apply. Might be a 
 		 * <code>String</code>
 		 * @param {Object} profile Output profile, defined in <i>profile</i> 
 		 * module. Filters defined it profile are not used, <code>profile</code>
 		 * is passed to filter function
-		 * @memberOf zen_coding.filters
-		 * @returns {ZenNode}
+		 * @memberOf emmet.filters
+		 * @returns {AbbreviationNode}
 		 */
 		apply: function(tree, filters, profile) {
 			var utils = require('utils');

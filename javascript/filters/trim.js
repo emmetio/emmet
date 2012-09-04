@@ -12,7 +12,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	require('preferences').define('filter.trimRegexp', '[\\s|\\u00a0]*[\\d|#|\\-|\*|\\u2022]+\\.?\\s*',
 			'Regular expression used to remove list markers (numbers, dashes, ' 
 			+ 'bullets, etc.) in <code>t</code> (trim) filter. The trim filter '

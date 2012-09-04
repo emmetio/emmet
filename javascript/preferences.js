@@ -11,7 +11,7 @@
  * @param {Function} require
  * @param {Underscore} _ 
  */
-zen_coding.define('preferences', function(require, _) {
+emmet.define('preferences', function(require, _) {
 	var preferences = {};
 	var defaults = {};
 	var _dbgDefaults = null;

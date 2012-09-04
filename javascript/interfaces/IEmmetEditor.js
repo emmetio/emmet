@@ -1,33 +1,20 @@
 /**
  * High-level editor interface that communicates with underlying editor (like 
  * TinyMCE, CKEditor, etc.) or browser.
- * Basically, you should call <code>zen_editor.setContext(obj)</code> method to
+ * Basically, you should call <code>editor.setContext(obj)</code> method to
  * set up undelying editor context before using any other method.
  * 
- * This interface is used by <i>zen_actions.js</i> for performing different 
+ * This interface is used by <i>actions</i> for performing different 
  * actions like <b>Expand abbreviation</b>  
- * @type IZenEditor
+ * @type IEmmetEditor
  * @constructor
- * @example
- * var textarea = document.getElemenetsByTagName('textarea')[0];
- * zen_editor.setContext(textarea);
- * //now you are ready to use editor object
- * zen_editor.getSelectionRange();
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
-function IZenEditor() {}
+function IEmmetEditor() {}
 
-IZenEditor.prototype = {
-	/**
-	 * Setup underlying editor context. You should call this method 
-	 * <code>before</code> using any Zen Coding action.
-	 * @memberOf IZenEditor
-	 * @param {Object} context
-	 */
-	setContext: function(context) {},
-	
+IEmmetEditor.prototype = {
 	/**
 	 * Returns character indexes of selected text: object with <code>start</code>
 	 * and <code>end</code> properties. If there's no selection, should return 
@@ -35,7 +22,7 @@ IZenEditor.prototype = {
 	 * to current caret position
 	 * @return {Object}
 	 * @example
-	 * var selection = zen_editor.getSelectionRange();
+	 * var selection = editor.getSelectionRange();
 	 * alert(selection.start + ', ' + selection.end); 
 	 */
 	getSelectionRange: function() {
@@ -52,10 +39,10 @@ IZenEditor.prototype = {
 	 * @param {Number} start
 	 * @param {Number} [end]
 	 * @example
-	 * zen_editor.createSelection(10, 40);
+	 * editor.createSelection(10, 40);
 	 * 
 	 * //move caret to 15th character
-	 * zen_editor.createSelection(15);
+	 * editor.createSelection(15);
 	 */
 	createSelection: function(start, end) {},
 	
@@ -64,7 +51,7 @@ IZenEditor.prototype = {
 	 * and <code>end</code> properties
 	 * @return {Object}
 	 * @example
-	 * var range = zen_editor.getCurrentLineRange();
+	 * var range = editor.getCurrentLineRange();
 	 * alert(range.start + ', ' + range.end);
 	 */
 	getCurrentLineRange: function() {
@@ -129,7 +116,7 @@ IZenEditor.prototype = {
 	},
 	
 	/**
-	 * Returns current output profile name (@see zen_coding#setupProfile)
+	 * Returns current output profile name (@see emmet#setupProfile)
 	 * @return {String}
 	 */
 	getProfileName: function() {

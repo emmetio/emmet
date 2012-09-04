@@ -1,6 +1,6 @@
 module('Tab Stops');
 test('Locate and update tabstops', function() {
-	var ts = zen_coding.require('tabStops');
+	var ts = emmet.require('tabStops');
 	
 	var text = 'Hello ${0:world} ${1:other placeholder} \\${2:escaped}$3';
 	var data = ts.extract(text);

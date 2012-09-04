@@ -7,126 +7,126 @@
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/zencoding-app.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/io.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/file.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/editor.js" />
-	<script type="application/x-javascript" src="chrome://zencoding/content/js/controller.js" />
+	<script type="application/x-javascript" src="chrome://emmet/content/js/emmet-app.js" />
+	<script type="application/x-javascript" src="chrome://emmet/content/js/io.js" />
+	<script type="application/x-javascript" src="chrome://emmet/content/js/file.js" />
+	<script type="application/x-javascript" src="chrome://emmet/content/js/editor.js" />
+	<script type="application/x-javascript" src="chrome://emmet/content/js/controller.js" />
 
 	<menupopup id="popup_tools">
-		<menu id="menu_zencoding" label="Zen Coding">
-			<menupopup id="popup_zencoding_tools">
-				<menu id="menu_zencoding_html" label="HTML">
-					<menupopup id="popup_zencoding_html">
-						<menuitem id="zencoding_balance_outward"
+		<menu id="menu_emmet" label="Emmet">
+			<menupopup id="popup_emmet_tools">
+				<menu id="menu_emmet_html" label="HTML">
+					<menupopup id="popup_emmet_html">
+						<menuitem id="emmet_balance_outward"
 							label="Balance Tag"
-							observes="cmd_zencoding_balance_outward"
+							observes="cmd_emmet_balance_outward"
 							class="menu-iconic-wide"/>
 							
-						<menuitem id="zencoding_balance_inward"
+						<menuitem id="emmet_balance_inward"
 							label="Balance Tag Inward"
-							observes="cmd_zencoding_balance_inward"
+							observes="cmd_emmet_balance_inward"
 							class="menu-iconic-wide"/>
 							
-						<menuitem id="zencoding_wrap"
+						<menuitem id="emmet_wrap"
 							label="Wrap with Abbreviation"
-							observes="cmd_zencoding_wrap"
+							observes="cmd_emmet_wrap"
 							class="menu-iconic-wide"/>
 							
-						<menuitem id="zencoding_remove_tag"
+						<menuitem id="emmet_remove_tag"
 							label="Remove Tag"
-							observes="cmd_zencoding_remove_tag"
+							observes="cmd_emmet_remove_tag"
 							class="menu-iconic-wide"/>
 						
-						<menuitem id="zencoding_split_join_tag"
+						<menuitem id="emmet_split_join_tag"
 							label="Split/Join Tag"
-							observes="cmd_zencoding_split_join_tag"
+							observes="cmd_emmet_split_join_tag"
 							class="menu-iconic-wide"/>
 					</menupopup>
 				</menu>
-				<menu id="menu_zencoding_css" label="CSS">
-					<menupopup id="popup_zencoding_css">
-						<menuitem id="zencoding_reflect_css_value"
+				<menu id="menu_emmet_css" label="CSS">
+					<menupopup id="popup_emmet_css">
+						<menuitem id="emmet_reflect_css_value"
 							label="Reflect CSS Value"
-							observes="cmd_zencoding_reflect_css_value"
+							observes="cmd_emmet_reflect_css_value"
 							class="menu-iconic-wide"/>
 					</menupopup>
 				</menu>
-				<menu id="menu_zencoding_numbers" label="Numbers">
-					<menupopup id="popup_zencoding_numbers">
-						<menuitem id="zencoding_increment_1"
+				<menu id="menu_emmet_numbers" label="Numbers">
+					<menupopup id="popup_emmet_numbers">
+						<menuitem id="emmet_increment_1"
 							label="Increment By 1"
-							observes="cmd_zencoding_increment_1"
+							observes="cmd_emmet_increment_1"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_decrement_1"
+						<menuitem id="emmet_decrement_1"
 							label="Decrement By 1"
-							observes="cmd_zencoding_decrement_1"
+							observes="cmd_emmet_decrement_1"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_increment_01"
+						<menuitem id="emmet_increment_01"
 							label="Increment By 0.1"
-							observes="cmd_zencoding_increment_01"
+							observes="cmd_emmet_increment_01"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_decrement_01"
+						<menuitem id="emmet_decrement_01"
 							label="Decrement By 0.1"
-							observes="cmd_zencoding_decrement_01"
+							observes="cmd_emmet_decrement_01"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_increment_10"
+						<menuitem id="emmet_increment_10"
 							label="Increment By 10"
-							observes="cmd_zencoding_increment_10"
+							observes="cmd_emmet_increment_10"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_decrement_10"
+						<menuitem id="emmet_decrement_10"
 							label="Decrement By 10"
-							observes="cmd_zencoding_decrement_10"
+							observes="cmd_emmet_decrement_10"
 							class="menu-iconic-wide"/>
-						<menuitem id="zencoding_evaluate_math"
+						<menuitem id="emmet_evaluate_math"
 							label="Evaluate Math Expression"
-							observes="cmd_zencoding_evaluate_math"
+							observes="cmd_emmet_evaluate_math"
 							class="menu-iconic-wide"/>
 					</menupopup>
 				</menu>
-				<menuitem id="zencoding_expand_abbreviation"
+				<menuitem id="emmet_expand_abbreviation"
 					label="Expand Abbreviation"
-					observes="cmd_zencoding_expand_abbreviation"
+					observes="cmd_emmet_expand_abbreviation"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_next_edit_point"
+				<menuitem id="emmet_next_edit_point"
 					label="Next Edit Point"
-					observes="cmd_zencoding_next_edit_point"
+					observes="cmd_emmet_next_edit_point"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_prev_edit_point"
+				<menuitem id="emmet_prev_edit_point"
 					label="Previous Edit Point"
-					observes="cmd_zencoding_prev_edit_point"
+					observes="cmd_emmet_prev_edit_point"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_select_next_item"
+				<menuitem id="emmet_select_next_item"
 					label="Select Next Item"
-					observes="cmd_zencoding_select_next_item"
+					observes="cmd_emmet_select_next_item"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_select_previous_item"
+				<menuitem id="emmet_select_previous_item"
 					label="Select Previous Item"
-					observes="cmd_zencoding_select_previous_item"
+					observes="cmd_emmet_select_previous_item"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_merge_lines"
+				<menuitem id="emmet_merge_lines"
 					label="Merge Lines"
-					observes="cmd_zencoding_merge_lines"
+					observes="cmd_emmet_merge_lines"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_toggle_comment"
+				<menuitem id="emmet_toggle_comment"
 					label="Toggle Comment"
-					observes="cmd_zencoding_toggle_comment"
+					observes="cmd_emmet_toggle_comment"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_update_image_size"
+				<menuitem id="emmet_update_image_size"
 					label="Update Image Size"
-					observes="cmd_zencoding_update_image_size"
+					observes="cmd_emmet_update_image_size"
 					class="menu-iconic-wide"/>
 					
-				<menuitem id="zencoding_data_url"
+				<menuitem id="emmet_data_url"
 					label="Encode/Decode image to data:URL"
-					observes="cmd_zencoding_data_url"
+					observes="cmd_emmet_data_url"
 					class="menu-iconic-wide"/>
 			</menupopup>
 		</menu>

@@ -1,10 +1,10 @@
 /**
- * Controller for Zen Coding for textarea plugin: handles user interaction
- * and calls Zen Coding commands
+ * Controller for Emmet for textarea plugin: handles user interaction
+ * and calls Emmet commands
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('textarea', function(require, _) {
+emmet.define('textarea', function(require, _) {
 	var keymap = {
 		'Meta+E': 'expand_abbreviation',
 		'Tab': 'expand_abbreviation',
@@ -46,11 +46,11 @@ zen_coding.define('textarea', function(require, _) {
 	
 	
 	/**
-	 * Get Zen Coding options from element's class name
+	 * Get Emmet options from element's class name
 	 */
 	function getOptionsFromContext() {
 		var paramStr = require('editor').getContext().className || '';
-		var reParam = /\bzc\-(\w+)\-(\w+)/g;
+		var reParam = /\bemmet\-(\w+)\-(\w+)/g;
 		var result = copyOptions(options);
 		var m;
 			
@@ -78,7 +78,7 @@ zen_coding.define('textarea', function(require, _) {
 	}
 	
 	/**
-	 * Bind shortcut to Zen Coding action
+	 * Bind shortcut to Emmet action
 	 * @param {String} keystroke
 	 * @param {String} label
 	 * @param {String} actionName
@@ -128,14 +128,14 @@ zen_coding.define('textarea', function(require, _) {
 									actionName = 'expand_abbreviation_with_tab';
 								else
 									// user pressed Tab key but it's forbidden in 
-									// Zen Coding: bubble up event
+									// Emmet: bubble up event
 									return false;
 							}
 							break;
 						case 'insert_formatted_line_break':
 							if (keyCode == 13 && !getOption('pretty_break')) {
 								// user pressed Enter but it's forbidden in 
-								// Zen Coding: bubble up event
+								// Emmet: bubble up event
 								return false;
 							}
 							break;
@@ -218,21 +218,20 @@ zen_coding.define('textarea', function(require, _) {
 		},
 		
 		getInfo: function() {
-			var message = 'This textareas on this page are powered by Zen Coding project: ' +
-					'a set of tools for fast HTML coding.\n\n' +
+			var message = 'This textareas on this page are powered by Emmet toolkit.\n\n' +
 					'Available shortcuts:\n';
 			var actions = _.map(this.getShortcuts(), function(shortcut) {
 				return shortcut.keystroke + ' — ' + shortcut.label;
 			});
 			
 			message += actions.join('\n') + '\n\n';
-			message += 'More info on http://code.google.com/p/zen-coding/';
+			message += 'More info on http://emmet.io/';
 			
 			return message;
 		},
 		
 		/**
-		 * Show info window about Zen Coding
+		 * Show info window about Emmet
 		 */
 		showInfo: function() {
 			alert(this.getInfo());

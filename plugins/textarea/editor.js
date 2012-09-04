@@ -2,11 +2,11 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @constructor
- * @memberOf __zenEditorTextarea
+ * @memberOf __emmetEditorTextarea
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('editor', function(require, _) {
+emmet.define('editor', function(require, _) {
 	/** @param {Element} Source element */
 	var target = null;
 		
@@ -158,7 +158,7 @@ zen_coding.define('editor', function(require, _) {
 			}
 			
 			// find new caret position
-			var tabstopData = zen_coding.require('tabStops').extract(value, {
+			var tabstopData = emmet.require('tabStops').extract(value, {
 				escape: function(ch) {
 					return ch;
 				}
@@ -214,7 +214,7 @@ zen_coding.define('editor', function(require, _) {
 		},
 		
 		/**
-		 * Returns current output profile name (@see zen_coding#setupProfile)
+		 * Returns current output profile name (@see emmet#setupProfile)
 		 * @return {String}
 		 */
 		getProfileName: function() {

@@ -1,26 +1,14 @@
 <!doctype html>
 <html>
 <head>
-	<title>Zen Coding for CodeMirror 2</title>
+	<title>Emmet for CodeMirror 2</title>
 	<link rel="stylesheet" href="./lib/codemirror.css">
 	<script src="./lib/codemirror.js"></script>
 	<script src="./lib/xml.js"></script>
-	<script src="../../dist/zencoding.js"></script>
-	<script src="../../javascript/actions/selectLine.js"></script>
-	<script src="../../javascript/actions/lineBreaks.js"></script>
-	<script src="../../javascript/loaders/ajaxLoader.js"></script>
-	<script>
-		(function() {
-			var res = ajaxLoader.loadJSON('../../snippets.json');
-			if (res) {
-				zen_coding.require('resources').setVocabulary(res, 'system');
-			}
-		})();
-	</script>
-	
+	<script src="../../dist/emmet-full.js"></script>
 	<script src="editor.js"></script>
 	
-	<style type="text/css">
+	<style>
 	.CodeMirror {
 		border: 1px solid black;
 	}
@@ -31,7 +19,7 @@
 	</style>
 </head>
 <body>
-	<h1>Zen Coding for CodeMirror 2</h1>
+	<h1>Emmet for CodeMirror 2</h1>
 	<form>
 		<textarea id="code" name="code"></textarea>
 	</form>

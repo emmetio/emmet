@@ -7,7 +7,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Creates HTML attributes string from tag according to profile settings
 	 * @param {AbbreviationNode} node
@@ -69,7 +69,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Processes simplified tree, making it suitable for output as HTML structure
-	 * @param {ZenNode} tree
+	 * @param {AbbreviationNode} tree
 	 * @param {Object} profile
 	 * @param {Number} level Depth level
 	 */

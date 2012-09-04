@@ -12,7 +12,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('expandAbbreviation', function(require, _) {
+emmet.define('expandAbbreviation', function(require, _) {
 	/**
 	 * @type HandlerList List of registered handlers
 	 */
@@ -24,7 +24,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	var actions = require('actions');
 	/**
 	 * 'Expand abbreviation' editor action 
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
@@ -44,7 +44,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	/**
 	 * A special version of <code>expandAbbreviation</code> function: if it can't
 	 * find abbreviation, it will place Tab character at caret position
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 */
@@ -57,7 +57,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 	/**
 	 * Extracts abbreviation from current caret 
 	 * position and replaces it with formatted output 
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
@@ -68,7 +68,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		var abbr = module.findAbbreviation(editor);
 			
 		if (abbr) {
-			var content = zen_coding.expandAbbreviation(abbr, syntax, profile, 
+			var content = emmet.expandAbbreviation(abbr, syntax, profile, 
 					require('actionUtils').captureContext(editor));
 			if (content) {
 				editor.replaceContent(content, caretPos - abbr.length, caretPos);
@@ -105,7 +105,7 @@ zen_coding.define('expandAbbreviation', function(require, _) {
 		
 		/**
 		 * Search for abbreviation in editor from current caret position
-		 * @param {IZenEditor} editor Editor instance
+		 * @param {IEmmetEditor} editor Editor instance
 		 * @return {String}
 		 */
 		findAbbreviation: function(editor) {

@@ -3,7 +3,7 @@ test('Check internals', function() {
 	var execOrder = [];
 	
 	/** @type HandlerList */
-	var hl = zen_coding.require('handlerList').create();
+	var hl = emmet.require('handlerList').create();
 	
 	hl.add(function() {
 		execOrder.push('a');

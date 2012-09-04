@@ -4,7 +4,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */ 
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Finds matched resources for child nodes of passed <code>node</code> 
 	 * element. A matched resource is a reference to <i>snippets.json</i> entry
@@ -66,7 +66,7 @@ zen_coding.exec(function(require, _) {
 	 * @param {AbbreviationNode} tree
 	 */
 	require('abbreviationParser').addPreprocessor(function(tree, options) {
-		var syntax = options.syntax || zen_coding.defaultSyntax();
+		var syntax = options.syntax || emmet.defaultSyntax();
 		matchResources(tree, syntax);
 	});
 	

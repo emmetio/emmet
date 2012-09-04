@@ -7,7 +7,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var childToken = '${child}';
 	
 	function transformClassName(className) {
@@ -49,7 +49,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Test if passed node has block-level sibling element
-	 * @param {ZenNode} item
+	 * @param {AbbreviationNode} item
 	 * @return {Boolean}
 	 */
 	function hasBlockSibling(item) {
@@ -99,7 +99,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Processes simplified tree, making it suitable for output as HTML structure
-	 * @param {ZenNode} tree
+	 * @param {AbbreviationNode} tree
 	 * @param {Object} profile
 	 * @param {Number} level Depth level
 	 */

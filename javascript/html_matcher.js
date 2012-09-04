@@ -292,7 +292,7 @@
 	HTMLPairMatcher.last_match = last_match;
 	
 	try {
-		zen_coding.define('html_matcher', function() {
+		emmet.define('html_matcher', function() {
 			return HTMLPairMatcher;
 		});
 	} catch(e){}

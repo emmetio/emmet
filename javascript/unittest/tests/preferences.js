@@ -1,7 +1,7 @@
 module('Preferences');
 test('Check preferences', function() {
-	/** @type zen_coding.preferences */
-	var prefs = zen_coding.require('preferences');
+	/** @type emmet.preferences */
+	var prefs = emmet.require('preferences');
 	prefs._startTest();
 	
 	prefs.define('a', 1, 'test');

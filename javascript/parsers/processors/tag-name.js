@@ -1,10 +1,10 @@
 /**
  * Resolves tag names in abbreviations with implied name
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Resolves implicit node names in parsed tree
-	 * @param {ZenNode} tree
+	 * @param {AbbreviationNode} tree
 	 */
 	function resolveNodeNames(tree) {
 		var tagName = require('tagName');

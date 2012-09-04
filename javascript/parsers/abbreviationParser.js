@@ -1,5 +1,5 @@
 /**
- * Zen Coding abbreviation parser.
+ * Emmet abbreviation parser.
  * Takes string abbreviation and recursively parses it into a tree. The parsed 
  * tree can be transformed into a string representation with 
  * <code>toString()</code> method. Note that string representation is defined
@@ -18,7 +18,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('abbreviationParser', function(require, _) {
+emmet.define('abbreviationParser', function(require, _) {
 	var reValidName = /^[\w\-\$\:@\!]+\+?$/i;
 	var reWord = /[\w\-:\$]/;
 	

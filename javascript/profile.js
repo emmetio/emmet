@@ -4,7 +4,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('profile', function(require, _) {
+emmet.define('profile', function(require, _) {
 	var profiles = {};
 	
 	var defaultProfile = {
@@ -135,7 +135,7 @@ zen_coding.define('profile', function(require, _) {
 		 * Creates new output profile and adds it into internal dictionary
 		 * @param {String} name Profile name
 		 * @param {Object} options Profile options
-		 * @memberOf zen_coding.profile
+		 * @memberOf emmet.profile
 		 * @returns {Object} New profile
 		 */
 		create: function(name, options) {

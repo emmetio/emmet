@@ -6,7 +6,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('cssGradient', function(require, _) {
+emmet.define('cssGradient', function(require, _) {
 	var defaultLinearDirections = ['top', 'to bottom', '0deg'];
 	
 	var reDeg = /\d+deg/i;
@@ -278,7 +278,7 @@ zen_coding.define('cssGradient', function(require, _) {
 	
 	// XXX register expand abbreviation handler
 	/**
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} syntax
 	 * @param {String} profile
 	 */

@@ -7,14 +7,14 @@
  * @memberOf __splitJoinTagAction
  * @constructor
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {Object} profile
 	 * @param {Object} htmlMatch
 	 */
 	function joinTag(editor, profile, htmlMatch) {
-		/** @type zen_coding.utils */
+		/** @type emmet.utils */
 		var utils = require('utils');
 		
 		var closingSlash = (profile.self_closing_tag === true) ? '/' : ' /';
@@ -33,7 +33,7 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	function splitTag(editor, profile, htmlMatch) {
-		/** @type zen_coding.utils */
+		/** @type emmet.utils */
 		var utils = require('utils');
 		
 		var nl = utils.getNewline();

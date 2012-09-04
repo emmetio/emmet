@@ -1,4 +1,4 @@
-zen_coding.require('resources').setVocabulary({
+emmet.require('resources').setVocabulary({
 	html: {
 		abbreviations: {
 			'egr+': 'div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer',

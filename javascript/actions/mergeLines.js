@@ -3,7 +3,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	require('actions').add('merge_lines', function(editor) {
 		var matcher = require('html_matcher');
 		var utils = require('utils');

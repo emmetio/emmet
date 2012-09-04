@@ -1,6 +1,6 @@
 
 (function() {
-	var actions = zen_coding.require('actions');
+	var actions = emmet.require('actions');
 	
 	function expand(abbr) {
 		editorStub.replaceContent(abbr);
@@ -58,7 +58,7 @@
 		equal(editorStub.getContent(), '<div class="b b_mod"></div>');
 		
 		// test custom separators
-		var prefs = zen_coding.require('preferences');
+		var prefs = emmet.require('preferences');
 		prefs._startTest();
 		prefs.define('bem.shortElementPrefix', '');
 		prefs.define('bem.modifierSeparator', '--');

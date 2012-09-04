@@ -8,7 +8,7 @@
  * @memberOf __xslFilterDefine
  * @param {Function} require
  * @param {Underscore} _
- */zen_coding.exec(function(require, _) {
+ */emmet.exec(function(require, _) {
 	var tags = {
 		'xsl:variable': 1,
 		'xsl:with-param': 1
@@ -16,7 +16,7 @@
 	
 	/**
 	 * Removes "select" attribute from node
-	 * @param {ZenNode} node
+	 * @param {AbbreviationNode} node
 	 */
 	function trimAttribute(node) {
 		node.start = node.start.replace(/\s+select\s*=\s*(['"]).*?\1/, '');

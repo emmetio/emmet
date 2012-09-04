@@ -7,7 +7,7 @@ test('XHTML', function() {
 	var xsl1 = '<xsl:if test="@output"><xsl:value-of select="one" /></xsl:if> <xsl:value-of select="two" /> <xsl:call-template name="tmpl1"/> <div><xsl:call-template name="tmpl2"/></div>';
 	var xsl2 = '<input type="text"><xsl:apply-templates select="." mode="form_input_value"/></input>';
 	
-	var matcher = zen_coding.require('html_matcher');
+	var matcher = emmet.require('html_matcher');
 	deepEqual(matcher(xhtml1, 8), [3, 25]);
 	deepEqual(matcher(xhtml1, 36), [32, 38]);
 	deepEqual(matcher(xhtml1, 70), [46, 85]);
@@ -32,7 +32,7 @@ test('XHTML', function() {
 
 test('HTML', function() {
 	var html_string = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends<p>Another paragraph';
-	var matcher = zen_coding.require('html_matcher');
+	var matcher = emmet.require('html_matcher');
 	
 	deepEqual(matcher(html_string, 25), [22, 26]);
 });

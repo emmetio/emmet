@@ -7,10 +7,10 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Search for new caret insertion point
-	 * @param {zen_editor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 * @param {Number} inc Search increment: -1 — search left, 1 — search right
 	 * @param {Number} offset Initial offset relative to current caret position
 	 * @return {Number} Returns -1 if insertion point wasn't found
@@ -73,12 +73,12 @@ zen_coding.exec(function(require, _) {
 		return nextPoint;
 	}
 	
-	/** @type zen_coding.actions */
+	/** @type emmet.actions */
 	var actions = require('actions');
 	
 	/**
 	 * Move caret to previous edit point
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 */
 	actions.add('prev_edit_point', function(editor) {
 		var curPos = editor.getCaretPos();
@@ -98,7 +98,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Move caret to next edit point
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 */
 	actions.add('next_edit_point', function(editor) {
 		var newPoint = findNewEditPoint(editor, 1);

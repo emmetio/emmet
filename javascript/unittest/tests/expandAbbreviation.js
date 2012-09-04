@@ -1,5 +1,5 @@
 (function() {
-	var caret = zen_coding.require('utils').getCaretPlaceholder();
+	var caret = emmet.require('utils').getCaretPlaceholder();
 	var moduleName = 'Abbreviation Expander Engine';
 	
 	module(moduleName);
@@ -18,22 +18,22 @@
 	
 	QUnit.moduleStart(function(obj) {
 		if (obj.name == moduleName) {
-			zen_coding.require('utils').setCaretPlaceholder('|');
-			zen_coding.require('resources').setVocabulary(userSettings, 'user');
+			emmet.require('utils').setCaretPlaceholder('|');
+			emmet.require('resources').setVocabulary(userSettings, 'user');
 		}
 	});
 	
 	QUnit.moduleDone(function(obj) {
 		if (obj.name == moduleName) {
-			zen_coding.require('utils').setCaretPlaceholder(caret);
-			zen_coding.require('resources').setVocabulary({}, 'user');
+			emmet.require('utils').setCaretPlaceholder(caret);
+			emmet.require('resources').setVocabulary({}, 'user');
 		}
 	});
 	
 	function runTest() {
 		var args = _.toArray(arguments);
-		var result = zen_coding.expandAbbreviation.apply(zen_coding, _.initial(args));
-		result = zen_coding.require('tabStops').processText(result, {
+		var result = emmet.expandAbbreviation.apply(emmet, _.initial(args));
+		result = emmet.require('tabStops').processText(result, {
 			escape: function(ch) {
 				return ch;
 			},
@@ -112,7 +112,7 @@
 	});
 	
 	test('Tag match on abbreviaion extraction', function() {
-		var actionUtils = zen_coding.require('actionUtils');
+		var actionUtils = emmet.require('actionUtils');
 		equal(actionUtils.extractAbbreviation('<div>bq>p'), 'bq>p');
 		equal(actionUtils.extractAbbreviation('<div class="hello" id="world">bq>p'), 'bq>p');
 		equal(actionUtils.extractAbbreviation('<div some:extention="value">bq>p'), 'bq>p');
@@ -165,7 +165,7 @@
 	});
 	
 	test('Tag hit', function() {
-		var editorUtils = zen_coding.require('editorUtils');
+		var editorUtils = emmet.require('editorUtils');
 		
 		ok(editorUtils.isInsideTag('hello<div>world', 7));
 		ok(editorUtils.isInsideTag('hello<br />world', 7));
@@ -203,13 +203,13 @@
 	});
 	
 	test('Escaping', function() {
-		var utils = zen_coding.require('utils');
+		var utils = emmet.require('utils');
 		equal(utils.escapeText('<xsl:apply-templates select="$item | other"/>'), '<xsl:apply-templates select="\\$item | other"/>');
 		equal(utils.escapeText('<xsl:apply-templates select="item \\\\| other"/>'), '<xsl:apply-templates select="item \\\\\\\\| other"/>');
 	});
 	
 	test('Unescaping', function() {
-		var utils = zen_coding.require('utils');
+		var utils = emmet.require('utils');
 		equal(utils.unescapeText('<xsl:apply-templates select="\\$item \\| other"/>'), '<xsl:apply-templates select="$item | other"/>');
 		equal(utils.unescapeText('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'), '<xsl:apply-templates select="item \\\\| other"/>');
 	});

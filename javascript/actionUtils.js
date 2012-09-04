@@ -1,10 +1,10 @@
 /**
- * Utility methods for Zen Coding actions
+ * Utility methods for Emmet actions
  * @param {Function} require
  * @param {Underscore} _
  * @author Sergey Chikuyonok (serge.che@gmail.com) <http://chikuyonok.ru>
  */
-zen_coding.define('actionUtils', function(require, _) {
+emmet.define('actionUtils', function(require, _) {
 	return {
 		mimeTypes: {
 			'gif' : 'image/gif',
@@ -20,7 +20,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		 * Extracts abbreviations from text stream, starting from the end
 		 * @param {String} str
 		 * @return {String} Abbreviation or empty string
-		 * @memberOf zen_coding.actionUtils
+		 * @memberOf emmet.actionUtils
 		 */
 		extractAbbreviation: function(str) {
 			var curOffset = str.length;
@@ -88,7 +88,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		/**
 		 * Gets image size from image byte stream.
 		 * @author http://romeda.org/rePublish/
-		 * @param {String} stream Image byte stream (use <code>zen_file.read()</code>)
+		 * @param {String} stream Image byte stream (use <code>IEmmetFile.read()</code>)
 		 * @return {Object} Object with <code>width</code> and <code>height</code> properties
 		 */
 		getImageSize: function(stream) {
@@ -143,7 +143,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		/**
 		 * Captures context XHTML element from editor under current caret position.
 		 * This node can be used as a helper for abbreviation extraction
-		 * @param {IZenEditor} editor
+		 * @param {IEmmetEditor} editor
 		 * @returns {TreeNode}
 		 */
 		captureContext: function(editor) {
@@ -185,7 +185,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		 * On each character a <code>fn</code> function will be called and must 
 		 * return <code>true</code> if current character meets requirements, 
 		 * <code>false</code> otherwise
-		 * @param {IZenEditor} editor
+		 * @param {IEmmetEditor} editor
 		 * @param {Function} fn Function to test each character of expression
 		 * @return {Range}
 		 */
@@ -207,7 +207,7 @@ zen_coding.define('actionUtils', function(require, _) {
 		},
 		
 		/**
-		 * @param {IZenEditor} editor
+		 * @param {IEmmetEditor} editor
 		 * @param {Object} data
 		 * @returns {Boolean}
 		 */

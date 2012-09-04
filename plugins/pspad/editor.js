@@ -4,13 +4,13 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
-var editorProxy = zen_coding.exec(function(require, _){
+var editorProxy = emmet.exec(function(require, _){
 	var context = null;
 	
 	return {
 		/**
 		 * Setup underlying editor context. You should call this method 
-		 * <code>before</code> using any Zen Coding action.
+		 * <code>before</code> using any Emmet action.
 		 * @param {Object} context
 		 */
 		setContext: function(ctx) {
@@ -24,7 +24,7 @@ var editorProxy = zen_coding.exec(function(require, _){
 		 * to current caret position
 		 * @return {Object}
 		 * @example
-		 * var selection = zen_editor.getSelectionRange();
+		 * var selection = editor.getSelectionRange();
 		 * alert(selection.start + ', ' + selection.end); 
 		 */
 		getSelectionRange: function() {
@@ -41,10 +41,10 @@ var editorProxy = zen_coding.exec(function(require, _){
 		 * @param {Number} start
 		 * @param {Number} [end]
 		 * @example
-		 * zen_editor.createSelection(10, 40);
+		 * editor.createSelection(10, 40);
 		 * 
 		 * //move caret to 15th character
-		 * zen_editor.createSelection(15);
+		 * editor.createSelection(15);
 		 */
 		createSelection: function(start, end) {
 			context.selStart(start);
@@ -56,7 +56,7 @@ var editorProxy = zen_coding.exec(function(require, _){
 		 * and <code>end</code> properties
 		 * @return {Object}
 		 * @example
-		 * var range = zen_editor.getCurrentLineRange();
+		 * var range = editor.getCurrentLineRange();
 		 * alert(range.start + ', ' + range.end);
 		 */
 		getCurrentLineRange: function() {
@@ -187,7 +187,7 @@ var editorProxy = zen_coding.exec(function(require, _){
 		},
 		
 		/**
-		 * Returns current output profile name (@see zen_coding#setupProfile)
+		 * Returns current output profile name (@see emmet#setupProfile)
 		 * @return {String}
 		 */
 		getProfileName: function() {

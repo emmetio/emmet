@@ -1,3 +1,3 @@
-content zencoding jar:zencoding.jar!/content/ xpcnativewrappers=yes
-overlay chrome://komodo/content/komodo.xul chrome://zencoding/content/overlay.xul
-overlay chrome://komodo/content/commandsOverlay.xul chrome://zencoding/content/commandsOverlay.xul
+content emmet jar:emmet.jar!/content/ xpcnativewrappers=yes
+overlay chrome://komodo/content/komodo.xul chrome://emmet/content/overlay.xul
+overlay chrome://komodo/content/commandsOverlay.xul chrome://emmet/content/commandsOverlay.xul

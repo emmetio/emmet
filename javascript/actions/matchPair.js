@@ -5,14 +5,14 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
-	/** @type zen_coding.actions */
+emmet.exec(function(require, _) {
+	/** @type emmet.actions */
 	var actions = require('actions');
 	var matcher = require('html_matcher');
 	
 	/**
 	 * Find and select HTML tag pair
-	 * @param {IZenEditor} editor Editor instance
+	 * @param {IEmmetEditor} editor Editor instance
 	 * @param {String} direction Direction of pair matching: 'in' or 'out'. 
 	 * Default is 'out'
 	 */
@@ -78,7 +78,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Moves caret to matching opening or closing tag
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	actions.add('matching_pair', function(editor) {
 		var content = String(editor.getContent());

@@ -4,7 +4,7 @@
  * @memberOf __nppPlugin
  * @constructor
  */
-zen_coding.define('editorProxy', function(require, _) {
+emmet.define('editorProxy', function(require, _) {
 	function getView() {
 		return Editor.currentView;
 	}

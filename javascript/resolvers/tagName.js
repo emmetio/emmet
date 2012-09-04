@@ -5,7 +5,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('tagName', function(require, _) {
+emmet.define('tagName', function(require, _) {
 	var elementTypes = {
 		empty: 'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command'.split(','),
 		blockLevel: 'address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6'.split(','),

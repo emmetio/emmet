@@ -5,7 +5,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('range', function(require, _) {
+emmet.define('range', function(require, _) {
 	/**
 	 * @type Range
 	 * @constructor
@@ -147,7 +147,7 @@ zen_coding.define('range', function(require, _) {
 		 * as two first indexes or object with 'start' and 'end' properties
 		 * @param {Number} len Range length or string to produce range from
 		 * @returns {Range}
-		 * @memberOf zen_coding.range
+		 * @memberOf emmet.range
 		 */
 		create: function(start, len) {
 			if (_.isUndefined(start) || start === null)

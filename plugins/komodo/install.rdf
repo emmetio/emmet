@@ -2,14 +2,14 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>zencoding@chikuyonok.ru</em:id>
-    <em:name>Zen Coding</em:name>
+    <em:id>emmet@chikuyonok.ru</em:id>
+    <em:name>Emmet</em:name>
     <em:version>@VERSION@</em:version>
-    <em:description>Zen Coding support for Komodo</em:description>
+    <em:description>Emmet toolkit for Komodo</em:description>
     <em:creator>Sergey Chikuyonok</em:creator>
-    <em:homepageURL>https://github.com/sergeche/zen-coding</em:homepageURL>
+    <em:homepageURL>http://emmet.io</em:homepageURL>
     <em:type>2</em:type> <!-- type=extension --> 
-    <em:iconURL>chrome://zencoding/content/icon.png</em:iconURL>
+    <em:iconURL>chrome://emmet/content/icon.png</em:iconURL>
 
     <em:targetApplication> <!-- Komodo IDE -->
       <Description>

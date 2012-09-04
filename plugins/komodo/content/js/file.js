@@ -1,9 +1,9 @@
 /**
- * <code>IZenFile</code> implementation for Komodo Edit
+ * <code>IEmmetFile</code> implementation for Komodo Edit
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('file', function(require, _) {
+emmet.define('file', function(require, _) {
 	
 	function startsWith(str, chars) {
 		return str.indexOf(chars) === 0;
@@ -30,7 +30,7 @@ zen_coding.define('file', function(require, _) {
 		 * Many modern editors have a "project" support as information unit, but you
 		 * should not rely on project path to find file with absolute path. First,
 		 * it requires user to create a project before using this method (and this 
-		 * is not actually Zen). Second, project path doesn't always points to
+		 * is not very convenient). Second, project path doesn't always points to
 		 * to website's document root folder: it may point, for example, to an 
 		 * upper folder which contains server-side scripts.
 		 * 

@@ -2,7 +2,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-var editorProxy = zen_coding.exec(function(require, _) {
+var editorProxy = emmet.exec(function(require, _) {
 	function bytesToChar(bytes) {
 		return ko.stringutils.charIndexFromPosition(editorProxy.getContent(), bytes);
 	}
@@ -14,8 +14,8 @@ var editorProxy = zen_coding.exec(function(require, _) {
 	function createSnippet(text, noIndent) {
 		return {
 			type: 'snippet',
-			name: 'zen-snippet',
-			parent: {name: 'zen-parent'},
+			name: 'emmet-snippet',
+			parent: {name: 'emmet-parent'},
 			set_selection: false,
 			indent_relative: !noIndent,
 			value: text,
@@ -30,7 +30,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		
 		/**
 		 * Setup underlying editor context. You should call this method
-		 * <code>before</code> using any Zen Coding action.
+		 * <code>before</code> using any Emmet action.
 		 * @param {Object} context
 		 */
 		setContext: function(context) {
@@ -68,7 +68,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		 * to current caret position
 		 * @return {Object}
 		 * @example
-		 * var selection = zen_editor.getSelectionRange();
+		 * var selection = editor.getSelectionRange();
 		 * alert(selection.start + ', ' + selection.end);
 		 */
 		getSelectionRange: function() {
@@ -85,10 +85,10 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		 * @param {Number} start
 		 * @param {Number} [end]
 		 * @example
-		 * zen_editor.createSelection(10, 40);
+		 * editor.createSelection(10, 40);
 		 *
 		 * //move caret to 15th character
-		 * zen_editor.createSelection(15);
+		 * editor.createSelection(15);
 		 */
 		createSelection: function(start, end) {
 			start = charsToByte(start);
@@ -101,7 +101,7 @@ var editorProxy = zen_coding.exec(function(require, _) {
 		 * and <code>end</code> properties
 		 * @return {Object}
 		 * @example
-		 * var range = zen_editor.getCurrentLineRange();
+		 * var range = editor.getCurrentLineRange();
 		 * alert(range.start + ', ' + range.end);
 		 */
 		getCurrentLineRange: function() {

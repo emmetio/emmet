@@ -1,6 +1,6 @@
 /**
  * Encodes/decodes image under cursor to/from base64
- * @param {IZenEditor} editor
+ * @param {IEmmetEditor} editor
  * @since 0.65
  * 
  * @memberOf __base64ActionDefine
@@ -8,7 +8,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	require('actions').add('encode_decode_data_url', function(editor) {
 		var data = String(editor.getSelection());
 		var caretPos = editor.getCaretPos();
@@ -59,9 +59,8 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Encodes image to base64
-	 * @requires zen_file
 	 * 
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} imgPath Path to image
 	 * @param {Number} pos Caret position where image is located in the editor
 	 * @return {Boolean}
@@ -97,7 +96,7 @@ zen_coding.exec(function(require, _) {
 
 	/**
 	 * Decodes base64 string back to file.
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} data Base64-encoded file content
 	 * @param {Number} pos Caret position where image is located in the editor
 	 */

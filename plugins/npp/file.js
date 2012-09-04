@@ -1,12 +1,12 @@
 /**
- * Implementation of @{link IZenFile} interface
- * See `javascript/interfaces/IZenFile.js`
+ * Implementation of @{link IEmmetFile} interface
+ * See `javascript/interfaces/IEmmetFile.js`
  * @param {Function} require
  * @param {Underscore} _
  * @memberOf __nppPluginFile
  * @constructor
  */
-zen_coding.define('file', function(require, _) {
+emmet.define('file', function(require, _) {
 	var backward = {
 		'C7': '80',
 		'FC': '81',

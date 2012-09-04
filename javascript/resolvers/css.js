@@ -7,8 +7,8 @@
  * <br><br>
  * <b>Abbreviation handling</b><br>
  * 
- * By default, Zen Coding search for snippet definition for provided abbreviation.
- * If snippet wasn't found, Zen Coding automatically generates tag with 
+ * By default, Emmet searches for matching snippet definition for provided abbreviation.
+ * If snippet wasn't found, Emmet automatically generates element with 
  * abbreviation's name. For example, <code>foo</code> abbreviation will generate
  * <code>&lt;foo&gt;&lt;/foo&gt;</code> output.
  * <br><br>
@@ -47,13 +47,13 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('cssResolver', function(require, _) {
+emmet.define('cssResolver', function(require, _) {
 	/** Back-reference to module */
 	var module = null;
 	
 	var prefixObj = {
 		/** Real vendor prefix name */
-		prefix: 'zen',
+		prefix: 'emmet',
 		
 		/** 
 		 * Indicates this prefix is obsolete and should't be used when user 
@@ -99,10 +99,10 @@ zen_coding.define('cssResolver', function(require, _) {
 	
 	prefs.define('css.autoInsertVendorPrefixes', true,
 			'Automatically generate vendor-prefixed copies of expanded CSS ' 
-			+ 'property. By default, Zen Coding will generate vendor-prefixed ' +
+			+ 'property. By default, Emmet will generate vendor-prefixed ' +
 			+ 'properties only when you put dash before abbreviation ' 
 			+ '(e.g. <code>-bxsh</code>). With this option enabled, you don’t ' 
-			+ 'need dashes before abbreviations: Zen Coding will produce ' 
+			+ 'need dashes before abbreviations: Emmet will produce ' 
 			+ 'vendor-prefixed properties for you.');
 	
 	var descTemplate = _.template('A comma-separated list of CSS properties that may have ' 
@@ -315,7 +315,7 @@ zen_coding.define('cssResolver', function(require, _) {
 	 * (like Sublime Text 2) may insert semicolons automatically when user types
 	 * abbreviation. After expansion, user receives a double semicolon. This
 	 * handler automatically removes semicolon from generated content in such cases.
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} syntax
 	 * @param {String} profile
 	 */
@@ -328,7 +328,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		var abbr = ea.findAbbreviation(editor);
 			
 		if (abbr) {
-			var content = zen_coding.expandAbbreviation(abbr, syntax, profile);
+			var content = emmet.expandAbbreviation(abbr, syntax, profile);
 			if (content) {
 				var replaceFrom = caretPos - abbr.length;
 				var replaceTo = caretPos;
@@ -652,7 +652,7 @@ zen_coding.define('cssResolver', function(require, _) {
 		
 		/**
 		 * Same as <code>expand</code> method but transforms output into a 
-		 * Zen Coding snippet
+		 * Emmet snippet
 		 * @param {String} abbr
 		 * @param {String} value
 		 * @returns {String}

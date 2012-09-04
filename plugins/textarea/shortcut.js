@@ -5,7 +5,7 @@
  * By Binny V A
  * License : BSD
  */
-zen_coding.define('shortcut', function(){
+emmet.define('shortcut', function(){
 	var is_opera = !!window.opera,
 		is_mac = /mac\s+os/i.test(navigator.userAgent),
 		//Work around for stupid Shift key bug created by using lowercase - as a result the shift+num combination was broken

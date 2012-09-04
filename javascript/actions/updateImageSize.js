@@ -6,10 +6,10 @@
  * @constructor
  * @memberOf __updateImageSizeAction
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Updates image size of &lt;img src=""&gt; tag
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	function updateImageSizeHTML(editor) {
 		var offset = editor.getCaretPos();
@@ -37,7 +37,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Updates image size of CSS property
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	function updateImageSizeCSS(editor) {
 		var offset = editor.getCaretPos();
@@ -68,7 +68,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Returns image dimensions for source
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} src Image source (path or data:url)
 	 */
 	function getImageSizeForSource(editor, src) {

@@ -16,7 +16,7 @@
  * @constructor
  * @memberOf __loremIpsumGeneratorDefine
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * @param {AbbreviationNode} tree
 	 * @param {Object} options

@@ -4,12 +4,12 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var file = require('file');
 	var coreDir = file.createPath(Editor.nppDir, 'plugins\\jN\\includes');
 	
-	// path to Zen Coding extensions and user's custom snippets
-	var extensionsDir = file.createPath(Editor.nppDir, 'plugins\\zencoding-extensions');
+	// path to Emmet extensions and user's custom snippets 
+	var extensionsDir = file.createPath(Editor.nppDir, 'plugins\\emmet-extensions');
 	
 	var bootstrap = require('bootstrap');
 	
@@ -80,6 +80,6 @@ zen_coding.exec(function(require, _) {
 	}
 	
 	// create menu items
-	var rootMenu = Editor.addMenu("Zen Coding");
+	var rootMenu = Editor.addMenu("Emmet");
 	addMenuItems(rootMenu, require('actions').getMenu());
 });

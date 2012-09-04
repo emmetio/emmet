@@ -2,7 +2,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	var payload = {
 		snippets: {
 			html: {
@@ -42,7 +42,7 @@ zen_coding.exec(function(require, _) {
 		
 		equal(preferences.get('demo'), '2', 'Loaded preferences');
 		ok(require('profile').get('test'), 'Loaded profile');
-		equal(zen_coding.expandAbbreviation('test', 'html'), '<SPAN class="test">${0}</SPAN>', 'Loaded user snippets and syntax profile');
+		equal(emmet.expandAbbreviation('test', 'html'), '<SPAN class="test">${0}</SPAN>', 'Loaded user snippets and syntax profile');
 		
 		
 		// cleanup

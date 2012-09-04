@@ -4,7 +4,7 @@
  * @param {Function} require
  * @param {Underscore} _ 
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	require('actions').add('remove_tag', function(editor) {
 		var utils = require('utils');
 		var info = require('editorUtils').outputInfo(editor);

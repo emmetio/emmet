@@ -1,6 +1,6 @@
 module('CSS resolver');
 test('Vendor prefixes extraction', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	deepEqual(css.extractPrefixes('-transform'), {property: 'transform', prefixes: 'all'}, 'All prefixes for "transform" property');
 	deepEqual(css.extractPrefixes('-w-transform'), {property: 'transform', prefixes: ['w']}, 'Webkit prefix for "transform" property');
@@ -10,7 +10,7 @@ test('Vendor prefixes extraction', function() {
 });
 
 test('Value extraction', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	equal(css.findValuesInAbbreviation('padding10'), '10', 'Extracted value from "padding10"');
 	equal(css.findValuesInAbbreviation('padding10-10'), '10-10', 'Extracted value from "padding10-10"');
@@ -21,7 +21,7 @@ test('Value extraction', function() {
 });
 
 test('Value parsing', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	deepEqual(css.parseValues('5'), ['5'], 'Parsed value "10"');
 	deepEqual(css.parseValues('10'), ['10'], 'Parsed value "10"');
@@ -37,7 +37,7 @@ test('Value parsing', function() {
 });
 
 test('Value normalization', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	equal(css.normalizeValue('10'), '10px', 'Normalized value 10');
 	equal(css.normalizeValue('10p'), '10%', 'Normalized value 10');
@@ -47,7 +47,7 @@ test('Value normalization', function() {
 });
 
 test('Abbreviation expanding', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	equal(css.expandToSnippet('p0'), 'padding: 0;', 'Expanded "p0" (no unit for zero)');
 	equal(css.expandToSnippet('z1'), 'z-index: 1;', 'Expanded "z1" (unitless value)');
@@ -62,7 +62,7 @@ test('Abbreviation expanding', function() {
 });
 
 test('!important declaration', function() {
-	var css = zen_coding.require('cssResolver');
+	var css = emmet.require('cssResolver');
 	
 	equal(css.expandToSnippet('pos-a!'), 'position: absolute !important;', 'Expanded "pos-a" with !important');
 	equal(css.expandToSnippet('padding5!'), 'padding: 5px !important;', 'Expanded "padding5" with !important');
@@ -72,7 +72,7 @@ test('!important declaration', function() {
 test('Expand Abbreviation action handler', function() {
 	editorStub.setSyntax('css');
 	
-	var actions = zen_coding.require('actions');
+	var actions = emmet.require('actions');
 	var run = function(name) {
 		actions.run(name, editorStub);
 	};

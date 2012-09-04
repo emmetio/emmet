@@ -1,9 +1,9 @@
 /**
- * Utility module for Zen Coding
+ * Utility module for Emmet
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('utils', function(require, _) {
+emmet.define('utils', function(require, _) {
 	/** 
 	 * Special token used as a placeholder for caret positions inside 
 	 * generated output 
@@ -266,7 +266,7 @@ zen_coding.define('utils', function(require, _) {
 		 * Replace variables like ${var} in string
 		 * @param {String} str
 		 * @param {Object} vars Variable set (defaults to variables defined in 
-		 * <code>zen_settings</code>) or variable resolver (<code>Function</code>)
+		 * <code>snippets.json</code>) or variable resolver (<code>Function</code>)
 		 * @return {String}
 		 */
 		replaceVariables: function(str, vars) {
@@ -280,7 +280,7 @@ zen_coding.define('utils', function(require, _) {
 				variable: function(data) {
 					var newValue = resolver(data.token, data.name, data);
 					if (newValue === null) {
-						// try to find variable in zen_settings
+						// try to find variable in resources
 						newValue = res.getVariable(data.name);
 					}
 					
@@ -328,7 +328,7 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
-		 * Escapes special characters used in Zen Coding, like '$', '|', etc.
+		 * Escapes special characters used in Emmet, like '$', '|', etc.
 		 * Use this method before passing to actions like "Wrap with Abbreviation"
 		 * to make sure that existing special characters won't be altered
 		 * @param {String} text
@@ -339,7 +339,7 @@ zen_coding.define('utils', function(require, _) {
 		},
 		
 		/**
-		 * Unescapes special characters used in Zen Coding, like '$', '|', etc.
+		 * Unescapes special characters used in Emmet, like '$', '|', etc.
 		 * @param {String} text
 		 * @return {String}
 		 */

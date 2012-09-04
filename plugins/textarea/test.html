@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8" />
-	<title>Zen Coding for textarea</title>
+	<title>Emmet toolkit for textarea</title>
 	<style>
 		textarea {
 			width: 100%;
@@ -81,7 +81,7 @@
 		(function() {
 			var res = ajaxLoader.loadJSON('../../snippets.json');
 			if (res) {
-				zen_coding.require('resources').setVocabulary(res, 'system');
+				emmet.require('resources').setVocabulary(res, 'system');
 			}
 		})();
 	</script>
@@ -92,7 +92,7 @@
 	<script src="customSnippets.js"></script>
 </head>
 <body>
-	<textarea class="zc-syntax-html">
+	<textarea class="emmet-syntax-html">
 ul>li.item$*4>a[href=/sample/]>lipsum3
 
 .b-block>.__el>.__el|bem
@@ -104,14 +104,17 @@ ul>li.item$*4>a[href=/sample/]>lipsum3
 2. item 2
 3. item 3
 </textarea>
-	<textarea class="zc-syntax-css">
+	<textarea class="emmet-syntax-css">
 .rule {
 	background: lg(red, black);
 }
 </textarea>
-	<img src="zc-powered.png" alt="" width="94" height="16" onclick="zen_coding.require('textarea').showInfo();" style="cursor:pointer; display: block;" />
-	<script type="text/javascript">
-		zen_coding.require('textarea').setup({pretty_break: true, use_tab: true});
+	<div><span class="emmet-powered" style="font-family: sans-serif;font-size: 11px;color: #0072bc;cursor: pointer;border-bottom: 1px dashed #0072bc;" onclick="emmet.require('textarea').showInfo();">Powered by Emmet</span></div>
+	<script>
+		emmet.require('textarea').setup({
+			pretty_break: true, 
+			use_tab: true
+		});
 	</script>
 </body>
 </html>

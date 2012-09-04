@@ -1,19 +1,19 @@
 /**
- * Zen Coding file i/o interface. Plugin developers should implement this 
+ * Emmet file i/o interface. Plugin developers should implement this 
  * interface in order to make some actions to work.
  * 
- * This interface should be defined as <code>zen_coding.define('file')</code>
+ * This interface should be defined as <code>emmet.define('file')</code>
  * module
  * 
- * @type IZenFile
+ * @type IEmmetFile
  * @constructor
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @version 0.65
  */
-function IZenFile() {}
+function IEmmetFile() {}
 
-IZenFile.prototype = {
+IEmmetFile.prototype = {
 	/**
 	 * Read file content and return it
 	 * @param {String} path File's relative or absolute path
@@ -31,7 +31,7 @@ IZenFile.prototype = {
 	 * Many modern editors have a "project" support as information unit, but you
 	 * should not rely on project path to find file with absolute path. First,
 	 * it requires user to create a project before using this method (and this 
-	 * is not actually Zen). Second, project path doesn't always points to
+	 * is not very convenient). Second, project path doesn't always points to
 	 * to website's document root folder: it may point, for example, to an 
 	 * upper folder which contains server-side scripts.
 	 * 

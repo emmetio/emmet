@@ -1,9 +1,9 @@
 /**
- * Module that contains factories for element types used by Zen Coding
+ * Module that contains factories for element types used by Emmet
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('elements', function(require, _) {
+emmet.define('elements', function(require, _) {
 	var factories = {};
 	var reAttrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
 	
@@ -74,7 +74,7 @@ zen_coding.define('elements', function(require, _) {
 	 */
 	result.add('element', function(elementName, attrs, isEmpty) {
 		var ret = {
-			/** @memberOf __zenDataElement */
+			/** @memberOf __emmetDataElement */
 			name: elementName,
 			is_empty: !!isEmpty
 		};

@@ -4,10 +4,10 @@
  * @constructor
  * @memberOf __wrapWithAbbreviationDefine
  */
-zen_coding.define('wrapWithAbbreviation', function(require, _) {
+emmet.define('wrapWithAbbreviation', function(require, _) {
 	/**
 	 * Wraps content with abbreviation
-	 * @param {IZenEditor} Editor instance
+	 * @param {IEmmetEditor} Editor instance
 	 * @param {String} abbr Abbreviation to wrap with
 	 * @param {String} syntax Syntax type (html, css, etc.)
 	 * @param {String} profile Output profile name (html, xml, xhtml)
@@ -15,7 +15,7 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 	require('actions').add('wrap_with_abbreviation', function (editor, abbr, syntax, profile) {
 		var info = require('editorUtils').outputInfo(editor, syntax, profile);
 		var utils = require('utils');
-		/** @type zen_coding.editorUtils */
+		/** @type emmet.editorUtils */
 		var editorUtils = require('editorUtils');
 		var matcher = require('html_matcher');
 		
@@ -59,7 +59,7 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 		/**
 		 * Wraps passed text with abbreviation. Text will be placed inside last
 		 * expanded element
-		 * @memberOf zen_coding.wrapWithAbbreviation
+		 * @memberOf emmet.wrapWithAbbreviation
 		 * @param {String} abbr Abbreviation
 		 * @param {String} text Text to wrap
 		 * @param {String} syntax Document type (html, xml, etc.). Default is 'html'
@@ -67,13 +67,13 @@ zen_coding.define('wrapWithAbbreviation', function(require, _) {
 		 * @return {String}
 		 */
 		wrap: function(abbr, text, syntax, profile) {
-			/** @type zen_coding.filters */
+			/** @type emmet.filters */
 			var filters = require('filters');
-			/** @type zen_coding.utils */
+			/** @type emmet.utils */
 			var utils = require('utils');
 			
-			syntax = syntax || zen_coding.defaultSyntax();
-			profile = profile || zen_coding.defaultProfile();
+			syntax = syntax || emmet.defaultSyntax();
+			profile = profile || emmet.defaultProfile();
 			
 			require('tabStops').resetTabstopIndex();
 			

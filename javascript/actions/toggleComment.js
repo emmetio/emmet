@@ -8,10 +8,10 @@
  * @memberOf __toggleCommentAction
  * @constructor
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/**
 	 * Toggle HTML comment on current selection or tag
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @return {Boolean} Returns <code>true</code> if comment was toggled
 	 */
 	function toggleHTMLComment(editor) {
@@ -33,7 +33,7 @@ zen_coding.exec(function(require, _) {
 
 	/**
 	 * Simple CSS commenting
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 * @return {Boolean} Returns <code>true</code> if comment was toggled
 	 */
 	function toggleCSSComment(editor) {
@@ -128,7 +128,7 @@ zen_coding.exec(function(require, _) {
 
 	/**
 	 * Generic comment toggling routine
-	 * @param {zen_editor} editor
+	 * @param {IEmmetEditor} editor
 	 * @param {String} commentStart Comment start token
 	 * @param {String} commentEnd Comment end token
 	 * @param {Range} range Selection range
@@ -187,7 +187,7 @@ zen_coding.exec(function(require, _) {
 	
 	/**
 	 * Toggle comment on current editor's selection or HTML tag/CSS rule
-	 * @param {IZenEditor} editor
+	 * @param {IEmmetEditor} editor
 	 */
 	require('actions').add('toggle_comment', function(editor) {
 		var info = require('editorUtils').outputInfo(editor);

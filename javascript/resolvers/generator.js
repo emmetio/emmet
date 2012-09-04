@@ -4,7 +4,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.exec(function(require, _) {
+emmet.exec(function(require, _) {
 	/** @type HandlerList */
 	var generators = require('handlerList').create();
 	var resources = require('resources');

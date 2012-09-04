@@ -6,7 +6,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('reflectCSSValue', function(require, _) {
+emmet.define('reflectCSSValue', function(require, _) {
 	/**
 	 * @type HandlerList List of registered handlers
 	 */
@@ -19,7 +19,7 @@ zen_coding.define('reflectCSSValue', function(require, _) {
 	}, {label: 'CSS/Reflect Value'});
 	
 	function doCSSReflection(editor) {
-		/** @type zen_coding.cssEditTree */
+		/** @type emmet.cssEditTree */
 		var cssEditTree = require('cssEditTree');
 		var outputInfo = require('editorUtils').outputInfo(editor);
 		var caretPos = editor.getCaretPos();

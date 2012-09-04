@@ -2,7 +2,7 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
-zen_coding.define('base64', function(require, _) {
+emmet.define('base64', function(require, _) {
 	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 	
 	return {
@@ -11,7 +11,7 @@ zen_coding.define('base64', function(require, _) {
 		 * @author Tyler Akins (http://rumkin.com)
 		 * @param {String} input
 		 * @returns {String}
-		 * @memberOf zen_coding.base64
+		 * @memberOf emmet.base64
 		 */
 		encode : function(input) {
 			var output = [];

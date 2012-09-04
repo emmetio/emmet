@@ -3,7 +3,7 @@
  * @link https://github.com/stoyan/etc/tree/master/cssex
  */
 
-zen_coding.define('cssParser', function(require, _) {
+emmet.define('cssParser', function(require, _) {
 var walker, tokens = [], isOp, isNameChar, isDigit;
     
     // walks around the source
@@ -377,7 +377,7 @@ var walker, tokens = [], isOp, isNameChar, isDigit;
     	/**
     	 * @param source
     	 * @returns
-    	 * @memberOf zen_coding.cssParser
+    	 * @memberOf emmet.cssParser
     	 */
         lex: function (source) {
             walker.init(source);

@@ -1,10 +1,10 @@
 /**
- * Module describes and performs Zen Coding actions. The actions themselves are
+ * Module describes and performs Emmet actions. The actions themselves are
  * defined in <i>actions</i> folder
  * @param {Function} require
  * @param {Underscore} _
  */
-zen_coding.define('actions', function(require, _, zc) {
+emmet.define('actions', function(require, _, zc) {
 	var actions = {};
 	
 	/**
@@ -56,16 +56,16 @@ zen_coding.define('actions', function(require, _, zc) {
 		},
 		
 		/**
-		 * Runs Zen Coding action. For list of available actions and their
+		 * Runs Emmet action. For list of available actions and their
 		 * arguments see <i>actions</i> folder.
 		 * @param {String} name Action name 
 		 * @param {Array} args Additional arguments. It may be array of arguments
-		 * or inline arguments. The first argument should be <code>zen_editor</code> instance
+		 * or inline arguments. The first argument should be <code>IEmmetEditor</code> instance
 		 * @returns {Boolean} Status of performed operation, <code>true</code>
 		 * means action was performed successfully.
 		 * @example
-		 * zen_coding.require('actions').run('expand_abbreviation', zen_editor);  
-		 * zen_coding.require('actions').run('wrap_with_abbreviation', [zen_editor, 'div']);  
+		 * emmet.require('actions').run('expand_abbreviation', editor);  
+		 * emmet.require('actions').run('wrap_with_abbreviation', [editor, 'div']);  
 		 */
 		run: function(name, args) {
 			if (!_.isArray(args)) {
@@ -74,9 +74,9 @@ zen_coding.define('actions', function(require, _, zc) {
 			
 			var action = this.get(name);
 			if (action) {
-				return action.fn.apply(zen_coding, args);
+				return action.fn.apply(emmet, args);
 			} else {
-				zen_coding.log('Action "%s" is not defined', name);
+				emmet.log('Action "%s" is not defined', name);
 				return false;
 			}
 		},
