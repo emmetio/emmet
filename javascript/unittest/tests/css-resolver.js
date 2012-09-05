@@ -89,5 +89,9 @@ test('Expand Abbreviation action handler', function() {
 	run('expand_abbreviation');
 	equal(editorStub.getContent(), 'padding: 1.2em;', 'Expanded "p1.2"');
 	
+	editorStub.replaceContent('margin: 0 !${0};');
+	run('expand_abbreviation');
+	equal(editorStub.getContent(), 'margin: 0 !important;', 'Added !important modifier');
+	
 	editorStub.setSyntax('html');
 });
