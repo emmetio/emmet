@@ -423,7 +423,7 @@ emmet.define('cssEditTree', function(require, _) {
 			var result = '';
 			var len = content.length;
 			var offset = pos;
-			var stopChars = '{}/\\<>';
+			var stopChars = '{}/\\<>\n\r';
 			var bracePos = -1, ch;
 			
 			// search left until we find rule edge
