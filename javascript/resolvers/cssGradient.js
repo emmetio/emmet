@@ -15,7 +15,7 @@ emmet.define('cssGradient', function(require, _) {
 	// XXX define preferences
 	/** @type preferences */
 	var prefs = require('preferences');
-	prefs.define('css.gradient.prefixes', 'webkit, moz, ms, o',
+	prefs.define('css.gradient.prefixes', 'webkit, moz, o',
 			'A comma-separated list of vendor-prefixes for which values should ' 
 			+ 'be generated.');
 	
