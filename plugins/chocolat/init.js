@@ -51,30 +51,43 @@ function runAction(name) {
 	
 	
 	if (name == 'wrap_with_abbreviation') {
-//		var sheet = new Sheet(Editor.current());
-		var sheet = new Window();
+		var sheet = new Sheet(Editor.current());
 		var actionCallback = function() {
 			var abbr = sheet.evalExpr('document.getElementById("abbr").value');
 			if (abbr) {
 				run(abbr);
 			}
 		};
-		sheet.html = '<!doctype html><html style="overflow:hidden"><body><p>Enter abbreviation</p><input type="text" id="abbr" style="width:100%" /><script>var el = document.getElementById("abbr");el.addEventListener("keyup", function(e){if (e.keyCode == 13){window.sendMessage("close", [1]);}}, false);el.focus();</script></body></html>';
-		sheet.frame = {x: 0, y: 0, width: 350, height: 85};
-		sheet.buttons = ['OK', 'Cancel'];
+		
+		sheet.htmlPath = 'prompt.html';
+		sheet.frame = {x: 0, y: 0, width: 350, height: 100};
 		sheet.onButtonClick = function(name) {
 			if (name == 'OK')
 				actionCallback();
 			
 			sheet.close();
 		};
+		
+		sheet.onLoad = function() {
+			sheet.applyFunction(function(data) {
+				window.abbrKeyPress = function(evt) {
+					if (evt.keyCode == 13) {
+						chocolat.sendMessage('wrap', [evt.target.value]);
+					} else if (evt.keyCode == 27) {
+						chocolat.sendMessage('close', []);
+					}
+				};
+				document.getElementById('abbr').focus();
+			}, []);
+		};
+		
+		sheet.onMessage = function(name) {
+			if (name == 'wrap') {
+				actionCallback();
+			}
+			sheet.close();
+		};
 		sheet.run();
-//		sheet.onMessage = function(name) {
-//			if (name == 'close') {
-//				sheet.close();
-//				actionCallback();
-//			}
-//		};
 	} else {
 		run();
 	}
