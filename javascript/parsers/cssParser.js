@@ -69,7 +69,8 @@ var walker, tokens = [], isOp, isNameChar, isDigit;
 
     // utility helpers
     isNameChar = function (c) {
-        return (c === '_' || c === '-' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+    	// be more tolerate for name tokens: allow & character for LESS syntax
+        return (c == '&' || c === '_' || c === '-' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
     };
 
     isDigit = function (ch) {
