@@ -235,9 +235,9 @@
 		</concat>
 		
 		<copy todir="${emmet_build_dir}/emmet.chocmixin">
-			<!-- <filelist dir="${emmet_javascript}">
+			<filelist dir="${emmet_javascript}">
 				<file name="underscore.js"/>
-			</filelist> -->
+			</filelist>
 			<filelist dir="${basedir}">
 				<file name="snippets.json"/>
 			</filelist>

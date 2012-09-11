@@ -28,7 +28,7 @@ module.exports = {
 	
 	/**
 	 * Creates selection from <code>start</code> to <code>end</code> character
-	 * indexes. If <code>end</code> is ommited, this method should place caret 
+	 * indexes. If <code>end</code> is omitted, this method should place caret 
 	 * and <code>start</code> index
 	 * @param {Number} start
 	 * @param {Number} end
@@ -163,7 +163,29 @@ module.exports = {
 	 * @return {String}
 	 */
 	getSyntax: function() {
-		return 'html';
+		var scope = Document.current().rootScope() || '';
+		var parts = scope.split('.');
+		var res = emmet.require('resources');
+		var syntax = 'html';
+		for (var i = 0, il = parts.length; i < il; i++) {
+			if (res.hasSyntax(parts[i])) {
+				syntax = parts[i];
+				break;
+			}
+		}
+		
+		if (syntax == 'html') {
+			// get the context tag
+			var caretPos = this.getCaretPos();
+			var pair = emmet.require('html_matcher').getTags(this.getContent(), caretPos);
+			if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
+				// check that we're actually inside the tag
+				if (pair[0].end <= caretPos && pair[1].start >= caretPos)
+					syntax = 'css';
+			}
+		}
+		
+		return syntax;
 	},
 	
 	/**
@@ -171,6 +193,10 @@ module.exports = {
 	 * @return {String}
 	 */
 	getProfileName: function() {
+		var syntax = this.getSyntax();
+		if (syntax == 'xml' || syntax == 'xsl')
+			return 'xml';
+			
 		return 'xhtml';
 	},
 	

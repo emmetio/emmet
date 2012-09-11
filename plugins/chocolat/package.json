@@ -5,7 +5,7 @@
 	"main": "init.js",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/emmetio/emmet.chocmixin.git"
+		"url": "https://github.com/sergeche/emmet.chocmixin.git"
 	},
 	"keywords": [
 		"emmet",
