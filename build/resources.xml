@@ -3,9 +3,7 @@
 	<property file="${basedir}/build.properties"/>
 	
 	<!-- List of Emmet core JavaScript files -->
-	<filelist dir="${emmet_javascript}" id="javascript.core">
-		<file name="underscore.js"/>
-		
+	<filelist dir="${emmet_javascript}" id="emmet.core">
 		<file name="core.js"/>
 		
 		<file name="parsers/abbreviationParser.js"/>
@@ -38,11 +36,11 @@
 		<file name="parsers/editTree/xmlEditTree.js"/>
 	</filelist>
 	
-	<fileset dir="${emmet_javascript}/filters" id="javascript.filters">
+	<fileset dir="${emmet_javascript}/filters" id="emmet.filters">
 		<include name="*.js"/>
 	</fileset>
 	
-	<filelist dir="${emmet_javascript}/actions" id="javascript.actions">
+	<filelist dir="${emmet_javascript}/actions" id="emmet.actions">
 		<file name="expandAbbreviation.js"/>
 		<file name="wrapWithAbbreviation.js"/>
 		<file name="toggleComment.js"/>
@@ -61,12 +59,11 @@
 		<file name="updateImageSize.js"/>
 	</filelist>
 	
-	<fileset dir="${emmet_javascript}/generators" id="javascript.generators">
+	<fileset dir="${emmet_javascript}/generators" id="emmet.generators">
 		<include name="*.js"/>
 	</fileset>
 	
-	<fileset dir="${emmet_javascript}/resolvers" id="javascript.resolvers">
+	<fileset dir="${emmet_javascript}/resolvers" id="emmet.resolvers">
 		<include name="*.js"/>
 	</fileset>
-
 </project>
