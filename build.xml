@@ -16,13 +16,24 @@
 		<mkdir dir="${emmet_plugins}"/>
 	</target>
 	
-	<target name="plugin.generic" depends="init">
+	<target name="-core" depends="init">
+		<concat destfile="${emmet_build_dir}/emmet-core.js" force="yes">
+			<filelist refid="emmet.core" />
+    		<filelist refid="emmet.actions" />
+    		<fileset refid="emmet.resolvers" />
+    		<fileset refid="emmet.filters" />
+    		<fileset refid="emmet.generators" />
+		</concat>
+	</target>
+	
+	<target name="plugin.generic" depends="-core">
 		<concat destfile="${emmet_build_dir}/emmet.js" force="yes">
-			<filelist refid="javascript.core" />
-    		<filelist refid="javascript.actions" />
-    		<fileset refid="javascript.resolvers" />
-    		<fileset refid="javascript.filters" />
-    		<fileset refid="javascript.generators" />
+			<filelist dir="${emmet_javascript}">
+				<file name="underscore.js"/>
+			</filelist>
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-core.js"/>
+			</filelist>
 		</concat>
 	</target>
 	
@@ -209,9 +220,38 @@
 			destfile="${emmet_build_dir}/npp/Emmet-NotepadPlusPlus-v${emmet_version}.zip"
 			excludes="*.zip"/>
 	</target>
+	
+	<!-- Plugn for Chocolat -->
+	<target name="plugin.chocolat" depends="-core">
+		<mkdir dir="${emmet_build_dir}/emmet.chocmixin"/>
+		
+		<concat destfile="${emmet_build_dir}/emmet.chocmixin/emmet.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-core.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/loaders">
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+		
+		<copy todir="${emmet_build_dir}/emmet.chocmixin">
+			<!-- <filelist dir="${emmet_javascript}">
+				<file name="underscore.js"/>
+			</filelist> -->
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+			<fileset dir="${emmet_plugins_source}/chocolat" includes="*.*"/>
+		</copy>
+		
+		<!-- Debugging only -->
+		<copy todir="/Users/sergey/.chocolat/mixins/emmet.chocmixin" overwrite="yes">
+			<fileset dir="${emmet_build_dir}/emmet.chocmixin"/>
+		</copy>
+	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea">
+	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea, plugin.chocolat">
 		<echo>Done</echo>
 	</target>
 </project>

@@ -5,6 +5,14 @@ var emmet = (function(global, _) {
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
+	if (!_) {
+		try {
+			_ = require('underscore');
+		} catch(e) {
+			console.log(e);
+		}
+	}
+	
 	/** List of registered modules */
 	var modules = {
 		_: _
@@ -190,4 +198,12 @@ var emmet = (function(global, _) {
 			moduleLoader = fn;
 		}
 	};
-})(this, _);
+})(this, this._);
+
+// export core for Node.JS
+if (typeof exports !== 'undefined') {
+	if (typeof module !== 'undefined' && module.exports) {
+		exports = module.exports = emmet;
+	}
+	exports.emmet = emmet;
+}

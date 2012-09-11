@@ -36,6 +36,7 @@ emmet.define('bootstrap', function(require, _) {
 		 * of each file.
 		 * This method requires a <code>file</code> module of <code>IEmmetFile</code> 
 		 * interface to be implemented.
+		 * @memberOf bootstrap
 		 */
 		loadExtensions: function(fileList) {
 			var file = require('file');
