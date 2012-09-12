@@ -43,9 +43,9 @@ h2. Officially supported editors
 These plugins are developed by Emmet team and guarantee to have full support of all Emmet latest features.
 
 * *Aptana/Eclipse* (crossplatform) — "Emmet for Eclipse":https://github.com/sergeche/eclipse-zencoding 
-* *TextMate* (Mac) — "external download":https://github.com/sergeche/zen-coding-objc/downloads
-* *Coda* (Mac) — "external download":https://github.com/sergeche/zen-coding-objc/downloads
-* *Espresso* (Mac) — "external download":https://github.com/sergeche/zen-coding-objc/downloads
+* *TextMate* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
+* *Coda 1.6 and 2.x* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
+* *Espresso* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
 * *Komodo Edit/IDE* (crossplatform) — "external download":http://community.activestate.com/xpi/zen-coding
 * *Notepad++* (Windows)
 * *PSPad* (Windows)
