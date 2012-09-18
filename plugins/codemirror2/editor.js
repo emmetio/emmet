@@ -226,19 +226,31 @@ emmet.exec(function(require, _) {
 		require('resources').setVariable('indentation', indentation);
 	}
 	
+	function runEmmetCommand(name, editor) {
+		setupContext(editor);
+		try {
+			if (require('actions').run(name, editorProxy))
+				return true;
+		} catch (e) {}
+		
+		throw CodeMirror.Pass;
+	}
+	
 	// add keybindings to CodeMirror
 	if (!CodeMirror.defaults.extraKeys)
 		CodeMirror.defaults.extraKeys = {};
 	
 	_.each(keymap, function(commandName, keybinding) {
-		CodeMirror.defaults.extraKeys[keybinding] = function(editor) {
-			setupContext(editor);
-			try {
-				if (require('actions').run(commandName, editorProxy))
-					return true;
-			} catch (e) {}
-			
-			throw CodeMirror.Pass;
-		};
+		
+		// register Emmet command as predefined CodeMirror command
+		// for latter use
+		var cmCommand = 'emmet.' + commandName;
+		if (!CodeMirror.commands[cmCommand]) {
+			CodeMirror.commands[cmCommand] = function(editor) {
+				return runEmmetCommand(commandName, editor);
+			};
+		}
+		
+		CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
 	});
 });
