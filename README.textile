@@ -67,6 +67,7 @@ These plugins are using official Emmet engine and developed by third-party devel
 * *Sakura Editor* (Windows) — "external download":http://mwlab.net/zen-coding-for-sakuraeditor
 * *NetBeans* (crossplatform) — "external download":http://github.com/lorenzos/ZenCodingNetBeansPlugin#readme
 * *Chrome Extension* — "external download":https://chrome.google.com/extensions/detail/iodhcpffklplnfaihoolhfbejbinhcgn
+* *ShiftEdit* – "online IDE":http://shiftedit.net
 
 h2. Unofficial implementations
 
