@@ -125,6 +125,16 @@ emmet.define('bootstrap', function(require, _) {
 		},
 		
 		/**
+		 * Resets all user-defined data: preferences, snippets etc.
+		 * @returns
+		 */
+		resetUserData: function() {
+			this.resetSnippets();
+			require('preferences').reset();
+			require('profile').reset();
+		},
+		
+		/**
 		 * Load syntax-specific output profiles. These are essentially 
 		 * an extension to syntax snippets 
 		 * @param {Object} profiles Dictionary of profiles

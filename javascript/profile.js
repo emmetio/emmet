@@ -123,12 +123,15 @@ emmet.define('profile', function(require, _) {
 		return profiles[name.toLowerCase()] = new OutputProfile(options);
 	}
 	
-	// create default profiles
-	createProfile('xhtml');
-	createProfile('html', {self_closing_tag: false});
-	createProfile('xml', {self_closing_tag: true, tag_nl: true});
-	createProfile('plain', {tag_nl: false, indent: false, place_cursor: false});
-	createProfile('line', {tag_nl: false, indent: false});
+	function createDefaultProfiles() {
+		createProfile('xhtml');
+		createProfile('html', {self_closing_tag: false});
+		createProfile('xml', {self_closing_tag: true, tag_nl: true});
+		createProfile('plain', {tag_nl: false, indent: false, place_cursor: false});
+		createProfile('line', {tag_nl: false, indent: false});
+	}
+	
+	createDefaultProfiles();
 	
 	return  {
 		/**
@@ -183,6 +186,14 @@ emmet.define('profile', function(require, _) {
 			name = (name || '').toLowerCase();
 			if (name in profiles)
 				delete profiles[name];
+		},
+		
+		/**
+		 * Resets all user-defined profiles
+		 */
+		reset: function() {
+			profiles = {};
+			createDefaultProfiles();
 		},
 		
 		/**
