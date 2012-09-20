@@ -69,6 +69,14 @@ test('!important declaration', function() {
 	equal(css.expandToSnippet('-transform!'), '-webkit-transform: ${1} !important;\n-moz-transform: ${1} !important;\n-ms-transform: ${1} !important;\n-o-transform: ${1} !important;\ntransform: ${1} !important;', 'Expanded "-transform" with !important');
 });
 
+test('Stylus dialect', function() {
+	var css = emmet.require('cssResolver');
+	equal(css.expandToSnippet('p0', 'stylus'), 'padding 0');
+	equal(css.expandToSnippet('pos-a!', 'stylus'), 'position absolute !important');
+	equal(css.expandToSnippet('padding5!', 'stylus'), 'padding 5px !important');
+	equal(css.expandToSnippet('-transform!', 'stylus'), '-webkit-transform ${1} !important\n-moz-transform ${1} !important\n-ms-transform ${1} !important\n-o-transform ${1} !important\ntransform ${1} !important');
+});
+
 test('Expand Abbreviation action handler', function() {
 	editorStub.setSyntax('css');
 	

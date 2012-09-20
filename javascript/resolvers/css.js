@@ -96,6 +96,20 @@ emmet.define('cssResolver', function(require, _) {
 	prefs.define('css.valueSeparator', ': ',
 			'Defines a symbol that should be placed between CSS property and ' 
 			+ 'value when expanding CSS abbreviations.');
+	prefs.define('css.propertyEnd', ';',
+			'Defines a symbol that should be placed at the end of CSS property  ' 
+			+ 'when expanding CSS abbreviations.');
+	
+	prefs.define('stylus.valueSeparator', ' ',
+			'Defines a symbol that should be placed between CSS property and ' 
+			+ 'value when expanding CSS abbreviations in Stylus dialect.');
+	prefs.define('stylus.propertyEnd', '',
+			'Defines a symbol that should be placed at the end of CSS property  ' 
+			+ 'when expanding CSS abbreviations in Stylus dialect.');
+	
+	prefs.define('sass.propertyEnd', '',
+			'Defines a symbol that should be placed at the end of CSS property  ' 
+			+ 'when expanding CSS abbreviations in SASS dialect.');
 	
 	prefs.define('css.autoInsertVendorPrefixes', true,
 			'Automatically generate vendor-prefixed copies of expanded CSS ' 
@@ -226,6 +240,31 @@ emmet.define('cssResolver', function(require, _) {
 		vendorPrefixes[name] = _.extend({}, prefixObj, obj);
 	}
 	
+	function getSyntaxPreference(name, syntax) {
+		if (syntax) {
+			var val = prefs.get(syntax + '.' + name);
+			if (!_.isUndefined(val))
+				return val;
+		}
+		
+		return prefs.get('css.' + name);
+	}
+	
+	/**
+	 * Format CSS property according to current syntax dialect
+	 * @param {String} property
+	 * @param {String} syntax
+	 * @returns {String}
+	 */
+	function formatProperty(property, syntax) {
+		var ix = property.indexOf(':');
+		property = property.substring(0, ix).replace(/\s+$/, '') 
+			+ getSyntaxPreference('valueSeparator', syntax)
+			+ require('utils').trim(property.substring(ix + 1));
+		
+		return property.replace(/\s*;\s*$/, getSyntaxPreference('propertyEnd', syntax));
+	}
+	
 	/**
 	 * Transforms snippet value if required. For example, this transformation
 	 * may add <i>!important</i> declaration to CSS property
@@ -233,7 +272,7 @@ emmet.define('cssResolver', function(require, _) {
 	 * @param {Boolean} isImportant
 	 * @returns {String}
 	 */
-	function transformSnippet(snippet, isImportant) {
+	function transformSnippet(snippet, isImportant, syntax) {
 		if (!_.isString(snippet))
 			snippet = snippet.data;
 		
@@ -247,6 +286,8 @@ emmet.define('cssResolver', function(require, _) {
 				snippet += ' !important';
 			}
 		}
+		
+		return formatProperty(snippet, syntax);
 		
 		// format value separator
 		var ix = snippet.indexOf(':');
@@ -294,7 +335,7 @@ emmet.define('cssResolver', function(require, _) {
 //		obsolete: true
 //	});
 	
-	var cssSyntaxes = ['css', 'less', 'sass', 'scss'];
+	var cssSyntaxes = ['css', 'less', 'sass', 'scss', 'stylus'];
 	
 	/**
 	 * XXX register resolver
@@ -303,7 +344,7 @@ emmet.define('cssResolver', function(require, _) {
 	 */
 	require('resources').addResolver(function(node, syntax) {
 		if (_.include(cssSyntaxes, syntax) && node.isElement()) {
-			return module.expandToSnippet(node.abbreviation);
+			return module.expandToSnippet(node.abbreviation, syntax);
 		}
 		
 		return null;
@@ -584,10 +625,11 @@ emmet.define('cssResolver', function(require, _) {
 		 * Expands abbreviation into a snippet
 		 * @param {String} abbr Abbreviation name to expand
 		 * @param {String} value Abbreviation value
+		 * @param {String} syntax Currect syntax or dialect. Default is 'css'
 		 * @returns {Object} Array of CSS properties and values or predefined
 		 * snippet (string or element)
 		 */
-		expand: function(abbr, value) {
+		expand: function(abbr, value, syntax) {
 			var resources = require('resources');
 			var autoInsertPrefixes = prefs.get('css.autoInsertVendorPrefixes');
 			
@@ -600,7 +642,7 @@ emmet.define('cssResolver', function(require, _) {
 			// check if we have abbreviated resource
 			var snippet = resources.getSnippet('css', abbr);
 			if (snippet && !autoInsertPrefixes) {
-				return transformSnippet(snippet, isImportant);
+				return transformSnippet(snippet, isImportant, syntax);
 			}
 			
 			// no abbreviated resource, parse abbreviation
@@ -639,13 +681,13 @@ emmet.define('cssResolver', function(require, _) {
 						result.push(transformSnippet(
 								vendorPrefixes[p].transformName(snippetObj.name) 
 								+ ':' + snippetObj.value,
-								isImportant));
+								isImportant, syntax));
 						
 					}
 				});
 			
 			// put the original property
-			result.push(transformSnippet(snippetObj.name + ':' + snippetObj.value, isImportant));
+			result.push(transformSnippet(snippetObj.name + ':' + snippetObj.value, isImportant, syntax));
 			
 			return result;
 		},
@@ -654,11 +696,11 @@ emmet.define('cssResolver', function(require, _) {
 		 * Same as <code>expand</code> method but transforms output into a 
 		 * Emmet snippet
 		 * @param {String} abbr
-		 * @param {String} value
+		 * @param {String} syntax
 		 * @returns {String}
 		 */
-		expandToSnippet: function(abbr, value) {
-			var snippet = this.expand(abbr, value);
+		expandToSnippet: function(abbr, syntax) {
+			var snippet = this.expand(abbr, null, syntax);
 			if (_.isArray(snippet)) {
 				return snippet.join('\n');
 			}
