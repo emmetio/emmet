@@ -1,21 +1,34 @@
 /**
  * Core Emmet object, available in global scope
  */
-var emmet = (function(global, _) {
+var emmet = (function(global) {
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
-	if (!_) {
+	// getting underscore lib is a bit tricky for all
+	// environments (browser, node.js, wsh)
+	var underscore = global._;
+	if (!underscore) {
+		// wsh
 		try {
-			_ = require('underscore');
-		} catch(e) {
-			console.log(e);
-		}
+			underscore = _;
+		} catch (e) {}
 	}
-	
+
+	if (!underscore) {
+		// node.js
+		try {
+			underscore = require('underscore');
+		} catch (e) {}
+	}
+
+	if (!underscore) {
+		throw 'Cannot access to Underscore.js lib';
+	}
+
 	/** List of registered modules */
 	var modules = {
-		_: _
+		_ : underscore
 	};
 	
 	/**
@@ -198,7 +211,7 @@ var emmet = (function(global, _) {
 			moduleLoader = fn;
 		}
 	};
-})(this, this._);
+})(this);
 
 // export core for Node.JS
 if (typeof exports !== 'undefined') {
