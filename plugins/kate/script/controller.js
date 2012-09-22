@@ -94,7 +94,6 @@ function emmetExpand() {
 	emmet.require('actions').run('expand_abbreviation', getInterface());
 }   
 
-// Wraps the selection with a given tag (command line only, otherwise div is used as we can't prompt for input).
 function emmetWrap(par) {
 	emmet.require('actions').run('wrap_with_abbreviation', getInterface(), par || 'div');
 }
@@ -166,9 +165,3 @@ function emmetDecrementNumberBy10() {
 function emmetDecrementNumberBy01() {
 	emmet.require('actions').run('decrement_number_by_01', getInterface());
 }
-
-
-/*
-select_next_item: [object Object]
-select_previous_item: [object Object]
-*/
