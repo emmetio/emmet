@@ -221,6 +221,24 @@
 			excludes="*.zip"/>
 	</target>
 	
+	<!-- Plugn for Kate -->
+	<target name="plugin.kate" depends="plugin.generic-full">
+		<mkdir dir="${emmet_build_dir}/kate"/>
+		
+		<copy todir="${emmet_build_dir}/kate">
+			<fileset dir="${emmet_plugins_source}/kate"/>
+		</copy>
+		
+		<copy file="${emmet_build_dir}/emmet-full.js" tofile="${emmet_build_dir}/kate/api/49_emmet.js"/>
+		
+		<zip 
+			basedir="${emmet_build_dir}/kate"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/kate/Emmet-Kate-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
 	<!-- Plugn for Chocolat -->
 	<target name="plugin.chocolat" depends="-core">
 		<mkdir dir="${emmet_build_dir}/emmet.chocmixin"/>
