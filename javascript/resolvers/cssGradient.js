@@ -31,6 +31,11 @@ emmet.define('cssGradient', function(require, _) {
 		'When gradient expanded outside CSS value context, it will produce '
 			+ 'properties with this name.');
 	
+	prefs.define('css.gradient.fallback', false,
+			'With this option enabled, CSS gradient generator will produce '
+			+ '<code>background-color</code> property with gradient first color '
+			+ 'as fallback for old browsers.');
+	
 	function normalizeSpace(str) {
 		return require('utils').trim(str).replace(/\s+/g, ' ');
 	}
@@ -205,6 +210,13 @@ emmet.define('cssGradient', function(require, _) {
 	function getPropertiesForGradient(gradient, propertyName) {
 		var props = [];
 		var css = require('cssResolver');
+		
+		if (prefs.get('css.gradient.fallback') && ~propertyName.toLowerCase().indexOf('background')) {
+			props.push({
+				name: 'background-color',
+				value: '${1:' + gradient.colorStops[0].color + '}'
+			});
+		}
 		
 		_.each(prefs.getArray('css.gradient.prefixes'), function(prefix) {
 			var name = css.prefixed(propertyName, prefix);

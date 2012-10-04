@@ -92,7 +92,7 @@ emmet.define('preferences', function(require, _) {
 
 					preferences[k] = v;
 				} else if  (k in preferences) {
-					delete preferences[p];
+					delete preferences[k];
 				}
 			});
 		},

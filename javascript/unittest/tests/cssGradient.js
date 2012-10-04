@@ -12,6 +12,8 @@ test('Parse linear gradient', function() {
 });
 
 test('Expand abbreviation handler', function() {
+	var prefs = emmet.require('preferences');
+	
 	editorStub.setSyntax('css');
 	editorStub.replaceContent('.r{a:lg(red, black)$0}');
 	
@@ -23,6 +25,13 @@ test('Expand abbreviation handler', function() {
 	editorStub.replaceContent('.r{\n\tlg(red, black)$0\n}');
 	emmet.require('actions').run('expand_abbreviation', editorStub);
 	equal(editorStub.getContent(), '.r{\n\tbackground-image: -webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));\n\tbackground-image: -webkit-linear-gradient(red, black);\n\tbackground-image: -moz-linear-gradient(red, black);\n\tbackground-image: -o-linear-gradient(red, black);\n\tbackground-image: linear-gradient(red, black);\n}');
+	
+	// test fallback value
+	prefs.set('css.gradient.fallback', true);
+	editorStub.replaceContent('.r{\n\tlg(red, black)$0\n}');
+	emmet.require('actions').run('expand_abbreviation', editorStub);
+	equal(editorStub.getContent(), '.r{\n\tbackground-color: red;\n\tbackground-image: -webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));\n\tbackground-image: -webkit-linear-gradient(red, black);\n\tbackground-image: -moz-linear-gradient(red, black);\n\tbackground-image: -o-linear-gradient(red, black);\n\tbackground-image: linear-gradient(red, black);\n}');
+	prefs.set('css.gradient.fallback', false);
 	
 	editorStub.setSyntax('html');
 });
