@@ -18,6 +18,12 @@ test('Expand abbreviation handler', function() {
 	emmet.require('actions').run('expand_abbreviation', editorStub);
 	equal(editorStub.getContent(), '.r{a:-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));a:-webkit-linear-gradient(red, black);a:-moz-linear-gradient(red, black);a:-o-linear-gradient(red, black);a:linear-gradient(red, black);}');
 	equal(editorStub.getCaretPos(), 200, 'Correctly placed cursor');
+	
+	// expand gradient outside value
+	editorStub.replaceContent('.r{\n\tlg(red, black)$0\n}');
+	emmet.require('actions').run('expand_abbreviation', editorStub);
+	equal(editorStub.getContent(), '.r{\n\tbackground-image: -webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));\n\tbackground-image: -webkit-linear-gradient(red, black);\n\tbackground-image: -moz-linear-gradient(red, black);\n\tbackground-image: -o-linear-gradient(red, black);\n\tbackground-image: linear-gradient(red, black);\n}');
+	
 	editorStub.setSyntax('html');
 });
 

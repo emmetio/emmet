@@ -709,7 +709,8 @@ emmet.define('cssResolver', function(require, _) {
 				return snippet.data;
 			
 			return String(snippet);
-		}
+		},
+		
+		getSyntaxPreference: getSyntaxPreference
 	};
 });
-

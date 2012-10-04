@@ -155,6 +155,11 @@ emmet.define('range', function(require, _) {
 			
 			if (start instanceof Range)
 				return start;
+			
+			if (_.isObject(start) && 'start' in start && 'end' in start) {
+				len = start.end - start.start;
+				start = start.start;
+			}
 				
 			return new Range(start, len);
 		},
