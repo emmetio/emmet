@@ -325,7 +325,6 @@ emmet.define('cssResolver', function(require, _) {
 		supports: prefs.getArray('css.oProperties')
 	});
 	
-	var unitlessProps = prefs.getArray('css.unitlessProperties');
 	var floatUnit = 'em';
 	var intUnit = 'px';
 	
@@ -610,6 +609,7 @@ emmet.define('cssResolver', function(require, _) {
 		 */
 		normalizeValue: function(value, property) {
 			property = (property || '').toLowerCase();
+			var unitlessProps = prefs.getArray('css.unitlessProperties');
 			return value.replace(/^(\-?[0-9\.]+)([a-z]*)$/, function(str, val, unit) {
 				if (!unit && (val == '0' || _.include(unitlessProps, property)))
 					return val;
@@ -640,7 +640,7 @@ emmet.define('cssResolver', function(require, _) {
 			}
 			
 			// check if we have abbreviated resource
-			var snippet = resources.getSnippet('css', abbr);
+			var snippet = resources.getSnippet(syntax || 'css', abbr);
 			if (snippet && !autoInsertPrefixes) {
 				return transformSnippet(snippet, isImportant, syntax);
 			}
@@ -650,7 +650,7 @@ emmet.define('cssResolver', function(require, _) {
 			var valuesData = this.extractValues(prefixData.property);
 			var abbrData = _.extend(prefixData, valuesData);
 			
-			snippet = resources.getSnippet('css', abbrData.property);
+			snippet = resources.getSnippet(syntax || 'css', abbrData.property);
 			
 			if (!snippet) {
 				snippet = abbrData.property + ':' + defaultValue;
