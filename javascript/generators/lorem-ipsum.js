@@ -30,10 +30,11 @@ emmet.exec(function(require, _) {
 				var wordCound = match[1] || 30;
 				
 				// force node name resolving if node should be repeated
-				// or contains attributes. In this case, node should be outputtet
+				// or contains attributes. In this case, node should be outputed
 				// as tag, otherwise as text-only node
 				node._name = '';
 				node.data('forceNameResolving', node.isRepeating() || node.attributeList().length);
+				node.data('pasteOverwrites', true);
 				node.data('paste', function(i, content) {
 					return paragraph(wordCound, !i);
 				});

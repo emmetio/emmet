@@ -76,8 +76,10 @@ emmet.exec(function(require, _) {
 	 * Insert pasted content into correct positions of parsed node
 	 * @param {AbbreviationNode} node
 	 * @param {String} content
+	 * @param {Boolean} overwrite Overwrite node content if no value placeholders
+	 * found instead of appending to existing content
 	 */
-	function insertPastedContent(node, content) {
+	function insertPastedContent(node, content, overwrite) {
 		var nodesWithPlaceholders = node.findAll(function(item) {
 			return hasOutputPlaceholder(item);
 		});
@@ -96,7 +98,11 @@ emmet.exec(function(require, _) {
 			// on output placeholders in subtree, insert content in the deepest
 			// child node
 			var deepest = node.deepestChild() || node;
-			deepest.content = require('abbreviationUtils').insertChildContent(deepest.content, content);
+			if (overwrite) {
+				deepest.content = content;
+			} else {
+				deepest.content = require('abbreviationUtils').insertChildContent(deepest.content, content);
+			}
 		}
 	}
 	
@@ -138,7 +144,7 @@ emmet.exec(function(require, _) {
 			}
 			
 			if (pastedContent) {
-				insertPastedContent(item, pastedContent);
+				insertPastedContent(item, pastedContent, !!item.data('pasteOverwrites'));
 			}
 			
 			item.data('paste', null);
