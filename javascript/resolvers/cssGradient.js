@@ -239,7 +239,6 @@ emmet.define('cssGradient', function(require, _) {
 	function pasteGradient(property, gradient, valueRange) {
 		var rule = property.parent;
 		var utils = require('utils');
-		var css = require('cssResolver');
 		
 		// first, remove all properties within CSS rule with the same name and
 		// gradient definition
@@ -258,7 +257,7 @@ emmet.define('cssGradient', function(require, _) {
 		};
 		
 		// put vanilla-clean gradient definition into current rule
-		property.value(val(module.toString(gradient)));
+		property.value(val(module.toString(gradient)) + '${2}');
 		
 		// create list of properties to insert
 		var propsToInsert = getPropertiesForGradient(gradient, property.name());
@@ -302,7 +301,7 @@ emmet.define('cssGradient', function(require, _) {
 		
 		// assuming that gradient definition is written on new line,
 		// do a simplified parsing
-		var content = editor.getContent();
+		var content = String(editor.getContent());
 		/** @type Range */
 		var lineRange = require('range').create(editor.getCurrentLineRange());
 		
@@ -339,6 +338,34 @@ emmet.define('cssGradient', function(require, _) {
 		return false;
 	}
 	
+	/**
+	 * Search for gradient definition inside CSS value under cursor
+	 * @param {String} content
+	 * @param {Number} pos
+	 * @returns {Object}
+	 */
+	function findGradientFromPosition(content, pos) {
+		var cssProp = null;
+		/** @type EditContainer */
+		var cssRule = require('cssEditTree').parseFromPosition(content, pos, true);
+		
+		if (cssRule) {
+			cssProp = cssRule.itemFromPosition(pos, true);
+			if (!cssProp) {
+				// in case user just started writing CSS property
+				// and didn't include semicolon–try another approach
+				cssProp = _.find(cssRule.list(), function(elem) {
+					return elem.range(true).end == pos;
+				});
+			}
+		}
+		
+		return {
+			rule: cssRule,
+			property: cssProp
+		};
+	}
+	
 	// XXX register expand abbreviation handler
 	/**
 	 * @param {IEmmetEditor} editor
@@ -352,34 +379,39 @@ emmet.define('cssGradient', function(require, _) {
 		
 		// let's see if we are expanding gradient definition
 		var caret = editor.getCaretPos();
-		/** @type EditContainer */
-		var cssRule = require('cssEditTree').parseFromPosition(info.content, caret, true);
-		if (cssRule) {
-			var cssProp = cssRule.itemFromPosition(caret, true);
-			if (!cssProp) {
-				// in case user just started writing CSS property
-				// and didn't include semicolon–try another approach
-				cssProp = _.find(cssRule.list(), function(elem) {
-					return elem.range(true).end == caret;
-				});
-			}
-			
-			if (cssProp) {
-				// make sure that caret is inside property value with gradient 
-				// definition
-				var g = findGradient(cssProp);
-				if (g) {
-					// make sure current property has terminating semicolon
-					cssProp.end(';');
-					
-					var ruleStart = cssRule.options.offset || 0;
-					var ruleEnd = ruleStart + cssRule.toString().length;
-					
-					pasteGradient(cssProp, g.gradient, g.valueRange);
-					editor.replaceContent(cssRule.toString(), ruleStart, ruleEnd, true);
-					editor.setCaretPos(cssProp.valueRange(true).end);
-					return true;
+		var content = info.content;
+		var css = findGradientFromPosition(content, caret);
+		
+		if (css.property) {
+			// make sure that caret is inside property value with gradient 
+			// definition
+			var g = findGradient(css.property);
+			if (g) {
+				var ruleStart = css.rule.options.offset || 0;
+				var ruleEnd = ruleStart + css.rule.toString().length;
+				
+				// Handle special case:
+				// user wrote gradient definition between existing CSS 
+				// properties and did not finished it with semicolon.
+				// In this case, we have semicolon right after gradient 
+				// definition and re-parse rule again
+				if (/[\n\r]/.test(css.property.value())) {
+					// insert semicolon at the end of gradient definition
+					var insertPos = css.property.valueRange(true).start + g.valueRange.end;
+					content = require('utils').replaceSubstring(content, ';', insertPos);
+					var newCss = findGradientFromPosition(content, caret);
+					if (newCss.property) {
+						g = findGradient(newCss.property);
+						css = newCss;
+					}
 				}
+				
+				// make sure current property has terminating semicolon
+				css.property.end(';');
+				
+				pasteGradient(css.property, g.gradient, g.valueRange);
+				editor.replaceContent(css.rule.toString(), ruleStart, ruleEnd, true);
+				return true;
 			}
 		}
 		
