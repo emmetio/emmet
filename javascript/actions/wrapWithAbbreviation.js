@@ -5,6 +5,9 @@
  * @memberOf __wrapWithAbbreviationDefine
  */
 emmet.define('wrapWithAbbreviation', function(require, _) {
+	/** Back-references to current module */
+	var module = null;
+	
 	/**
 	 * Wraps content with abbreviation
 	 * @param {IEmmetEditor} Editor instance
@@ -44,10 +47,11 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 		}
 		
 		var newContent = utils.escapeText(info.content.substring(startOffset, endOffset));
-		var result = require('wrapWithAbbreviation').wrap(abbr, editorUtils.unindent(editor, newContent), info.syntax, info.profile);
+		var result = module
+			.wrap(abbr, editorUtils.unindent(editor, newContent), info.syntax, 
+					info.profile, require('actionUtils').captureContext(editor));
 		
 		if (result) {
-//			editor.setCaretPos(endOffset);
 			editor.replaceContent(result, startOffset, endOffset);
 			return true;
 		}
@@ -55,18 +59,20 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 		return false;
 	});
 	
-	return {
+	return module = {
 		/**
 		 * Wraps passed text with abbreviation. Text will be placed inside last
 		 * expanded element
-		 * @memberOf emmet.wrapWithAbbreviation
+		 * @memberOf wrapWithAbbreviation
 		 * @param {String} abbr Abbreviation
 		 * @param {String} text Text to wrap
 		 * @param {String} syntax Document type (html, xml, etc.). Default is 'html'
 		 * @param {String} profile Output profile's name. Default is 'plain'
+		 * @param {Object} contextNode Context node inside which abbreviation
+		 * is wrapped. It will be used as a reference for node name resolvers
 		 * @return {String}
 		 */
-		wrap: function(abbr, text, syntax, profile) {
+		wrap: function(abbr, text, syntax, profile, contextNode) {
 			/** @type emmet.filters */
 			var filters = require('filters');
 			/** @type emmet.utils */
@@ -80,7 +86,8 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 			var data = filters.extractFromAbbreviation(abbr);
 			var parsedTree = require('abbreviationParser').parse(data[0], {
 				syntax: syntax,
-				pastedContent: text
+				pastedContent: text,
+				contextNode: contextNode
 			});
 			if (parsedTree) {
 				var filtersList = filters.composeList(syntax, profile, data[1]);

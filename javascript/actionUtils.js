@@ -144,7 +144,7 @@ emmet.define('actionUtils', function(require, _) {
 		 * Captures context XHTML element from editor under current caret position.
 		 * This node can be used as a helper for abbreviation extraction
 		 * @param {IEmmetEditor} editor
-		 * @returns {TreeNode}
+		 * @returns {Object}
 		 */
 		captureContext: function(editor) {
 			var allowedSyntaxes = {'html': 1, 'xml': 1, 'xsl': 1};

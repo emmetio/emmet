@@ -152,7 +152,7 @@ var emmet = (function(global) {
 		 * @param {String} abbr Abbreviation to parse
 		 * @param {String} syntax Abbreviation's context syntax
 		 * @param {String} profile Output profile (or its name)
-		 * @param {TreeNode} contextNode Contextual node where abbreviation is
+		 * @param {Object} contextNode Contextual node where abbreviation is
 		 * written
 		 * @return {String}
 		 */
