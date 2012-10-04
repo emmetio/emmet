@@ -229,8 +229,13 @@ emmet.exec(function(require, _) {
 	function runEmmetCommand(name, editor) {
 		setupContext(editor);
 		try {
-			if (require('actions').run(name, editorProxy))
-				return true;
+			require('actions').run(name, editorProxy);
+			// a bit weird fix for the following action (actually, for their
+			// keybindings) to prevent CM2 from inserting block characters
+			if (name == 'next_edit_point' || name == 'prev_edit_point') {
+				editor.replaceSelection('');
+			}
+			return true;
 		} catch (e) {}
 		
 		throw CodeMirror.Pass;
