@@ -26,5 +26,11 @@ emmet.require('resources').setVocabulary({
 //			self_closing_tag: 'xhtml',
 //			filters: ''
 //		}
+	},
+	
+	'css': {
+		'snippets': {
+			'mm': '@media (min-width: ${class}px) {\n\t|\n}'
+		}
 	}
 }, 'user');
