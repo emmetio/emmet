@@ -429,6 +429,7 @@
 		equal(wrap('li*', 'one\ntwo\nthree'), '<li>one</li><li>two</li><li>three</li>');
 		equal(wrap('ul>li*', 'one\ntwo\nthree'), '<ul><li>one</li><li>two</li><li>three</li></ul>');
 		equal(wrap('li*>a', 'one\ntwo\nthree'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>');
+		equal(wrap('li*>a', 'one\n    two\n    three'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>', 'Removed indentation of wrapped content');
 		
 		equal(wrap('span', '$2'), '<span>\\$2</span>');
 		
