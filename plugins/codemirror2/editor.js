@@ -3,7 +3,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-emmet.exec(function(require, _) {
+emmet.define('cm-editor-proxy', function(require, _) {
 	var ios = /AppleWebKit/.test(navigator.userAgent) && /Mobile\/\w+/.test(navigator.userAgent);
 	var mac = ios || /Mac/.test(navigator.platform);
 	var keymap = {
@@ -213,21 +213,21 @@ emmet.exec(function(require, _) {
 		 */
 		getFilePath: function() {
 			return location.href;
+		},
+
+		setupContext: function(ctx) {
+			this.context = ctx;
+			var indentation = '\t';
+			if (!ctx.getOption('indentWithTabs')) {
+				indentation = require('utils').repeatString(' ', ctx.getOption('indentUnit'));
+			}
+			
+			require('resources').setVariable('indentation', indentation);
 		}
-	};
-	
-	function setupContext(context) {
-		editorProxy.context = context;
-		var indentation = '\t';
-		if (!context.getOption('indentWithTabs')) {
-			indentation = require('utils').repeatString(' ', context.getOption('indentUnit'));
-		}
-		
-		require('resources').setVariable('indentation', indentation);
-	}
+	};	
 	
 	function runEmmetCommand(name, editor) {
-		setupContext(editor);
+		editorProxy.setupContext(editor);
 		try {
 			require('actions').run(name, editorProxy);
 			// a bit weird fix for the following action (actually, for their
@@ -258,4 +258,6 @@ emmet.exec(function(require, _) {
 		
 		CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
 	});
+
+	return editorProxy;
 });
