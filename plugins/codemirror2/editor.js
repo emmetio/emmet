@@ -8,7 +8,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 	var mac = ios || /Mac/.test(navigator.platform);
 	var keymap = {
 		'Cmd-E': 'expand_abbreviation',
-		'Tab': 'expand_abbreviation',
+		'Tab': 'expand_abbreviation_with_tab',
 		'Cmd-D': 'match_pair_outward',
 		'Shift-Cmd-D': 'match_pair_inward',
 		'Shift-Cmd-A': 'wrap_with_abbreviation',
@@ -43,15 +43,15 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		'text/x-less': 'less'
 	};
 	
-	if (!mac) {
-		// replace Cmd modifier for non-Mac environment
-		var pcKeymap = {};
-		_.each(keymap, function(v, k) {
-			pcKeymap[k.replace('Cmd', 'Ctrl')] = v;
-		});
+	// if (!mac) {
+	// 	// replace Cmd modifier for non-Mac environment
+	// 	var pcKeymap = {};
+	// 	_.each(keymap, function(v, k) {
+	// 		pcKeymap[k.replace('Cmd', 'Ctrl')] = v;
+	// 	});
 		
-		keymap = pcKeymap;
-	}
+	// 	keymap = pcKeymap;
+	// }
 	
 	// add “profile” property to CodeMirror defaults so in won’t be lost
 	// then CM instance is instantiated with “profile” property
@@ -223,6 +223,27 @@ emmet.define('cm-editor-proxy', function(require, _) {
 			}
 			
 			require('resources').setVariable('indentation', indentation);
+		},
+
+		addAction: function(commandName, keybinding) {
+			// register Emmet command as predefined CodeMirror command
+			// for latter use
+			var cmCommand = 'emmet.' + commandName;
+			if (!CodeMirror.commands[cmCommand]) {
+				CodeMirror.commands[cmCommand] = function(editor) {
+					return runEmmetCommand(commandName, editor);
+				};
+			}
+
+			if (keybinding) {
+				if (!CodeMirror.defaults.extraKeys)
+					CodeMirror.defaults.extraKeys = {};
+
+				if (!mac)
+					keybinding = keybinding.replace('Cmd', 'Ctrl');
+
+				CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
+			}			
 		}
 	};	
 	
@@ -241,23 +262,8 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		throw CodeMirror.Pass;
 	}
 	
-	// add keybindings to CodeMirror
-	if (!CodeMirror.defaults.extraKeys)
-		CodeMirror.defaults.extraKeys = {};
-	
-	_.each(keymap, function(commandName, keybinding) {
-		
-		// register Emmet command as predefined CodeMirror command
-		// for latter use
-		var cmCommand = 'emmet.' + commandName;
-		if (!CodeMirror.commands[cmCommand]) {
-			CodeMirror.commands[cmCommand] = function(editor) {
-				return runEmmetCommand(commandName, editor);
-			};
-		}
-		
-		CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
-	});
+	// add keybindings to CodeMirror	
+	_.each(keymap, editorProxy.addAction);
 
 	return editorProxy;
 });
