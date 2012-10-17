@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         replaceContent: function (value, start, end, noIndent) {
             var _ = emmet.__r("_");
             if (_.isUndefined(end)) 
-                end = _.isUndefined(start) ? content.length : start;
+                end = _.isUndefined(start) ? value.length : start;
             if (_.isUndefined(start)) start = 0;
             var utils = emmet.__r("utils");
             
