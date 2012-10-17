@@ -6,6 +6,7 @@ define(function (require, exports, module) {
     "use strict";
 
     var CommandManager = brackets.getModule("command/CommandManager"),
+        KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
         Menus = brackets.getModule("command/Menus"),
         EditorManager = brackets.getModule("editor/EditorManager"),
 
@@ -14,6 +15,7 @@ define(function (require, exports, module) {
 
     var keymap = {
         "expand_abbreviation": "Ctrl-Enter",
+        "expand_abbreviation_with_tab": "Tab",
         "match_pair_outward": "Ctrl-D",
         "match_pair_inward": "Shift-Ctrl-D",
         "wrap_with_abbreviation": "Shift-Ctrl-A",
@@ -43,9 +45,6 @@ define(function (require, exports, module) {
     // register all commands
     var menu = Menus.addMenu("Emmet", "io.emmet.EmmetMainMenu");
     emmet.__r("actions").getList().forEach(function (action) {
-        if (action.options.hidden)
-            return;
-
         var id = "io.emmet." + action.name;
         CommandManager.register(action.options.label, id, function () {
             var editor = EditorManager.getCurrentFullEditor();
@@ -60,6 +59,11 @@ define(function (require, exports, module) {
             return df.promise();
         });
 
-        menu.addMenuItem(id, keymap[action.name]);
+        var shortcut = keymap[action.name];
+        if (! action.options.hidden) {
+            menu.addMenuItem(id, shortcut);
+        } else if (shortcut) {
+            KeyBindingManager.addBinding(id, shortcut);
+        }
     });
 });
