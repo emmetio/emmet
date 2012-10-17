@@ -47,7 +47,7 @@ define(function (require, exports, module) {
 
         var editor = EditorManager.getFocusedEditor();
         if (editor) {
-            editorProxy.setupContext(editor._codeMirror);
+            editorProxy.setupContext(editor._codeMirror, editor.document.file.fullPath);
         }
         if (editor && emmet.__r("actions").run(action.name, editorProxy)) {
             df.resolve();

@@ -15,8 +15,10 @@ define(function (require, exports, module) {
 
     $.extend(exports, {
         context: null,
-        setupContext: function (context) {
+        filePath: null,
+        setupContext: function (context, filePath) {
             this.context = context;
+            this.filePath = filePath;
             var indentation = "\t";
             if (!context.getOption("indentWithTabs")) {
                 indentation = emmet.__r("utils").repeatString(" ", context.getOption("indentUnit"));
@@ -177,7 +179,7 @@ define(function (require, exports, module) {
          * @since 0.65 
          */
         getFilePath: function () {
-            return location.href;
+            return this.filePath;
         }
     });
 });
