@@ -47,8 +47,8 @@ define(function (require, exports, module) {
     emmet.__r("actions").getList().forEach(function (action) {
         var id = "io.emmet." + action.name;
         CommandManager.register(action.options.label, id, function () {
-            var editor = EditorManager.getCurrentFullEditor();
-            editorProxy.setupContext(EditorManager.getCurrentFullEditor()._codeMirror);
+            var editor = EditorManager.getFocusedEditor();
+            editorProxy.setupContext(editor._codeMirror);
             var df = new $.Deferred();
             if (emmet.__r("actions").run(action.name, editorProxy)) {
                 df.resolve();
