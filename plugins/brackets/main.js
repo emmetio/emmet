@@ -42,24 +42,29 @@ define(function (require, exports, module) {
         "insert_formatted_line_break": "Enter"
     };
 
+    function runAction(action) {
+        var df = new $.Deferred();
+
+        var editor = EditorManager.getFocusedEditor();
+        if (editor) {
+            editorProxy.setupContext(editor._codeMirror);
+        }
+        if (editor && emmet.__r("actions").run(action.name, editorProxy)) {
+            df.resolve();
+        } else {
+            df.reject();
+        }
+
+        return df.promise();
+    }
+
     // register all commands
     var menu = Menus.addMenu("Emmet", "io.emmet.EmmetMainMenu");
     emmet.__r("actions").getList().forEach(function (action) {
         var id = "io.emmet." + action.name;
-        CommandManager.register(action.options.label, id, function () {
-            var editor = EditorManager.getFocusedEditor();
-            editorProxy.setupContext(editor._codeMirror);
-            var df = new $.Deferred();
-            if (emmet.__r("actions").run(action.name, editorProxy)) {
-                df.resolve();
-            } else {
-                df.reject();
-            }
-
-            return df.promise();
-        });
-
         var shortcut = keymap[action.name];
+        
+        CommandManager.register(action.options.label, id, function () { runAction(action); });
         if (! action.options.hidden) {
             menu.addMenuItem(id, shortcut);
         } else if (shortcut) {
