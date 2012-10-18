@@ -113,7 +113,7 @@ emmet.define('cssResolver', function(require, _) {
 	
 	prefs.define('css.autoInsertVendorPrefixes', true,
 			'Automatically generate vendor-prefixed copies of expanded CSS ' 
-			+ 'property. By default, Emmet will generate vendor-prefixed ' +
+			+ 'property. By default, Emmet will generate vendor-prefixed '
 			+ 'properties only when you put dash before abbreviation ' 
 			+ '(e.g. <code>-bxsh</code>). With this option enabled, you don’t ' 
 			+ 'need dashes before abbreviations: Emmet will produce ' 
