@@ -24,8 +24,10 @@ emmet.exec(function(require, _) {
 	if (fso.FolderExists(extensionsDir)) {
 		var fileList = [];
 		var extensionFiles = fso.GetFolder(extensionsDir).Files;
-		for (var i = 0, il = extensionFiles.Count; i < il; i++) {
-			fileList.push(extensionFiles.Item(i).Path);
+		
+		var fileEnum = new Enumerator(extensionFiles);
+		for (; !fileEnum.atEnd(); fileEnum.moveNext()) {
+			fileList.push(fileEnum.item().Path);
 		}
 		
 		bootstrap.loadExtensions(fileList);
