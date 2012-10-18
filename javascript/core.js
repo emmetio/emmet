@@ -163,7 +163,6 @@ var emmet = (function(global) {
 			profile = profile || defaultProfile;
 			
 			var filters = this.require('filters');
-			var utils = this.require('utils');
 			var parser = this.require('abbreviationParser');
 			
 			profile = this.require('profile').get(profile, syntax);
@@ -176,7 +175,8 @@ var emmet = (function(global) {
 			});
 			var filtersList = filters.composeList(syntax, profile, data[1]);
 			filters.apply(outputTree, filtersList, profile);
-			return utils.replaceVariables(outputTree.toString());
+			return outputTree.toString();
+//			return this.require('utils').replaceVariables(outputTree.toString());
 		},
 		
 		/**

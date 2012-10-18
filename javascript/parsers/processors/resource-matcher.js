@@ -51,6 +51,14 @@ emmet.exec(function(require, _) {
 						deepestChild.addChild(c);
 					});
 				}
+				
+				// copy current attributes to children
+				_.each(subtree.children, function(node) {
+					_.each(child.attributeList(), function(attr) {
+						node.attribute(attr.name, attr.value);
+					});
+				});
+				
 				child.replace(subtree.children);
 			} else {
 				child.data('resource', r);

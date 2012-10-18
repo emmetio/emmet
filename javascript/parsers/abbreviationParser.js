@@ -263,6 +263,11 @@ emmet.define('abbreviationParser', function(require, _) {
 				var ix = _.indexOf(_.pluck(this._attributes, 'name'), name.toLowerCase());
 				if (~ix) {
 					this._attributes[ix].value = value;
+				} else {
+					this._attributes.push({
+						name: name,
+						value: value
+					});
 				}
 			}
 			
