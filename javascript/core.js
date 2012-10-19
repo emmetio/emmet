@@ -31,6 +31,8 @@ var emmet = (function(global) {
 		_ : underscore
 	};
 	
+	var _ = underscore;
+	
 	/**
 	 * Shared empty constructor function to aid in prototype-chain creation.
 	 */

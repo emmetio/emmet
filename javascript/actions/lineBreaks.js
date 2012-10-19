@@ -11,7 +11,7 @@ emmet.exec(function(require, _) {
 	
 	// setup default preferences
 	prefs.define('css.closeBraceIndentation', '\n',
-			'Indentation before closing brace of CSS rule. Some users prefere' 
+			'Indentation before closing brace of CSS rule. Some users prefere ' 
 			+ 'indented closing brace of CSS rule for better readability. '
 			+ 'This preference’s value will be automatically inserted before '
 			+ 'closing brace when user adds newline in newly created CSS rule '
