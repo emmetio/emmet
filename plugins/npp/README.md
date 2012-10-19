@@ -12,9 +12,9 @@ http://www.microsoft.com/downloads/details.aspx?FamilyId=01592C48-207D-4BE1-8A76
 
 Open `keymap.json` file of this plugin and edit shortcuts for Emmet actions. When finished, restart Notepad++
  
-## Extending Zen Coding
+## Extending Emmet
 
-You can create *emmet-extensions* folder in Notepad’s plugins folder and put Zen Coding extensions there. All files with `.js` extension will be loaded automatically on editor start. Also, you can place `snippets.json` with your custom snippets (similar to bundled *jN\includes\snippets.json* file) and `preferences.json` with custom modules preferences.
+You can create *emmet-extensions* folder in Notepad’s plugins folder and put Emmet extensions there. All files with `.js` extension will be loaded automatically on editor start. Also, you can place `snippets.json` with your custom snippets (similar to bundled *jN\includes\snippets.json* file) and `preferences.json` with custom modules preferences.
  
 ## Kudos
  
