@@ -61,9 +61,11 @@ emmet.exec(function(require, _) {
 			.map(function(name) {return processClassName(name, item);})
 			.flatten()
 			.uniq()
-			.value();
+			.value()
+			.join(' ');
 		
-		item.attribute('class', classNames.join(' '));
+		if (classNames)
+			item.attribute('class', classNames);
 		
 		return item;
 	}

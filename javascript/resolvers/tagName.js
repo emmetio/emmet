@@ -13,6 +13,7 @@ emmet.define('tagName', function(require, _) {
 	};
 	
 	var elementMap = {
+		'p': 'span',
 		'ul': 'li',
 		'ol': 'li',
 		'table': 'tr',
