@@ -174,6 +174,18 @@ emmet.define('resources', function(require, _) {
 		return result;
 	}
 	
+	function parseItem(name, value, type) {
+		var value = normalizeCaretPlaceholder(value);
+		
+		if (type == 'snippets') {
+			return elements.create('snippet', value);
+		}
+		
+		if (type == 'abbreviations') {
+			return parseAbbreviation(name, value);
+		}
+	}
+	
 	/**
 	 * Parses single abbreviation
 	 * @param {String} key Abbreviation name
@@ -321,6 +333,30 @@ emmet.define('resources', function(require, _) {
 		
 		removeResolver: function(fn) {
 			resolvers.remove(fn);
+		},
+		
+		findItem: function(syntax, name, memo) {
+			memo = memo || [];
+			
+			var data = require('utils').deepMerge({}, systemSettings[syntax], userSettings[syntax]);
+			console.log('searching in', data);
+			
+			var matchedItem = null;
+			_.find(['snippets', 'abbreviations'], function(sectionName) {
+				if (sectionName in data && name in data[sectionName]) {
+					return matchedItem = parseItem(name, data[sectionName][name], sectionName);
+				}
+			});
+			
+			memo.push(syntax);
+			
+			if (!matchedItem && data['extends'] && !_.include(memo, data['extends'])) {
+				// try to find item in parent syntax section
+				return this.findItem(data['extends'], name, memo);
+			}
+			
+			return matchedItem;
 		}
+		
 	};
 });
