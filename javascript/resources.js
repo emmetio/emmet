@@ -14,6 +14,8 @@
 emmet.define('resources', function(require, _) {
 	var VOC_SYSTEM = 'system';
 	var VOC_USER = 'user';
+	
+	var cache = {};
 		
 	/** Regular expression for XML tag matching */
 	var reTag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/;
@@ -175,7 +177,7 @@ emmet.define('resources', function(require, _) {
 	}
 	
 	function parseItem(name, value, type) {
-		var value = normalizeCaretPlaceholder(value);
+		value = normalizeCaretPlaceholder(value);
 		
 		if (type == 'snippets') {
 			return elements.create('snippet', value);
@@ -212,6 +214,7 @@ emmet.define('resources', function(require, _) {
 		 * @memberOf resources
 		 */
 		setVocabulary: function(data, type) {
+			cache = {};
 			if (type == VOC_SYSTEM)
 				systemSettings = data;
 			else
@@ -335,24 +338,51 @@ emmet.define('resources', function(require, _) {
 			resolvers.remove(fn);
 		},
 		
-		findItem: function(syntax, name, memo) {
+		getSection: function(name) {
+			if (!name)
+				return null;
+			
+			if (!(name in cache)) {
+				cache[name] = require('utils').deepMerge({}, systemSettings[name], userSettings[name]);
+			}
+			
+			var data = cache[name], subsections = _.rest(arguments), key;
+			while (data && (key = subsections.shift())) {
+				if (key in data) {
+					data = data[key];
+				} else {
+					return null;
+				}
+			}
+			
+			return data;
+		},
+		
+		findItem: function(topSection, subsection) {
+			var data = this.getSection(topSection);
+			while (data) {
+				if (subsection in data)
+					return data[subsection];
+				
+				data = this.getSection(data['extends']);
+			}
+		},
+		
+		findSnippet: function(syntax, name, memo) {
 			memo = memo || [];
 			
-			var data = require('utils').deepMerge({}, systemSettings[syntax], userSettings[syntax]);
-			console.log('searching in', data);
-			
-			var matchedItem = null;
+			var data = this.getSection(syntax), matchedItem = null;
 			_.find(['snippets', 'abbreviations'], function(sectionName) {
-				if (sectionName in data && name in data[sectionName]) {
-					return matchedItem = parseItem(name, data[sectionName][name], sectionName);
+				var data = this.getSection(syntax, sectionName);
+				if (data) {
+					return matchedItem = parseItem(name, data[name], sectionName);
 				}
-			});
+			}, this);
 			
 			memo.push(syntax);
-			
 			if (!matchedItem && data['extends'] && !_.include(memo, data['extends'])) {
 				// try to find item in parent syntax section
-				return this.findItem(data['extends'], name, memo);
+				return this.findSnippet(data['extends'], name, memo);
 			}
 			
 			return matchedItem;
