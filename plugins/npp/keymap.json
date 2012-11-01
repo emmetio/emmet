@@ -13,13 +13,12 @@
 	// v0.7
 	"evaluate_math_expression": "Ctrl+Shift+Y",
 
-	// don't know how up & down key codes should be written so I commented out this section
-	// "increment_number_by_1": "Ctrl+VK_UP",
-	// "decrement_number_by_1": "Ctrl+Down",
-	// "increment_number_by_01": "Alt+Up",
-	// "decrement_number_by_01": "Alt+Down",
-	// "increment_number_by_10": "Ctrl+Alt+Up",
-	// "decrement_number_by_10": "Ctrl+Alt+Down",
+	"increment_number_by_1": "Ctrl+VK_UP",
+	"decrement_number_by_1": "Ctrl+VK_DOWN",
+	"increment_number_by_01": "Alt+VK_UP",
+	"decrement_number_by_01": "Alt+VK_DOWN",
+	"increment_number_by_10": "Ctrl+Alt+VK_UP",
+	"decrement_number_by_10": "Ctrl+Alt+VK_DOWN",
 
 	"select_next_item": "Ctrl+.",
 	"select_previous_item": "Ctrl+,",
