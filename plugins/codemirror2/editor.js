@@ -28,8 +28,8 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		'Ctrl-Alt-Up': 'increment_number_by_10',
 		'Ctrl-Alt-Down': 'decrement_number_by_10',
 
-		'Cmd-.': 'select_next_item',
-		'Cmd-,': 'select_previous_item',
+		'Shift-Cmd-.': 'select_next_item',
+		'Shift-Cmd-,': 'select_previous_item',
 		'Cmd-B': 'reflect_css_value',
 		
 		'Enter': 'insert_formatted_line_break'
