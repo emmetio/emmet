@@ -79,8 +79,9 @@ emmet.define('actionUtils', function(require, _) {
 			}
 			
 			if (startIndex != -1 && !textCount && !braceCount && !groupCount) 
-				// found something, return abbreviation
-				return str.substring(startIndex);
+				// found something, remove some invalid symbols from the 
+				// beginning and return abbreviation
+				return str.substring(startIndex).replace(/^[\*\+\>\^]+/, '');
 			else
 				return '';
 		},
