@@ -17,7 +17,7 @@ emmet.exec(function(require, _) {
 		// find tag from current caret position
 		var info = require('editorUtils').outputInfo(editor);
 		var xmlElem = require('xmlEditTree').parseFromPosition(info.content, offset, true);
-		if (xmlElem && xmlElem.name().toLowerCase() == 'img') {
+		if (xmlElem && (xmlElem.name() || '').toLowerCase() == 'img') {
 			
 			var size = getImageSizeForSource(editor, xmlElem.value('src'));
 			if (size) {
