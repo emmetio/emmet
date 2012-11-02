@@ -177,6 +177,7 @@ emmet.define('resources', function(require, _) {
 	}
 	
 	function parseItem(name, value, type) {
+		console.log('parsing', arguments);
 		value = normalizeCaretPlaceholder(value);
 		
 		if (type == 'snippets') {
@@ -338,6 +339,12 @@ emmet.define('resources', function(require, _) {
 			resolvers.remove(fn);
 		},
 		
+		/**
+		 * Returns actual top-level section (syntax) data, merged from both
+		 * system and user data
+		 * @param {String} name Section name (syntax)
+		 * @returns
+		 */
 		getSection: function(name) {
 			if (!name)
 				return null;
@@ -358,6 +365,13 @@ emmet.define('resources', function(require, _) {
 			return data;
 		},
 		
+		/**
+		 * Recursively searches for a item inside top level sections (syntaxes)
+		 * with respect of `extends` attribute
+		 * @param {String} topSection Top section name (syntax)
+		 * @param {String} subsection Inner section name
+		 * @returns {Object}
+		 */
 		findItem: function(topSection, subsection) {
 			var data = this.getSection(topSection);
 			while (data) {
@@ -368,13 +382,21 @@ emmet.define('resources', function(require, _) {
 			}
 		},
 		
+		/**
+		 * Recursively searches for a snippet definition inside syntax section.
+		 * Definition is searched inside `snippets` and `abbreviations` 
+		 * subsections  
+		 * @param {String} syntax Top-level section name (syntax)
+		 * @param {Snippet name} name
+		 * @returns {Object}
+		 */
 		findSnippet: function(syntax, name, memo) {
 			memo = memo || [];
 			
 			var data = this.getSection(syntax), matchedItem = null;
 			_.find(['snippets', 'abbreviations'], function(sectionName) {
 				var data = this.getSection(syntax, sectionName);
-				if (data) {
+				if (data && data[name]) {
 					return matchedItem = parseItem(name, data[name], sectionName);
 				}
 			}, this);
