@@ -18,12 +18,15 @@ test('Value extraction', function() {
 	equal(css.findValuesInAbbreviation('padding1.5'), '1.5', 'Extracted value from "padding1.5"');
 	equal(css.findValuesInAbbreviation('padding.5'), '.5', 'Extracted value from "padding.5"');
 	equal(css.findValuesInAbbreviation('padding-.5'), '-.5', 'Extracted value from "padding-.5"');
+	equal(css.findValuesInAbbreviation('margin-a'), 'a', 'Extracted value from "margin-a"');
+	equal(css.findValuesInAbbreviation('margin-a-i'), 'a-i', 'Extracted value from "margin-a-i"');
+	equal(css.findValuesInAbbreviation('margin-a-foo'), '', 'No value extracted from "margin-a-foo"');
 });
 
 test('Value parsing', function() {
 	var css = emmet.require('cssResolver');
 	
-	deepEqual(css.parseValues('5'), ['5'], 'Parsed value "10"');
+	deepEqual(css.parseValues('5'), ['5'], 'Parsed value "5"');
 	deepEqual(css.parseValues('10'), ['10'], 'Parsed value "10"');
 	deepEqual(css.parseValues('10-10'), ['10', '10'], 'Parsed value "10-10"');
 	deepEqual(css.parseValues('10em10px'), ['10em', '10px'], 'Parsed value "10em10px"');
@@ -34,6 +37,7 @@ test('Value parsing', function() {
 	deepEqual(css.parseValues('.5'), ['.5'], 'Parsed value ".5"');
 	deepEqual(css.parseValues('-.5'), ['-.5'], 'Parsed value "-.5"');
 	deepEqual(css.parseValues('1.5em-.5'), ['1.5em', '-.5'], 'Parsed value "1.5em-.5"');
+	deepEqual(css.parseValues('i-5-a'), ['inherit', '5', 'auto'], 'Parsed value "inherit-5-auto"');
 });
 
 test('Value normalization', function() {

@@ -131,6 +131,21 @@ emmet.define('preferences', function(require, _) {
 		},
 		
 		/**
+		 * Returns comma and colon-separated preference value as dictionary
+		 * @param {String} name
+		 * @returns {Object}
+		 */
+		getDict: function(name) {
+			var result = {};
+			_.each(this.getArray(name), function(val) {
+				var parts = val.split(':');
+				result[parts[0]] = parts[1];
+			});
+			
+			return result;
+		},
+		
+		/**
 		 * Returns description of preference item
 		 * @param {String} name Preference name
 		 * @returns {Object}

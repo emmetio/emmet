@@ -83,12 +83,6 @@ emmet.define('cssResolver', function(require, _) {
 	 */
 	var vendorPrefixes = {};
 	
-	var unitAliases = {
-		'p': '%',
-		'e': 'em',
-		'x': 'ex'
-	};
-	
 	var defaultValue = '${1};';
 	
 	// XXX module preferences
@@ -152,6 +146,18 @@ emmet.define('cssResolver', function(require, _) {
 	prefs.define('css.intUnit', 'px', 'Default unit for integer values');
 	prefs.define('css.floatUnit', 'em', 'Default unit for float values');
 	
+	prefs.define('css.keywords', 'auto, inherit', 
+			'A comma-separated list of valid keywords that can be used in CSS abbreviations.');
+	
+	prefs.define('css.keywordAliases', 'a:auto, i:inherit', 
+			'A comma-separated list of keyword aliases, used in CSS abbreviation. '
+			+ 'Each alias should be defined as <code>alias:keyword_name</code>.');
+	
+	prefs.define('css.unitAliases', 'e:em, p:%, x:ex, r:rem', 
+			'A comma-separated list of unit aliases, used in CSS abbreviation. '
+			+ 'Each alias should be defined as <code>alias:unit_value</code>.');
+	
+	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
 		return (ch && ch == '.' || (code > 47 && code < 58));
@@ -184,6 +190,20 @@ emmet.define('cssResolver', function(require, _) {
 		});
 		
 		return snippet.split(':').length == 2;
+	}
+	
+	function getKeyword(name) {
+		var aliases = prefs.getDict('css.keywordAliases');
+		return name in aliases ? aliases[name] : name;
+	}
+	
+	function getUnit(name) {
+		var aliases = prefs.getDict('css.unitAliases');
+		return name in aliases ? aliases[name] : name;
+	}
+	
+	function isValidKeyword(keyword) {
+		return _.include(prefs.getArray('css.keywords'), getKeyword(keyword));
 	}
 	
 	/**
@@ -473,33 +493,6 @@ emmet.define('cssResolver', function(require, _) {
 		},
 		
 		/**
-		 * Adds CSS unit shorthand and its full value
-		 * @param {String} alias
-		 * @param {String} value
-		 */
-		addUnitAlias: function(alias, value) {
-			unitAliases[alias] = value;
-		},
-		
-		/**
-		 * Get unit name for alias
-		 * @param {String} alias
-		 * @returns {String}
-		 */
-		getUnitAlias: function(alias) {
-			return unitAliases[alias];
-		},
-		
-		/**
-		 * Removes unit alias
-		 * @param {String} alias
-		 */
-		removeUnitAlias: function(alias) {
-			if (alias in unitAliases)
-				delete unitAliases[alias];
-		},
-		
-		/**
 		 * Extract vendor prefixes from abbreviation
 		 * @param {String} abbr
 		 * @returns {Object} Object containing array of prefixes and clean 
@@ -557,19 +550,37 @@ emmet.define('cssResolver', function(require, _) {
 		 * @param {String} abbr
 		 * @returns {String} Value substring
 		 */
-		findValuesInAbbreviation: function(abbr) {
-			var i = 0, il = abbr.length, ch;
+		findValuesInAbbreviation: function(abbr, syntax) {
+			syntax = syntax || 'css';
 			
+			var i = 0, il = abbr.length, value = '', ch;
 			while (i < il) {
 				ch = abbr.charAt(i);
 				if (isNumeric(ch) || (ch == '-' && isNumeric(abbr.charAt(i + 1)))) {
-					return abbr.substring(i);
+					value = abbr.substring(i);
+					break;
 				}
 				
 				i++;
 			}
 			
-			return '';
+			// try to find keywords in abbreviation
+			var property = abbr.substring(0, abbr.length - value.length);
+			var res = require('resources');
+			var keywords = [];
+			// try to extract some commonly-used properties
+			while (~property.indexOf('-') && !res.findSnippet(syntax, property)) {
+				var parts = property.split('-');
+				var lastPart = parts.pop();
+				if (!isValidKeyword(lastPart)) {
+					break;
+				}
+				
+				keywords.unshift(lastPart);
+				property = parts.join('-');
+			}
+			
+			return keywords.join('-') + value;
 		},
 		
 		/**
@@ -598,6 +609,9 @@ emmet.define('cssResolver', function(require, _) {
 				
 				nextCh = abbrValues.charAt(i);
 				if (ch != '-' && !isNumeric(ch) && (isNumeric(nextCh) || nextCh == '-')) {
+					if (isValidKeyword(valueStack)) {
+						i++;
+					}
 					values.push(valueStack);
 					valueStack = '';
 				}
@@ -607,7 +621,7 @@ emmet.define('cssResolver', function(require, _) {
 				values.push(valueStack);
 			}
 			
-			return values;
+			return _.map(values, getKeyword);
 		},
 		
 		/**
@@ -627,7 +641,7 @@ emmet.define('cssResolver', function(require, _) {
 			}
 			
 			return {
-				property: abbr.substring(0, abbr.length - abbrValues.length),
+				property: abbr.substring(0, abbr.length - abbrValues.length).replace(/-$/, ''),
 				values: this.parseValues(abbrValues)
 			};
 		},
@@ -648,7 +662,7 @@ emmet.define('cssResolver', function(require, _) {
 				if (!unit)
 					return val + prefs.get(~val.indexOf('.') ? 'css.floatUnit' : 'css.intUnit');
 				
-				return val + (unit in unitAliases ? unitAliases[unit] : unit);
+				return val + getUnit(unit);
 			});
 		},
 		
@@ -661,6 +675,7 @@ emmet.define('cssResolver', function(require, _) {
 		 * snippet (string or element)
 		 */
 		expand: function(abbr, value, syntax) {
+			syntax = syntax || 'css';
 			var resources = require('resources');
 			var autoInsertPrefixes = prefs.get('css.autoInsertVendorPrefixes');
 			
@@ -671,7 +686,7 @@ emmet.define('cssResolver', function(require, _) {
 			}
 			
 			// check if we have abbreviated resource
-			var snippet = resources.findSnippet(syntax || 'css', abbr);
+			var snippet = resources.findSnippet(syntax, abbr);
 			if (snippet && !autoInsertPrefixes) {
 				return transformSnippet(snippet, isImportant, syntax);
 			}
@@ -681,7 +696,15 @@ emmet.define('cssResolver', function(require, _) {
 			var valuesData = this.extractValues(prefixData.property);
 			var abbrData = _.extend(prefixData, valuesData);
 			
-			snippet = resources.findSnippet(syntax || 'css', abbrData.property);
+			snippet = resources.findSnippet(syntax, abbrData.property);
+			
+			// fallback to some old snippets like m:a
+			if (!snippet && ~abbrData.property.indexOf(':')) {
+				var parts = abbrData.property.split(':');
+				var propertyName = parts.shift();
+				snippet = resources.findSnippet(syntax, propertyName) || propertyName;
+				abbrData.values = this.parseValues(parts.join(':'));
+			}
 			
 			if (!snippet) {
 				snippet = abbrData.property + ':' + defaultValue;
