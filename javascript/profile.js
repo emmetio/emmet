@@ -160,7 +160,7 @@ emmet.define('profile', function(require, _) {
 		get: function(name, syntax) {
 			if (syntax && _.isString(name)) {
 				// search in user resources first
-				var profile = require('resources').getSubset(syntax, 'profile');
+				var profile = require('resources').findItem(syntax, 'profile');
 				if (profile) {
 					name = profile;
 				}

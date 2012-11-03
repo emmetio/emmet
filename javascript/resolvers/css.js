@@ -671,7 +671,7 @@ emmet.define('cssResolver', function(require, _) {
 			}
 			
 			// check if we have abbreviated resource
-			var snippet = resources.getSnippet(syntax || 'css', abbr);
+			var snippet = resources.findSnippet(syntax || 'css', abbr);
 			if (snippet && !autoInsertPrefixes) {
 				return transformSnippet(snippet, isImportant, syntax);
 			}
@@ -681,7 +681,7 @@ emmet.define('cssResolver', function(require, _) {
 			var valuesData = this.extractValues(prefixData.property);
 			var abbrData = _.extend(prefixData, valuesData);
 			
-			snippet = resources.getSnippet(syntax || 'css', abbrData.property);
+			snippet = resources.findSnippet(syntax || 'css', abbrData.property);
 			
 			if (!snippet) {
 				snippet = abbrData.property + ':' + defaultValue;

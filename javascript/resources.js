@@ -6,8 +6,6 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * 
- * XXX This module is over-complicated, should provide better implementation
- * 
  * @param {Function} require
  * @param {Underscore} _
  */
@@ -27,105 +25,6 @@ emmet.define('resources', function(require, _) {
 	var resolvers = require('handlerList').create();
 	
 	/**
-	 * Check if specified resource is parsed by Emmet
-	 * @param {Object} obj
-	 * @return {Boolean}
-	 */
-	function isParsed(obj) {
-		return obj && obj.__emmet_parsed__;
-	}
-	
-	/**
-	 * Marks object as parsed by Emmet
-	 * @param {Object}
-	 */
-	function setParsed(obj) {
-		obj.__emmet_parsed__ = true;
-	}
-	
-	/**
-	 * Returns resource vocabulary by its name
-	 * @param {String} name Vocabulary name ('system' or 'user')
-	 */
-	function getVocabulary(name) {
-		return name == VOC_SYSTEM ? systemSettings : userSettings;
-	}
-		
-	/**
-	 * Helper function that transforms string into hash
-	 * @return {Object}
-	 */
-	function stringToHash(str){
-		var obj = {}, items = str.split(",");
-		for ( var i = 0; i < items.length; i++ )
-			obj[ items[i] ] = true;
-		return obj;
-	}
-	
-	/**
-	 * Creates resource inheritance chain for lookups
-	 * @param {String} vocabulary Resource vocabulary
-	 * @param {String} syntax Syntax name
-	 * @param {String} name Resource name
-	 * @return {Array}
-	 */
-	function createResourceChain(vocabulary, syntax, name) {
-		var voc = getVocabulary(vocabulary),
-			result = [],
-			resource = null;
-		
-		if (voc && syntax in voc) {
-			resource = voc[syntax];
-			if (name in resource)
-				result.push(resource[name]);
-		}
-		
-		// get inheritance definition
-		// in case of user-defined vocabulary, resource dependency
-		// may be defined in system vocabulary only, so we have to correctly
-		// handle this case
-		var chain_source = null;
-		if (resource && 'extends' in resource)
-			chain_source = resource;
-		else if (vocabulary == VOC_USER && syntax in systemSettings 
-			&& 'extends' in systemSettings[syntax] )
-			chain_source = systemSettings[syntax];
-			
-		if (chain_source) {
-			if (!isParsed(chain_source['extends'])) {
-				var ar = chain_source['extends'].split(',');
-				var utils = require('utils');
-				for (var i = 0; i < ar.length; i++) 
-					ar[i] = utils.trim(ar[i]);
-				chain_source['extends'] = ar;
-				setParsed(chain_source['extends']);
-			}
-			
-			// find resource in ancestors
-			for (var i = 0; i < chain_source['extends'].length; i++) {
-				var type = chain_source['extends'][i];
-				if (voc[type] && voc[type][name])
-					result.push(voc[type][name]);
-			}
-		}
-		
-		return result;
-	}
-	
-	/**
-	 * Get resource collection from settings vocbulary for specified syntax. 
-	 * It follows inheritance chain if resource wasn't directly found in
-	 * syntax settings
-	 * @param {String} vocabulary Resource vocabulary
-	 * @param {String} syntax Syntax name
-	 * @param {String} name Resource name
-	 */
-	function getSubset(vocabulary, syntax, name) {
-		var chain = createResourceChain(vocabulary, syntax, name);
-		return chain[0];
-	}
-	
-	/**
 	 * Normalizes caret plceholder in passed text: replaces | character with
 	 * default caret placeholder
 	 * @param {String} text
@@ -136,52 +35,11 @@ emmet.define('resources', function(require, _) {
 		return utils.replaceUnescapedSymbol(text, '|', utils.getCaretPlaceholder());
 	}
 	
-	/**
-	 * Returns parsed item located in specified vocabulary by its syntax and
-	 * name
-	 * @param {String} vocabulary Resource vocabulary
-	 * @param {String} syntax Syntax name
-	 * @param {String} name Resource name ('abbreviation', 'snippet')
-	 * @param {String} item Abbreviation or snippet name
-	 * @return {Object}
-	 */
-	function getParsedItem(vocabulary, syntax, name, item) {
-		var chain = createResourceChain(vocabulary, syntax, name);
-		var result = null, res;
-		var elements = require('elements');
-		
-		for (var i = 0, il = chain.length; i < il; i++) {
-			res = chain[i];
-			if (item in res) {
-				if (!isParsed(res[item])) {
-					var value = normalizeCaretPlaceholder(res[item]);
-					switch(name) {
-						case 'abbreviations':
-							res[item] = parseAbbreviation(item, value);
-							res[item].__ref = value;
-							break;
-						case 'snippets':
-							res[item] = elements.create('snippet', value);
-							break;
-					}
-					
-					setParsed(res[item]);
-				}
-				
-				result = res[item];
-				break;
-			}
-		}
-		
-		return result;
-	}
-	
 	function parseItem(name, value, type) {
-		console.log('parsing', arguments);
 		value = normalizeCaretPlaceholder(value);
 		
 		if (type == 'snippets') {
-			return elements.create('snippet', value);
+			return require('elements').create('snippet', value);
 		}
 		
 		if (type == 'abbreviations') {
@@ -223,46 +81,12 @@ emmet.define('resources', function(require, _) {
 		},
 		
 		/**
-		 * Get data from specified vocabulary. Can contain parsed entities
-		 * @param {String} name Vocabulary type ('system' or 'user')
+		 * Returns resource vocabulary by its name
+		 * @param {String} name Vocabulary name ('system' or 'user')
 		 * @return {Object}
 		 */
-		getVocabulary: getVocabulary,
-		
-		/**
-		 * Returns resource value from data set with respect of inheritance
-		 * @param {String} syntax Resource syntax (html, css, ...)
-		 * @param {String} name Resource name ('snippets' or 'abbreviation')
-		 * @param {String} item Resource item name
-		 * @return {Object}
-		 */
-		getResource: function(syntax, name, item) {
-			return getParsedItem(VOC_USER, syntax, name, item) 
-				|| getParsedItem(VOC_SYSTEM, syntax, name, item);
-		},
-		
-		/**
-		 * Returns abbreviation value from data set
-		 * @param {String} type Resource type (html, css, ...)
-		 * @param {String} name Abbreviation name
-		 * @return {Object}
-		 */
-		getAbbreviation: function(type, name) {
-			name = name || '';
-			return this.getResource(type, 'abbreviations', name) 
-				|| this.getResource(type, 'abbreviations', name.replace(/\-/g, ':'));
-		},
-		
-		/**
-		 * Returns snippet value from data set
-		 * @param {String} type Resource type (html, css, ...)
-		 * @param {String} name Snippet name
-		 * @return {Object}
-		 */
-		getSnippet: function(type, name) {
-			name = name || '';
-			return this.getResource(type, 'snippets', name)
-				|| this.getResource(type, 'snippets', name.replace(/\-/g, ':'));
+		getVocabulary: function(name) {
+			return name == VOC_SYSTEM ? systemSettings : userSettings;
 		},
 		
 		/**
@@ -274,8 +98,7 @@ emmet.define('resources', function(require, _) {
 		 */
 		getMatchedResource: function(node, syntax) {
 			return resolvers.exec(null, _.toArray(arguments)) 
-				|| this.getAbbreviation(syntax, node.name()) 
-				|| this.getSnippet(syntax, node.name());
+				|| this.findSnippet(syntax, node.name());
 		},
 		
 		/**
@@ -283,8 +106,7 @@ emmet.define('resources', function(require, _) {
 		 * @return {String}
 		 */
 		getVariable: function(name) {
-			return getSubset(VOC_USER, 'variables', name) 
-				|| getSubset(VOC_SYSTEM, 'variables', name);
+			return (this.getSection('variables') || {})[name];
 		},
 		
 		/**
@@ -293,7 +115,7 @@ emmet.define('resources', function(require, _) {
 		 * @param {String} value Variable value
 		 */
 		setVariable: function(name, value){
-			var voc = getVocabulary('user') || {};
+			var voc = this.getVocabulary('user') || {};
 			if (!('variables' in voc))
 				voc.variables = {};
 				
@@ -302,24 +124,13 @@ emmet.define('resources', function(require, _) {
 		},
 		
 		/**
-		 * Returns resource subset from settings vocabulary
-		 * @param {String} syntax Syntax name
-		 * @param {String} name Resource name
-		 * @return {Object}
-		 */
-		getSubset: function(syntax, name) {
-			return getSubset(VOC_USER, syntax, name) 
-				|| getSubset(VOC_SYSTEM, syntax, name);
-		},
-		
-		/**
 		 * Check if there are resources for specified syntax
 		 * @param {String} syntax
 		 * @return {Boolean}
 		 */
 		hasSyntax: function(syntax) {
-			return syntax in getVocabulary(VOC_USER) 
-				|| syntax in getVocabulary(VOC_SYSTEM);
+			return syntax in this.getVocabulary(VOC_USER) 
+				|| syntax in this.getVocabulary(VOC_SYSTEM);
 		},
 		
 		/**
@@ -340,9 +151,10 @@ emmet.define('resources', function(require, _) {
 		},
 		
 		/**
-		 * Returns actual top-level section (syntax) data, merged from both
+		 * Returns actual section data, merged from both
 		 * system and user data
 		 * @param {String} name Section name (syntax)
+		 * @param {String} ...args Subsections
 		 * @returns
 		 */
 		getSection: function(name) {
@@ -391,13 +203,25 @@ emmet.define('resources', function(require, _) {
 		 * @returns {Object}
 		 */
 		findSnippet: function(syntax, name, memo) {
+			if (!syntax || !name)
+				return null;
+			
 			memo = memo || [];
+			
+			var names = [name];
+			// create automatic aliases to properties with colons,
+			// e.g. pos-a == pos:a
+			if (~name.indexOf('-'))
+				names.push(name.replace(/\-/g, ':'));
 			
 			var data = this.getSection(syntax), matchedItem = null;
 			_.find(['snippets', 'abbreviations'], function(sectionName) {
 				var data = this.getSection(syntax, sectionName);
-				if (data && data[name]) {
-					return matchedItem = parseItem(name, data[name], sectionName);
+				if (data) {
+					return _.find(names, function(n) {
+						if (data[n])
+							return matchedItem = parseItem(n, data[n], sectionName);
+					});
 				}
 			}, this);
 			
@@ -409,6 +233,5 @@ emmet.define('resources', function(require, _) {
 			
 			return matchedItem;
 		}
-		
 	};
 });
