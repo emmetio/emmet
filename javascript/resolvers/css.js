@@ -703,19 +703,19 @@ emmet.define('cssResolver', function(require, _) {
 			
 			snippetObj.value = value || snippetObj.value;
 			
-			var prefixes = abbrData.prefixes == 'all' || autoInsertPrefixes 
+			var prefixes = abbrData.prefixes == 'all' || (!abbrData.prefixes && autoInsertPrefixes) 
 				? findPrefixes(snippetObj.name, autoInsertPrefixes && abbrData.prefixes != 'all')
 				: abbrData.prefixes;
 				
-				_.each(prefixes, function(p) {
-					if (p in vendorPrefixes) {
-						result.push(transformSnippet(
-								vendorPrefixes[p].transformName(snippetObj.name) 
-								+ ':' + snippetObj.value,
-								isImportant, syntax));
-						
-					}
-				});
+			_.each(prefixes, function(p) {
+				if (p in vendorPrefixes) {
+					result.push(transformSnippet(
+							vendorPrefixes[p].transformName(snippetObj.name) 
+							+ ':' + snippetObj.value,
+							isImportant, syntax));
+					
+				}
+			});
 			
 			// put the original property
 			result.push(transformSnippet(snippetObj.name + ':' + snippetObj.value, isImportant, syntax));
