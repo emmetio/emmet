@@ -153,8 +153,10 @@ emmet.exec(function(require, _) {
 		var totalWords = 0;
 		var words;
 		
+		wordCount = parseInt(wordCount, 10);
+		
 		if (startWithCommon) {
-			words = COMMON_P.slice(0, wordCount + 1);
+			words = COMMON_P.slice(0, wordCount);
 			if (words.length > 5)
 				words[4] += ',';
 			totalWords += words.length;
