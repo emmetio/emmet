@@ -11,6 +11,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		'Tab': 'expand_abbreviation_with_tab',
 		'Cmd-D': 'match_pair_outward',
 		'Shift-Cmd-D': 'match_pair_inward',
+		'Cmd-T': 'matching_pair',
 		'Shift-Cmd-A': 'wrap_with_abbreviation',
 		'Ctrl-Alt-Right': 'next_edit_point',
 		'Ctrl-Alt-Left': 'prev_edit_point',
