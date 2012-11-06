@@ -1,8 +1,4 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, window, emmet */
-define(function (require, exports, module) {
-    "use strict";
-
+emmet.define('brackets-editor', function(require, _) {
     var modeMap = {
         "text/html": "html",
         "application/xml": "xml",
@@ -11,9 +7,7 @@ define(function (require, exports, module) {
         "text/x-less": "less"
     };
 
-    var emmet = require("emmet");
-
-    $.extend(exports, {
+    return {
         context: null,
         filePath: null,
         setupContext: function (context, filePath) {
@@ -21,10 +15,10 @@ define(function (require, exports, module) {
             this.filePath = filePath;
             var indentation = "\t";
             if (!context.getOption("indentWithTabs")) {
-                indentation = emmet.__r("utils").repeatString(" ", context.getOption("indentUnit"));
+                indentation = require("utils").repeatString(" ", context.getOption("indentUnit"));
             }
             
-            emmet.__r("resources").setVariable("indentation", indentation);
+            require("resources").setVariable("indentation", indentation);
         },
 
         getSelectionRange: function () {
@@ -64,11 +58,10 @@ define(function (require, exports, module) {
         },
 
         replaceContent: function (value, start, end, noIndent) {
-            var _ = emmet.__r("_");
             if (_.isUndefined(end)) 
                 end = _.isUndefined(start) ? value.length : start;
             if (_.isUndefined(start)) start = 0;
-            var utils = emmet.__r("utils");
+            var utils = require("utils");
             
             // indent new value
             if (!noIndent) {
@@ -76,7 +69,7 @@ define(function (require, exports, module) {
             }
             
             // find new caret position
-            var tabstopData = emmet.__r("tabStops").extract(value, {
+            var tabstopData = require("tabStops").extract(value, {
                 escape: function (ch) {
                     return ch;
                 }
@@ -113,12 +106,12 @@ define(function (require, exports, module) {
             
             var caretPos = this.getCaretPos();
 
-            if (!emmet.__r("resources").hasSyntax(syntax))
+            if (!require("resources").hasSyntax(syntax))
                 syntax = "html";
 
             if (syntax == "html") {
                 // get the context tag
-                var pair = emmet.__r("html_matcher").getTags(this.getContent(), caretPos);
+                var pair = require("html_matcher").getTags(this.getContent(), caretPos);
                 if (pair && pair[0] && pair[0].type == "tag" && pair[0].name.toLowerCase() == "style") {
                     // check that we"re actually inside the tag
                     if (pair[0].end <= caretPos && pair[1].start >= caretPos)
@@ -142,7 +135,7 @@ define(function (require, exports, module) {
             case "xsl":
                 return "xml";
             case "html":
-                var profile = emmet.__r("resources").getVariable("profile");
+                var profile = require("resources").getVariable("profile");
                 if (!profile) { // no forced profile, guess from content
                     // html or xhtml?
                     profile = this.getContent().search(/<!DOCTYPE[^>]+XHTML/i) != -1 ? "xhtml": "html";
@@ -181,5 +174,5 @@ define(function (require, exports, module) {
         getFilePath: function () {
             return this.filePath;
         }
-    });
+    };
 });

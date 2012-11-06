@@ -5,33 +5,23 @@ var emmet = (function(global) {
 	var defaultSyntax = 'html';
 	var defaultProfile = 'plain';
 	
-	// getting underscore lib is a bit tricky for all
-	// environments (browser, node.js, wsh)
-	var underscore = global._;
-	if (!underscore) {
-		// wsh
+	if (typeof _ == 'undefined') {
 		try {
-			underscore = _;
+			// avoid collisions with RequireJS loader
+			// also, JS obfuscators tends to translate
+			// a["name"] to a.name, which also breaks RequireJS
+			_ = global[['require'][0]]('underscore'); // node.js
 		} catch (e) {}
 	}
 
-	if (!underscore) {
-		// node.js
-		try {
-			underscore = require('underscore');
-		} catch (e) {}
-	}
-
-	if (!underscore) {
+	if (typeof _ == 'undefined') {
 		throw 'Cannot access to Underscore.js lib';
 	}
 
 	/** List of registered modules */
 	var modules = {
-		_ : underscore
+		_ : _
 	};
-	
-	var _ = underscore;
 	
 	/**
 	 * Shared empty constructor function to aid in prototype-chain creation.
@@ -94,6 +84,18 @@ var emmet = (function(global) {
 	 */
 	var moduleLoader = null;
 	
+	/**
+	 * Generic Emmet module loader (actually, it doesn’t load anything, just 
+	 * returns module reference). Not using `require` name to avoid conflicts
+	 * with Node.js and RequireJS
+	 */
+	function r(name) {
+		if (!(name in modules) && moduleLoader)
+			moduleLoader(name);
+		
+		return modules[name];
+	}
+	
 	return {
 		/**
 		 * Simple, AMD-like module definition. The module will be added into
@@ -116,12 +118,7 @@ var emmet = (function(global) {
 		 * Returns reference to Emmet module
 		 * @param {String} name Module name
 		 */
-		require: function(name) {
-			if (!(name in modules) && moduleLoader)
-				moduleLoader(name);
-			
-			return modules[name];
-		},
+		require: r,
 		
 		/**
 		 * Helper method that just executes passed function but with all 
@@ -130,7 +127,7 @@ var emmet = (function(global) {
 		 * @param {Object} context Execution context
 		 */
 		exec: function(fn, context) {
-			return fn.call(context || global, _.bind(this.require, this), _, this);
+			return fn.call(context || global, _.bind(r, this), _, this);
 		},
 		
 		/**
@@ -164,11 +161,11 @@ var emmet = (function(global) {
 			syntax = syntax || defaultSyntax;
 			profile = profile || defaultProfile;
 			
-			var filters = this.require('filters');
-			var parser = this.require('abbreviationParser');
+			var filters = r('filters');
+			var parser = r('abbreviationParser');
 			
-			profile = this.require('profile').get(profile, syntax);
-			this.require('tabStops').resetTabstopIndex();
+			profile = r('profile').get(profile, syntax);
+			r('tabStops').resetTabstopIndex();
 			
 			var data = filters.extractFromAbbreviation(abbr);
 			var outputTree = parser.parse(data[0], {

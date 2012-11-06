@@ -56,9 +56,9 @@
 			<filelist dir="${emmet_javascript}/actions">
 				<file name="selectLine.js"/>
 			</filelist>
-			<string>emmet.require('resources').setVocabulary(</string>
+			<string>emmet.exec(function(require, _){require('resources').setVocabulary(</string>
 			<fileset dir="${basedir}" file="snippets.json"/>
-			<string>, 'system');</string>
+			<string>, 'system');});</string>
 		</concat>
 		
 		<compile-js destfile="${emmet_build_dir}/emmet-full.min.js">
@@ -267,9 +267,51 @@
 			<fileset dir="${emmet_build_dir}/emmet.chocmixin"/>
 		</copy>
 	</target>
+	
+	<!-- Plugin for Adobe Brackets -->
+	<target name="plugin.brackets" depends="plugin.generic">
+		<mkdir dir="${emmet_build_dir}/brackets"/>
+		
+		<compile-js destfile="${emmet_build_dir}/brackets/_main.js" useclosure="no" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/actions">
+				<file name="selectLine.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/brackets">
+				<file name="editor.js"/>
+				<file name="main.js"/>
+			</filelist>
+		</compile-js>
+		
+		<concat destfile="${emmet_build_dir}/brackets/main.js" force="yes">
+			<string>define(function(require, exports, module) {</string>
+			<filelist dir="${emmet_build_dir}/brackets">
+				<file name="_main.js"/>
+			</filelist>
+			<string>});</string>
+		</concat>
+		
+		<copy todir="${emmet_build_dir}/brackets">
+			<filelist dir="${emmet_plugins_source}/brackets">
+				<file name="keymap.json"/>
+			</filelist>
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+		</copy>
+		
+		<zip 
+			basedir="${emmet_build_dir}/brackets"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/brackets/Emmet-Brackets-v${emmet_version}.zip"
+			excludes="*.zip,_main.js"/>
+	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea, plugin.chocolat">
+	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea, plugin.chocolat, plugin.brackets">
 		<echo>Done</echo>
 	</target>
 </project>
