@@ -176,6 +176,7 @@ emmet.exec(function(require, _) {
 
 		// replace editor content
 		if (newContent !== null) {
+			newContent = utils.escapeText(newContent);
 			editor.setCaretPos(range.start);
 			editor.replaceContent(editorUtils.unindent(editor, newContent), range.start, range.end);
 			editor.setCaretPos(caretPos);
