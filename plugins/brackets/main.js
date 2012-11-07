@@ -4,7 +4,8 @@ emmet.exec(function(r, _) {
 		Menus = brackets.getModule("command/Menus"),
 		EditorManager = brackets.getModule("editor/EditorManager"),
 
-		editorProxy = r("brackets-editor");
+		editorProxy = r("brackets-editor"),
+		skippedActions = ['update_image_size', 'encode_decode_data_url'];
 
 	function runAction(action) {
 		var df = new $.Deferred();
@@ -31,6 +32,9 @@ emmet.exec(function(r, _) {
 		keymap = JSON.parse(keymap);
 
 		r("actions").getList().forEach(function(action) {
+			if (_.include(skippedActions, action.name))
+				return;
+			
 			var id = "io.emmet." + action.name;
 			var shortcut = keymap[action.name];
 

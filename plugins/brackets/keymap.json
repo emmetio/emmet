@@ -2,8 +2,9 @@
     "expand_abbreviation_with_tab": "Tab",
     
     "expand_abbreviation": "Ctrl-Enter",
-    "match_pair_outward": "Ctrl-D",
-    "match_pair_inward": "Shift-Ctrl-D",
+    "match_pair_outward": "Ctrl-B",
+    "match_pair_inward": "Shift-Ctrl-B",
+    "matching_pair": "Shift-Ctrl-T",
     "wrap_with_abbreviation": "Shift-Ctrl-A",
     "next_edit_point": "Ctrl-Alt-Right",
     "prev_edit_point": "Ctrl-Alt-Left",
@@ -16,14 +17,14 @@
 
     "increment_number_by_1": "Ctrl-Up",
     "decrement_number_by_1": "Ctrl-Down",
-    "increment_number_by_01": "Alt-Up",
-    "decrement_number_by_01": "Alt-Down",
+    "increment_number_by_01": "Shift-Alt-Up",
+    "decrement_number_by_01": "Shift-Alt-Down",
     "increment_number_by_10": "Ctrl-Alt-Up",
     "decrement_number_by_10": "Ctrl-Alt-Down",
 
     "select_next_item": "Ctrl-.",
     "select_previous_item": "Ctrl-,",
-    "reflect_css_value": "Ctrl-B",
+    "reflect_css_value": "Shift-Ctrl-R",
     
     "insert_formatted_line_break": "Enter"
 }
