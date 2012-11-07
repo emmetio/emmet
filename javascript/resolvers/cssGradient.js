@@ -11,6 +11,8 @@ emmet.define('cssGradient', function(require, _) {
 	/** Back-reference to current module */
 	var module = null;
 	
+	var cssSyntaxes = ['css', 'less', 'sass', 'scss', 'stylus', 'styl'];
+	
 	var reDeg = /\d+deg/i;
 	var reKeyword = /top|bottom|left|right/i;
 	
@@ -386,7 +388,7 @@ emmet.define('cssGradient', function(require, _) {
 	 */
 	require('expandAbbreviation').addHandler(function(editor, syntax, profile) {
 		var info = require('editorUtils').outputInfo(editor, syntax, profile);
-		if (info.syntax != 'css')
+		if (!_.include(cssSyntaxes, info.syntax))
 			return false;
 		
 		// let's see if we are expanding gradient definition
