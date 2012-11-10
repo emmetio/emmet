@@ -22,8 +22,8 @@
     "increment_number_by_10": "Ctrl-Alt-Up",
     "decrement_number_by_10": "Ctrl-Alt-Down",
 
-    "select_next_item": "Ctrl-.",
-    "select_previous_item": "Ctrl-,",
+    "select_next_item": "Shift-Ctrl-.",
+    "select_previous_item": "Shift-Ctrl-,",
     "reflect_css_value": "Shift-Ctrl-R",
     
     "insert_formatted_line_break": "Enter"
