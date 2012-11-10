@@ -252,6 +252,8 @@
 			</filelist>
 		</concat>
 		
+		<replace file="${emmet_build_dir}/emmet.chocmixin/emmet.js" token="global[['require'][0]]" value="require"/>
+		
 		<copy todir="${emmet_build_dir}/emmet.chocmixin">
 			<filelist dir="${emmet_javascript}">
 				<file name="underscore.js"/>
@@ -263,9 +265,9 @@
 		</copy>
 		
 		<!-- Debugging only -->
-		<copy todir="/Users/sergey/.chocolat/mixins/emmet.chocmixin" overwrite="yes">
+		<!-- <copy todir="/Users/sergey/.chocolat/mixins/emmet.chocmixin" overwrite="yes">
 			<fileset dir="${emmet_build_dir}/emmet.chocmixin"/>
-		</copy>
+		</copy> -->
 	</target>
 	
 	<!-- Plugin for Adobe Brackets -->
