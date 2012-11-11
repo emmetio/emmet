@@ -145,6 +145,13 @@
 				</replacetokens>
 			</filterchain>
 		</concat>
+			
+		<zip 
+			basedir="${emmet_build_dir}/pspad"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/pspad/Emmet-PSPad-v${emmet_version}.zip"
+			excludes="*.zip"/>
 	</target>
 	
 	<!-- Plugn for textarea -->
