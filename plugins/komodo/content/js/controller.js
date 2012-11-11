@@ -5,8 +5,11 @@
  * @link http://chikuyonok.ru
  */
 function runEmmetAction(name) {
+	var ctx = ko.views.manager.currentView;
+	var scimoz = ctx.scintilla.scimoz;
+	scimoz.beginUndoAction();
 	try {
-		editorProxy.setContext(ko.views.manager.currentView);
+		editorProxy.setContext(ctx);
 		var args = [editorProxy];
 		if (arguments.length > 1)
 			args = args.concat(Array.prototype.slice.call(arguments, 1));
@@ -14,6 +17,8 @@ function runEmmetAction(name) {
 		return emmet.require('actions').run(name, args);
 	} catch(e) {
 		alert('Error while running Emmet action: ' + e.message);
+	} finally {
+		scimoz.endUndoAction();
 	}
 }
 
