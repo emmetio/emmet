@@ -27,7 +27,7 @@ emmet.exec(function(require, _) {
 			}
 		},
 		
-		syntaxProfiles: {
+		syntaxprofiles: {
 			html: {
 				tag_case: 'upper'
 			}
