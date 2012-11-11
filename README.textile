@@ -1,8 +1,6 @@
-h1. Zen Coding — a new way of writing HTML and CSS code
+h1. Emmet (ex-Zen Coding) — a new way of writing HTML and CSS code
 
-*Follow us on Twitter "@zen_coding":http://twitter.com/zen_coding*
-
-Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. For example:
+Emmet is a toolkit for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. For example:
 
 @div#page>div.logo+ul#navigation>li*5>a@
 
@@ -21,9 +19,9 @@ Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other struc
 </div>
 </code></pre>
 
-"Read more about current Zen Coding syntax":http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsEn
+"Read more about current Emmet syntax":http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsEn
 
-Abbreviation engine has a modular structure which allows you to expand abbreviations into different languages. Zen Coding currently supports CSS, HTML, XML/XSL and HAML languages via "filters":http://code.google.com/p/zen-coding/wiki/Filters.
+Abbreviation engine has a modular structure which allows you to expand abbreviations into different languages. Emmet currently supports CSS, HTML, XML/XSL and HAML languages via "filters":http://code.google.com/p/zen-coding/wiki/Filters.
 
 h2. Current features of abbreviation engine
 
@@ -36,28 +34,27 @@ h2. Current features of abbreviation engine
 * "Filters":http://code.google.com/p/zen-coding/wiki/Filters support
 * @div@ tag name can be omitted when writing element starting from ID or CLASS: @#content>.section@ is the same as @div#content>div.section@.
 
-To better understand how Zen Coding works, watch "demo video":http://vimeo.com/7405114 and read "Smashing Magazine tutorial":http://www.smashingmagazine.com/2009/11/21/zen-coding-a-new-way-to-write-html-code/.
+To better understand how Emmet works, watch "demo video":http://vimeo.com/7405114 and read "Smashing Magazine tutorial":http://www.smashingmagazine.com/2009/11/21/zen-coding-a-new-way-to-write-html-code/.
 
-Zen Coding isn’t only a decent abbreviation engine, it also provides some very useful actions for HTML-coder’s every day needs, like: _Wrap with Abbreviation_, _Tag Balancing_, _Toggle Comment_, _Remove Tag_ etc. "Read more about available actions":http://code.google.com/p/zen-coding/wiki/Actions.
+Emmet isn’t only a decent abbreviation engine, it also provides some very useful actions for HTML-coder’s every day needs, like: _Wrap with Abbreviation_, _Tag Balancing_, _Toggle Comment_, _Remove Tag_ etc. "Read more about available actions":http://code.google.com/p/zen-coding/wiki/Actions.
 
 h2. Officially supported editors
 
-These plugins are developed by Zen Coding team and guarantee to have full support of all Zen Coding latest features.
+These plugins are developed by Emmet team and guarantee to have full support of all Emmet latest features.
 
-* *Aptana/Eclipse* (crossplatform) — "Zen Coding for Eclipse":https://github.com/sergeche/eclipse-zencoding 
-* *TextMate* (Mac). Available in two flavors: basic snippets (Zen HTML and Zen CSS) and full-featured plugin (ZenCoding for TextMate). ~Bundles > Zen Coding menu item~
-* *Coda* (Mac) — "external download":http://github.com/sergeche/tea-for-coda/downloads, via "TEA for Coda":http://onecrayon.com/tea/. ~Plug-ins > TEA for Coda > Zen Coding menu item~
-* *Espresso* (Mac) — "external download":http://github.com/sergeche/tea-for-espresso/downloads external, via "TEA for Espresso":http://onecrayon.com/tea/. Zen Coding is bundled with Espresso by default, but you should upgrade ZC to latest version. ~Actions > HTML menu item~
-* *Komodo Edit/IDE* (crossplatform) — "external download":http://community.activestate.com/xpi/zen-coding. ~Tools > Zen Coding menu item~
-* *Notepad++* (Windows). ~Zen Coding menu item~ Also a "Python version of NPP plugin":http://sourceforge.net/projects/npppythonscript/files/ is available.
-* *PSPad* (Windows). ~Scripts > Zen Coding menu item~
-* *e2 Editor* (Windows). ~Bundles > Zen Coding menu item~
+* *Aptana/Eclipse* (crossplatform) — "Emmet for Eclipse":https://github.com/sergeche/eclipse-zencoding 
+* *TextMate* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
+* *Coda 1.6 and 2.x* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
+* *Espresso* (Mac) — "external download":https://github.com/emmetio/emmet-objc/downloads
+* *Komodo Edit/IDE* (crossplatform) — "external download":http://community.activestate.com/xpi/zen-coding
+* *Notepad++* (Windows)
+* *PSPad* (Windows)
 * *@<textarea>@* (browser-based). See "online demo":http://zen-coding.ru/textarea/.
-* *CodeMirror* (browser-based). See "online demo":http://zen-coding.ru/codemirror/.
+* *CodeMirror2* (browser-based). See "online demo":http://media.chikuyonok.ru/codemirror2/.
 
 h2. Third-party supported editors
 
-These plugins are using official Zen Coding engine and developed by third-party developers. Thus, no guarantee that they support all latest ZC features.
+These plugins are using official Emmet engine and developed by third-party developers. Thus, no guarantee that they support all latest ZC features.
 
 * *Dreamweaver* (Windows, Mac)
 * *Sublime Text* (Windows)
@@ -70,10 +67,11 @@ These plugins are using official Zen Coding engine and developed by third-party 
 * *Sakura Editor* (Windows) — "external download":http://mwlab.net/zen-coding-for-sakuraeditor
 * *NetBeans* (crossplatform) — "external download":http://github.com/lorenzos/ZenCodingNetBeansPlugin#readme
 * *Chrome Extension* — "external download":https://chrome.google.com/extensions/detail/iodhcpffklplnfaihoolhfbejbinhcgn
+* *ShiftEdit* – "online IDE":http://shiftedit.net
 
 h2. Unofficial implementations
 
-These plugins are developed by third-party and has their own ZC engine implementation, which leads to different feature set and abbreviation syntax. Zen Coding team has no relation to this projects.
+These plugins are developed by third-party and has their own ZC engine implementation, which leads to different feature set and abbreviation syntax. Emmet team has no relation to this projects.
 
 * *IntelliJ IDEA/WebStorm/PHPStorm* (crossplatform) — built-in in latest versions
 * *Emacs* (crossplatform) — "external download":http://www.emacswiki.org/emacs/ZenCoding

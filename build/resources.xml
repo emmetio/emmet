@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Emmet resources" basedir="..">
+	<property file="${basedir}/build.properties"/>
+	
+	<!-- List of Emmet core JavaScript files -->
+	<filelist dir="${emmet_javascript}" id="emmet.core">
+		<file name="core.js"/>
+		
+		<file name="parsers/abbreviationParser.js"/>
+		<file name="parsers/processors/resource-matcher.js"/>
+		<file name="parsers/processors/pasted-content.js"/>
+		<file name="parsers/processors/tag-name.js"/>
+		<file name="parsers/cssParser.js"/>
+		<file name="parsers/xmlParser.js"/>
+		
+		<file name="utils.js"/>
+		<file name="range.js"/>
+		<file name="handlerList.js"/>
+		<file name="tokenIterator.js"/>
+		<file name="stringStream.js"/>
+		<file name="resources.js"/>
+		<file name="actions.js"/>
+		<file name="profile.js"/>
+		<file name="editorUtils.js"/>
+		<file name="actionUtils.js"/>
+		<file name="abbreviationUtils.js"/>
+		<file name="base64.js"/>
+		<file name="html_matcher.js"/>
+		<file name="tabStops.js"/>
+		<file name="preferences.js"/>
+		<file name="filters.js"/>
+		<file name="elements.js"/>
+			
+		<file name="parsers/editTree/editTree.js"/>
+		<file name="parsers/editTree/cssEditTree.js"/>
+		<file name="parsers/editTree/xmlEditTree.js"/>
+	</filelist>
+	
+	<fileset dir="${emmet_javascript}/filters" id="emmet.filters">
+		<include name="*.js"/>
+	</fileset>
+	
+	<filelist dir="${emmet_javascript}/actions" id="emmet.actions">
+		<file name="expandAbbreviation.js"/>
+		<file name="wrapWithAbbreviation.js"/>
+		<file name="toggleComment.js"/>
+		<file name="editPoints.js"/>
+		<file name="selectItem.js"/>
+		<file name="matchPair.js"/>
+		<file name="removeTag.js"/>
+		<file name="splitJoinTag.js"/>
+		<file name="reflectCSSValue.js"/>
+		<file name="evaluateMath.js"/>
+		<file name="increment_decrement.js"/>
+		<file name="lineBreaks.js"/>
+		<file name="mergeLines.js"/>
+		<!-- <file name="selectLine.js"/> -->
+		<file name="base64.js"/>
+		<file name="updateImageSize.js"/>
+	</filelist>
+	
+	<fileset dir="${emmet_javascript}/generators" id="emmet.generators">
+		<include name="*.js"/>
+	</fileset>
+	
+	<fileset dir="${emmet_javascript}/resolvers" id="emmet.resolvers">
+		<include name="*.js"/>
+	</fileset>
+</project>

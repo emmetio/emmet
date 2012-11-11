@@ -1,140 +1,97 @@
 /**
- * Filter that produces HAML tree
+ * Filter for producing HAML code from abbreviation.
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
- * @include "../zen_coding.js"
+ * @constructor
+ * @memberOf __hamlFilterDefine
+ * @param {Function} require
+ * @param {Underscore} _
  */
-(function(){
-	var child_token = '${child}';
+emmet.exec(function(require, _) {
+	var childToken = '${child}';
+	
+	function transformClassName(className) {
+		return require('utils').trim(className).replace(/\s+/g, '.');
+	}
 	
 	/**
-	 * Creates HTML attributes string from tag according to profile settings
-	 * @param {ZenNode} tag
-	 * @param {default_profile} profile
+	 * Creates HAML attributes string from tag according to profile settings
+	 * @param {AbbreviationNode} tag
+	 * @param {Object} profile
 	 */
 	function makeAttributesString(tag, profile) {
-		// make attribute string
-		var attrs = '',
-			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
-			attr_name, 
-			i,
-			a;
-			
-		// use short notation for ID and CLASS attributes
-		for (i = 0; i < tag.attributes.length; i++) {
-			a = tag.attributes[i];
-			switch (a.name.toLowerCase()) {
+		var attrs = '';
+		var otherAttrs = [];
+		var attrQuote = profile.attributeQuote();
+		var cursor = profile.cursor();
+		
+		_.each(tag.attributeList(), function(a) {
+			var attrName = profile.attributeName(a.name);
+			switch (attrName.toLowerCase()) {
+				// use short notation for ID and CLASS attributes
 				case 'id':
 					attrs += '#' + (a.value || cursor);
 					break;
 				case 'class':
-					attrs += '.' + (a.value || cursor);
+					attrs += '.' + transformClassName(a.value || cursor);
 					break;
+				// process other attributes
+				default:
+					otherAttrs.push(':' +attrName + ' => ' + attrQuote + (a.value || cursor) + attrQuote);
 			}
-		}
+		});
 		
-		var other_attrs = [];
-		
-		// process other attributes
-		for (i = 0; i < tag.attributes.length; i++) {
-			a = tag.attributes[i];
-			var attr_name_lower = a.name.toLowerCase();
-			if (attr_name_lower != 'id' && attr_name_lower != 'class') {
-				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : attr_name_lower;
-				other_attrs.push(':' +attr_name + ' => ' + attr_quote + (a.value || cursor) + attr_quote);
-			}
-		}
-		
-		if (other_attrs.length)
-			attrs += '{' + other_attrs.join(', ') + '}';
+		if (otherAttrs.length)
+			attrs += '{' + otherAttrs.join(', ') + '}';
 		
 		return attrs;
 	}
 	
 	/**
-	 * Processes element with <code>snippet</code> type
-	 * @param {ZenNode} item
-	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
-	 */
-	function processSnippet(item, profile, level) {
-		var data = item.source.value;
-			
-		if (!data)
-			// snippet wasn't found, process it as tag
-			return processTag(item, profile, level);
-			
-		var parts = data.split(child_token),
-			start = parts[0] || '',
-			end = parts[1] || '',
-			padding = item.parent ? item.parent.padding : '';
-			
-		item.start = item.start.replace('%s', zen_coding.padString(start, padding));
-		item.end = item.end.replace('%s', zen_coding.padString(end, padding));
-		
-		// replace variables ID and CLASS
-		var cb = function(str, var_name) {
-			if (var_name == 'id' || var_name == 'class')
-				return item.getAttribute(var_name);
-			else
-				return str;
-		};
-		item.start = zen_coding.replaceVariables(item.start, cb);
-		item.end = zen_coding.replaceVariables(item.end, cb);
-		
-		return item;
-	}
-	
-	/**
 	 * Test if passed node has block-level sibling element
-	 * @param {ZenNode} item
+	 * @param {AbbreviationNode} item
 	 * @return {Boolean}
 	 */
 	function hasBlockSibling(item) {
-		return (item.parent && item.parent.hasBlockChildren());
+		return item.parent && item.parent.hasBlockChildren();
 	}
 	
 	/**
 	 * Processes element with <code>tag</code> type
-	 * @param {ZenNode} item
-	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
+	 * @param {AbbreviationNode} item
+	 * @param {OutputProfile} profile
+	 * @param {Number} level Depth level
 	 */
 	function processTag(item, profile, level) {
-		if (!item.name)
+		if (!item.parent)
 			// looks like it's root element
 			return item;
 		
-		var attrs = makeAttributesString(item, profile), 
-			content = '', 
-			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
-			self_closing = '',
-			is_unary = (item.isUnary() && !item.children.length),
-			start= '',
-			end = '';
+		var abbrUtils = require('abbreviationUtils');
+		var utils = require('utils');
 		
-		if (profile.self_closing_tag && is_unary)
-			self_closing = '/';
+		var attrs = makeAttributesString(item, profile);
+		var cursor = profile.cursor();
+		var isUnary = abbrUtils.isUnary(item);
+		var selfClosing = profile.self_closing_tag && isUnary ? '/' : '';
+		var start= '';
 			
 		// define tag name
-		var tag_name = '%' + ((profile.tag_case == 'upper') ? item.name.toUpperCase() : item.name.toLowerCase());
-		if (tag_name.toLowerCase() == '%div' && attrs && attrs.indexOf('{') == -1)
+		var tagName = '%' + profile.tagName(item.name());
+		if (tagName.toLowerCase() == '%div' && attrs && attrs.indexOf('{') == -1)
 			// omit div tag
-			tag_name = '';
+			tagName = '';
 			
 		item.end = '';
-		start = tag_name + attrs + self_closing;
+		start = tagName + attrs + selfClosing + ' ';
 		
 		var placeholder = '%s';
 		// We can't just replace placeholder with new value because
 		// JavaScript will treat double $ character as a single one, assuming
-		// we're using RegExp literal. 
-		var pos = item.start.indexOf(placeholder);
-		item.start = item.start.substring(0, pos) + start + item.start.substring(pos + placeholder.length);
+		// we're using RegExp literal.
+		item.start = utils.replaceSubstring(item.start, start, item.start.indexOf(placeholder), placeholder);
 		
-		if (!item.children.length && !is_unary)
+		if (!item.children.length && !isUnary)
 			item.start += cursor;
 		
 		return item;
@@ -142,33 +99,25 @@
 	
 	/**
 	 * Processes simplified tree, making it suitable for output as HTML structure
-	 * @param {ZenNode} tree
+	 * @param {AbbreviationNode} tree
 	 * @param {Object} profile
-	 * @param {Number} [level] Depth level
+	 * @param {Number} level Depth level
 	 */
-	function process(tree, profile, level) {
+	require('filters').add('haml', function process(tree, profile, level) {
 		level = level || 0;
-		if (level == 0)
-			// preformat tree
-			tree = zen_coding.runFilters(tree, profile, '_format');
+		var abbrUtils = require('abbreviationUtils');
 		
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {ZenNode} */
-			var item = tree.children[i];
-			item = (item.type == 'tag') 
-				? processTag(item, profile, level) 
-				: processSnippet(item, profile, level);
-			
-			// replace counters
-			var counter = zen_coding.getCounterForNode(item);
-			item.start = zen_coding.unescapeText(zen_coding.replaceCounter(item.start, counter));
-			item.end = zen_coding.unescapeText(zen_coding.replaceCounter(item.end, counter));
-			
-			process(item, profile, level + 1);
+		if (!level) {
+			tree = require('filters').apply(tree, '_format', profile);
 		}
 		
+		_.each(tree.children, function(item) {
+			if (!abbrUtils.isSnippet(item))
+				processTag(item, profile, level);
+			
+			process(item, profile, level + 1);
+		});
+		
 		return tree;
-	}
-	
-	zen_coding.registerFilter('haml', process);
-})();
+	});
+});

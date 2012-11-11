@@ -2,32 +2,27 @@
  * Filter for escaping unsafe XML characters: <, >, &
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- */(function(){
-	var char_map = {
+ */emmet.exec(function(require, _) {
+	var charMap = {
 		'<': '&lt;',
 		'>': '&gt;',
 		'&': '&amp;'
-	}
+	};
 	
 	function escapeChars(str) {
 		return str.replace(/([<>&])/g, function(str, p1){
-			return char_map[p1];
+			return charMap[p1];
 		});
 	}
 	
-	function process(tree, profile, level) {
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {ZenNode} */
-			var item = tree.children[i];
-			
+	require('filters').add('e', function process(tree) {
+		_.each(tree.children, function(item) {
 			item.start = escapeChars(item.start);
 			item.end = escapeChars(item.end);
-			
+			item.content = escapeChars(item.content);
 			process(item);
-		}
+		});
 		
 		return tree;
-	}
-	
-	zen_coding.registerFilter('e', process);
-})();
+	});
+});

@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>Abbreviation parser 2</title>
+	<script src="../underscore.js"></script>
+	<script src="../core.js"></script>
+	<script src="../parsers/abbreviationParser2.js"></script>
+	<script src="../parsers/processors/pasted-content.js"></script>
+	<script src="../parsers/processors/resource-matcher.js"></script>
+	<script src="../parsers/processors/tag-name.js"></script>
+	<script src="../parsers/abbreviationUtils.js"></script>
+	
+	<script src="../handlerList.js"></script>
+	<script src="../stringStream.js"></script>
+	<script src="../utils.js"></script>
+	<script src="../elements.js"></script>
+	<script src="../range.js"></script>
+	<script src="../resources2.js"></script>
+	<script src="../profile.js"></script>
+	<script src="../filters.js"></script>
+	<script src="../tabStops.js"></script>
+	<script src="../resolvers/tagName.js"></script>
+	<!-- <script src="../resolvers/expando.js"></script> -->
+	<script src="../filters/format2.js"></script>
+	<script src="../filters/html2.js"></script>
+	
+	
+	<script src="../loaders/ajaxLoader.js"></script>
+	<script>
+		(function() {
+			var res = ajaxLoader.loadJSON('../../snippets.json');
+			if (res) {
+				zen_coding.require('resources').setVocabulary(res, 'system');
+			}
+		})();
+	</script>
+</head>
+<body>
+	<script type="text/javascript">
+		function expandAbbreviation(abbr) {
+			var tree = zen_coding.require('abbreviationParser').parse(abbr);
+			
+			var filters = zen_coding.require('filters');
+			var utils = zen_coding.require('utils');
+			var profile = zen_coding.require('profile').get('xhtml');
+			filters.apply(tree, ['html'], profile);
+			return tree.toString();
+		}	
+	
+		//console.log(zen_coding.require('abbreviationParser2').parse('a.class>b++c+>d[a b]^^e{some text}').toString());
+		//console.log(zen_coding.require('abbreviationParser2').parse('a>(b.sample*2+c[title="Hello world"]+(d>f+c))*2+d').toString());
+		//console.log(zen_coding.require('abbreviationParser2').parse('a.sample.other.class#id[title rel=ss q="quotes"]{Hello world}+{text}').toString());
+		
+		//console.log(expandAbbreviation('ul.sample.class>li#id$*4>span*3'));
+		console.log(expandAbbreviation('.sample'));
+		//console.log(expandAbbreviation('ul>li*4>cc:ie>div*2>span*3'));
+	</script>
+</body>
+</html>

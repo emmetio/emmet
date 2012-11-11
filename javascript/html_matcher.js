@@ -139,7 +139,7 @@
 	 * @param {Number} start_ix Character index where to start searching pair 
 	 * (commonly, current caret position)
 	 * @param {Function} action Function that creates selection range
-	 * @return {Array|null}
+	 * @return {Array}
 	 */
 	function findPair(html, start_ix, mode, action) {
 		action = action || makeRange;
@@ -151,7 +151,6 @@
 			opening_tag = null,
 			/** @type {tag()} */
 			closing_tag = null,
-			range = null,
 			html_len = html.length,
 			m,
 			ix,
@@ -159,7 +158,7 @@
 			
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
-		}
+		};
 		
 		function hasMatch(str, start) {
 			if (arguments.length == 1)
@@ -260,7 +259,7 @@
 	 */
 	var HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
 		return findPair(html, start_ix, mode, saveMatch);
-	}
+	};
 	
 	HTMLPairMatcher.start_tag = start_tag;
 	HTMLPairMatcher.end_tag = end_tag;
@@ -293,7 +292,9 @@
 	HTMLPairMatcher.last_match = last_match;
 	
 	try {
-		zen_coding.html_matcher = HTMLPairMatcher;
+		emmet.define('html_matcher', function() {
+			return HTMLPairMatcher;
+		});
 	} catch(e){}
 	
 })();

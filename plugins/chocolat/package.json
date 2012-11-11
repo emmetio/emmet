@@ -1,0 +1,18 @@
+{
+	"name": "Emmet",
+	"version": "1.0.0",
+	"description": "Emmet (ex-Zen Coding) toolkit for modern web-developer",
+	"main": "init.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sergeche/emmet.chocmixin.git"
+	},
+	"keywords": [
+		"emmet",
+		"zen coding",
+		"html",
+		"css"
+	],
+	"author": "Sergey Chikuyonok <serge.che@gmail.com>",
+	"license": "MIT"
+}

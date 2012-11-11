@@ -1,66 +1,326 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="Zen Coding" default="main" basedir=".">
+<project name="Emmet toolkit" default="main" basedir=".">
 	<property file="build.properties"/>
-	<import file="${basedir}/ant-tools/webtasks.xml"/>
-	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
-	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
-	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
-	<import file="${zencoding_plugins_source}/komodo/build.xml"/>
-	<import file="${zencoding_plugins_source}/pspad/build.xml"/>
-	<import file="${zencoding_plugins_source}/npp/build.xml"/>
-	<import file="${zencoding_plugins_source}/e2/build.xml"/>
-	<import file="${zencoding_plugins_source}/codemirror/build.xml"/>
-	<import file="${zencoding_plugins_source}/codemirror2/build.xml"/>
-	<import file="${zencoding_plugins_source}/coda/build.xml"/>
-	<import file="${zencoding_plugins_source}/espresso/build.xml"/>
+	<import file="${basedir}/build/resources.xml"/>
 	
-	<!-- List of Zen Coding JavaScript files -->
-	<filelist dir="${zencoding_javascript}" id="javascript.files">
-		<file name="zen_settings.js"/>
-		<file name="zen_resources.js"/>
-		<file name="zen_parser.js"/>
-		<file name="zen_coding.js"/>
-		<file name="zen_actions.js"/>
-		<file name="html_matcher.js"/>
-		<file name="base64.js"/>
-			
-		<file name="parsers/parsexml.js"/>
-		<file name="parsers/sex.js"/>
-		<file name="parsers/parserutils.js"/>
-		<file name="parsers/actions.js"/>
-		<file name="parsers/traverse-actions.js"/>
-	</filelist>
-	
-	<fileset dir="${zencoding_javascript_filters}" id="javascript.filters">
-		<include name="*.js"/>
-	</fileset>
+	<taskdef resource="org/apache/tools/ant/taskdefs/default.properties">
+		<classpath>
+			<pathelement location="${builder.dir}/frontend-builder.jar" />
+			<pathelement location="${builder.dir}/compiler.jar"/>
+			<pathelement location="${builder.dir}/yuicompressor.jar"/>
+		</classpath>
+	</taskdef>
 	
 	<target name="init">
-		<mkdir dir="${zencoding_build_dir}"/>
-		<mkdir dir="${zencoding_plugins}"/>
+		<mkdir dir="${emmet_build_dir}"/>
+		<mkdir dir="${emmet_plugins}"/>
 	</target>
 	
-	<target name="create_javascript" depends="init">
-		<concat destfile="${zencoding_build_dir}/zencoding.js">
-			<filelist refid="javascript.files"/>
+	<target name="-core" depends="init">
+		<concat destfile="${emmet_build_dir}/emmet-core.js" force="yes">
+			<filelist refid="emmet.core" />
+    		<filelist refid="emmet.actions" />
+    		<fileset refid="emmet.resolvers" />
+    		<fileset refid="emmet.filters" />
+    		<fileset refid="emmet.generators" />
 		</concat>
 	</target>
 	
-    <target name="generic_java" description="Builds generic package for Java usage">
-        <mkdir dir="${zencoding_plugins}/java"/>
-    	<concat destfile="${zencoding_plugins}/java/zencoding.js">
-    		<filelist refid="javascript.files" />
-    		<fileset refid="javascript.filters" />
-    		<fileset dir="${zencoding_plugins_source}/java">
-    			<include name="*.js"/>
-    		</fileset>
-    	</concat>
-    </target>
+	<target name="plugin.generic" depends="-core">
+		<concat destfile="${emmet_build_dir}/emmet.js" force="yes">
+			<filelist dir="${emmet_javascript}">
+				<file name="underscore.js"/>
+			</filelist>
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-core.js"/>
+			</filelist>
+		</concat>
+	</target>
+	
+	<target name="plugin.app" depends="plugin.generic">
+		<concat destfile="${emmet_build_dir}/emmet-app.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/loaders">
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+	</target>
+	
+	<target name="plugin.generic-full" depends="plugin.generic">
+		<concat destfile="${emmet_build_dir}/emmet-full.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/actions">
+				<file name="selectLine.js"/>
+			</filelist>
+			<string>emmet.exec(function(require, _){require('resources').setVocabulary(</string>
+			<fileset dir="${basedir}" file="snippets.json"/>
+			<string>, 'system');});</string>
+		</concat>
+		
+		<compile-js destfile="${emmet_build_dir}/emmet-full.min.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
+			</filelist>
+		</compile-js>
+	</target>
+	
+	<!-- CodeMirror2 plugin -->
+	<target name="plugin.codemirror2" depends="plugin.generic-full" description="Plugin for CodeMirror2 editor">
+		<mkdir dir="${emmet_build_dir}/CodeMirror2"/>
+		<concat destfile="${emmet_build_dir}/CodeMirror2/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/codemirror2">
+				<file name="editor.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js destfile="${emmet_build_dir}/CodeMirror2/emmet.min.js">
+			<filelist dir="${emmet_build_dir}/CodeMirror2">
+				<file name="emmet.js"/>
+			</filelist>
+		</compile-js>
+		
+		<copy 
+			file="${emmet_plugins_source}/codemirror2/README.md" 
+			todir="${emmet_build_dir}/CodeMirror2"/>
+		
+		<zip 
+			basedir="${emmet_build_dir}/CodeMirror2"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/CodeMirror2/Emmet-CodeMirror2-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
+	<!-- Plugn for Komodo Edit -->
+	<target name="plugin.komodo" depends="plugin.app">
+		<mkdir dir="${emmet_build_dir}/komodo"/>
+		
+		<copy todir="${emmet_build_dir}/komodo">
+			<fileset dir="${emmet_plugins_source}/komodo"/>
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${emmet_version}"/>
+				</replacetokens>
+			</filterchain>
+		</copy>
+		
+		<copy
+			file="${emmet_build_dir}/emmet-app.js"
+			todir="${emmet_build_dir}/komodo/content/js" />
+		
+		<copy
+			file="${basedir}/snippets.json"
+			todir="${emmet_build_dir}/komodo/content/js" />
+		
+		<exec dir="${emmet_build_dir}/komodo" executable="/Applications/Komodo Edit.app/Contents/SharedSupport/sdk/bin/koext">
+			<arg value="build"/>
+		</exec>
+	</target>
+	
+	<!-- Plugn for PSPad -->
+	<target name="plugin.pspad" depends="plugin.generic-full">
+		<mkdir dir="${emmet_build_dir}/pspad"/>
+		
+		<concat destfile="${emmet_build_dir}/pspad/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/pspad">
+				<file name="editor.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/pspad">
+				<file name="controller.js"/>
+			</filelist>
+			
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${emmet_version}"/>
+				</replacetokens>
+			</filterchain>
+		</concat>
+			
+		<zip 
+			basedir="${emmet_build_dir}/pspad"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/pspad/Emmet-PSPad-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
+	<!-- Plugn for textarea -->
+	<target name="plugin.textarea" depends="plugin.generic-full">
+		<mkdir dir="${emmet_build_dir}/textarea"/>
+		
+		<concat destfile="${emmet_build_dir}/textarea/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-full.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/textarea">
+				<file name="shortcut.js"/>
+				<file name="editor.js"/>
+				<file name="controller.js"/>
+			</filelist>
+		</concat>
+		
+		<compile-js destfile="${emmet_build_dir}/textarea/emmet.min.js">
+			<filelist dir="${emmet_build_dir}/textarea">
+				<file name="emmet.js"/>
+			</filelist>
+		</compile-js>
+		
+		<copy todir="${emmet_build_dir}/textarea">
+			<filelist dir="${emmet_plugins_source}/textarea">
+				<file name="index.html"></file>
+			</filelist>
+		</copy>
+		
+		<zip 
+			basedir="${emmet_build_dir}/textarea"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/textarea/Emmet-textarea-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
+	<!-- Plugn for Notepad++ -->
+	<target name="plugin.npp" depends="plugin.app">
+		<mkdir dir="${emmet_build_dir}/npp"/>
+		
+		<copy todir="${emmet_build_dir}/npp">
+			<fileset dir="${emmet_plugins_source}/npp/contrib"/>
+			<filelist dir="${emmet_plugins_source}/npp">
+				<file name="README.md"/>
+			</filelist>
+		</copy>
+		
+		<mkdir dir="${emmet_build_dir}/npp/jN/includes"/>
+		
+		<copy todir="${emmet_build_dir}/npp/jN/includes">
+			<fileset dir="${emmet_plugins_source}/npp" includes="*.json"/>
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+		</copy>
+		
+		<concat destfile="${emmet_build_dir}/npp/jN/includes/emmet.js">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-app.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/npp">
+				<file name="file.js"/>
+				<file name="editor.js"/>
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+		
+		<zip 
+			basedir="${emmet_build_dir}/npp"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/npp/Emmet-NotepadPlusPlus-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
+	<!-- Plugn for Kate -->
+	<target name="plugin.kate" depends="plugin.generic-full">
+		<mkdir dir="${emmet_build_dir}/kate"/>
+		
+		<copy todir="${emmet_build_dir}/kate">
+			<fileset dir="${emmet_plugins_source}/kate"/>
+		</copy>
+		
+		<copy file="${emmet_build_dir}/emmet-full.js" tofile="${emmet_build_dir}/kate/api/49_emmet.js"/>
+		
+		<zip 
+			basedir="${emmet_build_dir}/kate"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/kate/Emmet-Kate-v${emmet_version}.zip"
+			excludes="*.zip"/>
+	</target>
+	
+	<!-- Plugn for Chocolat -->
+	<target name="plugin.chocolat" depends="-core">
+		<mkdir dir="${emmet_build_dir}/emmet.chocmixin"/>
+		
+		<concat destfile="${emmet_build_dir}/emmet.chocmixin/emmet.js" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet-core.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/loaders">
+				<file name="bootstrap.js"/>
+			</filelist>
+		</concat>
+		
+		<replace file="${emmet_build_dir}/emmet.chocmixin/emmet.js" token="global[['require'][0]]" value="require"/>
+		
+		<copy todir="${emmet_build_dir}/emmet.chocmixin">
+			<filelist dir="${emmet_javascript}">
+				<file name="underscore.js"/>
+			</filelist>
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+			<fileset dir="${emmet_plugins_source}/chocolat" includes="*.*"/>
+		</copy>
+		
+		<!-- Debugging only -->
+		<!-- <copy todir="/Users/sergey/.chocolat/mixins/emmet.chocmixin" overwrite="yes">
+			<fileset dir="${emmet_build_dir}/emmet.chocmixin"/>
+		</copy> -->
+	</target>
+	
+	<!-- Plugin for Adobe Brackets -->
+	<target name="plugin.brackets" depends="plugin.generic">
+		<mkdir dir="${emmet_build_dir}/brackets"/>
+		
+		<compile-js destfile="${emmet_build_dir}/brackets/_main.js" useclosure="no" force="yes">
+			<filelist dir="${emmet_build_dir}">
+				<file name="emmet.js"/>
+			</filelist>
+			<filelist dir="${emmet_javascript}/actions">
+				<file name="selectLine.js"/>
+			</filelist>
+			<filelist dir="${emmet_plugins_source}/brackets">
+				<file name="editor.js"/>
+				<file name="main.js"/>
+			</filelist>
+		</compile-js>
+		
+		<concat destfile="${emmet_build_dir}/brackets/main.js" force="yes">
+			<string>define(function(require, exports, module) {</string>
+			<filelist dir="${emmet_build_dir}/brackets">
+				<file name="_main.js"/>
+			</filelist>
+			<string>});</string>
+		</concat>
+		
+		<copy todir="${emmet_build_dir}/brackets">
+			<filelist dir="${emmet_plugins_source}/brackets">
+				<file name="keymap.json"/>
+			</filelist>
+			<filelist dir="${basedir}">
+				<file name="snippets.json"/>
+			</filelist>
+		</copy>
+		
+		<zip 
+			basedir="${emmet_build_dir}/brackets"
+			compress="yes"
+			level="9"
+			destfile="${emmet_build_dir}/brackets/Emmet-Brackets-v${emmet_version}.zip"
+			excludes="*.zip,_main.js"/>
+	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, komodo_plugin, pspad_plugin, 
-		npp_plugin, generic_java, e2_bundle, textarea_plugin, codemirror_plugin,
-		coda_bundle, espresso_bundle, textmate_bundle">
+	<target name="main" depends="plugin.app, plugin.codemirror2, plugin.komodo, plugin.npp, plugin.pspad, plugin.textarea, plugin.chocolat, plugin.brackets">
 		<echo>Done</echo>
 	</target>
 </project>
