@@ -1,9 +1,0 @@
-[submodule "plugins/codemirror/CodeMirror"]
-	path = plugins/codemirror/CodeMirror
-	url = git@github.com:sergeche/CodeMirror.git
-[submodule "plugins/tea-for-coda"]
-	path = plugins/tea-for-coda
-	url = git://github.com/sergeche/tea-for-coda.git
-[submodule "plugins/tea-for-espresso"]
-	path = plugins/tea-for-espresso
-	url = git://github.com/onecrayon/tea-for-espresso.git
