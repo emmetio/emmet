@@ -49,8 +49,26 @@ emmet.define('expandAbbreviation', function(require, _) {
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 */
 	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
-		if (!actions.run('expand_abbreviation', editor, syntax, profile))
-			editor.replaceContent(require('resources').getVariable('indentation'), editor.getCaretPos());
+		// do nothing if there is a selection
+		var sel = !!editor.getSelection();
+		var indent = require('resources').getVariable('indentation');
+//		TODO create indentation
+//		if (sel) {
+//			// create a proper indentation, if there’s a selection that
+//			// spans multiple lines
+//			if (/[\r\n]/.test(sel)) {
+//				var info = require('editorUtils').outputInfo(editor, syntax);
+//				var selRange = require('range').create(editor.getSelectionRange());
+//				
+//			}
+//			
+//			return;
+//		}
+		
+		
+		if (sel || !actions.run('expand_abbreviation', editor, syntax, profile)) {
+			editor.replaceContent(indent, editor.getCaretPos());
+		}
 	}, {hidden: true});
 	
 	// XXX setup default handler
