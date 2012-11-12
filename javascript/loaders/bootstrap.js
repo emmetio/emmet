@@ -41,6 +41,9 @@ emmet.define('bootstrap', function(require, _) {
 		loadExtensions: function(fileList) {
 			var file = require('file');
 			var payload = {};
+			var utils = require('utils');
+			var userSnippets = null;
+			
 			_.each(fileList, function(f) {
 				switch (file.getExt(f)) {
 					case 'js':
@@ -52,10 +55,24 @@ emmet.define('bootstrap', function(require, _) {
 						break;
 					case 'json':
 						var fileName = getFileName(f).toLowerCase().replace(/\.json$/, '');
-						payload[fileName] = file.read(f);
+						if (/^snippets/.test(fileName)) {
+							if (fileName === 'snippets') {
+								// data in snippets.json is more important to user
+								userSnippets = this.parseJSON(file.read(f));
+							} else {
+								payload.snippets = utils.deepMerge(payload.snippets || {}, this.parseJSON(file.read(f)));
+							}
+						} else {
+							payload[fileName] = file.read(f);
+						}
+						
 						break;
 				}
-			});
+			}, this);
+			
+			if (userSnippets) {
+				payload.snippets = utils.deepMerge(payload.snippets || {}, userSnippets);
+			}
 			
 			this.loadUserData(payload);
 		},
