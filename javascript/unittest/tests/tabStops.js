@@ -12,3 +12,15 @@ test('Locate and update tabstops', function() {
 	                          {start: 43, end: 43, group: '3'}
 	                         ], 'Placeholders located correctly');
 });
+
+test('Nested tabstops', function() {
+	var ts = emmet.require('tabStops');
+	var tsOptions = {
+		tabstop: function(data) {
+			return ts.processText(data.placeholder, tsOptions);
+		}
+	};
+	var text = '${1:one ${2:two}}';
+	var processedText = ts.processText(text, tsOptions);
+	equal(processedText, 'one two', 'Processed nested tabstops');
+});

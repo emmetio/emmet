@@ -40,20 +40,26 @@ emmet.define('tabStops', function(require, _) {
 		var tabstops = require('tabStops');
 		var utils = require('utils');
 		
-		// upgrade tabstops
-		text = tabstops.processText(text, {
+		var tsOptions = {
 			tabstop: function(data) {
 				var group = parseInt(data.group);
 				if (group == 0)
 					return '${0}';
 				
 				if (group > maxNum) maxNum = group;
-				if (data.placeholder)
-					return '${' + (group + tabstopIndex) + ':' + data.placeholder + '}';
-				else
+				if (data.placeholder) {
+					// respect nested placeholders
+					var ix = group + tabstopIndex;
+					var placeholder = tabstops.processText(data.placeholder, tsOptions);
+					return '${' + ix + ':' + placeholder + '}';
+				} else {
 					return '${' + (group + tabstopIndex) + '}';
+				}
 			}
-		});
+		};
+		
+		// upgrade tabstops
+		text = tabstops.processText(text, tsOptions);
 		
 		// resolve variables
 		text = utils.replaceVariables(text, tabstops.variablesResolver(node));
@@ -208,16 +214,21 @@ emmet.define('tabStops', function(require, _) {
 							name: m[1],
 							token: stream.current()
 						});
-					} else if (m = stream.match(/^\{([0-9]+)(:.+?)?\}/)) {
+					} else if (m = stream.match(/^\{([0-9]+)(:.+?)?\}/, false)) {
 						// ${N:value} or ${N} placeholder
+						// parse placeholder, including nested ones
+						stream.skipToPair('{', '}');
+						
 						var obj = {
 							start: buf.length, 
 							group: m[1],
 							token: stream.current()
 						};
 						
-						if (m[2]) {
-							obj.placeholder = m[2].substr(1);
+						var placeholder = obj.token.substring(obj.group.length + 2, obj.token.length - 1);
+						
+						if (placeholder) {
+							obj.placeholder = placeholder.substr(1);
 						}
 						
 						a = options.tabstop(obj);
