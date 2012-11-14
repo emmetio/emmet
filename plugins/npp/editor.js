@@ -90,42 +90,16 @@ emmet.define('editorProxy', function(require, _) {
 
 		getSyntax: function() {
 			var view = getView();
-			
 			var syntax = (Editor.langs[view.lang] || '').toLowerCase();
-			var caretPos = this.getCaretPos();
-				
-			if (!require('resources').hasSyntax(syntax))
-				syntax = 'html';
 			
-			if (syntax == 'html') {
-				// get the context tag
-				var pair = require('html_matcher').getTags(this.getContent(), caretPos);
-				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-					// check that we're actually inside the tag
-					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-						syntax = 'css';
-				}
-			}
+			if (syntax == 'xml' && /\.xslt?(\.|$)/i.test(view.files[view.file]))
+				syntax = 'xsl';
 			
-			return syntax;
+			return require('actionUtils').detectSyntax(this, syntax);
 		},
 
 		getProfileName: function() {
-			switch(this.getSyntax()) {
-				 case 'xml':
-				 case 'xsl':
-				 	return 'xml';
-				 case 'html':
-				 	var profile = require('resources').getVariable('profile');
-				 	if (!profile) { // no forced profile, guess from content
-					 	// html or xhtml?
-				 		profile = this.getContent().search(/<!DOCTYPE[^>]+XHTML/i) != -1 ? 'xhtml': 'html';
-				 	}
-
-				 	return profile;
-			}
-
-			return 'xhtml';
+			return require('actionUtils').detectProfile(this);
 		},
 
 		prompt: function(title, value) {

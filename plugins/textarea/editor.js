@@ -195,30 +195,16 @@ emmet.define('editor', function(require, _) {
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			var syntax = require('textarea').getOption('syntax');
-			var caretPos = this.getCaretPos();
-				
-			if (!require('resources').hasSyntax(syntax))
-				syntax = 'html';
-				
-			if (syntax == 'html') {
-				// get the context tag
-				var pair = require('html_matcher').getTags(this.getContent(), caretPos);
-				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-					// check that we're actually inside the tag
-					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-						syntax = 'css';
-				}
-			}
-			return syntax;
+			return require('actionUtils').detectSyntax(this, require('textarea').getOption('syntax'));
 		},
 		
 		/**
-		 * Returns current output profile name (@see emmet#setupProfile)
+		 * Returns current output profile name
 		 * @return {String}
 		 */
 		getProfileName: function() {
-			return require('textarea').getOption('profile');
+			return require('textarea').getOption('profile') 
+				|| require('actionUtils').detectProfile(this);
 		},
 		
 		/**

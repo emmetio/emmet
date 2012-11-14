@@ -163,6 +163,8 @@ module.exports = {
 	 * @return {String}
 	 */
 	getSyntax: function() {
+		// TODO use Document.current().contextAtLocation(idx) to get list of
+		// current scopes
 		var scope = Document.current().rootScope() || '';
 		var parts = scope.split('.');
 		var res = emmet.require('resources');
@@ -189,15 +191,11 @@ module.exports = {
 	},
 	
 	/**
-	 * Returns current output profile name (@see emmet#setupProfile)
+	 * Returns current output profile name
 	 * @return {String}
 	 */
 	getProfileName: function() {
-		var syntax = this.getSyntax();
-		if (syntax == 'xml' || syntax == 'xsl')
-			return 'xml';
-			
-		return 'xhtml';
+		return require('actionUtils').detectProfile(this);
 	},
 	
 	/**

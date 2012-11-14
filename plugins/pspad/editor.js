@@ -162,28 +162,8 @@ var editorProxy = emmet.exec(function(require, _){
 		 * @return {String}
 		 */
 		getSyntax: function() {
-			var syntax = 'html';
-			var caretPos = this.getCaretPos();
 			var m = /\.(\w+)$/.exec(this.getFilePath());
-				
-			// guess syntax by file name
-			if (m) {
-				syntax = m[1].toLowerCase();
-				if (!require('resources').hasSyntax(syntax))
-					syntax = 'html';
-			}
-			
-			if (syntax == 'html') {
-				// get the context tag
-				var pair = require('html_matcher').getTags(this.getContent(), caretPos);
-				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-					// check that we're actually inside the tag
-					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-						syntax = 'css';
-				}
-			}
-			
-			return syntax;
+			return require('actionUtils').detectSyntax(this, m ? m[1].toLowerCase() : null);
 		},
 		
 		/**
@@ -191,7 +171,7 @@ var editorProxy = emmet.exec(function(require, _){
 		 * @return {String}
 		 */
 		getProfileName: function() {
-			return require('resources').getVariable('profile') || 'xhtml';
+			return require('actionUtils').detectProfile(this);
 		},
 		
 		/**
