@@ -116,7 +116,14 @@ IEmmetEditor.prototype = {
 	},
 	
 	/**
-	 * Returns current output profile name (@see emmet#setupProfile)
+	 * Returns current output profile name (see profile module).
+	 * In most cases, this method should return <code>null</code> and let 
+	 * Emmet guess best profile name for current syntax and user data.
+	 * In case you’re using advanced editor with access to syntax scopes 
+	 * (like Sublime Text 2), you can return syntax name for current scope. 
+	 * For example, you may return `line` profile when editor caret is inside
+	 * string of programming language.
+	 *  
 	 * @return {String}
 	 */
 	getProfileName: function() {

@@ -30,6 +30,9 @@ emmet.exec(function(require, _) {
 		syntaxprofiles: {
 			html: {
 				tag_case: 'upper'
+			},
+			css: {
+				'filters': 's'
 			}
 		}
 	};

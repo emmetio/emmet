@@ -11,7 +11,7 @@ var editorStub = (function() {
 		end: 0
 	};
 	var syntax = 'html';
-	var profile = 'xhtml';
+	var profile = null;
 	var promptValue = '';
 	
 	var require = _.bind(emmet.require, emmet);

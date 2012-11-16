@@ -159,7 +159,7 @@ var emmet = (function(global) {
 			if (!abbr) return '';
 			
 			syntax = syntax || defaultSyntax;
-			profile = profile || defaultProfile;
+//			profile = profile || defaultProfile;
 			
 			var filters = r('filters');
 			var parser = r('abbreviationParser');
@@ -172,10 +172,10 @@ var emmet = (function(global) {
 				syntax: syntax, 
 				contextNode: contextNode
 			});
+			
 			var filtersList = filters.composeList(syntax, profile, data[1]);
 			filters.apply(outputTree, filtersList, profile);
 			return outputTree.toString();
-//			return this.require('utils').replaceVariables(outputTree.toString());
 		},
 		
 		/**

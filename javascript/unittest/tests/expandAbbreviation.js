@@ -138,12 +138,12 @@
 	});
 	
 	test('XSL', function() {
-		runTest('tmatch', 'xsl', '<xsl:template match="" mode=""></xsl:template>');
-		runTest('choose+', 'xsl', '<xsl:choose><xsl:when test=""></xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose>');
-		runTest('xsl:variable>div+p', 'xsl', '<xsl:variable><div></div><p></p></xsl:variable>');
-		runTest('var>div+p', 'xsl', '<xsl:variable name=""><div></div><p></p></xsl:variable>');
-		runTest('ap', 'xsl', '<xsl:apply-templates select="" mode="" />');
-		runTest('ap>wp*2', 'xsl', '<xsl:apply-templates select="" mode=""><xsl:with-param name="" select="" /><xsl:with-param name="" select="" /></xsl:apply-templates>');
+		runTest('tmatch', 'xsl', 'plain', '<xsl:template match="" mode=""></xsl:template>');
+		runTest('choose+', 'xsl', 'plain', '<xsl:choose><xsl:when test=""></xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose>');
+		runTest('xsl:variable>div+p', 'xsl', 'plain', '<xsl:variable><div></div><p></p></xsl:variable>');
+		runTest('var>div+p', 'xsl', 'plain', '<xsl:variable name=""><div></div><p></p></xsl:variable>');
+		runTest('ap', 'xsl', 'plain', '<xsl:apply-templates select="" mode="" />');
+		runTest('ap>wp*2', 'xsl', 'plain', '<xsl:apply-templates select="" mode=""><xsl:with-param name="" select="" /><xsl:with-param name="" select="" /></xsl:apply-templates>');
 	});
 	
 	test('CSS', function() {
@@ -155,8 +155,8 @@
 	});
 	
 	test('Inheritance', function() {
-		runTest('a', 'xsl', '<a href=""></a>');
-		runTest('demo', 'xsl', '<div id="demo"></div>');
+		runTest('a', 'xsl', 'plain', '<a href=""></a>');
+		runTest('demo', 'xsl', 'plain', '<div id="demo"></div>');
 	});
 	
 	test('Non-existing types', function() {

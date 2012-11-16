@@ -640,6 +640,7 @@
 	
 	"xsl": {
 		"extends": "html",
+		"profile": "xml",
 		"filters": "html, xsl",
 		"abbreviations": {
 			"tm": "<xsl:template match=\"\" mode=\"\">",

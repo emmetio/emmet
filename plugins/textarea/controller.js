@@ -35,7 +35,7 @@ emmet.define('textarea', function(require, _) {
 	};
 	
 	var defaultOptions = {
-		profile: 'xhtml',
+//		profile: 'xhtml',
 		syntax: 'html',
 		use_tab: false,
 		pretty_break: false
