@@ -406,6 +406,11 @@
 	});
 	
 	test('Wrap With Abbreviation', function() {
+		var wrap = function(abbr, content) {
+			content = emmet.require('utils').escapeText(content);
+			return emmet.require('wrapWithAbbreviation').wrap(abbr, content);
+		};
+		
 		editorStub.replaceContent('<br${0} />');
 		editorStub.setPromptOutput('ul>li');
 		run('wrap_with_abbreviation');
@@ -417,11 +422,6 @@
 		run('wrap_with_abbreviation');
 		equal(editorStub.getContent(), '<ul>\n\t<li class="i1">one</li>\n\t<li class="i2">two</li>\n\t<li class="i3">three</li>\n</ul>', 'Wrapped multiline abbreviation');
 		
-		var wrap = function(abbr, content) {
-			content = emmet.require('utils').escapeText(content);
-			return emmet.require('wrapWithAbbreviation').wrap(abbr, content);
-		};
-		
 		equal(wrap('p.test', 'hello world'), '<p class="test">hello world</p>');
 		equal(wrap('p+p.test', 'hello world'), '<p></p><p class="test">hello world</p>');
 		equal(wrap('ul#nav.simple>li', 'hello world'), '<ul id="nav" class="simple"><li>hello world</li></ul>');
@@ -432,6 +432,8 @@
 		equal(wrap('li*>a', 'one\n    two\n    three'), '<li><a href="">one</a></li><li><a href="">two</a></li><li><a href="">three</a></li>', 'Removed indentation of wrapped content');
 		
 		equal(wrap('span', '$2'), '<span>\\$2</span>');
+		equal(wrap('str', 'test'), '<strong>test</strong>');
+		equal(wrap('str>span', 'test'), '<strong><span>test</span></strong>');
 		
 		
 		// test output placeholders

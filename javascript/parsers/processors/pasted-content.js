@@ -148,7 +148,7 @@ emmet.exec(function(require, _) {
 			}
 			
 			item.data('paste', null);
-			return !_.isUndefined(pastedContentObj);
+			return !!pastedContentObj;
 		});
 		
 		if (!targets.length && options.pastedContent) {
