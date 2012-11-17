@@ -136,8 +136,9 @@ emmet.define('bootstrap', function(require, _) {
 				this.loadProfiles(data.profiles);
 			}
 			
-			if (data.syntaxprofiles) {
-				this.loadSyntaxProfiles(data.syntaxprofiles);
+			var profiles = data.syntaxProfiles || data.syntaxprofiles;
+			if (profiles) {
+				this.loadSyntaxProfiles(profiles);
 			}
 		},
 		

@@ -158,7 +158,6 @@ emmet.define('profile', function(require, _) {
 		 * @returns {Object}
 		 */
 		get: function(name, syntax) {
-			console.log('getting profile', name, syntax);
 			if (!name && syntax) {
 				// search in user resources first
 				var profile = require('resources').findItem(syntax, 'profile');
@@ -167,14 +166,17 @@ emmet.define('profile', function(require, _) {
 				}
 			}
 			
-			if (!name)
+			if (!name) {
 				return profiles.plain;
+			}
 			
-			if (name instanceof OutputProfile)
+			if (name instanceof OutputProfile) {
 				return name;
+			}
 			
-			if (_.isString(name) && name.toLowerCase() in profiles)
+			if (_.isString(name) && name.toLowerCase() in profiles) {
 				return profiles[name.toLowerCase()];
+			}
 			
 			return this.create(name);
 		},

@@ -79,7 +79,7 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 			var utils = require('utils');
 			
 			syntax = syntax || emmet.defaultSyntax();
-			profile = profile || emmet.defaultProfile();
+			profile = require('profile').get(profile, syntax);
 			
 			require('tabStops').resetTabstopIndex();
 			

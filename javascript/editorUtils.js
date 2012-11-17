@@ -40,10 +40,15 @@ emmet.define('editorUtils', function(require, _) {
 		 * @param {String} profile
 		 */
 		outputInfo: function(editor, syntax, profile) {
+			// most of this code makes sense for Java/Rhino environment
+			// because string that comes from Java are not actually JS string
+			// but Java String object so the have to be explicitly converted
+			// to native string
+			profile = profile || editor.getProfileName();
 			return  {
 				/** @memberOf outputInfo */
 				syntax: String(syntax || editor.getSyntax()),
-				profile: String(profile || editor.getProfileName()),
+				profile: profile ? String(profile) : null,
 				content: String(editor.getContent())
 			};
 		},

@@ -15,7 +15,7 @@ emmet.require('resources').setVocabulary({
 		
 		filters: 'bem,html'
 		
-//		profile: {
+//		, profile: {
 //			tag_case: 'upper',
 //			attr_case: 'upper',
 //			attr_quotes: 'double',
