@@ -32,7 +32,12 @@
 	
 	function runTest() {
 		var args = _.toArray(arguments);
-		var result = emmet.expandAbbreviation.apply(emmet, _.initial(args));
+		var params = _.initial(args);
+		if (!params[2]) {
+			params[2] = 'plain';
+		}
+		
+		var result = emmet.expandAbbreviation.apply(emmet, params);
 		result = emmet.require('tabStops').processText(result, {
 			escape: function(ch) {
 				return ch;

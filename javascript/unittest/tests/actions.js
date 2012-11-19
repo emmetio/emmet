@@ -408,7 +408,7 @@
 	test('Wrap With Abbreviation', function() {
 		var wrap = function(abbr, content) {
 			content = emmet.require('utils').escapeText(content);
-			return emmet.require('wrapWithAbbreviation').wrap(abbr, content);
+			return emmet.require('wrapWithAbbreviation').wrap(abbr, content, 'html', 'plain');
 		};
 		
 		editorStub.replaceContent('<br${0} />');
