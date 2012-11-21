@@ -73,7 +73,13 @@ emmet.exec(function(r, _) {
 		if (editor) {
 			editorProxy.setupContext(editor._codeMirror, editor.document.file.fullPath);
 			if (action.name == 'expand_abbreviation_with_tab' && editorProxy.getSelection()) {
-				_handleTabKey(editor._codeMirror);
+				var extraKeys = editor._codeMirror.getOption('extraKeys');
+				if (extraKeys && extraKeys.Tab) {
+					extraKeys.Tab(editor._codeMirror);
+				} else {
+					_handleTabKey(editor._codeMirror);
+				}
+				
 				return df.resolve().promise();
 			}
 		}
