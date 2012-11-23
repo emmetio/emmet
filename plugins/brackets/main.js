@@ -8,13 +8,13 @@ emmet.exec(function(r, _) {
 		skippedActions = ['update_image_size', 'encode_decode_data_url'];
 
 
-	/**
-	 * Code duplicate from original Brackets codebase to handle Tab key
-	 * when abbreviation cannot be expanded
-	 * @private
-	 * Handle Tab key press.
-	 * @param {!CodeMirror} instance CodeMirror instance.
-	 */
+	 /**
+	  * The following function included from Brackets to handle Tab key
+	  * when abbreviation cannot be expanded (https://github.com/adobe/brackets/blob/master/LICENSE).
+	  * @private
+	  * Handle Tab key press.
+	  * @param {!CodeMirror} instance CodeMirror instance.
+	  */
 	function _handleTabKey(instance) {
 		// Tab key handling is done as follows:
 		// 1. If the selection is before any text and the indentation is to the left of
