@@ -243,7 +243,7 @@ emmet.define('cssResolver', function(require, _) {
 				color = repeat(hex, 3);
 				break;
 			case 3:
-				color = repeat(hex, 2);
+				color = hex.charAt(0) + hex.charAt(0) + hex.charAt(1) + hex.charAt(1) + hex.charAt(2) + hex.charAt(2);
 				break;
 			case 4:
 				color = hex + hex.substr(0, 2);
