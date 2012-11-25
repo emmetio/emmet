@@ -34,5 +34,6 @@ test('HTML', function() {
 	var html_string = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends<p>Another paragraph';
 	var matcher = emmet.require('html_matcher');
 	
-	deepEqual(matcher(html_string, 25), [22, 26]);
+	deepEqual(matcher(html_string, 25), [22, 26], 'Matched BR tag');
+	deepEqual(matcher(html_string, 27), [0, 82], 'Matched P tag');
 });

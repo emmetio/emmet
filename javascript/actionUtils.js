@@ -157,6 +157,7 @@ emmet.define('actionUtils', function(require, _) {
 						String(editor.getProfileName()));
 				
 				if (tags && tags[0] && tags[0].type == 'tag') {
+					console.log('context', tags, editor.getCaretPos());
 					var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 					var startTag = tags[0];
 					var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
