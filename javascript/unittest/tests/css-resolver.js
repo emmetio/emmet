@@ -67,6 +67,8 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('something'), 'something: ${1};', 'Expanded unknown property');
 	equal(css.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\n-moz-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\nbox-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};', 'Expanded property with multiple tabstops');
 	equal(css.expandToSnippet('bd1#0solid'), 'border: 1px #000 solid;', 'Expanded "bd1#0solid"');
+	equal(css.expandToSnippet('c#3d3d3d'), 'color: #3d3d3d;', 'Expanded "c#3d3d3d"');
+	equal(css.expandToSnippet('c#d3d3d3'), 'color: #d3d3d3;', 'Expanded "c#d3d3d3"');
 });
 
 test('!important declaration', function() {
