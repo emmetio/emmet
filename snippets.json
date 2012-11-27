@@ -890,9 +890,6 @@
 			// font-size
 			"fz": "font-size:|;",
 
-				// fuzzy
-				"fs": "font-size:|;",
-
 			//font-size-adjust
 			"fza": "font-size-adjust:|;",
 			"fza:n": "font-size-adjust:none;",
