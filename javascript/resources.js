@@ -65,6 +65,15 @@ emmet.define('resources', function(require, _) {
 		}
 	}
 	
+	/**
+	 * Normalizes snippet key name for better fuzzy search
+	 * @param {String} str
+	 * @returns {String}
+	 */
+	function normalizeName(str) {
+		return str.replace(/:/g, '-');
+	}
+	
 	return {
 		/**
 		 * Sets new unparsed data for specified settings vocabulary
@@ -199,7 +208,7 @@ emmet.define('resources', function(require, _) {
 		 * Definition is searched inside `snippets` and `abbreviations` 
 		 * subsections  
 		 * @param {String} syntax Top-level section name (syntax)
-		 * @param {Snippet name} name
+		 * @param {String} name Snippet name
 		 * @returns {Object}
 		 */
 		findSnippet: function(syntax, name, memo) {
@@ -232,6 +241,63 @@ emmet.define('resources', function(require, _) {
 			}
 			
 			return matchedItem;
+		},
+		
+		/**
+		 * Performs fuzzy search of snippet definition
+		 * @param {String} syntax Top-level section name (syntax)
+		 * @param {String} name Snippet name
+		 * @returns
+		 */
+		fuzzyFindSnippet: function(syntax, name) {
+			var cacheKey = 'fz-' + syntax;
+			if (!cache[cacheKey]) {
+				// create cached searcher instance
+				var stack = [], sectionKey = syntax;
+				var memo = [];
+				
+				do {
+					var section = this.getSection(sectionKey);
+					if (!section)
+						break;
+					
+					_.each(['snippets', 'abbreviations'], function(sectionName) {
+						var stackItem = {};
+						_.each(section[sectionName] || null, function(v, k) {
+							stackItem[k] = {
+								nk: normalizeName(k),
+								value: v,
+								type: sectionName
+							};
+						});
+						
+						stack.push(stackItem);
+					});
+					
+					memo.push(sectionKey);
+					sectionKey = section['extends'];
+				} while (sectionKey && !_.include(memo, sectionKey));
+				
+				
+				cache[cacheKey] = _.extend.apply(_, stack.reverse());
+			}
+			
+			var payload = cache[cacheKey];
+			var sc = require('string-score');
+			
+			name = normalizeName(name);
+			var scores = _.map(payload, function(value, key) {
+				return {
+					key: key,
+					score: sc.score(value.nk, name, 0.1)
+				};
+			});
+			
+			var result = _.last(_.sortBy(scores, 'score'));
+			if (result && result.score) {
+				var k = result.key;
+				return parseItem(k, payload[k].value, payload[k].type);
+			}
 		}
 	};
 });

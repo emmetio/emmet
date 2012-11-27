@@ -177,6 +177,15 @@ emmet.define('cssResolver', function(require, _) {
 			+ '(like <code>c#0</code>). Possible values are <code>upper</code>, '
 			+ '<code>lower</code> and <code>keep</code>.');
 	
+	prefs.define('css.fuzzySearch', true, 
+			'Enable fuzzy search among CSS snippet names. When enabled, every ' 
+			+ '<em>unknown</em> snippet will be scored against available snippet '
+			+ 'names (not values or CSS properties!). The match with best score '
+			+ 'will be used to resolve snippet value. For example, with this ' 
+			+ 'preference enabled, the following abbreviations are equal: '
+			+ '<code>ov:h</code> == <code>ov-h</code> == <code>o-h</code> == '
+			+ '<code>oh</code>');
+	
 	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
@@ -758,11 +767,16 @@ emmet.define('cssResolver', function(require, _) {
 			snippet = resources.findSnippet(syntax, abbrData.property);
 			
 			// fallback to some old snippets like m:a
-			if (!snippet && ~abbrData.property.indexOf(':')) {
-				var parts = abbrData.property.split(':');
-				var propertyName = parts.shift();
-				snippet = resources.findSnippet(syntax, propertyName) || propertyName;
-				abbrData.values = this.parseValues(parts.join(':'));
+//			if (!snippet && ~abbrData.property.indexOf(':')) {
+//				var parts = abbrData.property.split(':');
+//				var propertyName = parts.shift();
+//				snippet = resources.findSnippet(syntax, propertyName) || propertyName;
+//				abbrData.values = this.parseValues(parts.join(':'));
+//			}
+			
+			if (!snippet && prefs.get('css.fuzzySearch')) {
+				// let’s try fuzzy search
+				snippet = resources.fuzzyFindSnippet(syntax, abbrData.property);
 			}
 			
 			if (!snippet) {
