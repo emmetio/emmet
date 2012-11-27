@@ -249,8 +249,9 @@ emmet.define('resources', function(require, _) {
 		 * @param {String} name Snippet name
 		 * @returns
 		 */
-		fuzzyFindSnippet: function(syntax, name) {
+		fuzzyFindSnippet: function(syntax, name, minScore) {
 			var cacheKey = 'fz-' + syntax;
+			minScore = minScore || 0.3;
 			if (!cache[cacheKey]) {
 				// create cached searcher instance
 				var stack = [], sectionKey = syntax;
@@ -294,8 +295,9 @@ emmet.define('resources', function(require, _) {
 			});
 			
 			var result = _.last(_.sortBy(scores, 'score'));
-			if (result && result.score) {
+			if (result && result.score >= minScore) {
 				var k = result.key;
+				console.log('found', k, result.score);
 				return parseItem(k, payload[k].value, payload[k].type);
 			}
 		}

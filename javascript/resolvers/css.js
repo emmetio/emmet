@@ -186,6 +186,11 @@ emmet.define('cssResolver', function(require, _) {
 			+ '<code>ov:h</code> == <code>ov-h</code> == <code>o-h</code> == '
 			+ '<code>oh</code>');
 	
+	prefs.define('css.fuzzySearchMinScore', 0.3, 
+			'The minium score (from 0 to 1) that fuzzy-matched abbreviation should ' 
+			+ 'achive. Lower values may produce many false-positive matches, '
+			+ 'higher values may reduce possible matches.');
+	
 	
 	function isNumeric(ch) {
 		var code = ch && ch.charCodeAt(0);
@@ -776,7 +781,7 @@ emmet.define('cssResolver', function(require, _) {
 			
 			if (!snippet && prefs.get('css.fuzzySearch')) {
 				// let’s try fuzzy search
-				snippet = resources.fuzzyFindSnippet(syntax, abbrData.property);
+				snippet = resources.fuzzyFindSnippet(syntax, abbrData.property, parseFloat(prefs.get('css.fuzzySearchMinScore')));
 			}
 			
 			if (!snippet) {
