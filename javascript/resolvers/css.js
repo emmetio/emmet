@@ -450,6 +450,8 @@ emmet.define('cssResolver', function(require, _) {
 		return list;
 	}
 	
+	
+	// TODO refactor, this looks awkward now
 	addPrefix('w', {
 		prefix: 'webkit'
 	});
@@ -825,7 +827,7 @@ emmet.define('cssResolver', function(require, _) {
 		},
 		
 		/**
-		 * Same as <code>expand</code> method but transforms output into a 
+		 * Same as <code>expand</code> method but transforms output into 
 		 * Emmet snippet
 		 * @param {String} abbr
 		 * @param {String} syntax
@@ -843,6 +845,7 @@ emmet.define('cssResolver', function(require, _) {
 			return String(snippet);
 		},
 		
-		getSyntaxPreference: getSyntaxPreference
+		getSyntaxPreference: getSyntaxPreference,
+		transformSnippet: transformSnippet
 	};
 });

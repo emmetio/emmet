@@ -250,10 +250,35 @@ emmet.define('resources', function(require, _) {
 		 * @returns
 		 */
 		fuzzyFindSnippet: function(syntax, name, minScore) {
-			var cacheKey = 'fz-' + syntax;
 			minScore = minScore || 0.3;
+			
+			var payload = this.getAllSnippets(syntax);
+			var sc = require('string-score');
+			
+			name = normalizeName(name);
+			var scores = _.map(payload, function(value, key) {
+				return {
+					key: key,
+					score: sc.score(value.nk, name, 0.1)
+				};
+			});
+			
+			var result = _.last(_.sortBy(scores, 'score'));
+			if (result && result.score >= minScore) {
+				var k = result.key;
+				return parseItem(k, payload[k].value, payload[k].type);
+			}
+		},
+		
+		/**
+		 * Returns plain dictionary of all available abbreviations and snippets
+		 * for specified syntax with respect of inherinatce
+		 * @param {String} syntax
+		 * @returns {Object}
+		 */
+		getAllSnippets: function(syntax) {
+			var cacheKey = 'all-' + syntax;
 			if (!cache[cacheKey]) {
-				// create cached searcher instance
 				var stack = [], sectionKey = syntax;
 				var memo = [];
 				
@@ -283,22 +308,7 @@ emmet.define('resources', function(require, _) {
 				cache[cacheKey] = _.extend.apply(_, stack.reverse());
 			}
 			
-			var payload = cache[cacheKey];
-			var sc = require('string-score');
-			
-			name = normalizeName(name);
-			var scores = _.map(payload, function(value, key) {
-				return {
-					key: key,
-					score: sc.score(value.nk, name, 0.1)
-				};
-			});
-			
-			var result = _.last(_.sortBy(scores, 'score'));
-			if (result && result.score >= minScore) {
-				var k = result.key;
-				return parseItem(k, payload[k].value, payload[k].type);
-			}
+			return cache[cacheKey];
 		}
 	};
 });
