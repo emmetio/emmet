@@ -266,7 +266,8 @@ emmet.define('resources', function(require, _) {
 			var result = _.last(_.sortBy(scores, 'score'));
 			if (result && result.score >= minScore) {
 				var k = result.key;
-				return parseItem(k, payload[k].value, payload[k].type);
+				return payload[k].parsedValue;
+//				return parseItem(k, payload[k].value, payload[k].type);
 			}
 		},
 		
@@ -293,6 +294,7 @@ emmet.define('resources', function(require, _) {
 							stackItem[k] = {
 								nk: normalizeName(k),
 								value: v,
+								parsedValue: parseItem(k, v, sectionName),
 								type: sectionName
 							};
 						});
