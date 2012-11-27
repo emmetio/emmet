@@ -297,7 +297,6 @@ emmet.define('resources', function(require, _) {
 			var result = _.last(_.sortBy(scores, 'score'));
 			if (result && result.score >= minScore) {
 				var k = result.key;
-				console.log('found', k, result.score);
 				return parseItem(k, payload[k].value, payload[k].type);
 			}
 		}
