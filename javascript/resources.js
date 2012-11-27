@@ -272,7 +272,7 @@ emmet.define('resources', function(require, _) {
 		
 		/**
 		 * Returns plain dictionary of all available abbreviations and snippets
-		 * for specified syntax with respect of inherinatce
+		 * for specified syntax with respect of inheritance
 		 * @param {String} syntax
 		 * @returns {Object}
 		 */
