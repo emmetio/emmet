@@ -13,6 +13,7 @@
 		<file name="parsers/cssParser.js"/>
 		<file name="parsers/xmlParser.js"/>
 		
+		<file name="string-score.js"/>
 		<file name="utils.js"/>
 		<file name="range.js"/>
 		<file name="handlerList.js"/>

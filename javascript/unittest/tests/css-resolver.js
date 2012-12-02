@@ -21,10 +21,13 @@ test('Value extraction', function() {
 	equal(css.findValuesInAbbreviation('margin-a'), 'a', 'Extracted value from "margin-a"');
 	equal(css.findValuesInAbbreviation('margin-a-i'), 'a-i', 'Extracted value from "margin-a-i"');
 	equal(css.findValuesInAbbreviation('margin-a-foo'), '', 'No value extracted from "margin-a-foo"');
+	equal(css.findValuesInAbbreviation('c#333'), '#333', 'Extracted #333');
 });
 
 test('Value parsing', function() {
 	var css = emmet.require('cssResolver');
+	
+	deepEqual(css.parseValues('#0#333'), ['#000', '#333'], 'Parsed value "#0#333"');
 	
 	deepEqual(css.parseValues('5'), ['5'], 'Parsed value "5"');
 	deepEqual(css.parseValues('10'), ['10'], 'Parsed value "10"');
@@ -63,6 +66,9 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('pos-a'), 'position: absolute;', 'Expanded "pos-a" (no processing)');
 	equal(css.expandToSnippet('something'), 'something: ${1};', 'Expanded unknown property');
 	equal(css.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\n-moz-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\nbox-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};', 'Expanded property with multiple tabstops');
+	equal(css.expandToSnippet('bd1#0solid'), 'border: 1px #000 solid;', 'Expanded "bd1#0solid"');
+	equal(css.expandToSnippet('c#3d3d3d'), 'color: #3d3d3d;', 'Expanded "c#3d3d3d"');
+	equal(css.expandToSnippet('c#d3d3d3'), 'color: #d3d3d3;', 'Expanded "c#d3d3d3"');
 });
 
 test('!important declaration', function() {
