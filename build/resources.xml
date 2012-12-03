@@ -26,7 +26,7 @@
 		<file name="actionUtils.js"/>
 		<file name="abbreviationUtils.js"/>
 		<file name="base64.js"/>
-		<file name="html_matcher.js"/>
+		<file name="htmlMatcher.js"/>
 		<file name="tabStops.js"/>
 		<file name="preferences.js"/>
 		<file name="filters.js"/>
