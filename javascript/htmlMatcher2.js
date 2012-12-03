@@ -234,8 +234,18 @@ emmet.define('htmlMatcher', function(require, _) {
 					close: close,
 					type: open.type == 'comment' ? 'comment' : 'tag',
 					innerRange: innerRange,
+					innerContent: function() {
+						return this.innerRange.substring(text);
+					},
 					outerRange: outerRange,
-					range: !innerRange.length() || !innerRange.cmp(pos, 'lte', 'gte') ? outerRange : innerRange
+					outerContent: function() {
+						return this.outerRange.substring(text);
+					},
+					range: !innerRange.length() || !innerRange.cmp(pos, 'lte', 'gte') ? outerRange : innerRange,
+					content: function() {
+						return this.range.substring(text);
+					},
+					source: text
 				};
 			}
 		},

@@ -10,22 +10,22 @@ emmet.exec(function(require, _) {
 		var info = require('editorUtils').outputInfo(editor);
 		
 		// search for tag
-		var pair = require('html_matcher').getTags(info.content, editor.getCaretPos(), info.profile);
-		if (pair && pair[0]) {
-			if (!pair[1]) {
+		var tag = require('htmlMatcher').tag(info.content, editor.getCaretPos());
+		if (tag) {
+			if (!tag.close) {
 				// simply remove unary tag
-				editor.replaceContent(utils.getCaretPlaceholder(), pair[0].start, pair[0].end);
+				editor.replaceContent(utils.getCaretPlaceholder(), tag.range.start, tag.range.end);
 			} else {
 				// remove tag and its newlines
 				/** @type Range */
-				var tagContentRange = utils.narrowToNonSpace(info.content, pair[0].end, pair[1].start - pair[0].end);
+				var tagContentRange = utils.narrowToNonSpace(info.content, tag.innerRange);
 				/** @type Range */
 				var startLineBounds = utils.findNewlineBounds(info.content, tagContentRange.start);
 				var startLinePad = utils.getLinePadding(startLineBounds.substring(info.content));
 				var tagContent = tagContentRange.substring(info.content);
 				
 				tagContent = utils.unindentString(tagContent, startLinePad);
-				editor.replaceContent(utils.getCaretPlaceholder() + utils.escapeText(tagContent), pair[0].start, pair[1].end);
+				editor.replaceContent(utils.getCaretPlaceholder() + utils.escapeText(tagContent), tag.outerRange.start, tag.outerRange.end);
 			}
 			
 			return true;

@@ -21,10 +21,9 @@ emmet.exec(function(require, _) {
 			
 		if (!range.length()) {
 			// no selection, find matching tag
-			var pair = require('html_matcher').getTags(info.content, editor.getCaretPos(), info.profile);
-			if (pair && pair[0]) { // found pair
-				range.start = pair[0].start;
-				range.end = pair[1] ? pair[1].end : pair[0].end;
+			var tag = require('htmlMatcher').tag(info.content, editor.getCaretPos());
+			if (tag) { // found pair
+				range = tag.outerRange;
 			}
 		}
 		
@@ -197,9 +196,8 @@ emmet.exec(function(require, _) {
 			// current token, we have to make sure that cursor is not inside
 			// 'style' attribute of html element
 			var caretPos = editor.getCaretPos();
-			var pair = require('html_matcher').getTags(info.content, caretPos);
-			if (pair && pair[0] && pair[0].type == 'tag' && 
-					pair[0].start <= caretPos && pair[0].end >= caretPos) {
+			var tag = require('htmlMatcher').tag(info.content, caretPos);
+			if (tag && tag.open.range.inside(caretPos)) {
 				info.syntax = 'html';
 			}
 		}

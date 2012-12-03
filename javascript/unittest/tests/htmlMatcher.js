@@ -19,10 +19,7 @@ module('HTML Matcher');
 		var m = emmet.require('htmlMatcher').find(text, pos);
 		var expectedRange = emmet.require('range').create2(resultStart, resultEnd);
 		
-		var expected = createMatchString(text, pos, expectedRange);
-		var actual = createMatchString(text, pos, m.range);
-		
-		equal(actual, expected, label);
+		testAssets.textRanges(text, m.range, expectedRange, pos, label);
 	}
 	
 	test('XHTML', function() {

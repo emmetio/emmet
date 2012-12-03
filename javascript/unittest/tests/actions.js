@@ -121,20 +121,33 @@
 	test('Match pair', function() {
 		editorStub.replaceContent('Lorem <a><b>ip${0}sum</b></a> dolor sit amet');
 		
-		run('match_pair_outward');
-		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 17}, 'Matched tag content');
+		var match = function(dir, expected, label) {
+			run('match_pair_' + dir);
+			testAssets.textRanges(editorStub.getContent(), editorStub.getSelectionRange(), expected, null, label);
+		};
 		
-		run('match_pair_outward');
-		deepEqual(editorStub.getSelectionRange(), {start: 9, end: 21}, 'Matched tag <b>');
+		match('outward', [12, 17]);
+		match('outward', [9, 21]);
+		match('outward', [6, 25]);
 		
-		run('match_pair_outward');
-		deepEqual(editorStub.getSelectionRange(), {start: 6, end: 25}, 'Matched tag <a>');
+		match('inward', [9, 21]);
+		match('inward', [12, 17]);
+	});
+	
+	test('Go to pair', function() {
+		editorStub.replaceContent('Lorem <b>ip${0}sum</b> dolor sit amet');
 		
-		run('match_pair_inward');
-		deepEqual(editorStub.getSelectionRange(), {start: 9, end: 21}, 'Matched tag <b> (inward)');
+		run('matching_pair');
+		equal(editorStub.getCaretPos(), 6);
 		
-		run('match_pair_inward');
-		deepEqual(editorStub.getSelectionRange(), {start: 12, end: 17}, 'Matched tag content (inward)');
+		run('matching_pair');
+		equal(editorStub.getCaretPos(), 14);
+		
+		run('matching_pair');
+		equal(editorStub.getCaretPos(), 6);
+		
+		run('matching_pair');
+		equal(editorStub.getCaretPos(), 14);
 	});
 	
 	test('Merge lines', function() {

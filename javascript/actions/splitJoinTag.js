@@ -11,28 +11,27 @@ emmet.exec(function(require, _) {
 	/**
 	 * @param {IEmmetEditor} editor
 	 * @param {Object} profile
-	 * @param {Object} htmlMatch
+	 * @param {Object} tag
 	 */
-	function joinTag(editor, profile, htmlMatch) {
+	function joinTag(editor, profile, tag) {
 		/** @type emmet.utils */
 		var utils = require('utils');
 		
-		var closingSlash = (profile.self_closing_tag === true) ? '/' : ' /';
-		var content = htmlMatch[0].full_tag.replace(/\s*>$/, closingSlash + '>');
+		var content = tag.open.range.substring(tag.source).replace(/\s*>$/, profile.selfClosing() + '>');
 		
 		// add caret placeholder
-		if (content.length + htmlMatch[0].start < editor.getCaretPos())
+		if (content.length + tag.outerRange.start < editor.getCaretPos())
 			content += utils.getCaretPlaceholder();
 		else {
-			var d = editor.getCaretPos() - htmlMatch[0].start;
+			var d = editor.getCaretPos() - tag.outerRange.start;
 			content = utils.replaceSubstring(content, utils.getCaretPlaceholder(), d);
 		}
 		
-		editor.replaceContent(content, htmlMatch[0].start, htmlMatch[1].end);
+		editor.replaceContent(content, tag.outerRange.start, tag.outerRange.end);
 		return true;
 	}
 	
-	function splitTag(editor, profile, htmlMatch) {
+	function splitTag(editor, profile, tag) {
 		/** @type emmet.utils */
 		var utils = require('utils');
 		
@@ -42,25 +41,24 @@ emmet.exec(function(require, _) {
 		
 		// define tag content depending on profile
 		var tagContent = (profile.tag_nl === true) ? nl + pad + caret + nl : caret;
+		var content = tag.outerContent().replace(/\s*\/>$/, '>') + tagContent + '</' + tag.open.name + '>';
 				
-		var content = htmlMatch[0].full_tag.replace(/\s*\/>$/, '>') + tagContent + '</' + htmlMatch[0].name + '>';
-		editor.replaceContent(content, htmlMatch[0].start, htmlMatch[0].end);
+		editor.replaceContent(content, tag.outerRange.start, tag.outerRange.end);
 		return true;
 	}
 	
 	require('actions').add('split_join_tag', function(editor, profileName) {
-		var matcher = require('html_matcher');
+		var matcher = require('htmlMatcher');
 		
 		var info = require('editorUtils').outputInfo(editor, null, profileName);
 		var profile = require('profile').get(info.profile);
 		
 		// find tag at current position
-		var pair = matcher.getTags(info.content, editor.getCaretPos(), info.profile);
-		if (pair && pair[0]) {
-			if (pair[1]) { // join tag
-				return joinTag(editor, profile, pair);
-			}
-			return splitTag(editor, profile, pair);
+		var tag = matcher.tag(info.content, editor.getCaretPos());
+		if (tag) {
+			return tag.close 
+				? joinTag(editor, profile, tag) 
+				: splitTag(editor, profile, tag);
 		}
 		
 		return false;

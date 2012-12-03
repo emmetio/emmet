@@ -176,18 +176,7 @@ module.exports = {
 			}
 		}
 		
-		if (syntax == 'html') {
-			// get the context tag
-			var caretPos = this.getCaretPos();
-			var pair = emmet.require('html_matcher').getTags(this.getContent(), caretPos);
-			if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-				// check that we're actually inside the tag
-				if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-					syntax = 'css';
-			}
-		}
-		
-		return syntax;
+		return require('actionUtils').detectSyntax(this, syntax);
 	},
 	
 	/**

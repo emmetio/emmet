@@ -20,8 +20,6 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 		var utils = require('utils');
 		/** @type emmet.editorUtils */
 		var editorUtils = require('editorUtils');
-		var matcher = require('html_matcher');
-		
 		abbr = abbr || editor.prompt("Enter abbreviation");
 		
 		if (!abbr) 
@@ -29,30 +27,25 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 		
 		abbr = String(abbr);
 		
-		var range = editor.getSelectionRange();
-		var startOffset = range.start;
-		var endOffset = range.end;
+		var range = require('range').create(editor.getSelectionRange());
 		
-		if (startOffset == endOffset) {
+		if (!range.length()) {
 			// no selection, find tag pair
-			range = matcher(info.content, startOffset, info.profile);
-			
-			if (!range || range[0] == -1) // nothing to wrap
+			var match = require('htmlMatcher').tag(info.content, range.start);
+			if (!match) {  // nothing to wrap
 				return false;
+			}
 			
-			/** @type Range */
-			var narrowedSel = utils.narrowToNonSpace(info.content, range[0], range[1] - range[0]);
-			startOffset = narrowedSel.start;
-			endOffset = narrowedSel.end;
+			range = utils.narrowToNonSpace(info.content, match.range);
 		}
 		
-		var newContent = utils.escapeText(info.content.substring(startOffset, endOffset));
+		var newContent = utils.escapeText(range.substring(info.content));
 		var result = module
 			.wrap(abbr, editorUtils.unindent(editor, newContent), info.syntax, 
 					info.profile, require('actionUtils').captureContext(editor));
 		
 		if (result) {
-			editor.replaceContent(result, startOffset, endOffset);
+			editor.replaceContent(result, range.start, range.end);
 			return true;
 		}
 		

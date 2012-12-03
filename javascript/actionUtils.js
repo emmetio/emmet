@@ -231,40 +231,15 @@ emmet.define('actionUtils', function(require, _) {
 		 * @returns {String} 
 		 */
 		detectSyntax: function(editor, hint) {
-			var caretPos = editor.getCaretPos();
-			var content = String(editor.getContent());
 			var syntax = hint || 'html';
 			
-			if (!require('resources').hasSyntax(syntax))
+			if (!require('resources').hasSyntax(syntax)) {
 				syntax = 'html';
-			
-			if (syntax == 'html') {
-				// are we inside <style> tag?
-				var tag = require('htmlMatcher').tag(content, caretPos);
-				if (tag && tag.open.name.toLowerCase() == 'style' && tag.innerRange.cmp(caretPos, 'lte', 'gte')) {
-					syntax = 'css';
-				}
-				
-//				var pair = require('html_matcher').getTags(editor.getContent(), caretPos);
-//				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-//					// check that we're actually inside the tag
-//					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-//						syntax = 'css';
-//				}
 			}
 			
-            if (syntax == 'html') {
-            	// are we inside style attribute?
-                var tree = require('xmlEditTree').parseFromPosition(editor.getContent(), caretPos, true);
-                if (tree) {
-                    var attr = tree.itemFromPosition(caretPos, true);
-                    if (attr && attr.name().toLowerCase() == 'style') {
-                        var range = attr.valueRange(true);
-                        if (range.start <= caretPos && range.end >= caretPos)
-                            syntax = 'css';
-                    }
-                }
-            }
+			if (syntax == 'html' && (this.isStyle(editor) || this.isInlineCSS(editor))) {
+				syntax = 'css';
+			}
 			
 			return syntax;
 		},
@@ -280,6 +255,10 @@ emmet.define('actionUtils', function(require, _) {
 				 case 'xsl':
 				 	return 'xml';
 				 case 'html':
+					if (this.isInlineCSS(editor)) {
+						return 'line';
+					}
+					
 				 	var profile = require('resources').getVariable('profile');
 				 	if (!profile) { // no forced profile, guess from content
 					 	// html or xhtml?
@@ -299,6 +278,38 @@ emmet.define('actionUtils', function(require, _) {
 		 */
 		isXHTML: function(editor) {
 			return editor.getContent().search(/<!DOCTYPE[^>]+XHTML/i) != -1;
+		},
+		
+		/**
+		 * Check if current caret position is inside &lt;style&gt; tag
+		 * @param {IEmmetEditor} editor
+		 * @returns
+		 */
+		isStyle: function(editor) {
+			var content = String(editor.getContent());
+			var caretPos = editor.getCaretPos();
+			var tag = require('htmlMatcher').tag(content, caretPos);
+			return tag && tag.open.name.toLowerCase() == 'style' 
+				&& tag.innerRange.cmp(caretPos, 'lte', 'gte');
+		},
+		
+		/**
+		 * Check if current caret position is inside "style" attribute of HTML
+		 * element
+		 * @param {IEmmetEditor} editor
+		 * @returns {Boolean}
+		 */
+		isInlineCSS: function(editor) {
+			var content = String(editor.getContent());
+			var caretPos = editor.getCaretPos();
+			var tree = require('xmlEditTree').parseFromPosition(content, caretPos, true);
+            if (tree) {
+                var attr = tree.itemFromPosition(caretPos, true);
+                return attr && attr.name().toLowerCase() == 'style' 
+                	&& attr.valueRange(true).cmp(caretPos, 'lte', 'gte');
+            }
+            
+            return false;
 		}
 	};
 });

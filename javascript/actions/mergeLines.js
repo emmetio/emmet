@@ -5,7 +5,7 @@
  */
 emmet.exec(function(require, _) {
 	require('actions').add('merge_lines', function(editor) {
-		var matcher = require('html_matcher');
+		var matcher = require('htmlMatcher');
 		var utils = require('utils');
 		var editorUtils = require('editorUtils');
 		var info = editorUtils.outputInfo(editor);
@@ -14,10 +14,9 @@ emmet.exec(function(require, _) {
 		var selection = require('range').create(editor.getSelectionRange());
 		if (!selection.length()) {
 			// find matching tag
-			var pair = matcher(info.content, editor.getCaretPos(), info.profile);
+			var pair = matcher.find(info.content, editor.getCaretPos());
 			if (pair) {
-				selection.start = pair[0];
-				selection.end = pair[1];
+				selection = pair.outerRange;
 			}
 		}
 		

@@ -8,7 +8,8 @@
 emmet.exec(function(require, _) {
 	/** @type emmet.actions */
 	var actions = require('actions');
-	var matcher = require('html_matcher');
+	var matcher = require('htmlMatcher');
+	var lastMatch = null;
 	
 	/**
 	 * Find and select HTML tag pair
@@ -16,54 +17,59 @@ emmet.exec(function(require, _) {
 	 * @param {String} direction Direction of pair matching: 'in' or 'out'. 
 	 * Default is 'out'
 	 */
-	function matchPair(editor, direction, syntax) {
+	function matchPair(editor, direction) {
 		direction = String((direction || 'out').toLowerCase());
-		var info = require('editorUtils').outputInfo(editor, syntax);
-		syntax = info.syntax;
+		var info = require('editorUtils').outputInfo(editor);
 		
 		var range = require('range');
 		/** @type Range */
-		var selRange = range.create(editor.getSelectionRange());
+		var sel = range.create(editor.getSelectionRange());
 		var content = info.content;
-		/** @type Range */
-		var tagRange = null;
-		/** @type Range */
-		var _r;
 		
-		var oldOpenTag = matcher.last_match['opening_tag'];
-		var oldCloseTag = matcher.last_match['closing_tag'];
-			
-		if (direction == 'in' && oldOpenTag && selRange.length()) {
-//			user has previously selected tag and wants to move inward
-			if (!oldCloseTag) {
-//				unary tag was selected, can't move inward
-				return false;
-			} else if (oldOpenTag.start == selRange.start) {
-				if (content.charAt(oldOpenTag.end) == '<') {
-//					test if the first inward tag matches the entire parent tag's content
-					_r = range.create(matcher.find(content, oldOpenTag.end + 1, syntax));
-					if (_r.start == oldOpenTag.end && _r.end == oldCloseTag.start) {
-						tagRange = range.create(matcher(content, oldOpenTag.end + 1, syntax));
-					} else {
-						tagRange = range.create(oldOpenTag.end, oldCloseTag.start - oldOpenTag.end);
-					}
-				} else {
-					tagRange = range.create(oldOpenTag.end, oldCloseTag.start - oldOpenTag.end);
-				}
-			} else {
-				var newCursor = content.substring(0, oldCloseTag.start).indexOf('<', oldOpenTag.end);
-				var searchPos = newCursor != -1 ? newCursor + 1 : oldOpenTag.end;
-				tagRange = range.create(matcher(content, searchPos, syntax));
-			}
-		} else {
-			tagRange = range.create(matcher(content, selRange.end, syntax));
+		// validate previous match
+		if (lastMatch && !lastMatch.range.equal(sel)) {
+			lastMatch = null;
 		}
 		
-		if (tagRange && tagRange.start != -1) {
-			editor.createSelection(tagRange.start, tagRange.end);
+		if (lastMatch && sel.length()) {
+			if (direction == 'in') {
+				// user has previously selected tag and wants to move inward
+				if (lastMatch.type == 'tag' && !lastMatch.close) {
+					// unary tag was selected, can't move inward
+					return false;
+				} else {
+					if (lastMatch.range.equal(lastMatch.outerRange)) {
+						lastMatch.range = lastMatch.innerRange;
+					} else {
+						lastMatch = matcher.find(content, lastMatch.open.range.end + 1);
+						if (lastMatch.range.equal(sel) && lastMatch.outerRange.equal(sel)) {
+							lastMatch.range = lastMatch.innerRange;
+						}
+					}
+				}
+			} else {
+				if (
+						!lastMatch.innerRange.equal(lastMatch.outerRange) 
+						&& lastMatch.range.equal(lastMatch.innerRange) 
+						&& sel.equal(lastMatch.range)) {
+					lastMatch.range = lastMatch.outerRange;
+				} else {
+					lastMatch = matcher.find(content, sel.start);
+					if (lastMatch.range.equal(sel) && lastMatch.innerRange.equal(sel)) {
+						lastMatch.range = lastMatch.outerRange;
+					}
+				}
+			}
+		} else {
+			lastMatch = matcher.find(content, sel.start);
+		}
+		
+		if (lastMatch && !lastMatch.range.equal(sel)) {
+			editor.createSelection(lastMatch.range.start, lastMatch.range.end);
 			return true;
 		}
 		
+		lastMatch = null;
 		return false;
 	}
 	
@@ -88,22 +94,15 @@ emmet.exec(function(require, _) {
 			// looks like caret is outside of tag pair  
 			caretPos++;
 			
-		var tags = matcher.getTags(content, caretPos, String(editor.getProfileName()));
-			
-		if (tags && tags[0]) {
-			// match found
-			var openTag = tags[0];
-			var closeTag = tags[1];
-				
-			if (closeTag) { // exclude unary tags
-				if (openTag.start <= caretPos && openTag.end >= caretPos) {
-					editor.setCaretPos(closeTag.start);
-					return true;
-				} else if (closeTag.start <= caretPos && closeTag.end >= caretPos){
-					editor.setCaretPos(openTag.start);
-					return true;
-				}
+		var tag = matcher.tag(content, caretPos);
+		if (tag && tag.close) { // exclude unary tags
+			if (tag.open.range.inside(caretPos)) {
+				editor.setCaretPos(tag.close.range.start);
+			} else {
+				editor.setCaretPos(tag.open.range.start);
 			}
+			
+			return true;
 		}
 		
 		return false;
