@@ -32,6 +32,14 @@ emmet.define('htmlMatcher', function(require, _) {
 		};
 	}
 	
+	function comment(i, match) {
+		return {
+			/** @type Range */
+			range: require('range').create(i, _.isNumber(match) ? match - i : match[0]),
+			type: 'comment'
+		};
+	}
+	
 	/**
 	 * Creates new tag matcher session
 	 * @param {String} text
@@ -118,7 +126,7 @@ emmet.define('htmlMatcher', function(require, _) {
 			}
 			
 			if (tag = matcher.matches(pos)) {
-				if (tag.type == 'open') {
+				if (tag.type == 'open' && !tag.selfClose) {
 					stack.push(tag.name);
 				} else if (tag.type == 'close') {
 					if (!stack.length) { // found valid pair?
@@ -168,9 +176,7 @@ emmet.define('htmlMatcher', function(require, _) {
 					if (close) {
 						// found closing tag.
 						var r = range.create2(open.range.start, close.range.end);
-						console.log('matched content', r.substring(text), r, pos);
 						if (r.contains(pos)) {
-							console.log('found!');
 							break;
 						}
 					} else if (open.range.contains(pos)) {
@@ -181,7 +187,7 @@ emmet.define('htmlMatcher', function(require, _) {
 					open = null;
 				} else if (matches(text, i, '-->')) {
 					// skip back to comment start
-					for (var j = i - 1; j >= 0; j++) {
+					for (var j = i - 1; j >= 0; j--) {
 						if (matches(text, j, '-->')) {
 							// found another comment end, do nothing
 							break;
@@ -190,24 +196,46 @@ emmet.define('htmlMatcher', function(require, _) {
 							break;
 						}
 					}
+				} else if (matches(text, i, '<!--')) {
+					// we're inside comment, match it
+					var j = i + 4, jl = text.length;
+					for (; j < jl; j++) {
+						if (matches(text, j, '-->')) {
+							j += 3;
+							break;
+						}
+					}
+					
+					open = comment(i, j);
+					break;
 				}
 			}
 			
 			if (open) {
-				var matchedRange = null;
+				var outerRange = null;
+				var innerRange = null;
+				
 				if (close) {
-					matchedRange = range.create2(open.range.end, close.range.start);
-					if (!matchedRange.length() || !matchedRange.cmp(pos, 'lte', 'gte')) {
-						matchedRange = range.create2(open.range.start, close.range.end);
-					}
+					outerRange = range.create2(open.range.start, close.range.end);
+					innerRange = range.create2(open.range.end, close.range.start);
 				} else {
-					matchedRange = range.create2(open.range.start, open.range.end);
+					outerRange = innerRange = range.create2(open.range.start, open.range.end);
+				}
+				
+				if (open.type == 'comment') {
+					// adjust positions of inner range for comment
+					var _c = outerRange.substring(text);
+					innerRange.start += _c.length - _c.replace(/^<\!--\s*/, '').length;
+					innerRange.end -= _c.length - _c.replace(/\s*-->$/, '').length;
 				}
 				
 				return {
 					open: open,
 					close: close,
-					range: matchedRange
+					type: open.type == 'comment' ? 'comment' : 'tag',
+					innerRange: innerRange,
+					outerRange: outerRange,
+					range: !innerRange.length() || !innerRange.cmp(pos, 'lte', 'gte') ? outerRange : innerRange
 				};
 			}
 		}
