@@ -151,16 +151,14 @@ emmet.define('actionUtils', function(require, _) {
 			var allowedSyntaxes = {'html': 1, 'xml': 1, 'xsl': 1};
 			var syntax = String(editor.getSyntax());
 			if (syntax in allowedSyntaxes) {
-				var tags = require('html_matcher').getTags(
-						String(editor.getContent()), 
-						editor.getCaretPos(), 
-						String(editor.getProfileName()));
+				var content = String(editor.getContent());
+				var tag = require('htmlMatcher').find(content, editor.getCaretPos());
 				
-				if (tags && tags[0] && tags[0].type == 'tag') {
-					console.log('context', tags, editor.getCaretPos());
+				if (tag && tag.type == 'tag') {
 					var reAttr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
-					var startTag = tags[0];
-					var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
+					var startTag = tag.open;
+					var tagAttrs = startTag.range.substring(content).replace(/^<[\w\-\:]+/, '');
+//					var tagAttrs = startTag.full_tag.replace(/^<[\w\-\:]+/, '');
 					var contextNode = {
 						name: startTag.name,
 						attributes: []
@@ -234,6 +232,7 @@ emmet.define('actionUtils', function(require, _) {
 		 */
 		detectSyntax: function(editor, hint) {
 			var caretPos = editor.getCaretPos();
+			var content = String(editor.getContent());
 			var syntax = hint || 'html';
 			
 			if (!require('resources').hasSyntax(syntax))
@@ -241,12 +240,17 @@ emmet.define('actionUtils', function(require, _) {
 			
 			if (syntax == 'html') {
 				// are we inside <style> tag?
-				var pair = require('html_matcher').getTags(editor.getContent(), caretPos);
-				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-					// check that we're actually inside the tag
-					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
-						syntax = 'css';
+				var tag = require('htmlMatcher').tag(content, caretPos);
+				if (tag && tag.open.name.toLowerCase() == 'style' && tag.innerRange.cmp(caretPos, 'lte', 'gte')) {
+					syntax = 'css';
 				}
+				
+//				var pair = require('html_matcher').getTags(editor.getContent(), caretPos);
+//				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
+//					// check that we're actually inside the tag
+//					if (pair[0].end <= caretPos && pair[1].start >= caretPos)
+//						syntax = 'css';
+//				}
 			}
 			
             if (syntax == 'html') {

@@ -36,12 +36,19 @@ emmet.exec(function(require, _) {
 		if (_.include(['html', 'xml', 'xsl'], info.syntax)) {
 			var pad = res.getVariable('indentation');
 			// let's see if we're breaking newly created tag
-			var pair = require('html_matcher').getTags(info.content, caretPos, info.profile);
-			
-			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caretPos && pair[1].start == caretPos) {
+			var tag = require('htmlMatcher').tag(info.content, caretPos);
+			if (tag && !tag.innerRange.length) {
 				editor.replaceContent(nl + pad + utils.getCaretPlaceholder() + nl, caretPos);
 				return true;
 			}
+			
+			
+//			var pair = require('html_matcher').getTags(info.content, caretPos, info.profile);
+//			
+//			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caretPos && pair[1].start == caretPos) {
+//				editor.replaceContent(nl + pad + utils.getCaretPlaceholder() + nl, caretPos);
+//				return true;
+//			}
 		} else if (info.syntax == 'css') {
 			/** @type String */
 			var content = info.content;
