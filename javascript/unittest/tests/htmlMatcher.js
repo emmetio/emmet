@@ -53,11 +53,14 @@ module('HTML Matcher');
 	});
 	
 	test('HTML', function() {
-		var htmlString = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends</p><p>Another paragraph';
+		var htmlString  = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends</p><p>Another paragraph';
+		var htmlString2 = '<div><b><br></b></div>';
 		
 		match(htmlString, 25, 22, 26, 'Matched BR tag');
 		match(htmlString, 27, 3, 82, 'Matched P tag');
 		match(htmlString, 64, 34, 71, 'Matched IMG tag');
 		match(htmlString, 75, 3, 82, 'Matched P tag');
+		
+		match(htmlString2, 16, 5, 16);
 	});
 })();

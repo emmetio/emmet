@@ -251,6 +251,13 @@ emmet.define('actionUtils', function(require, _) {
 		 */
 		detectProfile: function(editor) {
 			var syntax = editor.getSyntax();
+			
+			// get profile from syntax definition
+			var profile = require('resources').findItem(syntax, 'profile');
+			if (profile) {
+				return profile;
+			}
+			
 			switch(syntax) {
 				case 'xml':
 				case 'xsl':

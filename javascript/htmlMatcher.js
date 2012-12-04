@@ -141,8 +141,18 @@ emmet.define('htmlMatcher', function(require, _) {
 						// but current closing tag matches opening one
 						return tag;
 					} else {
+						var found = false;
+						while (stack.length && !found) {
+							var last = stack.pop();
+							if (last == tag.name) {
+								found = true;
+							}
+						}
+						
 						// found invalid closing tag
-						return null;
+						if (!stack.length && !found) {
+							return null;
+						}
 					}
 				}
 			}

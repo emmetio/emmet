@@ -17,7 +17,9 @@ emmet.exec(function(require, _) {
 		/** @type emmet.utils */
 		var utils = require('utils');
 		
-		var content = tag.open.range.substring(tag.source).replace(/\s*>$/, profile.selfClosing() + '>');
+		// empty closing slash is a nonsense for this action
+		var slash = profile.selfClosing() || ' /';
+		var content = tag.open.range.substring(tag.source).replace(/\s*>$/, slash + '>');
 		
 		// add caret placeholder
 		if (content.length + tag.outerRange.start < editor.getCaretPos())
