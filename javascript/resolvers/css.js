@@ -686,10 +686,10 @@ emmet.define('cssResolver', function(require, _) {
 						stream.start = stream.pos;
 					}
 					
-					stream.match(/^\-?[0-9]*(\.[0-9]+)?[a-z\.]*/, true);
+					stream.match(/^\-?[0-9]*(\.[0-9]+)?[a-z%\.]*/, true);
 					values.push(stream.current());
 				} else {
-					stream.match(/^[0-9]*(\.[0-9]*)?[a-z]*/, true);
+					stream.match(/^[0-9]*(\.[0-9]*)?[a-z%]*/, true);
 					values.push(stream.current());
 				}
 				

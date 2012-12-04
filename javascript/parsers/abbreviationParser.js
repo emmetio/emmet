@@ -19,7 +19,7 @@
  * @param {Underscore} _
  */
 emmet.define('abbreviationParser', function(require, _) {
-	var reValidName = /^[\w\-\$\:@\!]+\+?$/i;
+	var reValidName = /^[\w\-\$\:@\!%]+\+?$/i;
 	var reWord = /[\w\-:\$]/;
 	
 	var pairs = {
@@ -791,7 +791,7 @@ emmet.define('abbreviationParser', function(require, _) {
 	
 	function isAllowedChar(ch) {
 		var charCode = ch.charCodeAt(0);
-		var specialChars = '#.*:$-_!@|';
+		var specialChars = '#.*:$-_!@|%';
 		
 		return (charCode > 64 && charCode < 91)       // uppercase letter
 				|| (charCode > 96 && charCode < 123)  // lowercase letter
