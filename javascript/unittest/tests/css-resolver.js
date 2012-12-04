@@ -49,6 +49,7 @@ test('Value normalization', function() {
 	equal(css.normalizeValue('10'), '10px', 'Normalized value 10');
 	equal(css.normalizeValue('10p'), '10%', 'Normalized value 10');
 	equal(css.normalizeValue('1.5'), '1.5em', 'Normalized value 1.5');
+	equal(css.normalizeValue('1.'), '1em', 'Normalized value 1.');
 	equal(css.normalizeValue('-.5'), '-.5em', 'Normalized value -.5');
 	equal(css.normalizeValue('-.5p'), '-.5%', 'Normalized value -.5');
 });

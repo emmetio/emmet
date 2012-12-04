@@ -689,7 +689,7 @@ emmet.define('cssResolver', function(require, _) {
 					stream.match(/^\-?[0-9]*(\.[0-9]+)?[a-z\.]*/, true);
 					values.push(stream.current());
 				} else {
-					stream.match(/^[0-9]*(\.[0-9]+)?[a-z]*/, true);
+					stream.match(/^[0-9]*(\.[0-9]*)?[a-z]*/, true);
 					values.push(stream.current());
 				}
 				
@@ -735,7 +735,7 @@ emmet.define('cssResolver', function(require, _) {
 					return val;
 				
 				if (!unit)
-					return val + prefs.get(~val.indexOf('.') ? 'css.floatUnit' : 'css.intUnit');
+					return val.replace(/\.$/, '') + prefs.get(~val.indexOf('.') ? 'css.floatUnit' : 'css.intUnit');
 				
 				return val + getUnit(unit);
 			});
