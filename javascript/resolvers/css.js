@@ -244,7 +244,7 @@ emmet.define('cssResolver', function(require, _) {
 	}
 	
 	function normalizeHexColor(value) {
-		var hex = value.replace(/^#+/, '');
+		var hex = value.replace(/^#+/, '') || '0';
 		var repeat = require('utils').repeatString;
 		var color = null;
 		switch (hex.length) {
