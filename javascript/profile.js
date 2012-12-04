@@ -32,7 +32,12 @@ emmet.define('profile', function(require, _) {
 		self_closing_tag: 'xhtml',
 		
 		// Profile-level output filters, re-defines syntax filters 
-		filters: ''
+		filters: '',
+		
+		// Additional filters applied to abbreviation.
+		// Unlike "filters", this preference doesn't override default filters
+		// but add the instead every time given profile is chosen
+		extraFilters: ''
 	};
 	
 	/**
@@ -128,7 +133,7 @@ emmet.define('profile', function(require, _) {
 		createProfile('html', {self_closing_tag: false});
 		createProfile('xml', {self_closing_tag: true, tag_nl: true});
 		createProfile('plain', {tag_nl: false, indent: false, place_cursor: false});
-		createProfile('line', {tag_nl: false, indent: false});
+		createProfile('line', {tag_nl: false, indent: false, extraFilters: 's'});
 	}
 	
 	createDefaultProfiles();

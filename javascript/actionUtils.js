@@ -250,22 +250,24 @@ emmet.define('actionUtils', function(require, _) {
 		 * @returns {String}
 		 */
 		detectProfile: function(editor) {
-			switch(editor.getSyntax()) {
-				 case 'xml':
-				 case 'xsl':
-				 	return 'xml';
-				 case 'html':
+			var syntax = editor.getSyntax();
+			switch(syntax) {
+				case 'xml':
+				case 'xsl':
+					return 'xml';
+				case 'css':
 					if (this.isInlineCSS(editor)) {
 						return 'line';
 					}
-					
-				 	var profile = require('resources').getVariable('profile');
-				 	if (!profile) { // no forced profile, guess from content
-					 	// html or xhtml?
-				 		profile = this.isXHTML(editor) ? 'xhtml': 'html';
-				 	}
+					break;
+				case 'html':
+					var profile = require('resources').getVariable('profile');
+					if (!profile) { // no forced profile, guess from content
+						// html or xhtml?
+						profile = this.isXHTML(editor) ? 'xhtml': 'html';
+					}
 
-				 	return profile;
+					return profile;
 			}
 
 			return 'xhtml';

@@ -41,8 +41,9 @@ emmet.exec(function(require, _) {
 					if (lastMatch.range.equal(lastMatch.outerRange)) {
 						lastMatch.range = lastMatch.innerRange;
 					} else {
-						lastMatch = matcher.find(content, lastMatch.open.range.end + 1);
-						if (lastMatch.range.equal(sel) && lastMatch.outerRange.equal(sel)) {
+						var narrowed = require('utils').narrowToNonSpace(content, lastMatch.innerRange);
+						lastMatch = matcher.find(content, narrowed.start + 1);
+						if (lastMatch && lastMatch.range.equal(sel) && lastMatch.outerRange.equal(sel)) {
 							lastMatch.range = lastMatch.innerRange;
 						}
 					}
@@ -55,7 +56,7 @@ emmet.exec(function(require, _) {
 					lastMatch.range = lastMatch.outerRange;
 				} else {
 					lastMatch = matcher.find(content, sel.start);
-					if (lastMatch.range.equal(sel) && lastMatch.innerRange.equal(sel)) {
+					if (lastMatch && lastMatch.range.equal(sel) && lastMatch.innerRange.equal(sel)) {
 						lastMatch.range = lastMatch.outerRange;
 					}
 				}

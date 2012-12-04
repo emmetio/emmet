@@ -68,13 +68,19 @@ emmet.define('filters', function(require, _) {
 		composeList: function(syntax, profile, additionalFilters) {
 			profile = require('profile').get(profile);
 			var filters = list(profile.filters || require('resources').findItem(syntax, 'filters') || basicFilters);
+			
+			if (profile.extraFilters) {
+				filters = filters.concat(list(profile.extraFilters));
+			}
 				
-			if (additionalFilters)
+			if (additionalFilters) {
 				filters = filters.concat(list(additionalFilters));
+			}
 				
-			if (!filters || !filters.length)
+			if (!filters || !filters.length) {
 				// looks like unknown syntax, apply basic filters
 				filters = list(basicFilters);
+			}
 				
 			return filters;
 		},

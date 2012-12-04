@@ -203,7 +203,12 @@ emmet.define('editor', function(require, _) {
 		 * @return {String}
 		 */
 		getProfileName: function() {
-			return require('textarea').getOption('profile');
+			var forcedProfile = require('textarea').getOption('profile');
+			if (this.getSyntax() == 'html' && forcedProfile) {
+				return forcedProfile;
+			}
+			
+			return require('actionUtils').detectProfile(this);
 		},
 		
 		/**
