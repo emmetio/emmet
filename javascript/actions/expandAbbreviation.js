@@ -49,24 +49,22 @@ emmet.define('expandAbbreviation', function(require, _) {
 	 * @param {String} profile Output profile name (html, xml, xhtml)
 	 */
 	actions.add('expand_abbreviation_with_tab', function(editor, syntax, profile) {
-		// do nothing if there is a selection
-		var sel = !!editor.getSelection();
+		var sel = editor.getSelection();
 		var indent = require('resources').getVariable('indentation');
-//		TODO create indentation
-//		if (sel) {
-//			// create a proper indentation, if there’s a selection that
-//			// spans multiple lines
-//			if (/[\r\n]/.test(sel)) {
-//				var info = require('editorUtils').outputInfo(editor, syntax);
-//				var selRange = require('range').create(editor.getSelectionRange());
-//				
-//			}
-//			
-//			return;
-//		}
+		if (sel) {
+			// indent selection
+			var utils = require('utils');
+			var selRange = require('range').create(editor.getSelectionRange());
+			var content = utils.padString(sel, indent);
+			
+			editor.replaceContent(indent + '${0}', editor.getCaretPos());
+			var replaceRange = require('range').create(editor.getCaretPos(), selRange.length());
+			editor.replaceContent(content, replaceRange.start, replaceRange.end, true);
+			editor.createSelection(replaceRange.start, replaceRange.start + content.length);
+			return;
+		}
 		
-		
-		if (sel || !actions.run('expand_abbreviation', editor, syntax, profile)) {
+		if (!actions.run('expand_abbreviation', editor, syntax, profile)) {
 			editor.replaceContent(indent, editor.getCaretPos());
 		}
 	}, {hidden: true});

@@ -221,6 +221,12 @@ emmet.define('cm-editor-proxy', function(require, _) {
 	
 	function runEmmetCommand(name, editor) {
 		editorProxy.setupContext(editor);
+		
+		if (name == 'expand_abbreviation_with_tab' && editorProxy.getSelection()) {
+			// pass through Tab key handler if there's a selection
+			throw CodeMirror.Pass;
+		}
+		
 		try {
 			require('actions').run(name, editorProxy);
 			// a bit weird fix for the following action (actually, for their
