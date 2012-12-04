@@ -44,16 +44,6 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		'text/x-less': 'less'
 	};
 	
-	// if (!mac) {
-	// 	// replace Cmd modifier for non-Mac environment
-	// 	var pcKeymap = {};
-	// 	_.each(keymap, function(v, k) {
-	// 		pcKeymap[k.replace('Cmd', 'Ctrl')] = v;
-	// 	});
-		
-	// 	keymap = pcKeymap;
-	// }
-	
 	// add “profile” property to CodeMirror defaults so in won’t be lost
 	// then CM instance is instantiated with “profile” property
 	CodeMirror.defaults.profile = 'html';
@@ -240,7 +230,11 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		throw CodeMirror.Pass;
 	}
 	
-	// add keybindings to CodeMirror	
+	// add keybindings to CodeMirror
+	if (typeof emmetKeymap != 'undefined') {
+		keymap = emmetKeymap;
+	}
+	
 	_.each(keymap, editorProxy.addAction);
 
 	return editorProxy;
