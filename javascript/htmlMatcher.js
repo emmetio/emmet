@@ -114,6 +114,7 @@ emmet.define('htmlMatcher', function(require, _) {
 	function findClosingPair(open, matcher) {
 		var stack = [], tag = null;
 		var text = matcher.text();
+		
 		for (var pos = open.range.end, len = text.length; pos < len; pos++) {
 			if (matches(text, pos, '<!--')) {
 				// skip to end of comment
@@ -136,10 +137,6 @@ emmet.define('htmlMatcher', function(require, _) {
 					// check if current closing tag matches previously opened one
 					if (_.last(stack) == tag.name) {
 						stack.pop();
-					} else if (tag.name == open.name) {
-						// looks like stack contains unclosed elements,
-						// but current closing tag matches opening one
-						return tag;
 					} else {
 						var found = false;
 						while (stack.length && !found) {
@@ -149,9 +146,8 @@ emmet.define('htmlMatcher', function(require, _) {
 							}
 						}
 						
-						// found invalid closing tag
 						if (!stack.length && !found) {
-							return null;
+							return tag.name == open.name ? tag : null;
 						}
 					}
 				}
