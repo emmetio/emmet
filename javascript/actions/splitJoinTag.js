@@ -21,15 +21,16 @@ emmet.exec(function(require, _) {
 		var slash = profile.selfClosing() || ' /';
 		var content = tag.open.range.substring(tag.source).replace(/\s*>$/, slash + '>');
 		
-		// add caret placeholder
-		if (content.length + tag.outerRange.start < editor.getCaretPos())
-			content += utils.getCaretPlaceholder();
-		else {
-			var d = editor.getCaretPos() - tag.outerRange.start;
-			content = utils.replaceSubstring(content, utils.getCaretPlaceholder(), d);
+		var caretPos = editor.getCaretPos();
+		
+		// update caret position
+		if (content.length + tag.outerRange.start < caretPos) {
+			caretPos = content.length + tag.outerRange.start;
 		}
 		
+		content = utils.escapeText(content);
 		editor.replaceContent(content, tag.outerRange.start, tag.outerRange.end);
+		editor.setCaretPos(caretPos);
 		return true;
 	}
 	
@@ -39,13 +40,17 @@ emmet.exec(function(require, _) {
 		
 		var nl = utils.getNewline();
 		var pad = require('resources').getVariable('indentation');
-		var caret = utils.getCaretPlaceholder();
+		var caretPos = editor.getCaretPos();
 		
 		// define tag content depending on profile
-		var tagContent = (profile.tag_nl === true) ? nl + pad + caret + nl : caret;
-		var content = tag.outerContent().replace(/\s*\/>$/, '>') + tagContent + '</' + tag.open.name + '>';
-				
+		var tagContent = (profile.tag_nl === true) ? nl + pad + nl : '';
+		var content = tag.outerContent().replace(/\s*\/>$/, '>');
+		caretPos = tag.outerRange.start + content.length;
+		content += tagContent + '</' + tag.open.name + '>';
+		
+		content = utils.escapeText(content);
 		editor.replaceContent(content, tag.outerRange.start, tag.outerRange.end);
+		editor.setCaretPos(caretPos);
 		return true;
 	}
 	

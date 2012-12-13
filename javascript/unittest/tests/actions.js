@@ -151,10 +151,10 @@
 	});
 	
 	test('Merge lines', function() {
-		editorStub.replaceContent('<b>\n\n${0}\n\n</b>');
+		editorStub.replaceContent('<b class="$test">\n\n${0}\n\n</b>');
 		
 		run('merge_lines');
-		equal(editorStub.getContent(), '<b></b>', 'Automatched and merged tag content');
+		equal(editorStub.getContent(), '<b class="$test"></b>', 'Automatched and merged tag content');
 		
 		editorStub.replaceContent('a\nb\nc\nd\ne');
 		editorStub.createSelection(4, 9);
@@ -336,13 +336,13 @@
 	});
 	
 	test('Split/join current tag', function() {
-		editorStub.replaceContent('<span class="${0}sample"></span>');
+		editorStub.replaceContent('<span class="${0}\\$sample"></span>');
 		
 		run('split_join_tag');
-		equal(editorStub.getContent(), '<span class="sample" />', 'Inline tag is joined');
+		equal(editorStub.getContent(), '<span class="$sample" />', 'Inline tag is joined');
 		
 		run('split_join_tag');
-		equal(editorStub.getContent(), '<span class="sample"></span>', 'Inline tag is splitted');
+		equal(editorStub.getContent(), '<span class="$sample"></span>', 'Inline tag is splitted');
 		
 		
 		var oldProfile = editorStub.getProfileName();

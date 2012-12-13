@@ -30,8 +30,10 @@ emmet.exec(function(require, _) {
 			}
 			
 			text = lines.join('').replace(/\s{2,}/, ' ');
+			var textLen = text.length;
+			text = utils.escapeText(text);
 			editor.replaceContent(text, selection.start, selection.end);
-			editor.createSelection(selection.start, selection.start + text.length);
+			editor.createSelection(selection.start, selection.start + textLen);
 			
 			return true;
 		}
