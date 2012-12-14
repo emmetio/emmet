@@ -11,7 +11,8 @@
 				'nav': 'ul.nav>li*>a'
 			},
 			'snippets': {
-				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$'
+				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
+				'erb': '<%= |${child} %>'
 			}
 		}
 	};
@@ -180,6 +181,10 @@
 	});
 	
 	test('Formatting', function() {
+		runTest('div>erb', 'html', 'xhtml', '<div>\n\t<%= | %>\n</div>');
+		runTest('div>erb|bem', 'html', 'xhtml', '<div>\n\t<%= | %>\n</div>');
+		runTest('span>erb', 'html', 'xhtml', '<span><%= | %></span>');
+		
 		runTest('bq>p', 'html', 'xhtml', '<blockquote>\n\t<p>|</p>\n</blockquote>');
 		runTest('bq+p', 'html', 'xhtml', '<blockquote>|</blockquote>\n<p>|</p>');
 		runTest('img+p', 'html', 'xhtml', '<img src="|" alt="|" />\n<p>|</p>');

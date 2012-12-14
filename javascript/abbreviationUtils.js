@@ -45,8 +45,16 @@ emmet.define('abbreviationUtils', function(require, _) {
 		 * @return {Boolean}
 		 */
 		isBlock: function(node) {
-			return require('elements').is(node.matchedResource(), 'snippet') 
-				|| !this.isInline(node);
+			return this.isSnippet(node) || !this.isInline(node);
+		},
+		
+		/**
+		 * Test if given node is a snippet
+		 * @param {AbbreviationNode} node
+		 * @return {Boolean}
+		 */
+		isSnippet: function(node) {
+			return require('elements').is(node.matchedResource(), 'snippet');
 		},
 		
 		/**

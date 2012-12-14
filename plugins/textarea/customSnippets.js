@@ -10,7 +10,8 @@ emmet.require('resources').setVocabulary({
 			'c': '<!-- |${child} -->',
 			'djb': '{% block ${id} %}\n\t${child}|\n{% endblock %}',
 			'attr': 'hello ${id} ${name}',
-			'blank': ' target="_blank"'
+			'blank': ' target="_blank"',
+			'erb': '<%= |${child} %>'
 		},
 		
 		filters: 'bem,html'
