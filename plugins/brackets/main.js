@@ -108,8 +108,8 @@ emmet.exec(function(r, _) {
 			var id = "io.emmet." + action.name;
 			var shortcut = keymap[action.name];
 
-			CommandManager.register(action.options.label, id, function () {
-				runAction(action);
+			CommandManager.register(action.options.label, id, function() {
+				return runAction(action);
 			});
 
 			if (!action.options.hidden) {
