@@ -1,16 +1,24 @@
-To add Emmet support for CodeMirror2 editor, simply add `emmet.js` as a `<script>` tag into your HTML page right after CodeMirror script.
+*This plugin is automatically compiled from the [Emmet core](https://github.com/emmetio/emmet). If you want to contribute features or fix bugs, please do this in [plugin source](https://github.com/emmetio/emmet/tree/master/plugins/codemirror2).*
+
+******
+
+To add Emmet support for CodeMirror2/3 editor, simply add `emmet.js` as a `<script>` tag into your HTML page right after CodeMirror script.
 
 Additionally, you can pass `profile` option into your into CodeMirror's init script to change Emmet’s HTML output style: 
 
-	CodeMirror.fromTextArea(document.getElementById("code"), {
-		mode : 'text/html',
-		profile: 'xhtml' /* define Emmet output profile */
-	});
+```js
+CodeMirror.fromTextArea(document.getElementById("code"), {
+	mode : 'text/html',
+	
+	// define Emmet output profile
+	profile: 'xhtml'
+});
+```
 
 Available profiles are: _html_, _xhtml_, _xml_, but you can create your own output profile with 
-`zen_coding.require('profile').create(name, options)`.
+`emmet.require('profile').create(name, options)`.
 
-See https://github.com/sergeche/zen-coding/blob/v0.7.1/javascript/profile.js#L10
+See [profile.js](https://github.com/emmetio/emmet/blob/master/javascript/profile.js#L10)
 for a list of available options.
 
 ### Default keybindings
@@ -35,3 +43,7 @@ for a list of available options.
 * `Cmd-.`: Select Next Item
 * `Cmd-,`: Select Previous Item
 * `Cmd-B`: Reflect CSS Value
+
+### Overriding keybindings
+
+To override default keybindings, simply create global `emmetKeymap` object, the same as [default one](https://github.com/emmetio/emmet/blob/master/plugins/codemirror2/editor.js#L9) but with your own keybindings.

@@ -33,7 +33,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		'Shift-Cmd-,': 'select_previous_item',
 		'Cmd-B': 'reflect_css_value',
 		
-		'Enter': 'insert_formatted_line_break'
+		'Enter': 'insert_formatted_line_break_only'
 	};
 	
 	var modeMap = {
@@ -46,7 +46,11 @@ emmet.define('cm-editor-proxy', function(require, _) {
 	
 	// add “profile” property to CodeMirror defaults so in won’t be lost
 	// then CM instance is instantiated with “profile” property
-	CodeMirror.defaults.profile = 'html';
+	if (CodeMirror.defineOption) {
+		CodeMirror.defineOption('profile', 'html');
+	} else {
+		CodeMirror.defaults.profile = 'html';
+	}
 	
 	var editorProxy = {
 		context: null,
@@ -120,7 +124,8 @@ emmet.define('cm-editor-proxy', function(require, _) {
 				
 			// do a compound change to record all changes into single undo event
 			var that = this;
-			this.context.compoundChange(function() {
+			var op = this.context.operation || this.context.compoundChange;
+			op.call(this.context, function() {
 				that.context.replaceRange(value, that.context.posFromIndex(start), that.context.posFromIndex(end));
 				that.createSelection(firstTabStop.start, firstTabStop.end);
 			});
@@ -132,8 +137,9 @@ emmet.define('cm-editor-proxy', function(require, _) {
 
 		getSyntax: function() {
 			var syntax = this.context.getOption('mode');
-			if (syntax in modeMap)
+			if (syntax in modeMap) {
 				syntax = modeMap[syntax];
+			}
 			
 			return require('actionUtils').detectSyntax(this, syntax);
 		},
@@ -207,27 +213,37 @@ emmet.define('cm-editor-proxy', function(require, _) {
 				CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
 			}			
 		}
-	};	
+	};
+	
+	function isValidSyntax() {
+		var syntax = editorProxy.getSyntax();
+		return require('resources').hasSyntax(syntax);
+	}
 	
 	function runEmmetCommand(name, editor) {
 		editorProxy.setupContext(editor);
-		
-		if (name == 'expand_abbreviation_with_tab' && editorProxy.getSelection()) {
+		if (name == 'expand_abbreviation_with_tab' && (editorProxy.getSelection() || !isValidSyntax())) {
 			// pass through Tab key handler if there's a selection
 			throw CodeMirror.Pass;
 		}
+		var success = true;
 		
 		try {
-			require('actions').run(name, editorProxy);
+			var result = require('actions').run(name, editorProxy);
 			// a bit weird fix for the following action (actually, for their
 			// keybindings) to prevent CM2 from inserting block characters
 			if (name == 'next_edit_point' || name == 'prev_edit_point') {
 				editor.replaceSelection('');
 			}
-			return true;
+			
+			if (!result && name == 'insert_formatted_line_break_only') {
+				success = false;
+			}
 		} catch (e) {}
 		
-		throw CodeMirror.Pass;
+		if (!success) {
+			throw CodeMirror.Pass;
+		}
 	}
 	
 	// add keybindings to CodeMirror

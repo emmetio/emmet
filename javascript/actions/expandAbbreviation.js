@@ -61,12 +61,14 @@ emmet.define('expandAbbreviation', function(require, _) {
 			var replaceRange = require('range').create(editor.getCaretPos(), selRange.length());
 			editor.replaceContent(content, replaceRange.start, replaceRange.end, true);
 			editor.createSelection(replaceRange.start, replaceRange.start + content.length);
-			return;
+			return true;
 		}
 		
 		if (!actions.run('expand_abbreviation', editor, syntax, profile)) {
 			editor.replaceContent(indent, editor.getCaretPos());
 		}
+		
+		return true;
 	}, {hidden: true});
 	
 	// XXX setup default handler
