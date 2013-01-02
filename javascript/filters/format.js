@@ -78,6 +78,10 @@ emmet.exec(function(require, _){
 		});
 	}
 	
+	function isRoot(item) {
+		return !item.parent;
+	}
+	
 	/**
 	 * Processes element with matched resource of type <code>snippet</code>
 	 * @param {AbbreviationNode} item
@@ -88,7 +92,7 @@ emmet.exec(function(require, _){
 		item.start = item.end = '';
 		if (!isVeryFirstChild(item) && profile.tag_nl !== false && shouldAddLineBreak(item, profile)) {
 			// check if we’re not inside inline element
-			if (!require('abbreviationUtils').isInline(item.parent)) {
+			if (isRoot(item.parent) || !require('abbreviationUtils').isInline(item.parent)) {
 				item.start = require('utils').getNewline() + item.start;
 			}
 		}

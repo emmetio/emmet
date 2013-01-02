@@ -158,6 +158,7 @@
 		runTest('pos:s', 'css', 'position: static;');
 		runTest('ti:-', 'css', 'text-indent: -9999px;');
 		runTest('bdb+', 'css', 'border-bottom: 1px solid #000;');
+		runTest('p10+poa', 'css', 'xhtml', 'padding: 10px;\nposition: absolute;');
 	});
 	
 	test('Inheritance', function() {
