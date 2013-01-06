@@ -699,7 +699,8 @@
 	
 	"haml": {
 		"filters": "haml",
-		"extends": "html"
+		"extends": "html",
+		"profile": "xml"
 	},
 	
 	"scss": {
