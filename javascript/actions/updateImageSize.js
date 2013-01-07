@@ -93,7 +93,9 @@ emmet.exec(function(require, _) {
 	
 	require('actions').add('update_image_size', function(editor) {
 		var result;
-		if (String(editor.getSyntax()) == 'css') {
+		// this action will definitely won’t work in SASS dialect,
+		// but may work in SCSS or LESS
+		if (_.include(['css', 'less', 'scss'], String(editor.getSyntax()))) {
 			result = updateImageSizeCSS(editor);
 		} else {
 			result = updateImageSizeHTML(editor);
