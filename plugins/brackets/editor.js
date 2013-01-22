@@ -1,4 +1,7 @@
-emmet.define('brackets-editor', function(require, _) {
+define(['./emmet'], function(emmet) {
+	var require = emmet.require;
+	var _ = require('_');
+	
     var modeMap = {
         "text/html": "html",
         "application/xml": "xml",

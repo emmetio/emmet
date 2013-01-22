@@ -219,3 +219,8 @@ if (typeof exports !== 'undefined') {
 	}
 	exports.emmet = emmet;
 }
+
+// export as Require.js module
+if (typeof define !== 'undefined') {
+	define(emmet);
+}
