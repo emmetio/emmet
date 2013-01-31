@@ -235,6 +235,7 @@
 			"bg:n": "background:none;",
 			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1:x}.png',sizingMethod='${2:crop}');",
 			"bgc": "background-color:#${1:fff};",
+			"bgc:t": "background-color:transparent;",
 			"bgi": "background-image:url(|);",
 			"bgi:n": "background-image:none;",
 			"bgr": "background-repeat:|;",
