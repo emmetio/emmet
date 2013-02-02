@@ -193,7 +193,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 			require('resources').setVariable('indentation', indentation);
 		},
 
-		addAction: function(commandName, keybinding) {
+		addAction: function(commandName, keybinding, target) {
 			// register Emmet command as predefined CodeMirror command
 			// for latter use
 			var cmCommand = 'emmet.' + commandName;
@@ -204,13 +204,26 @@ emmet.define('cm-editor-proxy', function(require, _) {
 			}
 
 			if (keybinding) {
-				if (!CodeMirror.defaults.extraKeys)
-					CodeMirror.defaults.extraKeys = {};
+				if (!target) {
+					// check out CM3 keymap style
+					if (CodeMirror.keyMap && CodeMirror.keyMap['default']) {
+						target = CodeMirror.keyMap['default'];
+					} else {
+						if (!CodeMirror.defaults.extraKeys) {
+							CodeMirror.defaults.extraKeys = {};
+						}
 
-				if (!mac)
+						target = CodeMirror.defaults.extraKeys;
+					}
+				}
+
+				if (!mac) {
 					keybinding = keybinding.replace('Cmd', 'Ctrl');
+				}
 
-				CodeMirror.defaults.extraKeys[keybinding] = cmCommand;
+				if (target) {
+					target[keybinding] = cmCommand;
+				}
 			}			
 		}
 	};
@@ -251,7 +264,9 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		keymap = emmetKeymap;
 	}
 	
-	_.each(keymap, editorProxy.addAction);
+	_.each(keymap, function(commandName, keybinding) {
+		keymap, editorProxy.addAction(commandName, keybinding);
+	});
 
 	return editorProxy;
 });
