@@ -232,7 +232,7 @@ emmet.define('cssResolver', function(require, _) {
 	 * @returns {String}
 	 */
 	function normalizeValue(value) {
-		if (value.charAt(0) == '-' && !/^\-[\.\d]/) {
+		if (value.charAt(0) == '-' && !/^\-[\.\d]/.test(value)) {
 			value = value.replace(/^\-+/, '');
 		}
 		
