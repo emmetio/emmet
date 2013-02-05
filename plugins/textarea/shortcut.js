@@ -143,13 +143,7 @@ emmet.define('shortcut', function(){
 				
 			for(var i = 0, il = keys.length; i < il; i++) {
 				k = keys[i];
-				// Due to stupid Opera bug I have to swap Ctrl and Meta keys
-				if (is_mac && is_opera) {
-					if (k == 'ctrl' || k == 'control')
-						k = 'meta';
-					else if (k == 'meta')
-						k = 'ctrl';
-				} else if (!is_mac && k == 'meta') {
+				if (!is_mac && k == 'meta') {
 					k = 'ctrl';
 				}
 				

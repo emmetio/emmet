@@ -153,7 +153,8 @@ emmet.define('textarea', function(require, _) {
 	}
 	
 	var doc = document;
-	var keyEvent = window.opera ? 'keypress' : 'keydown';
+//	var keyEvent = window.opera ? 'keypress' : 'keydown';
+	var keyEvent = 'keydown';
 		
 	//Attach the function with the event
 	if (doc.addEventListener) doc.addEventListener(keyEvent, runAction, false);
