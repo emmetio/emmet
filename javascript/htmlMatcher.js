@@ -173,9 +173,14 @@ emmet.define('htmlMatcher', function(require, _) {
 			for (var i = pos; i >= 0; i--) {
 				if (open = matcher.open(i)) {
 					// found opening tag
-					if (open.selfClose && open.range.cmp(pos, 'lt', 'gt')) {
-						// inside self-closing tag
-						break;
+					if (open.selfClose) {
+						if (open.range.cmp(pos, 'lt', 'gt')) {
+							// inside self-closing tag, found match
+							break;
+						}
+						
+						// outside self-closing tag, continue
+						continue;
 					}
 					
 					close = findClosingPair(open, matcher);
