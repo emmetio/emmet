@@ -506,7 +506,6 @@ emmet.define('cssGradient', function(require, _) {
 				css.property.end(';');
 				
 				// resolve CSS property name
-				console.log('resolving', css.property.name());
 				var resolvedName = resolvePropertyName(css.property.name(), syntax);
 				if (resolvedName) {
 					css.property.name(resolvedName);
