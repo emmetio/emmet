@@ -20,7 +20,7 @@
  */
 emmet.define('abbreviationParser', function(require, _) {
 	var reValidName = /^[\w\-\$\:@\!%]+\+?$/i;
-	var reWord = /[\w\-:\$]/;
+	var reWord = /[\w\-:\$@]/;
 	
 	var pairs = {
 		'[': ']',
