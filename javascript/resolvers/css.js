@@ -771,15 +771,11 @@ emmet.define('cssResolver', function(require, _) {
 			var valuesData = this.extractValues(prefixData.property);
 			var abbrData = _.extend(prefixData, valuesData);
 			
-			snippet = resources.findSnippet(syntax, abbrData.property);
-			
-			// fallback to some old snippets like m:a
-//			if (!snippet && ~abbrData.property.indexOf(':')) {
-//				var parts = abbrData.property.split(':');
-//				var propertyName = parts.shift();
-//				snippet = resources.findSnippet(syntax, propertyName) || propertyName;
-//				abbrData.values = this.parseValues(parts.join(':'));
-//			}
+			if (!snippet) {
+				snippet = resources.findSnippet(syntax, abbrData.property);
+			} else {
+				abbrData.values = null;
+			}
 			
 			if (!snippet && prefs.get('css.fuzzySearch')) {
 				// let’s try fuzzy search

@@ -31,7 +31,8 @@ emmet.require('resources').setVocabulary({
 	
 	'css': {
 		'snippets': {
-			'mm': '@media (min-width: ${class}px) {\n\t|\n}'
+			'mm': '@media (min-width: ${class}px) {\n\t|\n}',
+			'm0a': 'margin: 0 auto!!;'
 		}
 	}
 }, 'user');
