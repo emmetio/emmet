@@ -106,6 +106,11 @@
 		runTest('ul#nav>li.pre$*3+li.post$*3', '<ul id="nav"><li class="pre1"></li><li class="pre2"></li><li class="pre3"></li><li class="post1"></li><li class="post2"></li><li class="post3"></li></ul>');
 		runTest('.sample$*3', '<div class="sample1"></div><div class="sample2"></div><div class="sample3"></div>');
 		runTest('ul#nav>li{text}*3', '<ul id="nav"><li>text</li><li>text</li><li>text</li></ul>');
+		
+		// test counter base
+		runTest('{$@3 }*3', '3 4 5 ');
+		runTest('{$@- }*3', '3 2 1 ');
+		runTest('{$@-5 }*3', '7 6 5 ');
 	});
 	
 	test('User-defined settings', function() {

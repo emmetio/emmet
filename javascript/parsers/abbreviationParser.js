@@ -149,6 +149,8 @@ emmet.define('abbreviationParser', function(require, _) {
 			_.each(this.children, function(child) {
 				child.updateProperty(name, value);
 			});
+			
+			return this;
 		},
 		
 		/**
@@ -747,16 +749,18 @@ emmet.define('abbreviationParser', function(require, _) {
 	 * @returns {AbbreviationNode}
 	 */
 	function unroll(node) {
-		for (var i = node.children.length - 1, j, child; i >= 0; i--) {
+		for (var i = node.children.length - 1, j, child, maxCount; i >= 0; i--) {
 			child = node.children[i];
 			
 			if (child.isRepeating()) {
-				j = child.repeatCount;
+				maxCount = j = child.repeatCount;
 				child.repeatCount = 1;
 				child.updateProperty('counter', 1);
+				child.updateProperty('maxCount', maxCount);
 				while (--j > 0) {
 					child.parent.addChild(child.clone(), i + 1)
-						.updateProperty('counter', j + 1);
+						.updateProperty('counter', j + 1)
+						.updateProperty('maxCount', maxCount);
 				}
 			}
 		}
@@ -801,7 +805,7 @@ emmet.define('abbreviationParser', function(require, _) {
 	
 	// XXX add counter replacer function as output processor
 	outputProcessors.push(function(text, node) {
-		return require('utils').replaceCounter(text, node.counter);
+		return require('utils').replaceCounter(text, node.counter, node.maxCount);
 	});
 	
 	return {

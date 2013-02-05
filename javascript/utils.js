@@ -294,16 +294,22 @@ emmet.define('utils', function(require, _) {
 		
 		/**
 		 * Replaces '$' character in string assuming it might be escaped with '\'
-		 * @param {String} str String where caracter should be replaced
-		 * @param {String} value Replace value. Might be a <code>Function</code>
+		 * @param {String} str String where character should be replaced
+		 * @param {String} value New value
 		 * @return {String}
 		 */
-		replaceCounter: function(str, value) {
+		replaceCounter: function(str, value, total) {
 			var symbol = '$';
 			// in case we received strings from Java, convert the to native strings
 			str = String(str);
 			value = String(value);
+			
+			if (/^\-?\d+$/.test(value)) {
+				value = +value;
+			}
+			
 			var that = this;
+			
 			return this.replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, matchNum){
 				if (str.charAt(pos + 1) == '{' || that.isNumeric(str.charAt(pos + 1)) ) {
 					// it's a variable, skip it
@@ -313,7 +319,27 @@ emmet.define('utils', function(require, _) {
 				// replace sequense of $ symbols with padded number  
 				var j = pos + 1;
 				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
-				return [str.substring(pos, j), that.zeroPadString(value, j - pos)];
+				var pad = j - pos;
+				
+				// get counter base
+				var base = 0, decrement = false, m;
+				if (m = str.substr(j).match(/^@(\-?)(\d*)/)) {
+					j += m[0].length;
+					
+					if (m[1]) {
+						decrement = true;
+					}
+					
+					base = parseInt(m[2] || 1) - 1;
+				}
+				
+				if (decrement && total && _.isNumber(value)) {
+					value = total - value + 1;
+				}
+				
+				value += base;
+				
+				return [str.substring(pos, j), that.zeroPadString(value + '', pad)];
 			});
 		},
 		
