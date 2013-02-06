@@ -297,7 +297,7 @@ emmet.define('cssGradient', function(require, _) {
 			}
 		});
 		
-		if (alignVendor && sep != property.styleSeparator) {
+		if (alignVendor) {
 			// update prefix
 			if (before != property.styleBefore) {
 				var fullRange = property.fullRange();
