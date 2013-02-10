@@ -82,15 +82,23 @@ emmet.exec(function(require, _) {
 			throw "Can't find " + imgPath + ' file';
 		}
 		
-		var b64 = require('base64').encode(String(file.read(realImgPath)));
-		if (!b64) {
-			throw "Can't encode file content to base64";
-		}
-		
-		b64 = 'data:' + (actionUtils.mimeTypes[String(file.getExt(realImgPath))] || defaultMimeType) +
-			';base64,' + b64;
+		file.read(realImgPath, function(err, content) {
+			if (err) {
+				throw 'Unable to read ' + realImgPath + ': ' + err;
+			}
 			
-		editor.replaceContent('$0' + b64, pos, pos + imgPath.length);
+			var b64 = require('base64').encode(String(content));
+			if (!b64) {
+				throw "Can't encode file content to base64";
+			}
+			
+			b64 = 'data:' + (actionUtils.mimeTypes[String(file.getExt(realImgPath))] || defaultMimeType) +
+				';base64,' + b64;
+				
+			editor.replaceContent('$0' + b64, pos, pos + imgPath.length);
+		});
+		
+		
 		return true;
 	}
 

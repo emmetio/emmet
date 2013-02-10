@@ -18,21 +18,19 @@ emmet.exec(function(require, _) {
 		var info = require('editorUtils').outputInfo(editor);
 		var xmlElem = require('xmlEditTree').parseFromPosition(info.content, offset, true);
 		if (xmlElem && (xmlElem.name() || '').toLowerCase() == 'img') {
-			
-			var size = getImageSizeForSource(editor, xmlElem.value('src'));
-			if (size) {
-				var compoundData = xmlElem.range(true);
-				xmlElem.value('width', size.width);
-				xmlElem.value('height', size.height, xmlElem.indexOf('width') + 1);
-				
-				return _.extend(compoundData, {
-					data: xmlElem.toString(),
-					caret: offset
-				});
-			}
+			getImageSizeForSource(editor, xmlElem.value('src'), function(size) {
+				if (size) {
+					var compoundData = xmlElem.range(true);
+					xmlElem.value('width', size.width);
+					xmlElem.value('height', size.height, xmlElem.indexOf('width') + 1);
+					
+					require('actionUtils').compoundUpdate(editor, _.extend(compoundData, {
+						data: xmlElem.toString(),
+						caret: offset
+					}));
+				}
+			});
 		}
-		
-		return null;
 	}
 	
 	/**
@@ -49,21 +47,20 @@ emmet.exec(function(require, _) {
 			// check if there is property with image under caret
 			var prop = cssRule.itemFromPosition(offset, true), m;
 			if (prop && (m = /url\((["']?)(.+?)\1\)/i.exec(prop.value() || ''))) {
-				var size = getImageSizeForSource(editor, m[2]);
-				if (size) {
-					var compoundData = cssRule.range(true);
-					cssRule.value('width', size.width + 'px');
-					cssRule.value('height', size.height + 'px', cssRule.indexOf('width') + 1);
-					
-					return _.extend(compoundData, {
-						data: cssRule.toString(),
-						caret: offset
-					});
-				}
+				getImageSizeForSource(editor, m[2], function(size) {
+					if (size) {
+						var compoundData = cssRule.range(true);
+						cssRule.value('width', size.width + 'px');
+						cssRule.value('height', size.height + 'px', cssRule.indexOf('width') + 1);
+						
+						require('actionUtils').compoundUpdate(editor, _.extend(compoundData, {
+							data: cssRule.toString(),
+							caret: offset
+						}));
+					}
+				});
 			}
 		}
-		
-		return null;
 	}
 	
 	/**
@@ -71,36 +68,42 @@ emmet.exec(function(require, _) {
 	 * @param {IEmmetEditor} editor
 	 * @param {String} src Image source (path or data:url)
 	 */
-	function getImageSizeForSource(editor, src) {
+	function getImageSizeForSource(editor, src, callback) {
 		var fileContent;
+		var au = require('actionUtils');
 		if (src) {
 			// check if it is data:url
 			if (/^data:/.test(src)) {
 				fileContent = require('base64').decode( src.replace(/^data\:.+?;.+?,/, '') );
-			} else {
-				var file = require('file');
-				var absPath = file.locateFile(editor.getFilePath(), src);
-				if (absPath === null) {
-					throw "Can't find " + src + ' file';
-				}
-				
-				fileContent = String(file.read(absPath));
+				return callback(au.getImageSize(fileContent));
 			}
 			
-			return require('actionUtils').getImageSize(fileContent);
+			var file = require('file');
+			var absPath = file.locateFile(editor.getFilePath(), src);
+			if (absPath === null) {
+				throw "Can't find " + src + ' file';
+			}
+			
+			file.read(absPath, 500, function(err, content) {
+				if (err) {
+					throw 'Unable to read ' + absPath + ': ' + err;
+				}
+				
+				content = String(content);
+				callback(au.getImageSize(content));
+			});
 		}
 	}
 	
 	require('actions').add('update_image_size', function(editor) {
-		var result;
 		// this action will definitely won’t work in SASS dialect,
 		// but may work in SCSS or LESS
 		if (_.include(['css', 'less', 'scss'], String(editor.getSyntax()))) {
-			result = updateImageSizeCSS(editor);
+			updateImageSizeCSS(editor);
 		} else {
-			result = updateImageSizeHTML(editor);
+			updateImageSizeHTML(editor);
 		}
 		
-		return require('actionUtils').compoundUpdate(editor, result);
+		return true;
 	});
 });

@@ -17,9 +17,13 @@ IEmmetFile.prototype = {
 	/**
 	 * Read file content and return it
 	 * @param {String} path File's relative or absolute path
+	 * @param {Number} size Number of bytes to read, optional. If not specified, 
+	 * reads full file
+	 * @param {Function} callback Callback function invoked when reading is
+	 * completed
 	 * @return {String}
 	 */
-	read: function(path) {
+	read: function(path, size, callback) {
 		return '';
 	},
 	

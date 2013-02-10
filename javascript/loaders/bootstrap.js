@@ -65,38 +65,54 @@ emmet.define('bootstrap', function(require, _) {
 			var payload = {};
 			var utils = require('utils');
 			var userSnippets = null;
+			var that = this;
 			
-			_.each(fileList, function(f) {
-				switch (file.getExt(f)) {
-					case 'js':
-						try {
-							eval(file.read(f));
-						} catch (e) {
-							emmet.log('Unable to eval "' + f + '" file: '+ e);
+			var next = function() {
+				if (fileList.length) {
+					var f = fileList.shift();
+					file.read(f, function(err, content) {
+						if (err) {
+							emmet.log('Unable to read "' + f + '" file: '+ err);
+							return next();
 						}
-						break;
-					case 'json':
-						var fileName = getFileName(f).toLowerCase().replace(/\.json$/, '');
-						if (/^snippets/.test(fileName)) {
-							if (fileName === 'snippets') {
-								// data in snippets.json is more important to user
-								userSnippets = this.parseJSON(file.read(f));
-							} else {
-								payload.snippets = utils.deepMerge(payload.snippets || {}, this.parseJSON(file.read(f)));
-							}
-						} else {
-							payload[fileName] = file.read(f);
+												
+						switch (file.getExt(f)) {
+							case 'js':
+								try {
+									eval(content);
+								} catch (e) {
+									emmet.log('Unable to eval "' + f + '" file: '+ e);
+								}
+								break;
+							case 'json':
+								var fileName = getFileName(f).toLowerCase().replace(/\.json$/, '');
+								if (/^snippets/.test(fileName)) {
+									if (fileName === 'snippets') {
+										// data in snippets.json is more important to user
+										userSnippets = that.parseJSON(content);
+									} else {
+										payload.snippets = utils.deepMerge(payload.snippets || {}, that.parseJSON(content));
+									}
+								} else {
+									payload[fileName] = content;
+								}
+								
+								break;
 						}
 						
-						break;
+						next();
+					});
+				} else {
+					// complete
+					if (userSnippets) {
+						payload.snippets = utils.deepMerge(payload.snippets || {}, userSnippets);
+					}
+					
+					that.loadUserData(payload);
 				}
-			}, this);
+			};
 			
-			if (userSnippets) {
-				payload.snippets = utils.deepMerge(payload.snippets || {}, userSnippets);
-			}
-			
-			this.loadUserData(payload);
+			next();
 		},
 		
 		/**
