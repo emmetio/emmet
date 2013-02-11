@@ -160,7 +160,7 @@ emmet.define('cssResolver', function(require, _) {
 	prefs.define('css.keywords', 'auto, inherit', 
 			'A comma-separated list of valid keywords that can be used in CSS abbreviations.');
 	
-	prefs.define('css.keywordAliases', 'a:auto, i:inherit, s:solid, da:dashed, do:dotted', 
+	prefs.define('css.keywordAliases', 'a:auto, i:inherit, s:solid, da:dashed, do:dotted, t:transparent', 
 			'A comma-separated list of keyword aliases, used in CSS abbreviation. '
 			+ 'Each alias should be defined as <code>alias:keyword_name</code>.');
 	
@@ -249,6 +249,10 @@ emmet.define('cssResolver', function(require, _) {
 	
 	function normalizeHexColor(value) {
 		var hex = value.replace(/^#+/, '') || '0';
+		if (hex.toLowerCase() == 't') {
+			return 'transparent';
+		}
+		
 		var repeat = require('utils').repeatString;
 		var color = null;
 		switch (hex.length) {
@@ -657,7 +661,7 @@ emmet.define('cssResolver', function(require, _) {
 			
 			while (ch = stream.next()) {
 				if (ch == '#') {
-					stream.match(/^[0-9a-f]+/i, true);
+					stream.match(/^t|[0-9a-f]+/i, true);
 					values.push(stream.current());
 				} else if (ch == '-') {
 					if (isValidKeyword(_.last(values)) || 
