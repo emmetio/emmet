@@ -72,6 +72,7 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('c#3d3d3d'), 'color: #3d3d3d;', 'Expanded "c#3d3d3d"');
 	equal(css.expandToSnippet('c#d3d3d3'), 'color: #d3d3d3;', 'Expanded "c#d3d3d3"');
 	equal(css.expandToSnippet('c#'), 'color: #000;', 'Expanded "c#"');
+	equal(css.expandToSnippet('bdt2-s#ED'), 'border-top: 2px solid #EDEDED;', 'Expanded "bdt2-s#ED" (color uppercase)');
 	equal(css.expandToSnippet('p10%'), 'padding: 10%;', 'Expanded "p10%"');
 });
 
