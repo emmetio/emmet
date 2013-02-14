@@ -4,7 +4,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>emmet@chikuyonok.ru</em:id>
     <em:name>Emmet</em:name>
-    <em:version>@VERSION@</em:version>
+    <em:version>1.0.1</em:version>
     <em:description>Emmet toolkit for Komodo</em:description>
     <em:creator>Sergey Chikuyonok</em:creator>
     <em:homepageURL>http://emmet.io</em:homepageURL>

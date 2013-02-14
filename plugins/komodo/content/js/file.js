@@ -9,17 +9,94 @@ emmet.define('file', function(require, _) {
 		return str.indexOf(chars) === 0;
 	}
 	
+	function createPath(dirname, file) {
+		if (file.charAt(0) == '/') // absolute path
+			return file;
+		
+		// make sure that dirname is url
+		var f = FileIO.open(dirname);
+		dirname = FileIO.path(f.isDirectory() ? f : f.parent);
+		
+		if (dirname.charAt(dirname.length - 1) != '/')
+			dirname += '/';
+			
+		var path = dirname + file;
+		var protocol = '';
+		// temporary remove protocol, if exists
+		path = path.replace(/^([a-z]+\:\/\/)\/*/i, function(str, p1) {
+			protocol = p1;
+			return '/';
+		});
+		
+		// took from Python
+		var initial_slashes = startsWith(path, '/');
+//		POSIX allows one or two initial slashes, but treats three or more
+//		as single slash.
+		if (initial_slashes && startsWith(path, '//') && !startsWith(path, '///'))
+			initial_slashes = 2;
+			
+		var comps = path.split('/');
+		var new_comps = [];
+			
+		for (var i = 0, il = comps.length; i < il; i++) {
+			var comp = comps[i];
+			if (comp == '' || comp == '.')
+				continue;
+				
+			if (comp != '..' || (!initial_slashes && !new_comps.length) || 
+				(new_comps.length && new_comps[new_comps.length - 1] == '..'))
+				new_comps.push(comp);
+			else if (new_comps.length)
+				new_comps.pop();
+				
+		}
+		
+		comps = new_comps;
+		path = comps.join('/');
+		if (initial_slashes) {
+			var prefix = '';
+			do {
+				prefix += '/';
+			} while (--initial_slashes);
+			
+			path = prefix + path;
+		}
+		
+		return (protocol + path) || '.';
+	}
+	
+	function isURL(path) {
+		var re = /^https?:\/\//;
+		return re.test(path);
+	}
+	
 	return {
 		/**
 		 * Read file content and return it
 		 * @param {String} path File's relative or absolute path
 		 * @return {String}
 		 */
-		read: function(path) {
+		read: function(path, size, callback) {
+			var args = _.rest(arguments);
+			callback = _.last(args);
+			args = _.initial(args);
+			if (!args.length) {
+				size = 0;
+			}
+			
+			if (isURL(path)) {
+				callback('HTTP URLs are not supported yet.');
+			}
+			
 			var fileIn = FileIO.open(path);
 			if (fileIn.exists()) {
-				return FileIO.readBinary(fileIn);
+				var content = FileIO.readBinary(fileIn);
+				if (content) {
+					return callback(0, content);
+				}
 			}
+			
+			callback('Unable to read file');
 		},
 		
 		/**
@@ -47,11 +124,15 @@ emmet.define('file', function(require, _) {
 		 * @return {String} Returns null if <code>fileName</code> cannot be located
 		 */
 		locateFile: function(editorFile, fileName) {
+			if (isURL(fileName)) {
+				return fileName;
+			}
+			
 			var f = FileIO.open(editorFile), tmp;
 				
 			// traverse upwards to find file uri
 			while (f = f.parent) {
-				tmp = FileIO.open(this.createPath(f.path, fileName));
+				tmp = FileIO.open(createPath(f.path, fileName));
 				if (tmp.exists()) {
 					return tmp.path;
 				}
@@ -67,60 +148,8 @@ emmet.define('file', function(require, _) {
 		 * @param {String} file
 		 * @return {String}
 		 */
-		createPath: function(dirname, file) {
-			if (file.charAt(0) == '/') // absolute path
-				return file;
-			
-			// make sure that dirname is url
-			var f = FileIO.open(dirname);
-			dirname = FileIO.path(f.isDirectory() ? f : f.parent);
-			
-			if (dirname.charAt(dirname.length - 1) != '/')
-				dirname += '/';
-				
-			var path = dirname + file;
-			var protocol = '';
-			// temporary remove protocol, if exists
-			path = path.replace(/^([a-z]+\:\/\/)\/*/i, function(str, p1) {
-				protocol = p1;
-				return '/';
-			});
-			
-			// took from Python
-			var initial_slashes = startsWith(path, '/');
-//			POSIX allows one or two initial slashes, but treats three or more
-//			as single slash.
-			if (initial_slashes && startsWith(path, '//') && !startsWith(path, '///'))
-				initial_slashes = 2;
-				
-			var comps = path.split('/');
-			var new_comps = [];
-				
-			for (var i = 0, il = comps.length; i < il; i++) {
-				var comp = comps[i];
-				if (comp == '' || comp == '.')
-					continue;
-					
-				if (comp != '..' || (!initial_slashes && !new_comps.length) || 
-					(new_comps.length && new_comps[new_comps.length - 1] == '..'))
-					new_comps.push(comp);
-				else if (new_comps.length)
-					new_comps.pop();
-					
-			}
-			
-			comps = new_comps;
-			path = comps.join('/');
-			if (initial_slashes) {
-				var prefix = '';
-				do {
-					prefix += '/';
-				} while (--initial_slashes);
-				
-				path = prefix + path;
-			}
-			
-			return (protocol + path) || '.';
+		createPath: function(dirname, file, callback) {
+			callback(createPath(dirname, file));
 		},
 		
 		/**
