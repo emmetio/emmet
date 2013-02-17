@@ -66,7 +66,7 @@ test('Abbreviation expanding', function() {
 	equal(css.expandToSnippet('-pos-a'), '-webkit-position: absolute;\n-moz-position: absolute;\n-ms-position: absolute;\n-o-position: absolute;\nposition: absolute;', 'Expanded "-pos-a"');
 	equal(css.expandToSnippet('pos-a'), 'position: absolute;', 'Expanded "pos-a" (no processing)');
 	equal(css.expandToSnippet('something'), 'something: ${1};', 'Expanded unknown property');
-	equal(css.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\n-moz-box-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};\nbox-shadow: ${1:hoff} ${2:voff} ${3:radius} ${4:color};', 'Expanded property with multiple tabstops');
+	equal(css.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};\n-moz-box-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};\nbox-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};', 'Expanded property with multiple tabstops');
 	equal(css.expandToSnippet('bd1#0solid'), 'border: 1px #000 solid;', 'Expanded "bd1#0solid"');
 	equal(css.expandToSnippet('bd1-s-blue'), 'border: 1px solid blue;', 'Expanded "bd1-s-blue"');
 	equal(css.expandToSnippet('c#3d3d3d'), 'color: #3d3d3d;', 'Expanded "c#3d3d3d"');

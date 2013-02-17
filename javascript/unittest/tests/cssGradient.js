@@ -15,11 +15,11 @@ test('Expand abbreviation handler', function() {
 	var prefs = emmet.require('preferences');
 	
 	editorStub.setSyntax('css');
-	editorStub.replaceContent('.r{a:lg(red, black)$0}');
+	editorStub.replaceContent('.r{background:lg(red, black)$0}');
 	
 	emmet.require('actions').run('expand_abbreviation', editorStub);
-	equal(editorStub.getContent(), '.r{a:-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));a:-webkit-linear-gradient(red, black);a:-moz-linear-gradient(red, black);a:-o-linear-gradient(red, black);a:linear-gradient(red, black);}');
-	equal(editorStub.getCaretPos(), 200, 'Correctly placed cursor');
+	equal(editorStub.getContent(), '.r{background:-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));background:-webkit-linear-gradient(red, black);background:-moz-linear-gradient(red, black);background:-o-linear-gradient(red, black);background:linear-gradient(red, black);}');
+	equal(editorStub.getCaretPos(), 245, 'Correctly placed cursor');
 	
 	// expand gradient outside value
 	editorStub.replaceContent('.r{\n\tlg(red, black)$0\n}');
