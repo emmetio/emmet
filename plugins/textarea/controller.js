@@ -115,6 +115,10 @@ emmet.define('textarea', function(require, _) {
 		var shortcut = require('shortcut');
 			
 		if (targetElem && targetElem.nodeType == 1 && targetElem.nodeName == 'TEXTAREA') {
+			if (~targetElem.className.indexOf('no-emmet')) {
+				return false;
+			}
+			
 			editor.setContext(targetElem);
 			
 			// test if occurred event corresponds to one of the defined shortcut
@@ -162,6 +166,10 @@ emmet.define('textarea', function(require, _) {
 	else doc['on' + keyEvent] = func;
 	
 	options = copyOptions();
+	if (typeof emmetKeymap != 'undefined') {
+		keymap = emmetKeymap;
+	}
+
 	_.each(keymap, function(actionName, keystroke) {
 		addShortcut(keystroke, actionName);
 	});
