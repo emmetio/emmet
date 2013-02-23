@@ -233,12 +233,21 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		return require('resources').hasSyntax(syntax);
 	}
 	
+	function noop() {
+		if (CodeMirror.version >= '3.1') {
+			return CodeMirror.Pass;
+		}
+		
+		throw CodeMirror.Pass;
+	}
+	
 	function runEmmetCommand(name, editor) {
 		editorProxy.setupContext(editor);
 		if (name == 'expand_abbreviation_with_tab' && (editorProxy.getSelection() || !isValidSyntax())) {
 			// pass through Tab key handler if there's a selection
-			throw CodeMirror.Pass;
+			return noop();
 		}
+		
 		var success = true;
 		
 		try {
@@ -255,7 +264,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 		} catch (e) {}
 		
 		if (!success) {
-			throw CodeMirror.Pass;
+			return noop();
 		}
 	}
 	
