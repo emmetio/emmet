@@ -71,32 +71,57 @@ emmet.define('file', function(require, _) {
 	}
 	
 	return {
+		_parseParams: function(args) {
+			var params = {
+				path: args[0],
+				size: 0
+			};
+
+			args = _.rest(args);
+			params.callback = _.last(args);
+			args = _.initial(args);
+			if (args.length) {
+				params.size = args[0];
+			}
+
+			return params;
+		},
+
+		_read: function(params, isText) {
+			if (isURL(params.path)) {
+				params.callback('HTTP URLs are not supported yet.');
+			}
+			
+			var fileIn = FileIO.open(params.path);
+			if (fileIn.exists()) {
+				var content = isText ? FileIO.read(fileIn, 'UTF-8') : FileIO.readBinary(fileIn);
+				if (content) {
+					return params.callback(0, content);
+				}
+			}
+			
+			params.callback('Unable to read file');
+		},
+
+		/**
+		 * Reads binary file content and return it
+		 * @param {String} path File's relative or absolute path
+		 * @return {String}
+		 */
+		read: function(path, size, callback) {
+			var params = this._parseParams(arguments);
+			this._read(params, false);
+		},
+
+
 		/**
 		 * Read file content and return it
 		 * @param {String} path File's relative or absolute path
 		 * @return {String}
 		 */
-		read: function(path, size, callback) {
-			var args = _.rest(arguments);
-			callback = _.last(args);
-			args = _.initial(args);
-			if (!args.length) {
-				size = 0;
-			}
-			
-			if (isURL(path)) {
-				callback('HTTP URLs are not supported yet.');
-			}
-			
-			var fileIn = FileIO.open(path);
-			if (fileIn.exists()) {
-				var content = FileIO.readBinary(fileIn);
-				if (content) {
-					return callback(0, content);
-				}
-			}
-			
-			callback('Unable to read file');
+		readText: function(path, size, callback) {
+			var params = this._parseParams(arguments);
+			this._read(params, true);
 		},
 		
 		/**
