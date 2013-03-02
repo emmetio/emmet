@@ -609,7 +609,6 @@
 		},
 		
 		"abbreviations": {
-			"!": "html:5",
 			"a": "<a href=\"\">",
 			"a:link": "<a href=\"http://|\">",
 			"a:mail": "<a href=\"mailto:|\">",
@@ -737,6 +736,13 @@
 			"html:xxs": "!!!xxs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
 			"html:5":   "!!!+doc[lang=${lang}]",
 			
+			"!4t": "html:4t",
+			"!4s": "html:4s",
+			"!xt": "html:xt",
+			"!xs": "html:xs",
+			"!x": "html:xxs",
+			"!": "html:5",
+
 			"ol+": "ol>li",
 			"ul+": "ul>li",
 			"dl+": "dl>dt+dd",
