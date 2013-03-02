@@ -680,6 +680,13 @@
 			"audio": "<audio src=\"\">",
 			"html:xml": "<html xmlns=\"http://www.w3.org/1999/xhtml\">",
 
+			"lk": "link",
+			"lkc": "link:css",
+			"lkp": "link:print",
+			"lkf": "link:favicon",
+			"lkt": "link:touch",
+			"lkr": "link:rss",
+			"lka": "link:atom",
 			"sty": "style",
 			"stl": "style",
 			"scr": "script",
