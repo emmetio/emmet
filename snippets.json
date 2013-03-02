@@ -616,6 +616,7 @@
 			"abbr": "<abbr title=\"\">",
 			"acronym": "<acronym title=\"\">",
 			"base": "<base href=\"\" />",
+			"base:t": "<base target=\"${1:_blank}\" />",
 			"bdo": "<bdo dir=\"\">",
 			"bdo:r": "<bdo dir=\"rtl\">",
 			"bdo:l": "<bdo dir=\"ltr\">",
