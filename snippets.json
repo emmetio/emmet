@@ -692,6 +692,13 @@
 			"audio": "<audio src=\"\">",
 			"html:xml": "<html xmlns=\"http://www.w3.org/1999/xhtml\">",
 			
+			"sty": "style",
+			"stl": "style",
+			"scr": "script",
+			"scrs": "script:src",
+			"scr:s": "script:src",
+			"a:l": "a:link",
+			"a:m": "a:mail",
 			"bq": "blockquote",
 			"acr": "acronym",
 			"fig": "figure",
