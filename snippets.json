@@ -357,8 +357,8 @@
 			"ec": "empty-cells:|;",
 			"ec:s": "empty-cells:show;",
 			"ec:h": "empty-cells:hide;",
-			"lst": "list-style-type:${1:none};"
-			"lstn": "list-style-type:none;"
+			"lst": "list-style-type:${1:none};",
+			"lstn": "list-style-type:none;",
 			"lis": "list-style:|;",
 			"lis:n": "list-style:none;",
 			"lisp": "list-style-position:|;",
@@ -375,7 +375,7 @@
 			"list:ur": "list-style-type:upper-roman;",
 			"lisi": "list-style-image:|;",
 			"lisi:n": "list-style-image:none;",
-			"ls": "letter-spacing:|;"
+			"ls": "letter-spacing:|;",
 			"q": "quotes:|;",
 			"q:n": "quotes:none;",
 			"q:ru": "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C';",
