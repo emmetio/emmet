@@ -605,7 +605,9 @@
 			"c": "<!-- |${child} -->",
 			"cc:ie6": "<!--[if lte IE 6]>\n\t${child}|\n<![endif]-->",
 			"cc:ie": "<!--[if IE]>\n\t${child}|\n<![endif]-->",
-			"cc:noie": "<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->"
+			"cc:noie": "<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->",
+			
+			"style": "<style type=\"text/css\">\n\t${child}|\n</style>"
 		},
 		
 		"abbreviations": {
@@ -630,7 +632,6 @@
 			"meta:win": "<meta http-equiv='Content-Type' content='text/html;charset=windows-1251' />",
 			"meta:vp": "<meta name='viewport' content='width=${1:device-width}, user-scalable=${2:no}, initial-scale=${3:1.0}, maximum-scale=${4:1.0}, minimum-scale=${5:1.0}' />",
 			"meta:compat": "<meta http-equiv='X-UA-Compatible' content='${1:IE=Edge,chrome=1}'>",
-			"style": "<style type='text/css'>",
 			"script": "<script type='text/javascript'>",
 			"script:src": "<script type='text/javascript' src=''>",
 			"img": "<img src='' alt='' />",
