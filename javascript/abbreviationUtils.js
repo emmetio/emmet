@@ -22,10 +22,11 @@ emmet.define('abbreviationUtils', function(require, _) {
 		 */
 		isUnary: function(node) {
 			var r = node.matchedResource();
-			if (node.children.length || this.isSnippet(node))
+			if (node.children.length || this.isSnippet(node)) {
 				return false;
+			}
 			
-			return r && r.is_empty || require('tagName').isEmptyElement(node.name());
+			return r && r.is_empty;
 		},
 		
 		/**
