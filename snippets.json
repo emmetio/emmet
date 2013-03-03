@@ -301,7 +301,7 @@
 			"bgc:t": "background-color:transparent;",
 			"bgi": "background-image:url(|);",
 			"bgi:n": "background-image:none;",
-			"bgr": "background-repeat:|;",
+			"bgr": "background-repeat:${1:no-repeat};",
 			"bgr:n": "background-repeat:no-repeat;",
 			"bgr:x": "background-repeat:repeat-x;",
 			"bgr:y": "background-repeat:repeat-y;",
