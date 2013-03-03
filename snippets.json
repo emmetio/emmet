@@ -63,6 +63,8 @@
 			"pos:a": "position:absolute;",
 			"pos:r": "position:relative;",
 			"pos:f": "position:fixed;",
+			"pa":"pos:a",
+			"pf":"pos:f",
 			"t": "top:|;",
 			"t:a": "top:auto;",
 			"r": "right:|;",
