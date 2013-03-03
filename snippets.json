@@ -375,6 +375,7 @@
 			"list:ur": "list-style-type:upper-roman;",
 			"lisi": "list-style-image:|;",
 			"lisi:n": "list-style-image:none;",
+			"ls": "letter-spacing:|;"
 			"q": "quotes:|;",
 			"q:n": "quotes:none;",
 			"q:ru": "quotes:'\\00AB' '\\00BB' '\\201E' '\\201C';",
