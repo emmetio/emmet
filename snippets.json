@@ -609,10 +609,10 @@
 			"cc:ie6": "<!--[if lte IE 6]>\n\t${child}|\n<![endif]-->",
 			"cc:ie": "<!--[if IE]>\n\t${child}|\n<![endif]-->",
 			"cc:noie": "<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->",
-			
+
 			"style": "<style type=\"text/css\">\n\t${child}|\n</style>"
 		},
-		
+
 		"abbreviations": {
 			"a": "<a href=''>",
 			"a:link": "<a href='http://|'>",
@@ -652,9 +652,9 @@
 			"form:get": "<form action='' method='get'>",
 			"form:post": "<form action='' method='post'>",
 			"label": "<label for=''>",
-			"input": "<input type='${1:text}' />",
-			"inp": "<input type='${1:text}' name='' id='' />",
-			"input:hidden": "input[type=hidden name]",
+			"input": "<input type='${1:text}' name='${2:}' id='${2:}' />",
+			"input:text": "input[type=text]",
+			"input:hidden": "input[type=hidden]",
 			"input:search": "inp[type=search]",
 			"input:email": "inp[type=email]",
 			"input:url": "inp[type=url]",
@@ -716,17 +716,30 @@
 			"btn:b": "button[type=button]",
 			"btn:r": "button[type=reset]",
 			"btn:s": "button[type=submit]",
+			"inp": "input",
 			"input:h": "input:hidden",
-			"input:text": "inp",
-			"input:t": "inp",
+			"input:t": "input:text",
 			"input:pass": "input:password",
 			"input:p": "input:password",
 			"input:b": "input:button",
 			"input:i": "input:image",
+			"input:img": "input:image",
 			"input:s": "input:submit",
 			"input:c": "input:checkbox",
 			"input:r": "input:radio",
 			"input:f": "input:file",
+			"inph": "input:hidden",
+			"inpt": "input:text",
+			"inpp": "input:password",
+			"inpb": "input:button",
+			"inpi": "input:image",
+			"inpimg": "input:image",
+			"inps": "input:submit",
+			"inpc": "input:checkbox",
+			"inpr": "input:radio",
+			"inpf": "input:file",
+			"inpfl": "input:file",
+
 			"menu:c": "menu:context",
 			"menu:t": "menu:toolbar",
 			"optg": "optgroup",
@@ -758,7 +771,7 @@
 			"html:xs":  "!!!xs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
 			"html:xxs": "!!!xxs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
 			"html:5":   "!!!+doc[lang=${lang}]",
-			
+
 			"!4t": "html:4t",
 			"!4s": "html:4s",
 			"!xt": "html:xt",
@@ -779,7 +792,7 @@
 			"optg+": "optgroup>option"
 		}
 	},
-	
+
 	"xml": {
 		"extends": "html",
 		"profile": "xml",
