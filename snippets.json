@@ -343,7 +343,7 @@
 			"cnt:a": "content:attr(|);",
 			"cnt:c": "content:counter(|);",
 			"cnt:cs": "content:counters(|);",
-
+			"dr": "direction: ${1:rtl}",
 
 			"tbl": "table-layout:|;",
 			"tbl:a": "table-layout:auto;",
