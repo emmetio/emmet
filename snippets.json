@@ -55,7 +55,7 @@
 			"animtf:l": "animation-timing-function:linear;",
 			"animtf:cb": "animation-timing-function:cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1});",
 			
-			"ap": "appearance:${none}",
+			"ap": "appearance:${none};",
 
 			"!": "!important",
 			"pos": "position:${1:relative};",

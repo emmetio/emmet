@@ -21,11 +21,11 @@ emmet.define('abbreviationUtils', function(require, _) {
 		 * @return {Boolean}
 		 */
 		isUnary: function(node) {
-			var r = node.matchedResource();
-			if (node.children.length || this.isSnippet(node)) {
+			if (node.children.length || node._text || this.isSnippet(node)) {
 				return false;
 			}
 			
+			var r = node.matchedResource();
 			return r && r.is_empty;
 		},
 		
