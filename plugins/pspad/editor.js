@@ -4,7 +4,7 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
-var editorProxy = emmet.exec(function(require, _){
+var editorProxy = emmet.exec(function(require, _) {
 	var context = null;
 	
 	return {
@@ -209,4 +209,4 @@ var editorProxy = emmet.exec(function(require, _){
 			return context.fileName() || '';
 		}
 	};
-})();
+});
