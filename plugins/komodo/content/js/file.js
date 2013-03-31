@@ -173,8 +173,8 @@ emmet.define('file', function(require, _) {
 		 * @param {String} file
 		 * @return {String}
 		 */
-		createPath: function(dirname, file, callback) {
-			callback(createPath(dirname, file));
+		createPath: function(dirname, file) {
+			return createPath(dirname, file);
 		},
 		
 		/**

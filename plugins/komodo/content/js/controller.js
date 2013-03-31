@@ -50,21 +50,20 @@ emmet.exec(function(require, _) {
 		require('bootstrap').loadSystemSnippets(snippets);
 		
 		// Load extensions
-		var extPath = require('file').createPath(DirIO.get('Home').path, 'emmet', function(extPath) {
-			var rootDir = FileIO.open(extPath);
+		var extPath = require('file').createPath(DirIO.get('Home').path, 'emmet');
+		var rootDir = FileIO.open(extPath);
+		
+		if (rootDir.exists() && rootDir.isDirectory()) {
+			var extFiles = _.reject(DirIO.read(rootDir, true), function(f) {
+				return f.isDirectory();
+			});
 			
-			if (rootDir.exists() && rootDir.isDirectory()) {
-				var extFiles = _.reject(DirIO.read(rootDir, true), function(f) {
-					return f.isDirectory();
-				});
-				
-				extFiles = _.map(extFiles, function(f) {
-					return FileIO.path(f);
-				});
-				
-				require('bootstrap').loadExtensions(extFiles);
-			}
-		});
+			extFiles = _.map(extFiles, function(f) {
+				return FileIO.path(f);
+			});
+
+			require('bootstrap').loadExtensions(extFiles);
+		}
 		
 	} catch (e) {
 		ko.dialogs.alert('Error', e);
