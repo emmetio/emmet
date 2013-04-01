@@ -135,8 +135,8 @@ emmet.exec(function(require, _) {
 		} else {
 			totalCommas = randint(1, 4);
 		}
-		
-		_.each(sample(_.range(totalCommas)), function(ix) {
+
+		_.each(_.range(totalCommas), function(ix) {
 			words[ix] += ',';
 		});
 	}
