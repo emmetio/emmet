@@ -87,7 +87,9 @@ emmet.define('preferences', function(require, _) {
 							v = parseInt(v + '', 10) || 0;
 							break;
 						default: // convert to string
-							v += '';
+							if (v !== null) {
+								v += '';
+							}
 					}
 
 					preferences[k] = v;
@@ -121,10 +123,13 @@ emmet.define('preferences', function(require, _) {
 		 */
 		getArray: function(name) {
 			var val = this.get(name);
-			if (!_.isUndefined(val)) {
-				val = _.map(val.split(','), require('utils').trim);
-				if (!val.length)
-					val = null;
+			if (_.isUndefined(val) || val === null || val === '')  {
+				return null;
+			}
+
+			val = _.map(val.split(','), require('utils').trim);
+			if (!val.length) {
+				return null;
 			}
 			
 			return val;

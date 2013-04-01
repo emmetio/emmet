@@ -218,9 +218,12 @@ emmet.define('cssGradient', function(require, _) {
 	
 	function getPrefixedNames(name) {
 		var prefixes = prefs.getArray('css.gradient.prefixes');
-		var names = _.map(prefixes, function(p) {
-			return '-' + p + '-' + name;
-		});
+		var names = prefixes 
+			? _.map(prefixes, function(p) {
+				return '-' + p + '-' + name;
+			}) 
+			: [];
+		
 		names.push(name);
 		
 		return names;

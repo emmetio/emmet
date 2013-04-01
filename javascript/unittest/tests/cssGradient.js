@@ -32,6 +32,16 @@ test('Expand abbreviation handler', function() {
 	emmet.require('actions').run('expand_abbreviation', editorStub);
 	equal(editorStub.getContent(), '.r{\n\tbackground-color: red;\n\tbackground-image: -webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));\n\tbackground-image: -webkit-linear-gradient(red, black);\n\tbackground-image: -moz-linear-gradient(red, black);\n\tbackground-image: -o-linear-gradient(red, black);\n\tbackground-image: linear-gradient(red, black);\n}');
 	prefs.set('css.gradient.fallback', false);
+
+	// test gradients without prefixes
+	var prefixes = prefs.get('css.gradient.prefixes');
+	prefs.set('css.gradient.prefixes', null);
+
+	editorStub.replaceContent('.r{background:lg(red, black)$0}');
+	emmet.require('actions').run('expand_abbreviation', editorStub);
+	equal(editorStub.getContent(), '.r{background:linear-gradient(red, black);}');
+	prefs.set('css.gradient.prefixes', prefixes);
+
 	
 	editorStub.setSyntax('html');
 });
