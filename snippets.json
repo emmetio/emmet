@@ -497,6 +497,7 @@
 			"wow:n": "word-wrap:none;",
 			"wow:u": "word-wrap:unrestricted;",
 			"wow:s": "word-wrap:suppress;",
+			"wow:b": "word-wrap:break-word;",
 			"lts": "letter-spacing:|;",
 			"f": "font:|;",
 			"f+": "font:${1:1em} ${2:Arial,sans-serif};",
