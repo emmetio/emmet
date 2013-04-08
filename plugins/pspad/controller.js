@@ -111,7 +111,7 @@ function emmet_reflectCSS() {
 }
 
 function emmet_manager(actionName) {
-	var ed = newEditor();
+	var ed = new Editor();
 	try {
 		ed.assignActiveEditor();
 	} catch(e) {
