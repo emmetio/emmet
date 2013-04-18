@@ -116,6 +116,10 @@ test('Expand Abbreviation action handler', function() {
 	editorStub.replaceContent('margin: 0 !${0};');
 	run('expand_abbreviation');
 	equal(editorStub.getContent(), 'margin: 0 !important;', 'Added !important modifier');
+
+	editorStub.replaceContent('ul {\n\t// comment?\n\tp10${0}\n}');
+	run('expand_abbreviation');
+	equal(editorStub.getContent(), 'ul {\n\t// comment?\n\tpadding: 10px;\n}', 'Expanded abbreviation inside rule with inline SCSS comment');
 	
 	editorStub.setSyntax('html');
 });
