@@ -14,7 +14,13 @@
 				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
 				'erb': '<%= |${child} %>'
 			}
+		},
+		'xml': {
+			'abbreviations': {
+				'use': '<use xlink:href=""/>'
+			}
 		}
+
 	};
 	
 	QUnit.moduleStart(function(obj) {
@@ -140,12 +146,13 @@
 	
 	test('Other patterns', function() {
 		runTest('script', '<script></script>');
-	 	runTest('script:src', '<script src=""></script>');
-	 	runTest('img', '<img src="" alt="" />');
-	 	runTest('input:c', '<input type="checkbox" name="" id="" />');
-	 	runTest('some:elem', '<some:elem></some:elem>');
-	 	runTest('li#id$.class$*3', '<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>');
-	 	runTest('select#test', '<select name="" id="test"></select>');
+		runTest('script:src', '<script src=""></script>');
+		runTest('img', '<img src="" alt="" />');
+		runTest('input:c', '<input type="checkbox" name="" id="" />');
+		runTest('some:elem', '<some:elem></some:elem>');
+		runTest('li#id$.class$*3', '<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>');
+		runTest('select#test', '<select name="" id="test"></select>');
+		runTest('use', 'xml', 'plain', '<use xlink:href="" />');
 	});
 	
 	test('XSL', function() {

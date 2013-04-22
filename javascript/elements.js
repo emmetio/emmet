@@ -5,7 +5,7 @@
  */
 emmet.define('elements', function(require, _) {
 	var factories = {};
-	var reAttrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
+	var reAttrs = /([\w\-:]+)\s*=\s*(['"])(.*?)\2/g;
 	
 	var result = {
 		/**
