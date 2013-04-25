@@ -118,7 +118,7 @@ emmet.define('expandAbbreviation', function(require, _) {
 		 * @returns
 		 */
 		removeHandler: function(fn) {
-			handlers.remove(fn, options);
+			handlers.remove(fn);
 		},
 		
 		/**

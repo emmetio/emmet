@@ -26,7 +26,7 @@ emmet.define('stringStream', function(require, _) {
 		 * @returns {Boolean}
 		 */
 		sol: function() {
-			return this.pos == 0;
+			return this.pos === 0;
 		},
 		
 		/**

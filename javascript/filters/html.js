@@ -27,9 +27,8 @@ emmet.exec(function(require, _) {
 	 * Processes element with <code>tag</code> type
 	 * @param {AbbreviationNode} item
 	 * @param {OutputProfile} profile
-	 * @param {Number} level Depth level
 	 */
-	function processTag(item, profile, level) {
+	function processTag(item, profile) {
 		if (!item.parent) // looks like it's root element
 			return item;
 		

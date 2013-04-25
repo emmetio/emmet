@@ -221,7 +221,7 @@ emmet.define('utils', function(require, _) {
 		unindentString: function(text, pad) {
 			var lines = this.splitByLines(text);
 			for (var i = 0; i < lines.length; i++) {
-				if (lines[i].search(pad) == 0)
+				if (lines[i].search(pad) === 0)
 					lines[i] = lines[i].substr(pad.length);
 			}
 			
@@ -340,14 +340,14 @@ emmet.define('utils', function(require, _) {
 				
 				// get counter base
 				var base = 0, decrement = false, m;
-				if (m = str.substr(j).match(/^@(\-?)(\d*)/)) {
+				if ((m = str.substr(j).match(/^@(\-?)(\d*)/))) {
 					j += m[0].length;
 					
 					if (m[1]) {
 						decrement = true;
 					}
 					
-					base = parseInt(m[2] || 1) - 1;
+					base = parseInt(m[2] || 1, 10) - 1;
 				}
 				
 				if (decrement && total && _.isNumber(value)) {
@@ -528,11 +528,13 @@ emmet.define('utils', function(require, _) {
 		findNewlineBounds: function(text, from) {
 			var len = text.length,
 				start = 0,
-				end = len - 1;
+				end = len - 1, 
+				ch;
+
 			
 			// search left
 			for (var i = from - 1; i > 0; i--) {
-				var ch = text.charAt(i);
+				ch = text.charAt(i);
 				if (ch == '\n' || ch == '\r') {
 					start = i + 1;
 					break;
@@ -540,7 +542,7 @@ emmet.define('utils', function(require, _) {
 			}
 			// search right
 			for (var j = from; j < len; j++) {
-				var ch = text.charAt(j);
+				ch = text.charAt(j);
 				if (ch == '\n' || ch == '\r') {
 					end = j;
 					break;
@@ -567,7 +569,7 @@ emmet.define('utils', function(require, _) {
 
 			for ( ; i < length; i++ ) {
 				// Only deal with non-null/undefined values
-				if ( (options = arguments[ i ]) != null ) {
+				if ( (options = arguments[ i ]) !== null ) {
 					// Extend the base object
 					for ( name in options ) {
 						src = target[ name ];

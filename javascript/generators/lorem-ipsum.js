@@ -21,63 +21,63 @@ emmet.define('lorem', function(require, _) {
 		en: {
 			common: ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipisicing', 'elit'],
 			words: ['exercitationem', 'perferendis', 'perspiciatis', 'laborum', 'eveniet',
-	             'sunt', 'iure', 'nam', 'nobis', 'eum', 'cum', 'officiis', 'excepturi',
-	             'odio', 'consectetur', 'quasi', 'aut', 'quisquam', 'vel', 'eligendi',
-	             'itaque', 'non', 'odit', 'tempore', 'quaerat', 'dignissimos',
-	             'facilis', 'neque', 'nihil', 'expedita', 'vitae', 'vero', 'ipsum',
-	             'nisi', 'animi', 'cumque', 'pariatur', 'velit', 'modi', 'natus',
-	             'iusto', 'eaque', 'sequi', 'illo', 'sed', 'ex', 'et', 'voluptatibus',
-	             'tempora', 'veritatis', 'ratione', 'assumenda', 'incidunt', 'nostrum',
-	             'placeat', 'aliquid', 'fuga', 'provident', 'praesentium', 'rem',
-	             'necessitatibus', 'suscipit', 'adipisci', 'quidem', 'possimus',
-	             'voluptas', 'debitis', 'sint', 'accusantium', 'unde', 'sapiente',
-	             'voluptate', 'qui', 'aspernatur', 'laudantium', 'soluta', 'amet',
-	             'quo', 'aliquam', 'saepe', 'culpa', 'libero', 'ipsa', 'dicta',
-	             'reiciendis', 'nesciunt', 'doloribus', 'autem', 'impedit', 'minima',
-	             'maiores', 'repudiandae', 'ipsam', 'obcaecati', 'ullam', 'enim',
-	             'totam', 'delectus', 'ducimus', 'quis', 'voluptates', 'dolores',
-	             'molestiae', 'harum', 'dolorem', 'quia', 'voluptatem', 'molestias',
-	             'magni', 'distinctio', 'omnis', 'illum', 'dolorum', 'voluptatum', 'ea',
-	             'quas', 'quam', 'corporis', 'quae', 'blanditiis', 'atque', 'deserunt',
-	             'laboriosam', 'earum', 'consequuntur', 'hic', 'cupiditate',
-	             'quibusdam', 'accusamus', 'ut', 'rerum', 'error', 'minus', 'eius',
-	             'ab', 'ad', 'nemo', 'fugit', 'officia', 'at', 'in', 'id', 'quos',
-	             'reprehenderit', 'numquam', 'iste', 'fugiat', 'sit', 'inventore',
-	             'beatae', 'repellendus', 'magnam', 'recusandae', 'quod', 'explicabo',
-	             'doloremque', 'aperiam', 'consequatur', 'asperiores', 'commodi',
-	             'optio', 'dolor', 'labore', 'temporibus', 'repellat', 'veniam',
-	             'architecto', 'est', 'esse', 'mollitia', 'nulla', 'a', 'similique',
-	             'eos', 'alias', 'dolore', 'tenetur', 'deleniti', 'porro', 'facere',
-	             'maxime', 'corrupti']
+				'sunt', 'iure', 'nam', 'nobis', 'eum', 'cum', 'officiis', 'excepturi',
+				'odio', 'consectetur', 'quasi', 'aut', 'quisquam', 'vel', 'eligendi',
+				'itaque', 'non', 'odit', 'tempore', 'quaerat', 'dignissimos',
+				'facilis', 'neque', 'nihil', 'expedita', 'vitae', 'vero', 'ipsum',
+				'nisi', 'animi', 'cumque', 'pariatur', 'velit', 'modi', 'natus',
+				'iusto', 'eaque', 'sequi', 'illo', 'sed', 'ex', 'et', 'voluptatibus',
+				'tempora', 'veritatis', 'ratione', 'assumenda', 'incidunt', 'nostrum',
+				'placeat', 'aliquid', 'fuga', 'provident', 'praesentium', 'rem',
+				'necessitatibus', 'suscipit', 'adipisci', 'quidem', 'possimus',
+				'voluptas', 'debitis', 'sint', 'accusantium', 'unde', 'sapiente',
+				'voluptate', 'qui', 'aspernatur', 'laudantium', 'soluta', 'amet',
+				'quo', 'aliquam', 'saepe', 'culpa', 'libero', 'ipsa', 'dicta',
+				'reiciendis', 'nesciunt', 'doloribus', 'autem', 'impedit', 'minima',
+				'maiores', 'repudiandae', 'ipsam', 'obcaecati', 'ullam', 'enim',
+				'totam', 'delectus', 'ducimus', 'quis', 'voluptates', 'dolores',
+				'molestiae', 'harum', 'dolorem', 'quia', 'voluptatem', 'molestias',
+				'magni', 'distinctio', 'omnis', 'illum', 'dolorum', 'voluptatum', 'ea',
+				'quas', 'quam', 'corporis', 'quae', 'blanditiis', 'atque', 'deserunt',
+				'laboriosam', 'earum', 'consequuntur', 'hic', 'cupiditate',
+				'quibusdam', 'accusamus', 'ut', 'rerum', 'error', 'minus', 'eius',
+				'ab', 'ad', 'nemo', 'fugit', 'officia', 'at', 'in', 'id', 'quos',
+				'reprehenderit', 'numquam', 'iste', 'fugiat', 'sit', 'inventore',
+				'beatae', 'repellendus', 'magnam', 'recusandae', 'quod', 'explicabo',
+				'doloremque', 'aperiam', 'consequatur', 'asperiores', 'commodi',
+				'optio', 'dolor', 'labore', 'temporibus', 'repellat', 'veniam',
+				'architecto', 'est', 'esse', 'mollitia', 'nulla', 'a', 'similique',
+				'eos', 'alias', 'dolore', 'tenetur', 'deleniti', 'porro', 'facere',
+				'maxime', 'corrupti']
 		},
 		ru: {
 			common: ['далеко-далеко', 'за', 'словесными', 'горами', 'в стране', 'гласных', 'и согласных', 'живут', 'рыбные', 'тексты'],
 			words: ['вдали', 'от всех', 'они', 'буквенных', 'домах', 'на берегу', 'семантика', 
-		            'большого', 'языкового', 'океана', 'маленький', 'ручеек', 'даль', 
-		            'журчит', 'по всей', 'обеспечивает', 'ее','всеми', 'необходимыми', 
-		            'правилами', 'эта', 'парадигматическая', 'страна', 'которой', 'жаренные', 
-		            'предложения', 'залетают', 'прямо', 'рот', 'даже', 'всемогущая', 
-		            'пунктуация', 'не', 'имеет', 'власти', 'над', 'рыбными', 'текстами', 
-		            'ведущими', 'безорфографичный', 'образ', 'жизни', 'однажды', 'одна', 
-		            'маленькая', 'строчка','рыбного', 'текста', 'имени', 'lorem', 'ipsum', 
-		            'решила', 'выйти', 'большой', 'мир', 'грамматики', 'великий', 'оксмокс', 
-		            'предупреждал', 'о', 'злых', 'запятых', 'диких', 'знаках', 'вопроса', 
-		            'коварных', 'точках', 'запятой', 'но', 'текст', 'дал', 'сбить', 
-		            'себя', 'толку', 'он', 'собрал', 'семь', 'своих', 'заглавных', 'букв', 
-		            'подпоясал', 'инициал', 'за', 'пояс', 'пустился', 'дорогу', 
-		            'взобравшись', 'первую', 'вершину', 'курсивных', 'гор', 'бросил', 
-		            'последний', 'взгляд', 'назад', 'силуэт', 'своего', 'родного', 'города', 
-		            'буквоград', 'заголовок', 'деревни', 'алфавит', 'подзаголовок', 'своего', 
-		            'переулка', 'грустный', 'реторический', 'вопрос', 'скатился', 'его', 
-		            'щеке', 'продолжил', 'свой', 'путь', 'дороге', 'встретил', 'рукопись', 
-		            'она', 'предупредила',  'моей', 'все', 'переписывается', 'несколько', 
-		            'раз', 'единственное', 'что', 'меня', 'осталось', 'это', 'приставка', 
-		            'возвращайся', 'ты', 'лучше', 'свою', 'безопасную', 'страну', 'послушавшись', 
-		            'рукописи', 'наш', 'продолжил', 'свой', 'путь', 'вскоре', 'ему', 
-		            'повстречался', 'коварный', 'составитель', 'рекламных', 'текстов', 
-		            'напоивший', 'языком', 'речью', 'заманивший', 'свое', 'агенство', 
-		            'которое', 'использовало', 'снова', 'снова', 'своих', 'проектах', 
-		            'если', 'переписали', 'то', 'живет', 'там', 'до', 'сих', 'пор']
+				'большого', 'языкового', 'океана', 'маленький', 'ручеек', 'даль', 
+				'журчит', 'по всей', 'обеспечивает', 'ее','всеми', 'необходимыми', 
+				'правилами', 'эта', 'парадигматическая', 'страна', 'которой', 'жаренные', 
+				'предложения', 'залетают', 'прямо', 'рот', 'даже', 'всемогущая', 
+				'пунктуация', 'не', 'имеет', 'власти', 'над', 'рыбными', 'текстами', 
+				'ведущими', 'безорфографичный', 'образ', 'жизни', 'однажды', 'одна', 
+				'маленькая', 'строчка','рыбного', 'текста', 'имени', 'lorem', 'ipsum', 
+				'решила', 'выйти', 'большой', 'мир', 'грамматики', 'великий', 'оксмокс', 
+				'предупреждал', 'о', 'злых', 'запятых', 'диких', 'знаках', 'вопроса', 
+				'коварных', 'точках', 'запятой', 'но', 'текст', 'дал', 'сбить', 
+				'себя', 'толку', 'он', 'собрал', 'семь', 'своих', 'заглавных', 'букв', 
+				'подпоясал', 'инициал', 'за', 'пояс', 'пустился', 'дорогу', 
+				'взобравшись', 'первую', 'вершину', 'курсивных', 'гор', 'бросил', 
+				'последний', 'взгляд', 'назад', 'силуэт', 'своего', 'родного', 'города', 
+				'буквоград', 'заголовок', 'деревни', 'алфавит', 'подзаголовок', 'своего', 
+				'переулка', 'грустный', 'реторический', 'вопрос', 'скатился', 'его', 
+				'щеке', 'продолжил', 'свой', 'путь', 'дороге', 'встретил', 'рукопись', 
+				'она', 'предупредила',  'моей', 'все', 'переписывается', 'несколько', 
+				'раз', 'единственное', 'что', 'меня', 'осталось', 'это', 'приставка', 
+				'возвращайся', 'ты', 'лучше', 'свою', 'безопасную', 'страну', 'послушавшись', 
+				'рукописи', 'наш', 'продолжил', 'свой', 'путь', 'вскоре', 'ему', 
+				'повстречался', 'коварный', 'составитель', 'рекламных', 'текстов', 
+				'напоивший', 'языком', 'речью', 'заманивший', 'свое', 'агенство', 
+				'которое', 'использовало', 'снова', 'снова', 'своих', 'проектах', 
+				'если', 'переписали', 'то', 'живет', 'там', 'до', 'сих', 'пор']
 		}
 	};
 
@@ -86,9 +86,8 @@ emmet.define('lorem', function(require, _) {
 
 	/**
 	 * @param {AbbreviationNode} tree
-	 * @param {Object} options
 	 */
-	require('abbreviationParser').addPreprocessor(function(tree, options) {
+	require('abbreviationParser').addPreprocessor(function(tree) {
 		var re = /^(?:lorem|lipsum)([a-z]{2})?(\d*)$/i, match;
 		
 		/** @param {AbbreviationNode} node */
@@ -103,7 +102,7 @@ emmet.define('lorem', function(require, _) {
 				node._name = '';
 				node.data('forceNameResolving', node.isRepeating() || node.attributeList().length);
 				node.data('pasteOverwrites', true);
-				node.data('paste', function(i, content) {
+				node.data('paste', function(i) {
 					return paragraph(lang, wordCound, !i);
 				});
 			}
@@ -233,5 +232,5 @@ emmet.define('lorem', function(require, _) {
 
 			langs[lang] = data;
 		}
-	}
+	};
 });

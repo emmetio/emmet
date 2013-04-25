@@ -78,10 +78,9 @@ emmet.define('profile', function(require, _) {
 		
 		/**
 		 * Returns self-closing tag symbol for current profile
-		 * @param {String} param
 		 * @returns {String}
 		 */
-		selfClosing: function(param) {
+		selfClosing: function() {
 			if (this.self_closing_tag == 'xhtml')
 				return ' /';
 			

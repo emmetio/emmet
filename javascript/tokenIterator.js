@@ -61,7 +61,7 @@ emmet.define('tokenIterator', function(require, _) {
 				? function(t){return t.type == type;} 
 				: type;
 			
-			while (token = this.next()) {
+			while ((token = this.next())) {
 				if (callback)
 					callback.call(this, token);
 				if (test.call(this, token))

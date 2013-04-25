@@ -1,0 +1,9 @@
+{
+	"undef": true,
+	"unused": true,
+	"laxbreak": true,
+	"globals": {
+		"emmet": true, 
+		"_": true
+	}
+}

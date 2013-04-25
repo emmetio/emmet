@@ -171,7 +171,7 @@ emmet.exec(function(require, _) {
 		var reSep = new RegExp('^(' + separators[entityType] + ')+', 'g');
 		if (reSep.test(name)) {
 			var depth = 0; // parent lookup depth
-			var cleanName = name.replace(reSep, function(str, p1) {
+			var cleanName = name.replace(reSep, function(str) {
 				depth = str.length / separators[entityType].length;
 				return '';
 			});
@@ -240,7 +240,7 @@ emmet.exec(function(require, _) {
 		});
 		
 		return tree;
-	};
+	}
 	
 	require('filters').add('bem', function(tree, profile) {
 		shouldRunHtmlFilter = false;

@@ -96,18 +96,19 @@ emmet.define('actionUtils', function(require, _) {
 			var pngMagicNum = "\211PNG\r\n\032\n",
 				jpgMagicNum = "\377\330",
 				gifMagicNum = "GIF8",
+				pos = 0,
 				nextByte = function() {
 					return stream.charCodeAt(pos++);
 				};
 		
 			if (stream.substr(0, 8) === pngMagicNum) {
 				// PNG. Easy peasy.
-				var pos = stream.indexOf('IHDR') + 4;
+				pos = stream.indexOf('IHDR') + 4;
 			
-				return { width:  (nextByte() << 24) | (nextByte() << 16) |
-								 (nextByte() <<  8) | nextByte(),
-						 height: (nextByte() << 24) | (nextByte() << 16) |
-								 (nextByte() <<  8) | nextByte() };
+				return {
+					width:  (nextByte() << 24) | (nextByte() << 16) | (nextByte() <<  8) | nextByte(),
+					height: (nextByte() << 24) | (nextByte() << 16) | (nextByte() <<  8) | nextByte()
+				};
 			
 			} else if (stream.substr(0, 4) === gifMagicNum) {
 				pos = 6;
@@ -131,8 +132,10 @@ emmet.define('actionUtils', function(require, _) {
 				
 					if (marker >= 0xC0 && marker <= 0xCF && !(marker & 0x4) && !(marker & 0x8)) {
 						pos += 1;
-						return { height:  (nextByte() << 8) | nextByte(),
-								 width: (nextByte() << 8) | nextByte() };
+						return {
+							height: (nextByte() << 8) | nextByte(),
+							width: (nextByte() << 8) | nextByte()
+						};
 				
 					} else {
 						pos += size - 2;
@@ -267,7 +270,7 @@ emmet.define('actionUtils', function(require, _) {
 					}
 					break;
 				case 'html':
-					var profile = require('resources').getVariable('profile');
+					profile = require('resources').getVariable('profile');
 					if (!profile) { // no forced profile, guess from content
 						// html or xhtml?
 						profile = this.isXHTML(editor) ? 'xhtml': 'html';
@@ -311,11 +314,11 @@ emmet.define('actionUtils', function(require, _) {
 			var content = String(editor.getContent());
 			var caretPos = editor.getCaretPos();
 			var tree = require('xmlEditTree').parseFromPosition(content, caretPos, true);
-            if (tree) {
-                var attr = tree.itemFromPosition(caretPos, true);
-                return attr && attr.name().toLowerCase() == 'style' 
-                	&& attr.valueRange(true).cmp(caretPos, 'lte', 'gte');
-            }
+			if (tree) {
+				var attr = tree.itemFromPosition(caretPos, true);
+				return attr && attr.name().toLowerCase() == 'style' 
+					&& attr.valueRange(true).cmp(caretPos, 'lte', 'gte');
+			}
             
             return false;
 		}

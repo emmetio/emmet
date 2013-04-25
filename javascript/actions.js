@@ -4,7 +4,7 @@
  * @param {Function} require
  * @param {Underscore} _
  */
-emmet.define('actions', function(require, _, zc) {
+emmet.define('actions', function(require, _) {
 	var actions = {};
 	
 	/**
@@ -120,7 +120,7 @@ emmet.define('actions', function(require, _, zc) {
 					
 					// create submenus, if needed
 					var menuName, submenu;
-					while (menuName = parts.shift()) {
+					while ((menuName = parts.shift())) {
 						submenu = _.find(ctx, function(item) {
 							return item.type == 'submenu' && item.name == menuName;
 						});

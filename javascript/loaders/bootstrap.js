@@ -15,15 +15,6 @@ emmet.define('bootstrap', function(require, _) {
 		var m = re.exec(path);
 		return m ? m[1] : '';
 	}
-	
-	/**
-	 * Returns base path (path to folder of file)
-	 * @param {String} path Path to file
-	 * @return {String}
-	 */
-	function getBasePath(path) {
-		return path.substring(0, path.length - getFileName(path).length);
-	}
 
 	/**
 	 * Normalizes profile definition: converts some

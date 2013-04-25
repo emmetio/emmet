@@ -99,7 +99,7 @@ emmet.define('xmlEditTree', function(require, _) {
 			var donor = list[pos];
 			if (donor) {
 				start = donor.fullRange().start;
-			} else if (donor = list[pos - 1]) {
+			} else if ((donor = list[pos - 1])) {
 				start = donor.range().end;
 			}
 			
@@ -226,7 +226,7 @@ emmet.define('xmlEditTree', function(require, _) {
 			
 			// lookup backward, in case we are inside tag already
 			for (i = pos; i >= 0; i--) {
-				if (r = match(i)) break;
+				if ((r = match(i))) break;
 			}
 			
 			if (r && (r.inside(pos) || isBackward))
@@ -237,7 +237,7 @@ emmet.define('xmlEditTree', function(require, _) {
 			
 			// search forward
 			for (i = pos; i < len; i++) {
-				if (r = match(i))
+				if ((r = match(i)))
 					return r;
 			}
 		}

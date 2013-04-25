@@ -42,8 +42,8 @@ emmet.define('tabStops', function(require, _) {
 		
 		var tsOptions = {
 			tabstop: function(data) {
-				var group = parseInt(data.group);
-				if (group == 0)
+				var group = parseInt(data.group, 10);
+				if (group === 0)
 					return '${0}';
 				
 				if (group > maxNum) maxNum = group;
@@ -187,7 +187,7 @@ emmet.define('tabStops', function(require, _) {
 			var stream = require('stringStream').create(text);
 			var ch, m, a;
 			
-			while (ch = stream.next()) {
+			while ((ch = stream.next())) {
 				if (ch == '\\' && !stream.eol()) {
 					// handle escaped character
 					buf.append(options.escape(stream.next()));
@@ -200,21 +200,21 @@ emmet.define('tabStops', function(require, _) {
 					// looks like a tabstop
 					stream.start = stream.pos - 1;
 					
-					if (m = stream.match(/^[0-9]+/)) {
+					if ((m = stream.match(/^[0-9]+/))) {
 						// it's $N
 						a = options.tabstop({
 							start: buf.length, 
 							group: stream.current().substr(1),
 							token: stream.current()
 						});
-					} else if (m = stream.match(/^\{([a-z_\-][\w\-]*)\}/)) {
+					} else if ((m = stream.match(/^\{([a-z_\-][\w\-]*)\}/))) {
 						// ${variable}
 						a = options.variable({
 							start: buf.length, 
 							name: m[1],
 							token: stream.current()
 						});
-					} else if (m = stream.match(/^\{([0-9]+)(:.+?)?\}/, false)) {
+					} else if ((m = stream.match(/^\{([0-9]+)(:.+?)?\}/, false))) {
 						// ${N:value} or ${N} placeholder
 						// parse placeholder, including nested ones
 						stream.skipToPair('{', '}');
@@ -251,7 +251,7 @@ emmet.define('tabStops', function(require, _) {
 			var maxNum = 0;
 			var options = {
 				tabstop: function(data) {
-					var group = parseInt(data.group);
+					var group = parseInt(data.group, 10);
 					if (group > maxNum) maxNum = group;
 						
 					if (data.placeholder)

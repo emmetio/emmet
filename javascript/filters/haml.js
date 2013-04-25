@@ -8,8 +8,6 @@
  * @param {Underscore} _
  */
 emmet.exec(function(require, _) {
-	var childToken = '${child}';
-	
 	function transformClassName(className) {
 		return require('utils').trim(className).replace(/\s+/g, '.');
 	}
@@ -48,21 +46,11 @@ emmet.exec(function(require, _) {
 	}
 	
 	/**
-	 * Test if passed node has block-level sibling element
-	 * @param {AbbreviationNode} item
-	 * @return {Boolean}
-	 */
-	function hasBlockSibling(item) {
-		return item.parent && item.parent.hasBlockChildren();
-	}
-	
-	/**
 	 * Processes element with <code>tag</code> type
 	 * @param {AbbreviationNode} item
 	 * @param {OutputProfile} profile
-	 * @param {Number} level Depth level
 	 */
-	function processTag(item, profile, level) {
+	function processTag(item, profile) {
 		if (!item.parent)
 			// looks like it's root element
 			return item;

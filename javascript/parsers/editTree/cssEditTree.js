@@ -42,7 +42,7 @@ emmet.define('cssEditTree', function(require, _) {
 		if ((mask & WHITESPACE_REMOVE_FROM_END) == WHITESPACE_REMOVE_FROM_END)
 			while (tokens.length && _.include(whitespace, _.last(tokens).type)) {
 				tokens.pop();
-	 		}
+			}
 		
 		if ((mask & WHITESPACE_REMOVE_FROM_START) == WHITESPACE_REMOVE_FROM_START)
 			while (tokens.length && _.include(whitespace, tokens[0].type)) {
@@ -59,24 +59,24 @@ emmet.define('cssEditTree', function(require, _) {
 	 */
 	function findSelectorRange(it) {
 		var tokens = [], token;
- 		var start = it.position(), end;
- 		
- 		while (token = it.next()) {
+		var start = it.position(), end;
+		
+		while ((token = it.next())) {
 			if (token.type == '{')
 				break;
 			tokens.push(token);
 		}
- 		
- 		trimWhitespaceTokens(tokens);
- 		
- 		if (tokens.length) {
- 			start = tokens[0].start;
- 			end = _.last(tokens).end;
- 		} else {
- 			end = start;
- 		}
- 		
- 		return range(start, end - start);
+		
+		trimWhitespaceTokens(tokens);
+		
+		if (tokens.length) {
+			start = tokens[0].start;
+			end = _.last(tokens).end;
+		} else {
+			end = start;
+		}
+		
+		return range(start, end - start);
 	}
 	
 	/**
@@ -90,13 +90,13 @@ emmet.define('cssEditTree', function(require, _) {
 		var skipTokens = ['white', 'line', ':'];
 		var tokens = [], token, start, end;
 		
-		it.nextUntil(function(tok) {
+		it.nextUntil(function() {
 			return !_.include(skipTokens, this.itemNext().type);
 		});
 		
 		start = it.current().end;
 		// consume value
-		while (token = it.next()) {
+		while ((token = it.next())) {
 			if (token.type == '}' || token.type == ';') {
 				// found value end
 				trimWhitespaceTokens(tokens, WHITESPACE_REMOVE_FROM_START 
@@ -143,7 +143,7 @@ emmet.define('cssEditTree', function(require, _) {
 		stream.eatSpace();
 		stream.start = stream.pos;
 		
-		while (ch = stream.next()) {
+		while ((ch = stream.next())) {
 			if (ch == '"' || ch == "'") {
 				stream.next();
 				if (!stream.skipTo(ch)) break;
@@ -206,21 +206,21 @@ emmet.define('cssEditTree', function(require, _) {
 			var editTree = require('editTree');
 			
 			/** @type TokenIterator */
-	 		var it = require('tokenIterator').create(
-	 				require('cssParser').parse(source));
-	 		
-	 		var selectorRange = findSelectorRange(it);
-	 		this._positions.name = selectorRange.start;
-	 		this._name = selectorRange.substring(source);
-	 		
-	 		if (!it.current() || it.current().type != '{')
-	 			throw 'Invalid CSS rule';
-	 		
-	 		this._positions.contentStart = it.position() + 1;
-	 		
-	 		// consume properties
-	 		var propertyRange, valueRange, token;
-			while (token = it.next()) {
+			var it = require('tokenIterator').create(
+					require('cssParser').parse(source));
+			
+			var selectorRange = findSelectorRange(it);
+			this._positions.name = selectorRange.start;
+			this._name = selectorRange.substring(source);
+			
+			if (!it.current() || it.current().type != '{')
+				throw 'Invalid CSS rule';
+			
+			this._positions.contentStart = it.position() + 1;
+			
+			// consume properties
+			var propertyRange, valueRange, token;
+			while ((token = it.next())) {
 				if (token.type == 'identifier' && isValidIdentifier(it)) {
 					propertyRange = range(token);
 					valueRange = findValueRange(it);
@@ -292,7 +292,7 @@ emmet.define('cssEditTree', function(require, _) {
 			var donor = list[pos];
 			if (donor) {
 				start = donor.fullRange().start;
-			} else if (donor = list[pos - 1]) {
+			} else if ((donor = list[pos - 1])) {
 				// make sure that donor has terminating semicolon
 				donor.end(';');
 				start = donor.range().end;
@@ -474,19 +474,19 @@ emmet.define('cssEditTree', function(require, _) {
 		},
 		
 		/**
-	 	 * Removes vendor prefix from CSS property
-	 	 * @param {String} name CSS property
-	 	 * @return {String}
-	 	 */
-	 	baseName: function(name) {
-	 		return name.replace(/^\s*\-\w+\-/, '');
-	 	},
-	 	
-	 	/**
-	 	 * Finds parts of complex CSS value
-	 	 * @param {String} str
-	 	 * @returns {Array}
-	 	 */
-	 	findParts: findParts
+		 * Removes vendor prefix from CSS property
+		 * @param {String} name CSS property
+		 * @return {String}
+		 */
+		baseName: function(name) {
+			return name.replace(/^\s*\-\w+\-/, '');
+		},
+		
+		/**
+		 * Finds parts of complex CSS value
+		 * @param {String} str
+		 * @returns {Array}
+		 */
+		findParts: findParts
 	};
 });

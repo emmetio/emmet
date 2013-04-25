@@ -138,7 +138,7 @@ emmet.define('range', function(require, _) {
 		 * @returns {Boolean} 
 		 */
 		include: function(r) {
-			return this.cmp(loc, 'lte', 'gte');
+			return this.cmp(r, 'lte', 'gte');
 //			return this.start <= r.start && this.end >= r.end;
 		},
 		

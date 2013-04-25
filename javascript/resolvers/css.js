@@ -408,16 +408,6 @@ emmet.define('cssResolver', function(require, _) {
 		return formatProperty(snippet, syntax);
 	}
 	
-	/**
-	 * Helper function that parses comma-separated list of elements into array
-	 * @param {String} list
-	 * @returns {Array}
-	 */
-	function parseList(list) {
-		var result = _.map((list || '').split(','), require('utils').trim);
-		return result.length ? result : null;
-	}
-	
 	function getProperties(key) {
 		var list = prefs.getArray(key);
 		_.each(prefs.getArray(key + 'Addon'), function(prop) {
@@ -659,7 +649,7 @@ emmet.define('cssResolver', function(require, _) {
 			var values = [];
 			var ch = null;
 			
-			while (ch = stream.next()) {
+			while ((ch = stream.next())) {
 				if (ch == '#') {
 					stream.match(/^t|[0-9a-f]+/i, true);
 					values.push(stream.current());
@@ -739,8 +729,8 @@ emmet.define('cssResolver', function(require, _) {
 			var autoInsertPrefixes = prefs.get('css.autoInsertVendorPrefixes');
 			
 			// check if snippet should be transformed to !important
-			var isImportant;
-			if (isImportant = /^(.+)\!$/.test(abbr)) {
+			var isImportant = /^(.+)\!$/.test(abbr);
+			if (isImportant) {
 				abbr = RegExp.$1;
 			}
 			

@@ -85,7 +85,7 @@ emmet.define('elements', function(require, _) {
 				ret.attributes = attrs;
 			} else if (_.isString(attrs)) {
 				var m;
-				while (m = reAttrs.exec(attrs)) {
+				while ((m = reAttrs.exec(attrs))) {
 					ret.attributes.push({
 						name: m[1],
 						value: m[3]

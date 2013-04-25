@@ -118,7 +118,7 @@ emmet.define('xmlParser', function(require, _) {
 	function doctype(depth) {
 		return function(stream, state) {
 			var ch;
-			while ((ch = stream.next()) != null) {
+			while ((ch = stream.next()) !== null) {
 				if (ch == "<") {
 					state.tokenize = doctype(depth + 1);
 					return state.tokenize(stream, state);

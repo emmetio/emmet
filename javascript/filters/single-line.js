@@ -11,7 +11,7 @@ emmet.exec(function(require, _) {
 	var rePad = /^\s+/;
 	var reNl = /[\n\r]/g;
 	
-	require('filters').add('s', function process(tree, profile, level) {
+	require('filters').add('s', function process(tree) {
 		var abbrUtils = require('abbreviationUtils');
 		
 		_.each(tree.children, function(item) {
@@ -31,4 +31,4 @@ emmet.exec(function(require, _) {
 		
 		return tree;
 	});
-});
+});

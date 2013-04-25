@@ -16,9 +16,9 @@
  * @example
  * <pre><code>
  * var MyClass = require('editTree').EditElement.extend({
- * 	initialize: function() {
- * 		// constructor code here
- * 	}
+ *     initialize: function() {
+ *     // constructor code here
+ *   }
  * });
  * 
  * var elem = new MyClass(); 

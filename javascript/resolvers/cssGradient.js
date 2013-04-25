@@ -53,7 +53,7 @@ emmet.define('cssGradient', function(require, _) {
 		/** @type StringStream */
 		var stream = require('stringStream').create(require('utils').trim(gradient));
 		var colorStops = [], ch;
-		while (ch = stream.next()) {
+		while ((ch = stream.next())) {
 			if (stream.peek() == ',') {
 				colorStops.push(stream.current());
 				stream.next();
@@ -548,7 +548,7 @@ emmet.define('cssGradient', function(require, _) {
 			var m = prop.value().match(/^\s*(\-([a-z]+)\-)?linear\-gradient/);
 			if (m) {
 				prop.value(val(module.toString(g.gradient, m[2] || '')));
-			} else if (m = prop.value().match(/\s*\-webkit\-gradient/)) {
+			} else if ((m = prop.value().match(/\s*\-webkit\-gradient/))) {
 				// old webkit gradient definition
 				prop.value(val(module.oldWebkitLinearGradient(g.gradient)));
 			}

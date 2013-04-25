@@ -18,13 +18,13 @@ emmet.exec(function(require, _) {
 			var text = String(editor.getContent()),  m;
 			while (caretPos-- >= 0) {
 				if (startsWith('src=', text, caretPos)) { // found <img src="">
-					if (m = text.substr(caretPos).match(/^(src=(["'])?)([^'"<>\s]+)\1?/)) {
+					if ((m = text.substr(caretPos).match(/^(src=(["'])?)([^'"<>\s]+)\1?/))) {
 						data = m[3];
 						caretPos += m[1].length;
 					}
 					break;
 				} else if (startsWith('url(', text, caretPos)) { // found CSS url() pattern
-					if (m = text.substr(caretPos).match(/^(url\((['"])?)([^'"\)\s]+)\1?/)) {
+					if ((m = text.substr(caretPos).match(/^(url\((['"])?)([^'"\)\s]+)\1?/))) {
 						data = m[3];
 						caretPos += m[1].length;
 					}

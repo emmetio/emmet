@@ -78,9 +78,9 @@ emmet.define('htmlMatcher', function(require, _) {
 				if (!(key in memo)) {
 					if (text.charAt(i) == '<') {
 						var substr = text.slice(i);
-						if (m = substr.match(reOpenTag)) {
+						if ((m = substr.match(reOpenTag))) {
 							memo[key] = openTag(i, m);
-						} else if (m = substr.match(reCloseTag)) {
+						} else if ((m = substr.match(reCloseTag))) {
 							memo[key] = closeTag(i, m);
 						} else {
 							// remember that given position contains no valid tag
@@ -126,7 +126,7 @@ emmet.define('htmlMatcher', function(require, _) {
 				}
 			}
 			
-			if (tag = matcher.matches(pos)) {
+			if ((tag = matcher.matches(pos))) {
 				if (tag.type == 'open' && !tag.selfClose) {
 					stack.push(tag.name);
 				} else if (tag.type == 'close') {
@@ -169,9 +169,10 @@ emmet.define('htmlMatcher', function(require, _) {
 			var range = require('range');
 			var matcher = createMatcher(text); 
 			var open = null, close = null;
+			var j, jl;
 			
 			for (var i = pos; i >= 0; i--) {
-				if (open = matcher.open(i)) {
+				if ((open = matcher.open(i))) {
 					// found opening tag
 					if (open.selfClose) {
 						if (open.range.cmp(pos, 'lt', 'gt')) {
@@ -198,7 +199,7 @@ emmet.define('htmlMatcher', function(require, _) {
 					open = null;
 				} else if (matches(text, i, '-->')) {
 					// skip back to comment start
-					for (var j = i - 1; j >= 0; j--) {
+					for (j = i - 1; j >= 0; j--) {
 						if (matches(text, j, '-->')) {
 							// found another comment end, do nothing
 							break;
@@ -209,8 +210,7 @@ emmet.define('htmlMatcher', function(require, _) {
 					}
 				} else if (matches(text, i, '<!--')) {
 					// we're inside comment, match it
-					var j = i + 4, jl = text.length;
-					for (; j < jl; j++) {
+					for (j = i + 4, jl = text.length; j < jl; j++) {
 						if (matches(text, j, '-->')) {
 							j += 3;
 							break;

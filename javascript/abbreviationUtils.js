@@ -6,16 +6,6 @@
 emmet.define('abbreviationUtils', function(require, _) {
 	return {
 		/**
-		 * Check if passed abbreviation node has matched snippet resource
-		 * @param {AbbreviationNode} node
-		 * @returns {Boolean}
-		 * @memberOf abbreviationUtils
-		 */
-		isSnippet: function(node) {
-			return require('elements').is(node.matchedResource(), 'snippet');
-		},
-		
-		/**
 		 * Test if passed node is unary (no closing tag)
 		 * @param {AbbreviationNode} node
 		 * @return {Boolean}

@@ -58,10 +58,10 @@ emmet.define('reflectCSSValue', function(require, _) {
 		
 		if (name == 'opacity' || name == 'filter') {
 			return new RegExp(vendorPrefix + '(?:opacity|filter)$');
-		} else if (m = name.match(/^border-radius-(top|bottom)(left|right)/)) {
+		} else if ((m = name.match(/^border-radius-(top|bottom)(left|right)/))) {
 			// Mozilla-style border radius
 			return new RegExp(vendorPrefix + '(?:' + name + '|border-' + m[1] + '-' + m[2] + '-radius)$');
-		} else if (m = name.match(/^border-(top|bottom)-(left|right)-radius/)) { 
+		} else if ((m = name.match(/^border-(top|bottom)-(left|right)-radius/))) { 
 			return new RegExp(vendorPrefix + '(?:' + name + '|border-radius-' + m[1] + m[2] + ')$');
 		}
 		
@@ -106,7 +106,7 @@ emmet.define('reflectCSSValue', function(require, _) {
 			return refValue.replace(/opacity=[^)]*/i, 'opacity=' + Math.floor(parseFloat(curValue) * 100));
 		} else if (curName == 'filter' && refName == 'opacity') {
 			var m = curValue.match(/opacity=([^)]*)/i);
-			return m ? utils.prettifyNumber(parseInt(m[1]) / 100) : refValue;
+			return m ? utils.prettifyNumber(parseInt(m[1], 10) / 100) : refValue;
 		}
 		
 		return curValue;
@@ -140,7 +140,7 @@ emmet.define('reflectCSSValue', function(require, _) {
 		 * @returns
 		 */
 		removeHandler: function(fn) {
-			handlers.remove(fn, options);
+			handlers.remove(fn);
 		}
 	};
 });

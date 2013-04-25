@@ -57,7 +57,7 @@ emmet.define('resources', function(require, _) {
 		key = require('utils').trim(key);
 		var elements = require('elements');
 		var m;
-		if (m = reTag.exec(value)) {
+		if ((m = reTag.exec(value))) {
 			return elements.create('element', m[1], m[2], m[4] == '/');
 		} else {
 			// assume it's reference to another abbreviation

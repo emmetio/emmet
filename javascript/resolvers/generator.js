@@ -35,7 +35,7 @@ emmet.exec(function(require, _) {
 		}
 	});
 	
-	resources.addResolver(function(node, syntax) {
+	resources.addResolver(function() {
 		return generators.exec(null, _.toArray(arguments));
 	});
 });

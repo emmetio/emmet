@@ -70,7 +70,7 @@ emmet.define('abbreviationParser', function(require, _) {
 		 * @return {AbbreviationNode}
 		 */
 		addChild: function(child, position) {
-			child = child || new AbbreviationNode;
+			child = child || new AbbreviationNode();
 			child.parent = this;
 			
 			if (_.isUndefined(position)) {
@@ -465,7 +465,7 @@ emmet.define('abbreviationParser', function(require, _) {
 	
 	function consumeQuotedValue(stream, quote) {
 		var ch;
-		while (ch = stream.next()) {
+		while ((ch = stream.next())) {
 			if (ch === quote)
 				return true;
 			
@@ -484,12 +484,39 @@ emmet.define('abbreviationParser', function(require, _) {
 	function parseAbbreviation(abbr) {
 		abbr = require('utils').trim(abbr);
 		
-		var root = new AbbreviationNode;
+		var root = new AbbreviationNode();
 		var context = root.addChild(), ch;
 		
 		/** @type StringStream */
 		var stream = require('stringStream').create(abbr);
 		var loopProtector = 1000, multiplier;
+		var addChild = function(child) {
+			context.addChild(child);
+		};
+
+		var consumeAbbr = function() {
+			stream.start = stream.pos;
+			stream.eatWhile(function(c) {
+				if (c == '[' || c == '{') {
+					if (stream.skipToPair(c, pairs[c])) {
+						stream.backUp(1);
+						return true;
+					}
+					
+					throw 'Invalid abbreviation: mo matching "' + pairs[c] + '" found for character at ' + stream.pos;
+				}
+				
+				if (c == '+') {
+					// let's see if this is an expando marker
+					stream.next();
+					var isMarker = stream.eol() ||  ~'+>^*'.indexOf(stream.peek());
+					stream.backUp(1);
+					return isMarker;
+				}
+				
+				return c != '(' && isAllowedChar(c);
+			});
+		};
 		
 		while (!stream.eol() && --loopProtector > 0) {
 			ch = stream.peek();
@@ -499,13 +526,11 @@ emmet.define('abbreviationParser', function(require, _) {
 					stream.start = stream.pos;
 					if (stream.skipToPair('(', ')')) {
 						var inner = parseAbbreviation(stripped(stream.current()));
-						if (multiplier = stream.match(/^\*(\d+)?/, true)) {
+						if ((multiplier = stream.match(/^\*(\d+)?/, true))) {
 							context._setRepeat(multiplier[1]);
 						}
 						
-						_.each(inner.children, function(child) {
-							context.addChild(child);
-						});
+						_.each(inner.children, addChild);
 					} else {
 						throw 'Invalid abbreviation: mo matching ")" found for character at ' + stream.pos;
 					}
@@ -528,28 +553,7 @@ emmet.define('abbreviationParser', function(require, _) {
 					break;
 					
 				default: // consume abbreviation
-					stream.start = stream.pos;
-					stream.eatWhile(function(c) {
-						if (c == '[' || c == '{') {
-							if (stream.skipToPair(c, pairs[c])) {
-								stream.backUp(1);
-								return true;
-							}
-							
-							throw 'Invalid abbreviation: mo matching "' + pairs[c] + '" found for character at ' + stream.pos;
-						}
-						
-						if (c == '+') {
-							// let's see if this is an expando marker
-							stream.next();
-							var isMarker = stream.eol() ||  ~'+>^*'.indexOf(stream.peek());
-							stream.backUp(1);
-							return isMarker;
-						}
-						
-						return c != '(' && isAllowedChar(c);
-					});
-					
+					consumeAbbr();
 					context.setAbbreviation(stream.current());
 					stream.start = stream.pos;
 			}
@@ -882,7 +886,7 @@ emmet.define('abbreviationParser', function(require, _) {
 		 * Removes registered preprocessor
 		 */
 		removeFilter: function(fn) {
-			preprocessor = _.without(preprocessors, fn);
+			_.without(preprocessors, fn);
 		},
 		
 		/**

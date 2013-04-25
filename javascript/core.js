@@ -77,7 +77,7 @@ var emmet = (function(global) {
 		child.__super__ = parent.prototype;
 
 		return child;
-	};
+	}
 	
 	/**
 	 * @type Function Function that loads module definition if it's not defined

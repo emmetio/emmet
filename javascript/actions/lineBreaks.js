@@ -32,9 +32,10 @@ emmet.exec(function(require, _) {
 		var info = require('editorUtils').outputInfo(editor);
 		var caretPos = editor.getCaretPos();
 		var nl = utils.getNewline();
+		var pad;
 		
 		if (_.include(['html', 'xml', 'xsl'], info.syntax)) {
-			var pad = res.getVariable('indentation');
+			pad = res.getVariable('indentation');
 			// let's see if we're breaking newly created tag
 			var tag = require('htmlMatcher').tag(info.content, caretPos);
 			if (tag && !tag.innerRange.length()) {
@@ -46,7 +47,7 @@ emmet.exec(function(require, _) {
 			var content = info.content;
 			if (caretPos && content.charAt(caretPos - 1) == '{') {
 				var append = prefs.get('css.closeBraceIndentation');
-				var pad = res.getVariable('indentation');
+				pad = res.getVariable('indentation');
 				
 				var hasCloseBrace = content.charAt(caretPos) == '}';
 				if (!hasCloseBrace) {

@@ -113,24 +113,24 @@ emmet.exec(function(require, _) {
 				case 'string':
 					// attribute value
 					// push full attribute first
-					 result.push(range.create(attrStart, tok.end - attrStart));
-					 
-					 attrValueRange = range.create(tok);
-					 attrValue = attrValueRange.substring(source);
-					 
-					 // is this a quoted attribute?
-					 if (isQuote(attrValue.charAt(0)))
-						 attrValueRange.start++;
-					 
-					 if (isQuote(attrValue.charAt(attrValue.length - 1)))
-						 attrValueRange.end--;
-					 
-					 result.push(attrValueRange);
-					 
-					 if (attrName == 'class') {
-						 result = result.concat(classNameRanges(attrValueRange.substring(source), attrValueRange.start));
-					 }
-					 
+					result.push(range.create(attrStart, tok.end - attrStart));
+					
+					attrValueRange = range.create(tok);
+					attrValue = attrValueRange.substring(source);
+					
+					// is this a quoted attribute?
+					if (isQuote(attrValue.charAt(0)))
+						attrValueRange.start++;
+					
+					if (isQuote(attrValue.charAt(attrValue.length - 1)))
+						attrValueRange.end--;
+					
+					result.push(attrValueRange);
+					
+					if (attrName == 'class') {
+						result = result.concat(classNameRanges(attrValueRange.substring(source), attrValueRange.start));
+					}
+					
 					break;
 			}
 		});
@@ -167,7 +167,7 @@ emmet.exec(function(require, _) {
 		stream.start = stream.pos;
 		
 		var ch;
-		while (ch = stream.next()) {
+		while ((ch = stream.next())) {
 			if (/[\s\u00a0]/.test(ch)) {
 				result.push(range.create(stream.start + offset, stream.pos - stream.start - 1));
 				stream.eatSpace();
@@ -240,7 +240,7 @@ emmet.exec(function(require, _) {
 	function findOpeningTagFromPosition(html, pos) {
 		var tag;
 		while (pos >= 0) {
-			if (tag = getOpeningTagFromPosition(html, pos))
+			if ((tag = getOpeningTagFromPosition(html, pos)))
 				return tag;
 			pos--;
 		}
@@ -349,28 +349,30 @@ emmet.exec(function(require, _) {
 		}
 		
 		// search for nearest to selection CSS property
-		while (property = _.find(list, searchFn)) {
+		var eqSel = function(r) {
+			return r.equal(selRange);
+		};
+		var inSel = function(r) {
+			return r.inside(selRange.end);
+		};
+		while ((property = _.find(list, searchFn))) {
 			possibleRanges = makePossibleRangesCSS(property);
 			if (isBackward)
 				possibleRanges.reverse();
 			
 			// check if any possible range is already selected
-			curRange = _.find(possibleRanges, function(r) {
-				return r.equal(selRange);
-			});
+			curRange = _.find(possibleRanges, eqSel);
 			
 			if (!curRange) {
 				// no selection, select nearest item
-				var matchedRanges = _.filter(possibleRanges, function(r) {
-					return r.inside(selRange.end);
-				});
+				var matchedRanges = _.filter(possibleRanges, inSel);
 				
 				if (matchedRanges.length > 1) {
 					curRange = matchedRanges[1];
 					break;
 				}
 				
-				if (curRange = _.find(possibleRanges, nearestItemFn))
+				if ((curRange = _.find(possibleRanges, nearestItemFn)))
 					break;
 			} else {
 				ix = _.indexOf(possibleRanges, curRange);

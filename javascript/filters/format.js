@@ -103,9 +103,8 @@ emmet.exec(function(require, _){
 	 * Processes element with matched resource of type <code>snippet</code>
 	 * @param {AbbreviationNode} item
 	 * @param {OutputProfile} profile
-	 * @param {Number} level Depth level
 	 */
-	function processSnippet(item, profile, level) {
+	function processSnippet(item, profile) {
 		item.start = item.end = '';
 		if (!isVeryFirstChild(item) && profile.tag_nl !== false && shouldAddLineBreak(item, profile)) {
 			// check if we’re not inside inline element
@@ -143,9 +142,8 @@ emmet.exec(function(require, _){
 	 * Processes element with <code>tag</code> type
 	 * @param {AbbreviationNode} item
 	 * @param {OutputProfile} profile
-	 * @param {Number} level Depth level
 	 */
-	function processTag(item, profile, level) {
+	function processTag(item, profile) {
 		item.start = item.end = placeholder;
 		var utils = require('utils');
 		var abbrUtils = require('abbreviationUtils');
