@@ -242,6 +242,10 @@ emmet.define('actionUtils', function(require, _) {
 			if (syntax == 'html' && (this.isStyle(editor) || this.isInlineCSS(editor))) {
 				syntax = 'css';
 			}
+
+			if (syntax == 'styl') {
+				syntax = 'stylus';
+			}
 			
 			return syntax;
 		},
