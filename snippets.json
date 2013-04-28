@@ -488,8 +488,6 @@
 			"wob": "word-break:|;",
 			"wob:n": "word-break:normal;",
 			"wob:k": "word-break:keep-all;",
-			"wob:l": "word-break:loose;",
-			"wob:bs": "word-break:break-strict;",
 			"wob:ba": "word-break:break-all;",
 			"wos": "word-spacing:|;",
 			"wow": "word-wrap:|;",
