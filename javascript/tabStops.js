@@ -145,14 +145,14 @@ emmet.define('tabStops', function(require, _) {
 			text = this.processText(text, options);
 			
 			// now, replace all tabstops with placeholders
-			var buf = utils.stringBuilder(), lastIx = 0;
+			var buf = '', lastIx = 0;
 			var tabStops = _.map(marks, function(mark) {
-				buf.append(text.substring(lastIx, mark.start));
+				buf += text.substring(lastIx, mark.start);
 				
 				var pos = buf.length;
 				var ph = placeholders[mark.group] || '';
 				
-				buf.append(ph);
+				buf += ph;
 				lastIx = mark.end;
 				
 				return {
@@ -162,10 +162,10 @@ emmet.define('tabStops', function(require, _) {
 				};
 			});
 			
-			buf.append(text.substring(lastIx));
+			buf += text.substring(lastIx);
 			
 			return {
-				text: buf.toString(),
+				text: buf,
 				tabstops: _.sortBy(tabStops, 'start')
 			};
 		},
@@ -182,7 +182,7 @@ emmet.define('tabStops', function(require, _) {
 		processText: function(text, options) {
 			options = _.extend({}, defaultOptions, options);
 			
-			var buf = require('utils').stringBuilder();
+			var buf = '';
 			/** @type StringStream */
 			var stream = require('stringStream').create(text);
 			var ch, m, a;
@@ -190,7 +190,7 @@ emmet.define('tabStops', function(require, _) {
 			while ((ch = stream.next())) {
 				if (ch == '\\' && !stream.eol()) {
 					// handle escaped character
-					buf.append(options.escape(stream.next()));
+					buf += options.escape(stream.next());
 					continue;
 				}
 				
@@ -235,10 +235,10 @@ emmet.define('tabStops', function(require, _) {
 					}
 				}
 				
-				buf.append(a);
+				buf += a;
 			}
 			
-			return buf.toString();
+			return buf;
 		},
 		
 		/**

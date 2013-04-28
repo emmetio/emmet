@@ -164,7 +164,7 @@ emmet.define('xmlEditTree', function(require, _) {
 			return r;
 		},
 		
-		toString: function() {
+		valueOf: function() {
 			return this.name() + this.styleSeparator
 				+ this.styleQuote + this.value() + this.styleQuote;
 		}

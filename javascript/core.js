@@ -175,7 +175,7 @@ var emmet = (function(global) {
 			
 			var filtersList = filters.composeList(syntax, profile, data[1]);
 			filters.apply(outputTree, filtersList, profile);
-			return outputTree.toString();
+			return outputTree.valueOf();
 		},
 		
 		/**

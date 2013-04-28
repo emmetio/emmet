@@ -274,7 +274,7 @@ emmet.define('cm-editor-proxy', function(require, _) {
 	}
 	
 	_.each(keymap, function(commandName, keybinding) {
-		keymap, editorProxy.addAction(commandName, keybinding);
+		editorProxy.addAction(commandName, keybinding);
 	});
 
 	return editorProxy;

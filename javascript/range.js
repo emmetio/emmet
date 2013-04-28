@@ -187,6 +187,10 @@ emmet.define('range', function(require, _) {
 		},
 		
 		toString: function() {
+			return this.valueOf();
+		},
+
+		valueOf: function() {
 			return '{' + this.start + ', ' + this.length() + '}';
 		}
 	};

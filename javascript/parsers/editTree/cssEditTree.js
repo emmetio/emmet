@@ -379,7 +379,7 @@ emmet.define('cssEditTree', function(require, _) {
 		 * Returns item string representation
 		 * @returns {String}
 		 */
-		toString: function() {
+		valueOf: function() {
 			return this.name() + this.styleSeparator + this.value() + this.end();
 		}
 	});

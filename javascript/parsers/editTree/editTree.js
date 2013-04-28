@@ -253,7 +253,7 @@ emmet.define('editTree', function(require, _, core) {
 		 * @param {Boolean} isAbsolute
 		 */
 		range: function(isAbsolute) {
-			return range(isAbsolute ? this.options.offset : 0, this.toString());
+			return range(isAbsolute ? this.options.offset : 0, this.valueOf());
 		},
 		
 		/**
@@ -273,6 +273,10 @@ emmet.define('editTree', function(require, _, core) {
 		 * @returns {String}
 		 */
 		toString: function() {
+			return this.valueOf();
+		},
+
+		valueOf: function() {
 			return this.source;
 		}
 	};
@@ -374,7 +378,7 @@ emmet.define('editTree', function(require, _, core) {
 		 * @returns {Range}
 		 */
 		range: function(isAbsolute) {
-			return range(this.namePosition(isAbsolute), this.toString());
+			return range(this.namePosition(isAbsolute), this.valueOf());
 		},
 		
 		/**
@@ -409,11 +413,11 @@ emmet.define('editTree', function(require, _, core) {
 		 * @returns {String}
 		 */
 		toString: function() {
-			return this.name() + this.value();
+			return this.valueOf();
 		},
 		
 		valueOf: function() {
-			return this.toString();
+			return this.name() + this.value();
 		}
 	};
 	

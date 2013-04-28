@@ -348,7 +348,7 @@ emmet.define('abbreviationParser', function(require, _) {
 		 * Returns string representation of current node
 		 * @return {String}
 		 */
-		toString: function() {
+		valueOf: function() {
 			var utils = require('utils');
 			
 			var start = this.start;
@@ -365,7 +365,7 @@ emmet.define('abbreviationParser', function(require, _) {
 			
 			
 			var innerContent = _.map(this.children, function(child) {
-				return child.toString();
+				return child.valueOf();
 			}).join('');
 			
 			content = require('abbreviationUtils').insertChildContent(content, innerContent, {
@@ -373,6 +373,10 @@ emmet.define('abbreviationParser', function(require, _) {
 			});
 			
 			return start + utils.padString(content, this.padding) + end;
+		},
+
+		toString: function() {
+			return this.valueOf();
 		},
 		
 		/**

@@ -85,7 +85,7 @@ emmet.define('wrapWithAbbreviation', function(require, _) {
 			if (parsedTree) {
 				var filtersList = filters.composeList(syntax, profile, data[1]);
 				filters.apply(parsedTree, filtersList, profile);
-				return utils.replaceVariables(parsedTree.toString());
+				return utils.replaceVariables(parsedTree.valueOf());
 			}
 			
 			return null;
