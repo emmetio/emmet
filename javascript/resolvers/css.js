@@ -115,6 +115,9 @@ emmet.define('cssResolver', function(require, _) {
 	prefs.define('sass.propertyEnd', '',
 			'Defines a symbol that should be placed at the end of CSS property  ' 
 			+ 'when expanding CSS abbreviations in SASS dialect.');
+
+	prefs.define('css.syntaxes', 'css, less, sass, scss, stylus, styl',
+			'List of syntaxes that should be treated as CSS dialects.');
 	
 	prefs.define('css.autoInsertVendorPrefixes', true,
 			'Automatically generate vendor-prefixed copies of expanded CSS ' 
@@ -360,6 +363,11 @@ emmet.define('cssResolver', function(require, _) {
 	
 	function getSyntaxPreference(name, syntax) {
 		if (syntax) {
+			// hacky alias for Stylus dialect
+			if (syntax == 'styl') {
+				syntax = 'stylus';
+			}
+
 			var val = prefs.get(syntax + '.' + name);
 			if (!_.isUndefined(val))
 				return val;
@@ -445,14 +453,13 @@ emmet.define('cssResolver', function(require, _) {
 //		obsolete: true
 //	});
 	
-	var cssSyntaxes = ['css', 'less', 'sass', 'scss', 'stylus'];
-	
 	/**
 	 * XXX register resolver
 	 * @param {TreeNode} node
 	 * @param {String} syntax
 	 */
 	require('resources').addResolver(function(node, syntax) {
+		var cssSyntaxes = prefs.getArray('css.syntaxes');
 		if (_.include(cssSyntaxes, syntax) && node.isElement()) {
 			return module.expandToSnippet(node.abbreviation, syntax);
 		}
@@ -471,6 +478,7 @@ emmet.define('cssResolver', function(require, _) {
 	 * @param {String} profile
 	 */
 	ea.addHandler(function(editor, syntax, profile) {
+		var cssSyntaxes = prefs.getArray('css.syntaxes');
 		if (!_.include(cssSyntaxes, syntax)) {
 			return false;
 		}
