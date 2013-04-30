@@ -531,6 +531,7 @@
 			"ff:f": "font-family:fantasy;",
 			"ff:m": "font-family:monospace;",
 			"ff:a": "font-family: Arial, \"Helvetica Neue\", Helvetica, sans-serif;",
+			"ff:t": "font-family: \"Times New Roman\", Times, Baskerville, Georgia, serif;",
 			"fef": "font-effect:|;",
 			"fef:n": "font-effect:none;",
 			"fef:eg": "font-effect:engrave;",
