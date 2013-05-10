@@ -9,6 +9,8 @@
  * @constructor
  */
 emmet.exec(function(require, _) {
+	var prefs = require('preferences');
+
 	/**
 	 * Toggle HTML comment on current selection or tag
 	 * @param {IEmmetEditor} editor
@@ -202,8 +204,10 @@ emmet.exec(function(require, _) {
 			}
 		}
 		
-		if (info.syntax == 'css')
+		var cssSyntaxes = prefs.getArray('css.syntaxes');
+		if (_.include(cssSyntaxes, info.syntax)) {
 			return toggleCSSComment(editor);
+		}
 		
 		return toggleHTMLComment(editor);
 	});

@@ -285,6 +285,9 @@
 			<filelist dir="${emmet_build_dir}">
 				<file name="emmet.js"/>
 			</filelist>
+			<filelist dir="${emmet_javascript}/loaders">
+				<file name="bootstrap.js"/>
+			</filelist>
 			<filelist dir="${emmet_javascript}/actions">
 				<file name="selectLine.js"/>
 			</filelist>
