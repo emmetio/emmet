@@ -1,4 +1,6 @@
-# Emmet — the essential toolkit for web-developers
+# Emmet — the essential toolkit for web-developers 
+
+[![Get Support](http://codersclan.net/graphics/getSupport_github4.png)](http://codersclan.net/support/step1.php?repo_id=4)
 
 Emmet (formerly *Zen Coding*) is a web-developer’s toolkit that can greatly improve your HTML & CSS workflow.
 
