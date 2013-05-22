@@ -702,6 +702,7 @@
 			"select": "<select name=\"\" id=\"\">",
 			"option": "<option value=\"\">",
 			"textarea": "<textarea name=\"\" id=\"\" cols=\"${1:30}\" rows=\"${2:10}\">",
+			"marquee": "<marquee behavior=\"\" direction=\"\">",
 			"menu:context": "menu[type=context]>",
 			"menu:c": "menu:context",
 			"menu:toolbar": "menu[type=toolbar]>",
