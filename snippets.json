@@ -689,7 +689,7 @@
 			"isindex": "<isindex/>",
 			"input:reset": "input:button[type=reset]",
 			"select": "<select name=\"\" id=\"\">",
-			"select:d": "<select name=\"\" id=\"\" disabled>",
+			"select:d": "select:disabled",
 			"option": "<option value=\"\">",
 			"textarea": "<textarea name=\"\" id=\"\" cols=\"${1:30}\" rows=\"${2:10}\">",
 			"menu:context": "menu[type=context]>",
