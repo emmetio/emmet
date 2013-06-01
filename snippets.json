@@ -575,6 +575,7 @@
 			"fst:ee": "font-stretch:extra-expanded;",
 			"fst:ue": "font-stretch:ultra-expanded;",
 			"op": "opacity:|;",
+			"op+": "opacity: $1;\nfilter: alpha(opacity=$2);",
 			"op:ie": "filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);",
 			"op:ms": "-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';",
 			"rsz": "resize:|;",
