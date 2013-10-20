@@ -23,9 +23,11 @@
     "url": "https://github.com/emmetio/emmet/issues"
   },
   "devDependencies": {
-    "grunt-cli": "~0.1.9"
+    "grunt": "~0.4.1",
+    "mocha": "~1.13.0"
   },
   "dependencies": {
-    "lodash": "~2.1.0"
+    "lodash": "~2.1.0",
+    "requirejs": "~2.1.9"
   }
 }
