@@ -1,5 +1,6 @@
 var assert = require('assert');
 var editor = require('../stubs/editor');
+var parser = require('../../lib/parser/abbreviation');
 var action = require('../../lib/action/wrapWithAbbreviation');
 var utils  = require('../../lib/utils/common');
 
@@ -7,7 +8,11 @@ describe('Wrap With Abbreviation action', function() {
 	var run = function(abbr, content) {
 		if (abbr && content) {
 			content = utils.escapeText(content);
-			return action.wrap(abbr, content, 'html', 'plain');
+			return parser.expand(abbr, {
+				pastedContent: content, 
+				syntax: 'html', 
+				profile: 'plain'
+			});
 		}
 
 		editor.setPromptOutput(abbr);
