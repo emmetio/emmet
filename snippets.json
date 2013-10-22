@@ -780,9 +780,9 @@
 
 			"html:4t":  "!!!4t+doc4[lang=${lang}]",
 			"html:4s":  "!!!4s+doc4[lang=${lang}]",
-			"html:xt":  "!!!xt+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
-			"html:xs":  "!!!xs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
-			"html:xxs": "!!!xxs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang}]",
+			"html:xt":  "!!!xt+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang} lang=${lang}]",
+			"html:xs":  "!!!xs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang} lang=${lang}]",
+			"html:xxs": "!!!xxs+doc4[xmlns=http://www.w3.org/1999/xhtml xml:lang=${lang} lang=${lang}]",
 			"html:5":   "!!!+doc[lang=${lang}]",
 			
 			"ol+": "ol>li",
