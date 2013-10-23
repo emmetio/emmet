@@ -672,7 +672,7 @@
 			"style": "<style type=\"text/css\">",
 			"script": "<script type=\"text/javascript\">",
 			"script:src": "<script type=\"text/javascript\" src=\"\">",
-			"img": "<img src=\"\" alt=\"${1:Картинка}\" />",
+			"img": "<img src=\"\" alt=\"\" />",
 			"iframe": "<iframe src=\"\" frameborder=\"0\">",
 			"embed": "<embed src=\"\" type=\"\" />",
 			"object": "<object data=\"\" type=\"\">",
