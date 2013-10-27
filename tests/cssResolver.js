@@ -13,6 +13,7 @@ describe('CSS Resolver', function() {
 	});
 
 	it('should extract values', function() {
+		assert.equal(resolver.findValuesInAbbreviation('trs-all'), 'all', 'Extracted value from "trs-all"');
 		assert.equal(resolver.findValuesInAbbreviation('padding10'), '10', 'Extracted value from "padding10"');
 		assert.equal(resolver.findValuesInAbbreviation('padding10-10'), '10-10', 'Extracted value from "padding10-10"');
 		assert.equal(resolver.findValuesInAbbreviation('padding-10-10'), '-10-10', 'Extracted value from "padding-10-10"');
@@ -68,7 +69,7 @@ describe('CSS Resolver', function() {
 		assert.equal(resolver.expandToSnippet('-transform!'), '-webkit-transform: ${1} !important;\n-moz-transform: ${1} !important;\n-ms-transform: ${1} !important;\n-o-transform: ${1} !important;\ntransform: ${1} !important;', 'Expanded "-transform" with !important');
 	});
 
-	it('should work with Stulys dialect', function() {
+	it('should work with Stylus dialect', function() {
 		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding 0');
 		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position absolute !important');
 		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding 5px !important');
@@ -96,6 +97,9 @@ describe('CSS Resolver', function() {
 		
 		run('margin: 0 !${0};');
 		assert.equal(editor.getContent(), 'margin: 0 !important;', 'Added !important modifier');
+
+		run('trs-all0.25s${0}');
+		assert.equal(editor.getContent(), '-webkit-transition: all 0.25s;\n-moz-transition: all 0.25s;\n-ms-transition: all 0.25s;\n-o-transition: all 0.25s;\ntransition: all 0.25s;');
 
 		run('ul {\n\t// comment?\n\tp10${0}\n}');
 		assert.equal(editor.getContent(), 'ul {\n\t// comment?\n\tpadding: 10px;\n}', 'Expanded abbreviation inside rule with inline SCSS comment');
