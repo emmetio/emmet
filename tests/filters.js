@@ -74,6 +74,17 @@ describe('Filters', function() {
 			
 			prefs._stopTest();
 		});
+
+		it('should pass regression tests', function () {
+			expand('.name1__name2__name3|bem');
+			assert.equal(editor.getContent(), '<div class="name1__name2__name3"></div>');
+
+			expand('.name1__name2__name3_name4_name5|bem');
+			assert.equal(editor.getContent(), '<div class="name1__name2__name3 name1__name2__name3_name4_name5"></div>');
+
+			expand('.name1__name2__name3__name4_name5|bem');
+			assert.equal(editor.getContent(), '<div class="name1__name2__name3__name4 name1__name2__name3__name4_name5"></div>');
+		});
 	});
 	
 	describe('Comment (c)', function() {

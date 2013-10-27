@@ -76,9 +76,6 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			full: {
-				options: {
-
-				},
 				src: ['./dist/emmet.js'],
 				dest: './dist/emmet-min.js'
 			}
