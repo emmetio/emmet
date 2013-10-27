@@ -2,6 +2,7 @@
  * Editor stub for unit testing. Implements {@link IEmmetEditor} interface.
  */
 var _ = require('lodash');
+var path = require('path');
 var utils = require('../../lib/utils/common');
 var tabStops = require('../../lib/assets/tabStops');
 
@@ -14,6 +15,7 @@ var selection = {
 var syntax = 'html';
 var profile = null;
 var promptValue = '';
+var filePath = path.join(__dirname, 'index.html');
 
 module.exports = {
 	/** @memberOf editorStub */
@@ -182,6 +184,10 @@ module.exports = {
 	 * @since 0.65 
 	 */
 	getFilePath: function() {
-		return '';
+		return filePath;
+	},
+
+	setFilePath: function(value) {
+		return filePath = value;
 	}
 };

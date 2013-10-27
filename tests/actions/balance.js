@@ -2,7 +2,7 @@ var assert = require('assert');
 var range = require('../../lib/assets/range');
 var utils = require('../../lib/utils/common');
 var editor = require('../stubs/editor');
-var action = require('../../lib/action/matchPair');
+var action = require('../../lib/action/balance');
 
 function createMatchString(text, rng, caret) {
 	rng = range(rng);
