@@ -32,8 +32,8 @@ describe('Action registry', function() {
 	});
 
 	it('should run "Expand Abbreviation" action', function() {
-		assert(run('expand_abbreviation', 'div${0}'));
-		assert.equal(editor.getContent(), '<div></div>');
+		assert(run('expand_abbreviation', 'str*3${0}'));
+		assert.equal(editor.getContent(), '<strong></strong>\n<strong></strong>\n<strong></strong>');
 
 		assert(!run('expand_abbreviation', 'div ${0}'));
 		assert.equal(editor.getContent(), 'div ');

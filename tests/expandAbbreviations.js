@@ -260,5 +260,6 @@ describe('Abbreviation Expander engine', function() {
 		assert.equal(expand('nav*5'), '<ul class="nav"><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li><li><a href=""></a></li></ul>');
 		assert.equal(expand('div>nav*5>span'), '<div><ul class="nav"><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li><li><a href=""><span></span></a></li></ul></div>');
 		assert.equal(expand('nav'), '<ul class="nav"><li><a href=""></a></li></ul>');
+		assert.equal(expand('str*3'), '<strong></strong><strong></strong><strong></strong>');
 	});
 });
