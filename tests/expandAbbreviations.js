@@ -254,6 +254,7 @@ describe('Abbreviation Expander engine', function() {
 		assert.equal(expand('span{Hello world}'), '<span>Hello world</span>');
 		assert.equal(expand('span>{Hello}+{ world}'), '<span>Hello world</span>');
 		assert.equal(expand('span>{Click }+(a[href=/url/]{here})+{ for more info}'), '<span>Click <a href="/url/">here</a> for more info</span>');
+		assert.equal(expand('str{Text}'), '<strong>Text</strong>');
 	});
 	
 	it('Repeating elements in aliases', function() {
