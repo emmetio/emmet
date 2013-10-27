@@ -1,4 +1,3 @@
-
 (function() {
 	var actions = emmet.require('actions');
 	
@@ -9,6 +8,19 @@
 	}
 	
 	module('Filters');
+	test('Yandex BEM regression tests (bem)', function () {
+		expand('.name1__name2__name3|bem');
+		equal(editorStub.getContent(), '<div class="name1__name2__name3"></div>');
+
+		expand('.name1__name2__name3_name4_name5|bem');
+		equal(editorStub.getContent(),
+			'<div class="name1__name2__name3 name1__name2__name3_name4_name5"></div>');
+
+		expand('.name1__name2__name3__name4_name5|bem');
+		equal(editorStub.getContent(),
+			'<div class="name1__name2__name3__name4 name1__name2__name3__name4_name5"></div>');
+	});
+
 	test('Yandex BEM2 (bem)', function() {
 		expand('.b_m1._m2|bem');
 		equal(editorStub.getContent(), '<div class="b b_m1 b_m2"></div>');

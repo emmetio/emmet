@@ -105,16 +105,19 @@ emmet.exec(function(require, _) {
 		// * block__element
 		// * block__element_modifier
 		// * block__element_modifier1_modifier2
+		// * block__element1__element2_modifier1_modifier2
 		// * block_modifier
 		var block = '', element = '', modifier = '';
 		var separators = getSeparators();
 		if (~name.indexOf(separators.element)) {
-			var blockElem = name.split(separators.element);
-			var elemModifiers = blockElem[1].split(separators.modifier);
-			
-			block = blockElem[0];
-			element = elemModifiers.shift();
-			modifier = elemModifiers.join(separators.modifier);
+			var elements = name.split(separators.element);
+			block = elements.shift();
+
+			var modifiers = elements.pop().split(separators.modifier);
+			elements.push(modifiers.shift());
+
+			element = elements.join(separators.element);
+			modifier = modifiers.join(separators.modifier);
 		} else if (~name.indexOf(separators.modifier)) {
 			var blockModifiers = name.split(separators.modifier);
 			
