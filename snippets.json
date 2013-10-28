@@ -475,7 +475,7 @@
 			"trf:scx": "transform: scaleX(${1:x});",
 			"trf:scy": "transform: scaleY(${1:y});",
 			"trf:scz": "transform: scaleZ(${1:z});",
-			"trf:sc3": "transform: scale3d(${1:x}, ${2:y}, ${3:y});",
+			"trf:sc3": "transform: scale3d(${1:x}, ${2:y}, ${3:z});",
 			"trf:r": "transform: rotate(${1:angle});",
 			"trf:rx": "transform: rotateX(${1:angle});",
 			"trf:ry": "transform: rotateY(${1:angle});",
