@@ -104,6 +104,13 @@ describe('Abbreviation Expander engine', function() {
 		assert.equal(expand('img[image.png]'), '<img src="image.png" alt="" />');
 	});
 
+	it('Default attributes', function() {
+		assert.equal(expand('b[a.]'), '<b a="a"></b>');
+		assert.equal(expand('b[contenteditable]'), '<b contenteditable="contenteditable"></b>', 'Handle default boolean attributes from preferences');
+		assert.equal(expand('b[contenteditable]', {profile: 'html'}), '<b contenteditable>|</b>', 'Output compact boolean notation');
+		assert.equal(expand('div.editor[a. title=test]', {profile: 'html'}), '<div class="editor" a title="test">|</div>');
+	});
+
 	it('Expandos', function() {
 		assert.equal(expand('dl+'), '<dl><dt></dt><dd></dd></dl>');
 		assert.equal(expand('div+div>dl+'), '<div></div><div><dl><dt></dt><dd></dd></dl></div>');
