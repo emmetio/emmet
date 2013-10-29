@@ -7,7 +7,7 @@
 		},
 		{
 			"follow_symlinks": true,
-			"path": "tests"
+			"path": "test"
 		}
 	],
 

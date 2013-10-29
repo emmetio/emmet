@@ -4,7 +4,7 @@
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./lib/emmet.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha ./tests/**/*.js"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
