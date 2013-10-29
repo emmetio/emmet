@@ -95,6 +95,14 @@ describe('Abbreviation Expander engine', function() {
 		assert.equal(expand('filelist[id=javascript.files]'), '<filelist id="javascript.files"></filelist>');
 	});
 
+	it.only('Default attributes', function() {
+		assert.equal(expand('a["text.html"]'), '<a href="text.html"></a>');
+		assert.equal(expand('a[\'text.html\']'), '<a href="text.html"></a>');
+		assert.equal(expand('a[text.html]'), '<a href="text.html"></a>');
+		assert.equal(expand('a[http://google.com title=Google]'), '<a href="http://google.com" title="Google"></a>');
+		assert.equal(expand('a[title=Google http://google.com]'), '<a href="http://google.com" title="Google"></a>');
+	});
+
 	it('Expandos', function() {
 		assert.equal(expand('dl+'), '<dl><dt></dt><dd></dd></dl>');
 		assert.equal(expand('div+div>dl+'), '<div></div><div><dl><dt></dt><dd></dd></dl></div>');
