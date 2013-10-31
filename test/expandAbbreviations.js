@@ -14,7 +14,8 @@ describe('Abbreviation Expander engine', function() {
 			'abbreviations': {
 				'jq': '<scr' + 'ipt type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></scr' + 'ipt>',
 				'demo': '<div id="demo"></div>',
-				'nav': 'ul.nav>li*>a'
+				'nav': 'ul.nav>li*>a',
+				'al': '<a !href="http://|">'
 			},
 			'snippets': {
 				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
@@ -102,9 +103,17 @@ describe('Abbreviation Expander engine', function() {
 		assert.equal(expand('a[http://google.com title=Google]'), '<a href="http://google.com" title="Google"></a>');
 		assert.equal(expand('a[title=Google http://google.com]'), '<a href="http://google.com" title="Google"></a>');
 		assert.equal(expand('img[image.png]'), '<img src="image.png" alt="" />');
+		assert.equal(expand('link[style.css]'), '<link rel="stylesheet" href="style.css" />');
+
+		// tesing implied atributes
+		assert.equal(expand('script'), '<script></script>');
+		assert.equal(expand('script[file.js]'), '<script src="file.js"></script>');
+
+		assert.equal(expand('al'), '<a></a>');
+		assert.equal(expand('al[file.html]'), '<a href="http://file.html"></a>');
 	});
 
-	it('Default attributes', function() {
+	it('Boolean attributes', function() {
 		assert.equal(expand('b[a.]'), '<b a="a"></b>');
 		assert.equal(expand('b[contenteditable]'), '<b contenteditable="contenteditable"></b>', 'Handle default boolean attributes from preferences');
 		assert.equal(expand('b[contenteditable]', {profile: 'html'}), '<b contenteditable>|</b>', 'Output compact boolean notation');

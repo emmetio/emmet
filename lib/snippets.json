@@ -663,7 +663,7 @@
 			"meta:vp": "<meta name=\"viewport\" content=\"width=${1:device-width}, user-scalable=${2:no}, initial-scale=${3:1.0}, maximum-scale=${4:1.0}, minimum-scale=${5:1.0}\" />",
 			"meta:compat": "<meta http-equiv=\"X-UA-Compatible\" content=\"${1:IE=7}\" />",
 			"style": "<style>",
-			"script": "<script>",
+			"script": "<script !src=\"\">",
 			"script:src": "<script src=\"\">",
 			"img": "<img src=\"\" alt=\"\" />",
 			"iframe": "<iframe src=\"\" frameborder=\"0\">",
