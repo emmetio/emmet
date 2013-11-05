@@ -55,12 +55,17 @@ describe('CSS Resolver', function() {
 		assert.equal(resolver.expandToSnippet('-bxsh'), '-webkit-box-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};\n-moz-box-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};\nbox-shadow: ${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:color};', 'Expanded property with multiple tabstops');
 		assert.equal(resolver.expandToSnippet('bd1#0solid'), 'border: 1px #000 solid;', 'Expanded "bd1#0solid"');
 		assert.equal(resolver.expandToSnippet('bd1-s-blue'), 'border: 1px solid blue;', 'Expanded "bd1-s-blue"');
+		assert.equal(resolver.expandToSnippet('bdt2-s#ED'), 'border-top: 2px solid #EDEDED;', 'Expanded "bdt2-s#ED" (color uppercase)');
+		assert.equal(resolver.expandToSnippet('p10%'), 'padding: 10%;', 'Expanded "p10%"');
+	});
+
+	it('should correctly expand colors', function() {
 		assert.equal(resolver.expandToSnippet('c#3d3d3d'), 'color: #3d3d3d;', 'Expanded "c#3d3d3d"');
 		assert.equal(resolver.expandToSnippet('c#d3d3d3'), 'color: #d3d3d3;', 'Expanded "c#d3d3d3"');
 		assert.equal(resolver.expandToSnippet('c#'), 'color: #000;', 'Expanded "c#"');
 		assert.equal(resolver.expandToSnippet('c#t'), 'color: transparent;', 'Expanded "c#t"');
-		assert.equal(resolver.expandToSnippet('bdt2-s#ED'), 'border-top: 2px solid #EDEDED;', 'Expanded "bdt2-s#ED" (color uppercase)');
-		assert.equal(resolver.expandToSnippet('p10%'), 'padding: 10%;', 'Expanded "p10%"');
+		assert.equal(resolver.expandToSnippet('c#f.5'), 'color: rgba(255, 255, 255, 0.5);');
+		assert.equal(resolver.expandToSnippet('c#fc0.333'), 'color: rgba(255, 204, 0, 0.333);');
 	});
 
 	it('should augument values with !important', function() {
