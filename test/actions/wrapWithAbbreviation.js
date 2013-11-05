@@ -56,4 +56,11 @@ describe('Wrap With Abbreviation action', function() {
 		// wrap with snippet
 		assert.equal(run('cc:ie', 'hello world'), '<!--[if IE]>\n\thello world${0}\n<![endif]-->');
 	});
+
+	it('should properly wrap URL-like content', function() {
+		assert.equal(run('a', 'http://emmet.io'), '<a href="http://emmet.io">http://emmet.io</a>');
+		assert.equal(run('a', 'www.emmet.io'), '<a href="http://www.emmet.io">www.emmet.io</a>');
+		assert.equal(run('a', 'emmet.io'), '<a href="">emmet.io</a>');
+		assert.equal(run('a', 'info@emmet.io'), '<a href="mailto:info@emmet.io">info@emmet.io</a>');
+	});
 });
