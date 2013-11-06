@@ -15,7 +15,8 @@ describe('Abbreviation Expander engine', function() {
 				'jq': '<scr' + 'ipt type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></scr' + 'ipt>',
 				'demo': '<div id="demo"></div>',
 				'nav': 'ul.nav>li*>a',
-				'al': '<a !href="http://|">'
+				'al': '<a !href="http://|">',
+				'f1|f2': '<demo>'
 			},
 			'snippets': {
 				'dol': '\\$db->connect()\n\t\\$\\$\\$more dollaz$',
@@ -142,6 +143,8 @@ describe('Abbreviation Expander engine', function() {
 	it('User-defined settings', function() {
 		assert.equal(expand('jq'), '<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>');
 		assert.equal(expand('demo'), '<div id="demo"></div>');
+		assert.equal(expand('f1'), '<demo></demo>');
+		assert.equal(expand('f2'), '<demo></demo>');
 	});
 
 	it('Short tags', function() {
