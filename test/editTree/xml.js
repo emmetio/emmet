@@ -66,4 +66,25 @@ describe('XML Edit Tree', function() {
 		assert.equal(editTree.extractTag(source, 17), '{18, 3}', 'Extracted <c> tag');
 		assert.equal(editTree.extractTag('hello <b>world</b>', 12, true), '{6, 3}', 'Extracted <b> tag (backward)');
 	});
+
+	it('checking class modifications', function() {
+		var elem = editTree.parse('<div class="c1 c2 other-c2 c3">');
+
+		elem.removeClass('c2');
+		assert.equal(elem.source, '<div class="c1 other-c2 c3">');
+
+		elem.addClass('c4');
+		assert.equal(elem.source, '<div class="c1 other-c2 c3 c4">');
+
+		elem.addClass('c1');
+		assert.equal(elem.source, '<div class="c1 other-c2 c3 c4">');
+
+		elem = editTree.parse('<div>');
+		
+		elem.addClass('c1');
+		assert.equal(elem.source, '<div class="c1">');
+
+		elem.removeClass('c1');
+		assert.equal(elem.source, '<div>');
+	});
 });
