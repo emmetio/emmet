@@ -124,6 +124,14 @@ describe('Filters', function() {
 		it('should work', function() {
 			expand('#header>ul.nav>li[title=test$]*2|haml');
 			assert.equal(editor.getContent(), '#header \n\t%ul.nav \n\t\t%li{:title => "test1"} \n\t\t%li{:title => "test2"} ', 'Applied `haml` filter');
+
+			// check data attrs
+			expand('.c[data-n1=v1 title=test data-n2=v2]|haml');
+			assert.equal(editor.getContent(), '%div.c{:data => {:n1 => "v1", :n2 => "v2"}, :title => "test"} ');
+
+			// check boolean attrs
+			expand('.c[disabled.]|haml');
+			assert.equal(editor.getContent(), '%div.c{:disabled => true} ');
 		});
 	});
 	
