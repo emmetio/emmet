@@ -35,6 +35,7 @@ describe('CSS Resolver', function() {
 		assert.equal(resolver.findValuesInAbbreviation('margin-a-i'), 'a-i', 'Extracted value from "margin-a-i"');
 		assert.equal(resolver.findValuesInAbbreviation('margin-a-foo'), '', 'No value extracted from "margin-a-foo"');
 		assert.equal(resolver.findValuesInAbbreviation('c#333'), '#333', 'Extracted #333');
+		assert.equal(resolver.findValuesInAbbreviation('mr$size'), '$size', 'Extracted $size');
 	});
 
 	it('should parse values', function() {
@@ -51,6 +52,7 @@ describe('CSS Resolver', function() {
 		assert.deepEqual(resolver.parseValues('-.5'), ['-.5'], 'Parsed value "-.5"');
 		assert.deepEqual(resolver.parseValues('1.5em-.5'), ['1.5em', '-.5'], 'Parsed value "1.5em-.5"');
 		assert.deepEqual(resolver.parseValues('i-5-a'), ['inherit', '5', 'auto'], 'Parsed value "inherit-5-auto"');
+		assert.deepEqual(resolver.parseValues('$a$b'), ['\\$a', '\\$b']);
 	});
 
 	it('should normalize values', function() {
@@ -122,6 +124,9 @@ describe('CSS Resolver', function() {
 		
 		run('p1.2${0}');
 		assert.equal(editor.getContent(), 'padding: 1.2em;', 'Expanded "p1.2"');
+
+		run('m$s1$s2');
+		assert.equal(editor.getContent(), 'margin: $s1 $s2;', 'Expanded "m$s1$s2"');
 		
 		run('margin: 0 !${0};');
 		assert.equal(editor.getContent(), 'margin: 0 !important;', 'Added !important modifier');
