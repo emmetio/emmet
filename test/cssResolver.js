@@ -1,9 +1,20 @@
 var assert = require('assert');
 var editor = require('./stubs/editor');
 var action = require('../lib/action/expandAbbreviation');
+var prefs = require('../lib/assets/preferences');
 var resolver = require('../lib/resolver/css');
 
 describe('CSS Resolver', function() {
+	var _ciuEnabled = null;
+	function restoreCIU() {
+		prefs.set('caniuse.enabled', _ciuEnabled);
+	}
+
+	function disableCIU() {
+		_ciuEnabled = prefs.get('caniuse.enabled');
+		prefs.set('caniuse.enabled', false);
+	}
+
 	it('should extract prefixes', function () {
 		assert.deepEqual(resolver.extractPrefixes('-transform'), {property: 'transform', prefixes: 'all'}, 'All prefixes for "transform" property');
 		assert.deepEqual(resolver.extractPrefixes('-w-transform'), {property: 'transform', prefixes: ['w']}, 'Webkit prefix for "transform" property');
@@ -43,6 +54,8 @@ describe('CSS Resolver', function() {
 	});
 
 	it('should normalize values', function() {
+		disableCIU();
+		
 		assert.equal(resolver.expandToSnippet('p0'), 'padding: 0;', 'Expanded "p0" (no unit for zero)');
 		assert.equal(resolver.expandToSnippet('z1'), 'z-index: 1;', 'Expanded "z1" (unitless value)');
 		assert.equal(resolver.expandToSnippet('p5'), 'padding: 5px;', 'Expanded "p5"');
@@ -57,6 +70,8 @@ describe('CSS Resolver', function() {
 		assert.equal(resolver.expandToSnippet('bd1-s-blue'), 'border: 1px solid blue;', 'Expanded "bd1-s-blue"');
 		assert.equal(resolver.expandToSnippet('bdt2-s#ED'), 'border-top: 2px solid #EDEDED;', 'Expanded "bdt2-s#ED" (color uppercase)');
 		assert.equal(resolver.expandToSnippet('p10%'), 'padding: 10%;', 'Expanded "p10%"');
+
+		restoreCIU();
 	});
 
 	it('should correctly expand colors', function() {
@@ -69,16 +84,24 @@ describe('CSS Resolver', function() {
 	});
 
 	it('should augument values with !important', function() {
+		disableCIU();
+		
 		assert.equal(resolver.expandToSnippet('pos-a!'), 'position: absolute !important;', 'Expanded "pos-a" with !important');
 		assert.equal(resolver.expandToSnippet('padding5!'), 'padding: 5px !important;', 'Expanded "padding5" with !important');
 		assert.equal(resolver.expandToSnippet('-transform!'), '-webkit-transform: ${1} !important;\n-moz-transform: ${1} !important;\n-ms-transform: ${1} !important;\n-o-transform: ${1} !important;\ntransform: ${1} !important;', 'Expanded "-transform" with !important');
+
+		restoreCIU();
 	});
 
 	it('should work with Stylus dialect', function() {
+		disableCIU();
+
 		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding 0');
 		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position absolute !important');
 		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding 5px !important');
 		assert.equal(resolver.expandToSnippet('-transform!', 'stylus'), '-webkit-transform ${1} !important\n-moz-transform ${1} !important\n-ms-transform ${1} !important\n-o-transform ${1} !important\ntransform ${1} !important');
+
+		restoreCIU();
 	});
 
 	it('should be available in Expand Abbreviation action', function() {
@@ -103,8 +126,12 @@ describe('CSS Resolver', function() {
 		run('margin: 0 !${0};');
 		assert.equal(editor.getContent(), 'margin: 0 !important;', 'Added !important modifier');
 
+		// NB: CSS resolver uses Can I Use database here
 		run('trs-all0.25s${0}');
-		assert.equal(editor.getContent(), '-webkit-transition: all 0.25s;\n-moz-transition: all 0.25s;\n-ms-transition: all 0.25s;\n-o-transition: all 0.25s;\ntransition: all 0.25s;');
+		assert.equal(editor.getContent(), '-webkit-transition: all 0.25s;\n-o-transition: all 0.25s;\ntransition: all 0.25s;');
+
+		run('bdrs10${0}');
+		assert.equal(editor.getContent(), 'border-radius: 10px;');
 
 		run('ul {\n\t// comment?\n\tp10${0}\n}');
 		assert.equal(editor.getContent(), 'ul {\n\t// comment?\n\tpadding: 10px;\n}', 'Expanded abbreviation inside rule with inline SCSS comment');
