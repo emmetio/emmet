@@ -4,17 +4,24 @@ var cssGradient = require('../lib/resolver/cssGradient');
 var prefs = require('../lib/assets/preferences');
 var expandAbbreviation = require('../lib/action/expandAbbreviation');
 var reflectValue = require('../lib/action/reflectCSSValue');
+var gradient = require('../lib/resolver/gradient/linear');
 
 describe('CSS Gradient', function() {
-	it('should parse linear gradient', function() {
-		var gradient = cssGradient.parse('linear-gradient(top   left, white , #a6f2c0 30%, rgba(180, 200, 210, .9) .8, black 10em)');
-	
-		assert.equal(gradient.type, 'linear', 'Gradient is linear');
-		assert.equal(gradient.direction, 'top left', 'Direction is "top left"');
-		assert.equal(gradient.colorStops.length, 4, '4 color stops');
+	it.only('should parse linear gradient', function() {
+		var g = gradient.parse('linear-gradient(top   left, white , #a6f2c0 30%, rgba(180, 200, 210, .9) .8, black 10em)');
+		assert.equal(g.type, 'linear-gradient');
+		assert.equal(g.direction, 135);
+		assert.equal(g.colorStops.length, 4);
+		assert.equal(g.stringify(), 'linear-gradient(to bottom right, white, #a6f2c0 30%, rgba(180, 200, 210, .9) .8, black 10em)');
+		assert.equal(g.stringify({prefix: 'moz'}), '-moz-linear-gradient(top left, white, #a6f2c0 30%, rgba(180, 200, 210, .9) .8, black 10em)');
+
+		// test old Webkit syntax
+		g = gradient.parse('lg(red, black)');
+		assert.equal(g.stringifyOldWebkit(), '-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black))');
 		
-		gradient = cssGradient.parse('-webkit-linear-gradient(red, black)');
-		assert.ok(gradient, 'Parsed vendor-prefixed gradient');
+		g = gradient.parse('-webkit-linear-gradient(red, black)');
+		assert.equal(g.direction, 0);
+		assert.equal(g.colorStops.length, 2);
 	});
 
 	it('should expand abbreviation as "Expand Abbreviation" handler', function() {
@@ -60,4 +67,15 @@ describe('CSS Gradient', function() {
 		assert.equal(editor.getContent(), '.r{a:test;a:linear-gradient(red, green);a:-moz-linear-gradient(red, green);p:1}');
 		editor.setSyntax('html');
 	});
+
+	// it.only('should parse multiple gradients', function() {
+	// 	editor.setSyntax('css');
+
+	// 	console.log(cssGradient.gradientsFromCSSProperty('a{b: lg(red, black), lg(yellow, white)}', 10));
+
+	// 	// run('.r{background:lg(red, black)$0}');
+	// 	// assert.equal(editor.getContent(), '.r{background:-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black));background:-webkit-linear-gradient(red, black);background:-moz-linear-gradient(red, black);background:-o-linear-gradient(red, black);background:linear-gradient(red, black);}');
+		
+	// 	editor.setSyntax('html');
+	// });
 });
