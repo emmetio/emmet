@@ -59,6 +59,68 @@ describe('Balance action', function() {
 		action.balanceInwardAction(editor);
 		compareRange([12, 17]);
 	});
+
+	it('should match CSS properties outward', function() {
+		editor.setSyntax('css');
+		editor.replaceContent('s1{b:c;} s2{\n\ta:b;\n\tc:d$0\n}');
+
+		// select value
+		action.balanceOutwardAction(editor);
+		compareRange([22, 23]);
+
+		// full property
+		action.balanceOutwardAction(editor);
+		compareRange([20, 23]);
+
+		// actual content
+		action.balanceOutwardAction(editor);
+		compareRange([14, 23]);
+
+		// braces content
+		action.balanceOutwardAction(editor);
+		compareRange([12, 24]);
+
+		// full selector
+		action.balanceOutwardAction(editor);
+		compareRange([9, 25]);
+
+		// no selection change here
+		action.balanceOutwardAction(editor);
+		compareRange([9, 25]);
+
+		editor.setSyntax('html');
+	});
+
+	it('should match CSS properties inward', function() {
+		editor.setSyntax('css');
+		editor.replaceContent('s1{b:c;} s${0}2{\n\ta:b;\n\tc:d\n}');
+
+		// full selector
+		action.balanceInwardAction(editor);
+		compareRange([9, 25]);
+
+		// braces content
+		action.balanceInwardAction(editor);
+		compareRange([12, 24]);
+
+		// actual content
+		action.balanceInwardAction(editor);
+		compareRange([14, 23]);
+
+		// full property
+		action.balanceInwardAction(editor);
+		compareRange([14, 18]);
+
+		// select value
+		action.balanceInwardAction(editor);
+		compareRange([16, 17]);
+
+		// no selection change here
+		action.balanceInwardAction(editor);
+		compareRange([16, 17]);
+
+		editor.setSyntax('html');
+	});
 });
 
 describe('Go To Matching Pair action', function() {
