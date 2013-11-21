@@ -94,4 +94,31 @@ describe('CSS Edit Tree', function() {
 		var rule = editTree.parse('a{b\nc:d;}');
 		assert.equal(rule.get(0).name(), 'c', 'Correctly parsed invalid CSS rule');
 	});
+
+	it('checking braces matcher', function() {
+		var content = ' a{ b{} c{ d{} e{ /* } */  } } }';
+		var match = function(pos) {
+			var r = editTree.matchEnclosingRule(content, pos);
+			return r && r.toArray();
+		};
+
+		assert.deepEqual(match(20), [15, 28]);
+		assert.deepEqual(match(13), [11, 14]);
+		assert.deepEqual(match(14), [8, 30]);
+		assert.deepEqual(match(30), [1, 32]);
+		assert.equal(match(0), void 0);
+	});
+
+	it('checking selector extractor', function() {
+		var content = 'a { b {} c,\n/* d, } */\ne {} }';
+		var extract = function(pos) {
+			var _content = editTree._stripComments(content);
+			var selRange = editTree._extractSelector(_content, pos);
+			return selRange ? selRange.substring(content) : '';
+		};
+
+		assert.equal(extract(25), 'c,\n/* d, } */\ne');
+		assert.equal(extract(2), 'a');
+		assert.equal(extract(5), 'b');
+	});
 });

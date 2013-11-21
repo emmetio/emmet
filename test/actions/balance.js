@@ -3,6 +3,7 @@ var range = require('../../lib/assets/range');
 var utils = require('../../lib/utils/common');
 var editor = require('../stubs/editor');
 var action = require('../../lib/action/balance');
+var cssEditTree = require('../../lib/editTree/css');
 
 function createMatchString(text, rng, caret) {
 	rng = range(rng);
@@ -119,6 +120,44 @@ describe('Balance action', function() {
 		action.balanceInwardAction(editor);
 		compareRange([16, 17]);
 
+		editor.setSyntax('html');
+	});
+
+	it('should match nested sections outward', function() {
+		editor.setSyntax('css');
+		editor.replaceContent('s1{a:b;} s2{ s3${0}{c:d} }');
+
+		action.balanceOutwardAction(editor);
+		compareRange([13, 20]);
+
+		action.balanceOutwardAction(editor);
+		compareRange([12, 21]);
+
+		action.balanceOutwardAction(editor);
+		compareRange([9, 22]);
+		
+		editor.setSyntax('html');
+	});
+
+	it.only('should match nested sections inward', function() {
+		editor.setSyntax('css');
+		editor.replaceContent('s1{a:b;} ${0}s2{ s3{c:d} }');
+
+		action.balanceInwardAction(editor);
+		compareRange([9, 22]);
+
+		action.balanceInwardAction(editor);
+		compareRange([12, 21]);
+
+		action.balanceInwardAction(editor);
+		compareRange([13, 20]);
+
+		action.balanceInwardAction(editor);
+		compareRange([16, 19]);
+
+		action.balanceInwardAction(editor);
+		compareRange([18, 19]);
+		
 		editor.setSyntax('html');
 	});
 });
