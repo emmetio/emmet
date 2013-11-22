@@ -120,5 +120,8 @@ describe('CSS Edit Tree', function() {
 		assert.equal(extract(25), 'c,\n/* d, } */\ne');
 		assert.equal(extract(2), 'a');
 		assert.equal(extract(5), 'b');
+
+		content = 'a { .sample, div[title~="test"] {} c,\ne {} }';
+		assert.equal(extract(32), '.sample, div[title~="test"]');
 	});
 });

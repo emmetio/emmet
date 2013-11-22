@@ -141,22 +141,22 @@ describe('Balance action', function() {
 
 	it.only('should match nested sections inward', function() {
 		editor.setSyntax('css');
-		editor.replaceContent('s1{a:b;} ${0}s2{ s3{c:d} }');
+		editor.replaceContent('s1 {a:b;} ${0}s2 { .ss, s3[a="b"]{c:d; s5{}} e:f; s4{g:h;} j:k; }');
 
 		action.balanceInwardAction(editor);
 		compareRange([9, 22]);
 
-		action.balanceInwardAction(editor);
-		compareRange([12, 21]);
+		// action.balanceInwardAction(editor);
+		// compareRange([12, 21]);
 
-		action.balanceInwardAction(editor);
-		compareRange([13, 20]);
+		// action.balanceInwardAction(editor);
+		// compareRange([13, 20]);
 
-		action.balanceInwardAction(editor);
-		compareRange([16, 19]);
+		// action.balanceInwardAction(editor);
+		// compareRange([16, 19]);
 
-		action.balanceInwardAction(editor);
-		compareRange([18, 19]);
+		// action.balanceInwardAction(editor);
+		// compareRange([18, 19]);
 		
 		editor.setSyntax('html');
 	});
