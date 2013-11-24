@@ -139,24 +139,30 @@ describe('Balance action', function() {
 		editor.setSyntax('html');
 	});
 
-	it.only('should match nested sections inward', function() {
+	it('should match nested sections inward', function() {
 		editor.setSyntax('css');
 		editor.replaceContent('s1 {a:b;} ${0}s2 { .ss, s3[a="b"]{c:d; s5{}} e:f; s4{g:h;} j:k; }');
 
 		action.balanceInwardAction(editor);
-		compareRange([9, 22]);
+		compareRange([10, 61]);
 
-		// action.balanceInwardAction(editor);
-		// compareRange([12, 21]);
+		action.balanceInwardAction(editor);
+		compareRange([14, 60]);
 
-		// action.balanceInwardAction(editor);
-		// compareRange([13, 20]);
+		action.balanceInwardAction(editor);
+		compareRange([15, 59]);
 
-		// action.balanceInwardAction(editor);
-		// compareRange([16, 19]);
+		action.balanceInwardAction(editor);
+		compareRange([15, 40]);
 
-		// action.balanceInwardAction(editor);
-		// compareRange([18, 19]);
+		action.balanceInwardAction(editor);
+		compareRange([30, 39]);
+
+		action.balanceInwardAction(editor);
+		compareRange([30, 34]);
+
+		action.balanceInwardAction(editor);
+		compareRange([32, 33]);
 		
 		editor.setSyntax('html');
 	});
