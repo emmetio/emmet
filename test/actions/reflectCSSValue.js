@@ -25,4 +25,17 @@ describe('Reflect CSS Value action', function() {
 		
 		editor.setSyntax('html');
 	});
+
+	it('should reflect properties in values', function() {
+		editor.setSyntax('css');
+		
+		run('a {-webkit-transition: -webkit-transform 0.2s ease-out;transition: transform 0.3s ease-in${0};}');
+		assert.equal(editor.getContent(), 'a {-webkit-transition: -webkit-transform 0.3s ease-in;transition: transform 0.3s ease-in;}');
+
+		run('a {-moz-transition: -moz-transform 0.2s ease-out${0};transition: transform 0.3s ease-in${0};}');
+		// Mozilla supports unprefixed transform property
+		assert.equal(editor.getContent(), 'a {-moz-transition: transform 0.2s ease-out;transition: transform 0.2s ease-out;}');
+		
+		editor.setSyntax('html');
+	});
 });
