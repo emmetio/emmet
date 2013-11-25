@@ -106,6 +106,10 @@ describe('CSS Resolver', function() {
 		restoreCIU();
 	});
 
+	it('should produce values with vendor-prefixed variants', function() {
+		assert.equal(resolver.expandToSnippet('df'), 'display: -webkit-flex;\ndisplay: -moz-flex;\ndisplay: -ms-flex;\ndisplay: -o-flex;\ndisplay: flex;');
+	});
+
 	it('should be available in Expand Abbreviation action', function() {
 		var run = function(content) {
 			if (content) {
