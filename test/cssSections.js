@@ -1,7 +1,11 @@
 var assert = require('assert');
 var sections = require('../lib/utils/cssSections');
+var fs = require('fs');
+var path = require('path');
 
 describe('CSS sections', function() {
+	var largeCSS = fs.readFileSync(path.join(__dirname, 'stubs/ayyo.css'), {encoding: 'utf8'});
+
 	it('should properly match braces', function() {
 		var content = ' a{ b{} c{ d{} e{ /* } */  } } }';
 		var match = function(pos) {
@@ -47,4 +51,12 @@ describe('CSS sections', function() {
 		assert.equal(node.children.length, 1);
 		assert.equal(node.children[0].name(), 'g');
 	});
+
+	// it.only('should work fast on finding CSS sections', function() {
+	// 	// sections.stripComments(largeCSS);
+	// 	var rules = sections.findAllRules(largeCSS);
+	// 	// var tree = sections.sectionTree(largeCSS);
+	// 	// console.log('Top-level rules:', tree.children.length);
+	// 	assert(true);
+	// });
 });
