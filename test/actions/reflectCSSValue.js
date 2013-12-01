@@ -1,6 +1,7 @@
 var assert = require('assert');
 var editor = require('../stubs/editor');
 var action = require('../../lib/action/reflectCSSValue');
+var prefs  = require('../../lib/assets/preferences');
 
 describe('Reflect CSS Value action', function() {
 	var run = function(content) {
@@ -11,6 +12,8 @@ describe('Reflect CSS Value action', function() {
 	};
 
 	it('should work', function() {
+		var oldVal = prefs.get('css.reflect.oldIEOpacity');
+		prefs.set('css.reflect.oldIEOpacity', true);
 		editor.setSyntax('css');
 		
 		run('a {p:1; -a-p:12${0}; -b-p:1; x:1;}');
@@ -23,6 +26,7 @@ describe('Reflect CSS Value action', function() {
 		run('a {border-top-left-radius: 10px${0}; -moz-border-radius-topleft: 5px;}');
 		assert.equal(editor.getContent(), 'a {border-top-left-radius: 10px; -moz-border-radius-topleft: 10px;}');
 		
+		prefs.set('css.reflect.oldIEOpacity', oldVal);
 		editor.setSyntax('html');
 	});
 

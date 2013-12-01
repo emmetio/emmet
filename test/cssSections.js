@@ -52,6 +52,15 @@ describe('CSS sections', function() {
 		assert.equal(node.children[0].name(), 'g');
 	});
 
+	it('should locate nested sections for given position', function() {
+		var tree = sections.sectionTree('a { b {} c,\n/* d, } */\ne {} } f { padding: 10px; g {} }');
+
+		assert.equal(tree.matchDeep(26).name(), 'c,\n/* d, } */\ne');
+		assert.equal(tree.matchDeep(34).name(), 'f');
+		assert.equal(tree.matchDeep(52).name(), 'g');
+		assert.equal(tree.matchDeep(2).name(), 'a');
+	});
+
 	// it.only('should work fast on finding CSS sections', function() {
 	// 	// sections.stripComments(largeCSS);
 	// 	var rules = sections.findAllRules(largeCSS);
