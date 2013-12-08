@@ -92,6 +92,7 @@ describe('CSS Edit Tree', function() {
 
 	it('checking CSS parser', function() {
 		var rule = editTree.parse('a{b\nc:d;}');
-		assert.equal(rule.get(0).name(), 'c', 'Correctly parsed invalid CSS rule');
+		assert.equal(rule.get(0).name(), 'b');
+		assert.equal(rule.get(1).name(), 'c');
 	});
 });

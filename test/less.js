@@ -23,14 +23,26 @@ describe('LESS', function() {
 		// });
 		// 
 		var showContents = function(node) {
-			console.log('\nContents of "%s":', node.name());
-			node.list().forEach(function(item) {
-				console.log(item.name(), ' -- ', item.value());
-			});
+			console.log('\n%s:', node.name());
+
+			var output = function(node, indent) {
+				indent = indent || '  ';
+				node.list().forEach(function(item) {
+					if (item.type == 'container') {
+						console.log('%s%s:', indent, item.name().trim());
+						output(item, indent + '    ');
+					} else {
+						console.log(indent, item.name().trim(), ': ', item.value());
+					}
+				});
+			};
+
+			output(node);
 		};
 
+		var tree;
 
-		var tree = editTree.parseFromPosition(lessFile, 105);
+		tree = editTree.parseFromPosition(lessFile, 105);
 		showContents(tree);
 
 		tree = editTree.parseFromPosition(lessFile, 147);
@@ -39,8 +51,17 @@ describe('LESS', function() {
 		tree = editTree.parseFromPosition(lessFile, 549);
 		showContents(tree);
 
-		// tree = editTree.parseFromPosition(lessFile, 650);
-		// showContents(tree);
+		tree = editTree.parseFromPosition(lessFile, 650);
+		showContents(tree);
+
+		tree = editTree.parseFromPosition(lessFile, 776);
+		showContents(tree);
+
+		tree = editTree.parseFromPosition(lessFile, 1000);
+		showContents(tree);
+
+		tree = editTree.parseFromPosition(lessFile, 1030);
+		showContents(tree);
 
 		assert(true);
 	});
