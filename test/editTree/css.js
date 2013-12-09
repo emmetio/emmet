@@ -90,9 +90,21 @@ describe('CSS Edit Tree', function() {
 		assert.deepEqual(parts, ['fn1(a)', 'fn2(fn3(b))'], 'Correctly splitted complex value with nested functions');
 	});
 
-	it('checking CSS parser', function() {
+	it('should work with incomplete rules', function() {
+		// without colon
 		var rule = editTree.parse('a{b\nc:d;}');
 		assert.equal(rule.get(0).name(), 'b');
 		assert.equal(rule.get(1).name(), 'c');
+
+		rule.get(0).value('test')
+		assert.equal(rule.source, 'a{b:test;\nc:d;}');
+
+		// with colon
+		rule = editTree.parse('a{b:\nc:d;}');
+		assert.equal(rule.get(0).name(), 'b');
+		assert.equal(rule.get(1).name(), 'c');
+
+		rule.get(0).value('test')
+		assert.equal(rule.source, 'a{b:test;\nc:d;}');
 	});
 });
