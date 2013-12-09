@@ -96,7 +96,7 @@ describe('CSS Edit Tree', function() {
 		assert.equal(rule.get(0).name(), 'b');
 		assert.equal(rule.get(1).name(), 'c');
 
-		rule.get(0).value('test')
+		rule.get(0).value('test');
 		assert.equal(rule.source, 'a{b:test;\nc:d;}');
 
 		// with colon
@@ -104,7 +104,17 @@ describe('CSS Edit Tree', function() {
 		assert.equal(rule.get(0).name(), 'b');
 		assert.equal(rule.get(1).name(), 'c');
 
-		rule.get(0).value('test')
+		rule.get(0).value('test');
 		assert.equal(rule.source, 'a{b:test;\nc:d;}');
+	});
+
+	it('should work with nesting', function() {
+		var rule = editTree.parse('a{b:c; d{e:f} g:h }');
+		assert.equal(rule.get(0).name(), 'b');
+		assert.equal(rule.get(1).name(), 'g');
+
+		rule.get(0).value('foo');
+		rule.get(1).value('bar');
+		assert.equal(rule.source, 'a{b:foo; d{e:f} g:bar }');
 	});
 });
