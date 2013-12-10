@@ -63,6 +63,25 @@ describe('Select Next/Previous Item action', function() {
 		editor.setSyntax('html');
 	});
 
+	it('should work for CSS with nested sections', function() {
+		editor.setSyntax('css');
+
+		// move next
+		editor.replaceContent('${0}a { b:c; d { e:f } g:h }');
+		assert.deepEqual(next(), r(0, 1));   // Selector matched
+		assert.deepEqual(next(), r(4, 8));   // Full property matched
+		assert.deepEqual(next(), r(6, 7));   // Property value matched
+
+		assert.deepEqual(next(), r(9, 10));   // Nested section selector
+		assert.deepEqual(next(), r(13, 16)); // Nested section full property
+		assert.deepEqual(next(), r(15, 16)); // Nested section property value
+
+		assert.deepEqual(next(), r(19, 22)); // Outer full property
+		assert.deepEqual(next(), r(21, 22)); // Outer property value
+		
+		editor.setSyntax('html');
+	});
+
 	it('should work for HTML', function() {
 		editor.replaceContent('${0}<div class="hello world" b=1>text</div> <b class="large">text 2</b>');
 		assert.deepEqual(next(), r(1, 4), 'Matched "div" tag name');
