@@ -17,11 +17,6 @@ describe('LESS', function() {
 	it('should build editable tree', function() {
 		// scan sections and selectors
 		var allSections = cssSections.findAllRules(lessFile);
-		// allSections.forEach(function(item) {
-		// 	var r = range.create2(item.start, item._selectorEnd);
-		// 	console.log(r.substring(lessFile));
-		// });
-		// 
 		var showContents = function(node) {
 			console.log('\n%s:', node.name());
 
@@ -40,29 +35,32 @@ describe('LESS', function() {
 			output(node);
 		};
 
-		var tree;
+		var tree, node;
 
 		tree = editTree.parseFromPosition(lessFile, 105);
-		showContents(tree);
+		assert.equal(tree.name(), '#header');
+		assert.equal(tree.get(0).name(), 'color');
+		assert.equal(tree.get(0).value(), '@light-blue');
 
 		tree = editTree.parseFromPosition(lessFile, 147);
-		showContents(tree);
+		assert.equal(tree.name(), '.class1');
+		assert.equal(tree.get(0).name(), '@fnord');
+		assert.equal(tree.get(0).value(), '1');
+		assert.equal(tree.get(1).name(), 'one');
+		assert.equal(tree.get(1).value(), '@fnord');
 
 		tree = editTree.parseFromPosition(lessFile, 549);
-		showContents(tree);
+		assert.equal(tree.name(), '#menu a');
+		assert.equal(tree.get(0).name(), 'color');
+		assert.equal(tree.get(0).value(), '#111');
+		assert.equal(tree.get(1).name(), '.bordered');
+		assert.equal(tree.get(1).value(), '');
+		assert.equal(tree.get(2).name(), 'padding');
+		assert.equal(tree.get(2).value(), '10px');
 
-		tree = editTree.parseFromPosition(lessFile, 650);
-		showContents(tree);
-
-		tree = editTree.parseFromPosition(lessFile, 776);
-		showContents(tree);
-
-		tree = editTree.parseFromPosition(lessFile, 1000);
-		showContents(tree);
-
-		tree = editTree.parseFromPosition(lessFile, 1030);
-		showContents(tree);
-
-		assert(true);
+		tree = editTree.parseFromPosition(lessFile, 733);
+		assert.equal(tree.name(), '&:hover');
+		assert.equal(tree.get(0).name(), 'text-decoration');
+		assert.equal(tree.get(0).value(), 'none');
 	});
 });
