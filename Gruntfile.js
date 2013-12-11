@@ -20,7 +20,10 @@ module.exports = function(grunt) {
 		'return _emmet;}));';
 
 	var rjsSnippets = 'var resources = require("assets/resources");' +
-		'resources.setVocabulary(' + readFile('./lib/snippets.json') + ', "system");'
+		'resources.setVocabulary(' + readFile('./lib/snippets.json') + ', "system");';
+
+	var rjsCanIUse = 'var caniuse = require("assets/caniuse");' +
+		'caniuse.load(' + readFile('./lib/caniuse.json') + ');';
 
 	var rjsOpt = {
 		baseUrl: './lib',
@@ -60,7 +63,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		requirejs: {
-			// "App" version of Emmet: does not include snippets.json,
+			// "App" version of Emmet: does not include snippets.json and caniuse.json,
 			// assuming that it should be loaded by app controller 
 			app: rjsConfig({out: './dist/emmet-app.js',}),
 
@@ -70,7 +73,7 @@ module.exports = function(grunt) {
 			full: rjsConfig({
 				wrap: {
 					start: rjsStart,
-					end: rjsSnippets + rjsEnd
+					end: rjsSnippets + rjsCanIUse + rjsEnd
 				}
 			})
 		},
