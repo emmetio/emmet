@@ -21,6 +21,15 @@ describe('Select Next/Previous Item action', function() {
 		return {start: start, end: end};
 	}
 
+	it('should handle issue #280', function() {
+		editor.setSyntax('css');
+
+		editor.replaceContent('div {padding: 10px;${0}}');
+		assert.deepEqual(prev(), r(14, 18));
+
+		editor.setSyntax('html');
+	});
+
 	it('should work for CSS', function() {
 		editor.setSyntax('css');
 		
