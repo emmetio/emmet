@@ -1,8 +1,6 @@
 var assert = require('assert');
 var editor = require('../stubs/editor');
-var file = require('../stubs/file');
 var action = require('../../lib/action/updateImageSize');
-require('../../lib/plugin/file')(file);
 
 describe('Update Image Size action', function() {
 	var run = function(content) {

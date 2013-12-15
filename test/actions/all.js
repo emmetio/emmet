@@ -1,8 +1,6 @@
 var assert = require('assert');
 var emmet = require('../../lib/emmet');
 var editor = require('../stubs/editor');
-var file = require('../stubs/file');
-require('../../lib/plugin/file')(file);
 
 describe('Action registry', function() {
 	var run = function(name, content) {
