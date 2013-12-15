@@ -62,5 +62,12 @@ describe('LESS', function() {
 		assert.equal(tree.name(), '&:hover');
 		assert.equal(tree.get(0).name(), 'text-decoration');
 		assert.equal(tree.get(0).value(), 'none');
+
+		tree = editTree.parseFromPosition(lessFile, 1090);
+		assert.equal(tree.name(), '.@{name}');
+		assert.equal(tree.get(0).name(), 'color');
+		assert.equal(tree.get(0).value(), 'black');
+		assert.equal(tree.get(1).name(), 'filter');
+		assert.equal(tree.get(1).value(), '~"ms:alwaysHasItsOwnSyntax.For.@{what}()"');
 	});
 });
