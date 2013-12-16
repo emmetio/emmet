@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Profiling</title>
+	<script src="../../node_modules/requirejs/require.js" data-main="../../lib/assets/htmlMatcher.js"></script>
+	<script>
+		require.config({
+			paths: {lodash: '../../node_modules/lodash/lodash'},
+		});
+	</script>
+</head>
+<body>
+
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '../stubs/webkit.html', false);
+xhr.send(null);
+
+require(['htmlMatcher'], function(htmlMatcher) {
+	setTimeout(function() {
+		console.profile('Matcher');
+		var m = htmlMatcher.find(xhr.responseText, 20697);
+		console.profileEnd('Matcher');
+		console.log(m);
+	}, 1);
+});
+
+</script>
+</body>
+</html>

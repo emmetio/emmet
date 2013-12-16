@@ -4,6 +4,10 @@ var range = require('../lib/assets/range');
 var utils = require('../lib/utils/common');
 
 describe('HTML matcher', function() {
+	var fs = require('fs');
+		var path = require('path');
+		var htmlFile = fs.readFileSync(path.join(__dirname, 'stubs/webkit.html'), {encoding: 'utf8'});
+
 	function createMatchString(text, rng, caret) {
 		var result = utils.replaceSubstring(text, '[' + rng.substring(text) + ']', rng);
 		var delta = 0;
@@ -80,5 +84,9 @@ describe('HTML matcher', function() {
 		match(htmlString2, 16, 5, 16);
 		
 		match(htmlString3, 2, 0, 18);
+	});
+
+	it('must work fast', function() {
+		var m = htmlMatcher.find(htmlFile, 20697);
 	});
 });
