@@ -147,4 +147,26 @@ describe('CSS Resolver', function() {
 		
 		editor.setSyntax('html');
 	});
+
+	it('should honor property separator preferences', function() {
+		var run = function(content) {
+			if (content) {
+				editor.replaceContent(content);
+			}
+			action.expandAbbreviationAction(editor);
+		};
+
+		editor.setSyntax('css');
+		var oldSep = prefs.get('css.propertySeparator');
+		prefs.set('css.propertySeparator', '');
+		
+		run('p+m${0}');
+		assert.equal(editor.getContent(), 'padding: ;margin: ;');
+		
+		run('p0+m10${0}');
+		assert.equal(editor.getContent(), 'padding: 0;margin: 10px;');
+		
+		editor.setSyntax('html');
+		prefs.set('css.propertySeparator', oldSep);
+	});
 });
