@@ -203,4 +203,35 @@ describe('Filters', function() {
 			editor.setProfileName(oldProfile);
 		});
 	});
+
+	describe('Slim', function() {
+		it('should work', function() {
+			var oldSyntax = editor.getSyntax();
+			var oldProfile = editor.getProfileName();
+			editor.setSyntax('slim');
+			editor.setProfileName('xml');
+			
+			expand('#header>ul.nav>li[title=test$]*2|slim');
+			assert.equal(editor.getContent(), '#header\n\tul.nav\n\t\tli title="test1"\n\t\tli title="test2"');
+
+			// check data attrs
+			expand('.c[data-n1=v1 title=test data-n2=v2]|slim');
+			assert.equal(editor.getContent(), '.c data-n1="v1" title="test" data-n2="v2"');
+
+			// check boolean attrs
+			expand('.c[disabled. title=test]|slim');
+			assert.equal(editor.getContent(), '.c disabled=true title="test"');
+
+			// check text
+			expand('span{Text}>b{Text 2}|slim');
+			assert.equal(editor.getContent(), 'span Text\n\tb Text 2');
+
+			expand('span{Text 1${newline}Text 2}>b{Text 3}|slim');
+			assert.equal(editor.getContent(), 'span\n\t| Text 1\n\t  Text 2\n\tb Text 3');
+			
+			
+			editor.setSyntax(oldSyntax);
+			editor.setProfileName(oldProfile);
+		});
+	});
 });
