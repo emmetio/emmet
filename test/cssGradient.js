@@ -35,7 +35,7 @@ describe('CSS Gradient', function() {
 		assert.equal(g.colorStops.length, 2);
 	});
 
-	it('should expand abbreviation as "Expand Abbreviation" handler', function() {
+	it.only('should expand abbreviation as "Expand Abbreviation" handler', function() {
 		disableCIU();
 		var run = function(content) {
 			if (content) {
@@ -46,6 +46,9 @@ describe('CSS Gradient', function() {
 
 		editor.setSyntax('css');
 
+		run('.r{\n\tlg(right, red, black)$0\n}');
+		assert.equal(editor.getContent(), '.r{\n\tbackground-image: -webkit-linear-gradient(right, red, black);\n\tbackground-image: -moz-linear-gradient(right, red, black);\n\tbackground-image: -o-linear-gradient(right, red, black);\n\tbackground-image: linear-gradient(to left, red, black);\n}');
+
 		run('.r{background:lg(red, black)$0}');
 		assert.equal(editor.getContent(), '.r{background:-webkit-linear-gradient(red, black);background:-moz-linear-gradient(red, black);background:-o-linear-gradient(red, black);background:linear-gradient(red, black);}');
 		assert.equal(editor.getCaretPos(), 174);
@@ -53,7 +56,7 @@ describe('CSS Gradient', function() {
 		// expand gradient outside value
 		run('.r{\n\tlg(red, black)$0\n}');
 		assert.equal(editor.getContent(), '.r{\n\tbackground-image: -webkit-linear-gradient(red, black);\n\tbackground-image: -moz-linear-gradient(red, black);\n\tbackground-image: -o-linear-gradient(red, black);\n\tbackground-image: linear-gradient(red, black);\n}');
-		
+
 		// test fallback value
 		prefs.set('css.gradient.fallback', true);
 		run('.r{\n\tlg(red, black)$0\n}');
