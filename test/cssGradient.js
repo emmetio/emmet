@@ -31,11 +31,11 @@ describe('CSS Gradient', function() {
 		assert.equal(g.stringifyOldWebkit(), '-webkit-gradient(linear, 0 0, 0 100%, from(red), to(black))');
 		
 		g = gradient.parse('-webkit-linear-gradient(red, black)');
-		assert.equal(g.direction, 0);
+		assert.equal(g.direction, 180);
 		assert.equal(g.colorStops.length, 2);
 	});
 
-	it.only('should expand abbreviation as "Expand Abbreviation" handler', function() {
+	it('should expand abbreviation as "Expand Abbreviation" handler', function() {
 		disableCIU();
 		var run = function(content) {
 			if (content) {
