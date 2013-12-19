@@ -153,20 +153,16 @@ describe('CSS Resolver', function() {
 			if (content) {
 				editor.replaceContent(content);
 			}
-			action.expandAbbreviationAction(editor);
+			action.expandAbbreviationAction(editor, 'css', 'css_line');
 		};
 
-		editor.setSyntax('css');
-		var oldSep = prefs.get('css.propertySeparator');
-		prefs.set('css.propertySeparator', '');
-		
 		run('p+m${0}');
 		assert.equal(editor.getContent(), 'padding: ;margin: ;');
 		
 		run('p0+m10${0}');
 		assert.equal(editor.getContent(), 'padding: 0;margin: 10px;');
-		
-		editor.setSyntax('html');
-		prefs.set('css.propertySeparator', oldSep);
+
+		run('p0+@f${0}');
+		assert.equal(editor.getContent(), 'padding: 0;@font-face {\n\tfont-family:;\n\tsrc:url();\n}');
 	});
 });

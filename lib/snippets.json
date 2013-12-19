@@ -8,7 +8,8 @@
 	},
 	
 	"css": {
-		"filters": "html",
+		"filters": "css",
+		"profile": "css",
 		"snippets": {
 			"@i": "@import url(|);",
 			"@import": "@import url(|);",
