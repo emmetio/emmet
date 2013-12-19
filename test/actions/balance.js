@@ -43,6 +43,10 @@ function compareRange(expected) {
 
 describe('Balance action', function() {
 	it('should match HTML tags', function() {
+		editor.replaceContent('<li>${1:item 1}</li>');
+		action.balanceInwardAction(editor);
+		compareRange([0, 15]);
+
 		editor.replaceContent('Lorem <a><b>ip${0}sum</b></a> dolor sit amet');
 
 		action.balanceOutwardAction(editor);
