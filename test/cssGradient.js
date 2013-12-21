@@ -111,4 +111,21 @@ describe('CSS Gradient', function() {
 		restoreCIU();
 		editor.setSyntax('html');
 	});
+
+	it('should not expand mixins', function() {
+		// https://github.com/sergeche/emmet-sublime/issues/411
+		editor.setSyntax('stylus');
+
+		var run = function(content) {
+			if (content) {
+				editor.replaceContent(content);
+			}
+			expandAbbreviation.expandAbbreviationAction(editor);
+		};
+
+		run('.r{\n\theight: 10px$0\n\tlg(red, black)\n}');
+		assert.equal(editor.getContent(), '.r{\n\theight: 10px\n\tlg(red, black)\n}');
+
+		editor.setSyntax('html');
+	});
 });
