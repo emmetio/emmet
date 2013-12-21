@@ -4,10 +4,10 @@ var action = require('../lib/action/expandAbbreviation');
 var prefs = require('../lib/assets/preferences');
 
 describe('Filters', function() {
-	function expand(abbr) {
+	function expand(abbr, syntax, profile) {
 		editor.replaceContent(abbr);
 		editor.setCaretPos(abbr.length);
-		action.expandAbbreviationAction(editor);
+		action.expandAbbreviationAction(editor, syntax, profile);
 	}
 
 	describe('Yandex BEM2 (bem)', function() {
@@ -213,6 +213,12 @@ describe('Filters', function() {
 			
 			expand('#header>ul.nav>li[title=test$]*2|slim');
 			assert.equal(editor.getContent(), '#header\n\tul.nav\n\t\tli title="test1"\n\t\tli title="test2"');
+
+			expand('img', 'slim', 'xml');
+			assert.equal(editor.getContent(), 'img src="" alt=""/');
+
+			expand('img', 'slim', 'html');
+			assert.equal(editor.getContent(), 'img src="" alt=""');
 
 			// check data attrs
 			expand('.c[data-n1=v1 title=test data-n2=v2]|slim');
