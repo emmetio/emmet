@@ -1,6 +1,8 @@
 var assert = require('assert');
 var editor = require('./stubs/editor');
 var action = require('../lib/action/expandAbbreviation');
+var lorem = require('../lib/generator/lorem');
+var prefs = require('../lib/assets/preferences');
 
 describe('Generators', function() {
 	var run = function(content) {
@@ -38,5 +40,18 @@ describe('Generators', function() {
 		
 		run('ul>lipsum*5$0');
 		assert.equal(matchesCount(editor.getContent(), /<li>/g), 5, 'Output has five auto-generated `<li>` elements');
-	});	
+	});
+
+	it('should omit common part', function() {
+		prefs.set('lorem.omitCommonPart', true);
+		run('lorem$0');
+		assert(!editor.getContent().match(/^lorem ipsum dolor/i));
+		prefs.set('lorem.omitCommonPart', false);
+	});
+
+	it('should add new generator language', function() {
+		lorem.addLang('zz', 'z z z z z');
+		run('loremzz$0');
+		assert(editor.getContent().match(/^[z\s\.,\!\?]+$/i));
+	});
 });
