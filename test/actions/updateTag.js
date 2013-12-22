@@ -11,15 +11,18 @@ describe('Update Tag action', function() {
 	};
 
 	it('should work', function() {
-		editor.replaceContent('<div class="c1 c2" title="hello">$0</div>');
+		editor.replaceContent('<span class="c1 c2" title="hello">$0</span>');
 
 		run('.-c2');
-		assert.equal(editor.getContent(), '<div class="c1" title="hello"></div>');
+		assert.equal(editor.getContent(), '<span class="c1" title="hello"></span>');
 
 		run('.+c3[-title a=b]');
-		assert.equal(editor.getContent(), '<div class="c1 c3" a="b"></div>');
+		assert.equal(editor.getContent(), '<span class="c1 c3" a="b"></span>');
 
-		run('span.+c3[-a]');
-		assert.equal(editor.getContent(), '<span class="c1 c3"></span>');
+		run('div.+c3[-a]');
+		assert.equal(editor.getContent(), '<div class="c1 c3"></div>');
+
+		run('.c$$$');
+		assert.equal(editor.getContent(), '<div class="c001"></div>');
 	});
 });
