@@ -61,6 +61,13 @@ describe('CSS sections', function() {
 		assert.equal(tree.matchDeep(2).name(), 'a');
 	});
 
+	it('should extract content from section', function() {
+		var tree = sections.sectionTree('a {b:c;d {}e:f; } g { h:i }');
+
+		assert.equal(tree.children[0].content(), 'b:c;e:f;');
+		assert.equal(tree.children[1].content(), 'h:i');
+	});
+
 	// it.only('should work fast on finding CSS sections', function() {
 	// 	// sections.stripComments(largeCSS);
 	// 	var rules = sections.findAllRules(largeCSS);
