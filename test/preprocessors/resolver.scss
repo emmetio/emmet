@@ -64,7 +64,7 @@
 
 @media print {
 	.seriousError2 {
-		// shouldn’t extent: .error is outside of @media
+		// shouldn’t extend: .error is outside of @media
 		@extend .error;
 		border-width: 3px;
 	}
