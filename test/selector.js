@@ -50,4 +50,41 @@ describe('Selector utils', function() {
 		assert(canExtend('#id', '#id.item:hover'));
 		assert(!canExtend('#id', '.item:hover'));
 	});
+
+	it.only('should extend selectors', function() {
+		var extend = function(selector, target, ew) {
+			return sel.extend(selector, target, ew).map(function(item) {
+				return item.toString();
+			}).join(', ');
+		};
+
+		// these are copies of official SCSS unit test suite
+		assert.equal(extend('.foo', '.foo', '.bar'), '.foo, .bar');
+		assert.equal(extend('.blip .foo', '.foo', '.bar'), '.blip .foo, .blip .bar');
+
+		// test_nested_target
+		assert.equal(extend('.foo .bar', '.bar', '.baz'), '.foo .bar, .foo .baz');
+		
+		// test_target_with_child
+		assert.equal(extend('.foo .bar', '.foo', '.baz'), '.foo .bar, .baz .bar');
+
+		// test_class_unification
+		assert.equal(extend('.foo.bar', '.foo', '.baz'), '.foo.bar, .bar.baz');
+		assert.equal(extend('.foo.baz', '.foo', '.baz'), '.baz');
+
+		// test_id_unification
+		assert.equal(extend('.foo.bar', '.foo', '#baz'), '.foo.bar, .bar#baz');
+		assert.equal(extend('.foo#baz', '.foo', '#baz'), '#baz');
+		assert.equal(extend('.foo#baz', '.foo', '#bar'), '.foo#baz');
+
+		// TODO: text extend with *
+		
+		// test_element_unification_with_simple_target
+		assert.equal(extend('.foo', '.foo', 'a'), '.foo, a');
+		assert.equal(extend('.foo.bar', '.foo', 'a'), '.foo.bar, a.bar');
+
+		// test_element_unification_with_namespaceless_element_target
+		assert.equal(extend('a.foo', '.foo', 'a'), 'a');
+		assert.equal(extend('a.foo', '.foo', 'h1'), 'a.foo');
+	});
 });
