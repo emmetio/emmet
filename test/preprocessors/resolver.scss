@@ -62,6 +62,11 @@
 	border-width: 3px;
 }
 
+.seriousError {
+	@extend .error, .attention;
+	color: 3px;
+}
+
 @media print {
 	.seriousError2 {
 		// shouldn’t extend: .error is outside of @media
