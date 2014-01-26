@@ -23,7 +23,7 @@
 		&:hover { text-decoration: none }
 	}
 
-	// properties stack, shouldn’t be nested
+	// properties stack, shouldn't be nested
 	font: {
 		family: Arial;
 		size: 20px;
@@ -34,7 +34,7 @@
 .one {
 	@media (width: 400px) {
 		font-size: 1.2em;
-		@media print and color {
+		@media print and (min-width: 100px) {
 			color: blue;
 		}
 	}
@@ -69,7 +69,7 @@
 
 @media print {
 	.seriousError2 {
-		// shouldn’t extend: .error is outside of @media
+		// shouldn't extend: .error is outside of @media
 		@extend .error;
 		border-width: 3px;
 	}
@@ -109,6 +109,22 @@ b {
 
 #demo .overview .fakelink {
 	@extend i;
+}
+
+#admin2 d .tabbar2 {
+	font-weight: bold;
+}
+
+#demo2>.overview2>.fakelink2 {
+	@extend d;
+}
+
+#admin3 e .tabbar3 {
+	font-weight: bold;
+}
+
+#demo3 .overview3 .fakelink3 {
+	@extend e;
 }
 
 #admin .tabbar c {

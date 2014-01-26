@@ -77,7 +77,7 @@ describe('Selector utils', function() {
 		assert.equal(extend('.foo#baz', '.foo', '#baz'), '#baz');
 		assert.equal(extend('.foo#baz', '.foo', '#bar'), '.foo#baz');
 
-		// TODO: text extend with *
+		// TODO: test extend with *
 		
 		// test_element_unification_with_simple_target
 		assert.equal(extend('.foo', '.foo', 'a'), '.foo, a');
