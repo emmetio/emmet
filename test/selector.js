@@ -36,24 +36,24 @@ describe('Selector utils', function() {
 	});
 
 	it('should compare selectors for extention', function() {
-		var canExtend = function(target, selector) {
+		var matches = function(selector, target) {
 			return sel.create(selector).matchesPart(target);
 		};
 
-		assert(canExtend('.test', '.test'));
-		assert(canExtend('.test', '.test.test2'));
-		assert(!canExtend('.test', '.test2'));
-		assert(canExtend(':hover', 'a:hover'));
-		assert(canExtend('a', 'a:hover'));
-		assert(!canExtend('b:hover', 'a:hover'));
-		assert(canExtend(':hover', 'a.item:hover'));
-		assert(canExtend('#id', '#id.item:hover'));
-		assert(!canExtend('#id', '.item:hover'));
+		assert(matches('.test', '.test'));
+		assert(matches('.test.test2', '.test'));
+		assert(!matches('.test2', '.test'));
+		assert(!matches('a:hover', ':hover'));
+		assert(matches('a:hover', 'a'));
+		assert(!matches('a:hover', 'b:hover'));
+		assert(!matches('a.item:hover', ':hover'));
+		assert(matches('#id.item:hover', '#id'));
+		assert(!matches('.item:hover', '#id'));
 	});
 
-	it('should extend selectors', function() {
+	it.only('should extend selectors', function() {
 		var extend = function(selector, target, ew) {
-			return sel.extend(selector, target, ew).map(function(item) {
+			return sel.extend(selector, target, ew, {syntax: 'scss'}).map(function(item) {
 				return item.toString();
 			}).join(', ');
 		};
@@ -69,12 +69,12 @@ describe('Selector utils', function() {
 		assert.equal(extend('.foo .bar', '.foo', '.baz'), '.foo .bar, .baz .bar');
 
 		// test_class_unification
-			assert.equal(extend('.foo.bar', '.foo', '.baz'), '.foo.bar, .bar.baz');
-		assert.equal(extend('.foo.baz', '.foo', '.baz'), '.baz');
+		assert.equal(extend('.foo.bar', '.foo', '.baz'), '.foo.bar, .bar.baz');
+		assert.equal(extend('.foo.baz', '.foo', '.baz'), '.foo.baz, .baz');
 
 		// test_id_unification
 		assert.equal(extend('.foo.bar', '.foo', '#baz'), '.foo.bar, .bar#baz');
-		assert.equal(extend('.foo#baz', '.foo', '#baz'), '#baz');
+		assert.equal(extend('.foo#baz', '.foo', '#baz'), '.foo#baz, #baz');
 		assert.equal(extend('.foo#baz', '.foo', '#bar'), '.foo#baz');
 
 		// TODO: test extend with *
@@ -84,7 +84,7 @@ describe('Selector utils', function() {
 		assert.equal(extend('.foo.bar', '.foo', 'a'), '.foo.bar, a.bar');
 
 		// test_element_unification_with_namespaceless_element_target
-		assert.equal(extend('a.foo', '.foo', 'a'), 'a');
+		assert.equal(extend('a.foo', '.foo', 'a'), 'a.foo, a');
 		assert.equal(extend('a.foo', '.foo', 'h1'), 'a.foo');
 
 		// test_attribute_unification
@@ -98,12 +98,12 @@ describe('Selector utils', function() {
 		assert.equal(extend('::foo.baz', '.baz', '::bar'), '::foo.baz');
 		assert.equal(extend('::foo.baz', '.baz', '::foo(2n+1)'), '::foo.baz');
 
-		assert.equal(extend('::foo.baz', '.baz', '::foo'), '::foo');
-		assert.equal(extend('::foo(2n+1).baz', '.baz', '::foo(2n+1)'), '::foo(2n+1)');
+		assert.equal(extend('::foo.baz', '.baz', '::foo'), '::foo.baz, ::foo');
+		assert.equal(extend('::foo(2n+1).baz', '.baz', '::foo(2n+1)'), '::foo(2n+1).baz, ::foo(2n+1)');
 		assert.equal(extend(':foo.baz', '.baz', ':bar'), ':foo.baz, :foo:bar');
 		assert.equal(extend('.baz:foo', '.baz', ':after'), '.baz:foo, :foo:after');
 		assert.equal(extend('.baz:after', '.baz', ':foo'), '.baz:after, :after:foo'); // XXX should be :foo:after
-		assert.equal(extend(':foo.baz', '.baz', ':foo'), ':foo');
+		assert.equal(extend(':foo.baz', '.baz', ':foo'), ':foo.baz, :foo');
 
 		// test_pseudoelement_remains_at_end_of_selector
 		assert.equal(extend('.foo::bar', '.foo', '.baz'), '.foo::bar, .baz::bar');
@@ -126,7 +126,7 @@ describe('Selector utils', function() {
 
 		// test_negation_unification
 		assert.equal(extend(':not(.foo).baz', '.baz', ':not(.bar)'), ':not(.foo).baz, :not(.foo):not(.bar)');
-		assert.equal(extend(':not(.foo).baz', '.baz', ':not(.foo)'), ':not(.foo)');
-		assert.equal(extend(':not([a=b]).baz', '.baz', ':not([a = b])'), ':not([a=b])');
+		assert.equal(extend(':not(.foo).baz', '.baz', ':not(.foo)'), ':not(.foo).baz, :not(.foo)');
+		assert.equal(extend(':not([a=b]).baz', '.baz', ':not([a = b])'), ':not([a=b]).baz, :not([a=b])');
 	});
 });
