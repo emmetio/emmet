@@ -19,7 +19,10 @@ describe('LESS extend', function() {
 			var lessTree = cssSections.sectionTree(lessFile);
 			var cssTree = cssSections.sectionTree(cssFile);
 			
-			var less = lessResolver.resolve(lessTree);
+			var less = lessResolver.resolve(lessTree).filter(function(item) {
+				// remove nodes with empty contents
+				return !!item.node.content().replace(/\s+/g, '');
+			});
 			var css = preprocessor.toList(cssTree);
 
 			less.forEach(function(item, i) {
