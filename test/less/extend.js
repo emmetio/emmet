@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var assert = require('assert');
 var testUtils = require('../testUtils');
 var cssSections = require('../../lib/utils/cssSections');
@@ -6,9 +7,15 @@ var preprocessor = require('../../lib/resolver/preprocessor');
 var selector = require('../../lib/assets/selector');
 
 describe('LESS extend', function() {
-
 	function np(ix, path) {
 		return 'Rule ' + (ix + 1) + ': ' + selector.normalize(path.join(' / '));
+	}
+
+	function cleanUp(item) {
+		// remove nodes with empty contents
+		return item.node.content()
+			.replace(lessResolver.reExtend, '')
+			.replace(/\s+/g, '');
 	}
 
 	testUtils.getFileSet('preprocessors/less/extend', 'less').slice(0, 1).forEach(function(item) {
@@ -21,10 +28,11 @@ describe('LESS extend', function() {
 			
 			var less = lessResolver.resolve(lessTree).filter(function(item) {
 				// remove nodes with empty contents
-				return !!item.node.content().replace(/\s+/g, '');
+				return !!cleanUp(item);
 			});
-			var css = preprocessor.toList(cssTree);
+			var css = preprocessor.resolve(cssTree);
 
+			// console.log(_.pluck(css, 'path'));
 			less.forEach(function(item, i) {
 				assert.deepEqual(np(i, item.path), np(i, css[i].path));
 			});
