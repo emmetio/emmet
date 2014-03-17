@@ -66,13 +66,13 @@ describe('SCSS', function() {
 
 		tree = editTree.parseFromPosition(scssFile, 464);
 		assert.equal(tree.name(), '.box');
-		assert.equal(tree.get(0).name(), '@include border-radius(10px)');
-		assert.equal(tree.get(0).value(), '');
+		assert.equal(tree.get(0).name(), '@include');
+		assert.equal(tree.get(0).value(), 'border-radius(10px)');
 
 		tree = editTree.parseFromPosition(scssFile, 585);
 		assert.equal(tree.name(), '.success');
-		assert.equal(tree.get(0).name(), '@extend .message');
-		assert.equal(tree.get(0).value(), '');
+		assert.equal(tree.get(0).name(), '@extend');
+		assert.equal(tree.get(0).value(), '.message');
 		assert.equal(tree.get(1).name(), 'border-color');
 		assert.equal(tree.get(1).value(), 'green');
 
@@ -87,8 +87,8 @@ describe('SCSS', function() {
 
 		tree = editTree.parseFromPosition(scssFile, 957);
 		assert.equal(tree.name(), '.notice');
-		assert.equal(tree.get(0).name(), '@extend %extreme');
-		assert.equal(tree.get(0).value(), '');
+		assert.equal(tree.get(0).name(), '@extend');
+		assert.equal(tree.get(0).value(), '%extreme');
 
 		tree = editTree.parseFromPosition(scssFile, 1025);
 		assert.equal(tree.name(), '@if 1 + 1 == 2');
