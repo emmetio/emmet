@@ -1,0 +1,35 @@
+{
+  "name": "emmet",
+  "version": "1.1.0",
+  "description": "Emmet — the essential toolkit for web-developers",
+  "main": "./lib/emmet.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/emmetio/emmet.git"
+  },
+  "keywords": [
+    "emmet",
+    "html",
+    "css",
+    "coding",
+    "speed"
+  ],
+  "author": "Sergey Chikuyonok",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/emmet/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "mocha": "~1.13.0",
+    "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-uglify": "~0.2.4"
+  },
+  "dependencies": {
+    "lodash": "~2.1.0",
+    "requirejs": "~2.1.9"
+  }
+}

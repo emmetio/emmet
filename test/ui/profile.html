@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Profiling</title>
+	<script src="../../node_modules/requirejs/require.js" data-main="../../lib/utils/cssSections.js"></script>
+	<script>
+		require.config({
+			paths: {lodash: '../../node_modules/lodash/lodash'},
+		});
+	</script>
+</head>
+<body>
+
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '../stubs/ayyo.css', false);
+xhr.send(null);
+
+require(['cssSections'], function(cssSections) {
+	console.profile('Rules');
+	var rules = cssSections.findAllRules(xhr.responseText);
+	console.profileEnd('Rules');
+	// console.log(rules);
+});
+
+</script>
+</body>
+</html>

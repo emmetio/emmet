@@ -1,0 +1,147 @@
+// mixins
+@mixin bordered {
+	border-top: dotted 1px black;
+	border-bottom: solid 2px black;
+}
+
+@mixin border-radius ($radius: 5px, $var2: #fc0) {
+	-moz-border-radius: $radius;
+	-webkit-border-radius: $radius;
+	border-radius: $radius;
+}
+
+// nesting
+#header {
+	color: black;
+
+	.navigation {
+		font-size: 12px;
+	}
+
+	.logo {
+		width: 300px;
+		&:hover { text-decoration: none }
+	}
+
+	// properties stack, shouldn't be nested
+	font: {
+		family: Arial;
+		size: 20px;
+		weight: bold;
+	}
+}
+
+.one {
+	@media (width: 400px) {
+		font-size: 1.2em;
+		@media print and (min-width: 100px) {
+			color: blue;
+		}
+	}
+}
+
+// extend
+.error {
+	border: 1px #f00;
+	background-color: #fdd;
+}
+
+.error.intrusion {
+	background-image: url("/image/hacked.png");
+}
+
+.attention {
+	font-size: 3em;
+	background-color: #ff0;
+}
+
+// multiple extends
+.seriousError {
+	@extend .error;
+	@extend .attention;
+	border-width: 3px;
+}
+
+.seriousError {
+	@extend .error, .attention;
+	color: 3px;
+}
+
+@media print {
+	.seriousError2 {
+		// shouldn't extend: .error is outside of @media
+		@extend .error;
+		border-width: 3px;
+	}
+}
+
+// chaining extends
+.criticalError {
+	@extend .seriousError;
+	position: fixed;
+}
+
+// partial selector extend
+.hoverlink {
+	@extend a:hover;
+}
+
+.comment a.user:hover {
+	font-weight: bold;
+}
+
+// selector sequences
+#fake-links .link {
+	@extend b;
+}
+
+b {
+	color: blue;
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// merging selector sequence
+#admin .tabbar i {
+	font-weight: bold;
+}
+
+#demo .overview .fakelink {
+	@extend i;
+}
+
+#admin2 d .tabbar2 {
+	font-weight: bold;
+}
+
+#demo2>.overview2>.fakelink2 {
+	@extend d;
+}
+
+#admin3 e .tabbar3 {
+	font-weight: bold;
+}
+
+#demo3 .overview3 .fakelink3 {
+	@extend e;
+}
+
+#admin .tabbar c {
+	font-weight: bold;
+}
+
+#admin .overview .fakelink {
+	@extend c;
+}
+
+// @extend-only selector
+#context dd%extreme {
+	color: blue;
+	font-weight: bold;
+	font-size: 2em;
+}
+
+.notice {
+	@extend %extreme !optional;
+}

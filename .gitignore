@@ -8,3 +8,6 @@
 /plugins/tea-for-espresso
 
 .DS_Store
+/bower_components/
+/node_modules/
+/emmet.sublime-workspace

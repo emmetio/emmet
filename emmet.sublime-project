@@ -1,0 +1,22 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "lib"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "test"
+		}
+	],
+
+	"ternjs": {
+        "include": ["/lib/**/*.js"],
+        "disable_completions": ["**/parser/abbreviation.js"],
+        "plugins": {
+            "node": {},
+            "doc_comment": {}
+        }
+    }
+}
