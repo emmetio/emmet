@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 	var rjsOpt = {
 		baseUrl: './lib',
 		paths: {
-			lodash: '../node_modules/lodash/dist/lodash.compat'
+			lodash: '../node_modules/lodash/lodash'
 		},
 		rawText: {
 			'fs': 'define({});',
