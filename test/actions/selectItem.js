@@ -68,6 +68,10 @@ describe('Select Next/Previous Item action', function() {
 		assert.deepEqual(next(), r(24, 38));
 		assert.deepEqual(next(), r(28, 37));
 		assert.deepEqual(next(), r(39, 48));
+
+		// edge case, previously buggy
+		editor.replaceContent('a{b:c; ${0} d:e;}');
+		assert.deepEqual(prev(), r(4, 5));
 		
 		editor.setSyntax('html');
 	});
