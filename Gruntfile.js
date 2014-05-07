@@ -1,6 +1,12 @@
 module.exports = function(grunt) {
 	var fs = require('fs');
 	var path = require('path');
+	var ciu = require('./lib/assets/caniuse');
+
+	function getOptimizedCIU(file) {
+		var content = readFile(file);
+		return JSON.stringify(ciu.optimize(content));
+	}
 
 	function readFile(name) {
 		return fs.readFileSync(name, {encoding: 'utf8'});
@@ -23,7 +29,7 @@ module.exports = function(grunt) {
 		'resources.setVocabulary(' + readFile('./lib/snippets.json') + ', "system");';
 
 	var rjsCanIUse = 'var caniuse = require("assets/caniuse");' +
-		'caniuse.load(' + readFile('./lib/caniuse.json') + ');';
+		'caniuse.load(' + getOptimizedCIU('./lib/caniuse.json') + ', true);';
 
 	var rjsOpt = {
 		baseUrl: './lib',
