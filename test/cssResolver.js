@@ -110,6 +110,12 @@ describe('CSS Resolver', function() {
 		assert.equal(resolver.expandToSnippet('df'), 'display: -webkit-flex;\ndisplay: -moz-flex;\ndisplay: -ms-flex;\ndisplay: -o-flex;\ndisplay: flex;');
 	});
 
+	it('should NOT produce vendor-prefixed properties for preprocessors', function() {
+		assert.equal(resolver.expandToSnippet('trf', 'less'), 'transform: ${0};');
+		assert.equal(resolver.expandToSnippet('trf', 'sass'), 'transform: ${0}');
+		assert.equal(resolver.expandToSnippet('trf', 'sass'), 'transform: ${0}');
+	});
+
 	it('should be available in Expand Abbreviation action', function() {
 		var run = function(content) {
 			if (content) {
@@ -144,6 +150,19 @@ describe('CSS Resolver', function() {
 
 		run('ul {\n\t// comment?\n\tp10${0}\n}');
 		assert.equal(editor.getContent(), 'ul {\n\t// comment?\n\tpadding: 10px;\n}', 'Expanded abbreviation inside rule with inline SCSS comment');
+
+		// no vendor prefixes for preprocessors
+		editor.setSyntax('less');
+		run('trf${0};');
+		assert.equal(editor.getContent(), 'transform: ;');
+
+		editor.setSyntax('scss');
+		run('trf${0};');
+		assert.equal(editor.getContent(), 'transform: ;');
+
+		editor.setSyntax('css');
+		run('trf${0};');
+		assert.equal(editor.getContent(), '-webkit-transform: ;\n-ms-transform: ;\n-o-transform: ;\ntransform: ;');
 		
 		editor.setSyntax('html');
 	});
