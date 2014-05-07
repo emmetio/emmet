@@ -95,6 +95,18 @@ describe('Select Next/Previous Item action', function() {
 		editor.setSyntax('html');
 	});
 
+	it('should work for CSS in HTML', function() {
+		editor.setSyntax('css');
+		
+		editor.replaceContent('<style>a{${0}}</style>');
+		assert.deepEqual(prev(), r(7, 8));
+
+		// editor.replaceContent('<div style="p:10;${0}"></div>');
+		// assert.deepEqual(prev(), r(12, 17));
+
+		editor.setSyntax('html');
+	});
+
 	it('should work for HTML', function() {
 		editor.replaceContent('${0}<div class="hello world" b=1>text</div> <b class="large">text 2</b>');
 		assert.deepEqual(next(), r(1, 4), 'Matched "div" tag name');
