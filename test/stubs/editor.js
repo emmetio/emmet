@@ -17,7 +17,7 @@ var promptValue = '';
 var filePath = path.join(__dirname, 'index.html');
 
 function isdef(val) {
-	return typeof val === 'undefined';
+	return typeof val !== 'undefined';
 }
 
 module.exports = {
