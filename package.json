@@ -29,7 +29,7 @@
     "grunt-contrib-uglify": "~0.2.4"
   },
   "dependencies": {
-    "lodash": "git://github.com/emmetio/lodash.git",
+    "lodash": "emmetio/lodash.git",
     "requirejs": "~2.1.9"
   }
 }
