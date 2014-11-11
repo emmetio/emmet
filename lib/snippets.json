@@ -680,6 +680,7 @@
 			"embed": "<embed src=\"\" type=\"\" />",
 			"object": "<object data=\"\" type=\"\">",
 			"param": "<param name=\"\" value=\"\" />",
+			"source": "<source/>",
 			"map": "<map name=\"\">",
 			"area": "<area shape=\"\" coords=\"\" href=\"\" alt=\"\" />",
 			"area:d": "<area shape=\"default\" href=\"\" alt=\"\" />",
