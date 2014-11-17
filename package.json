@@ -23,10 +23,13 @@
     "url": "https://github.com/emmetio/emmet/issues"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "browserify": "^6.3.2",
+    "gulp": "^3.8.10",
+    "gulp-rename": "^1.2.0",
+    "gulp-streamify": "0.0.5",
+    "gulp-uglify": "^1.0.1",
     "mocha": "~1.13.0",
-    "grunt-contrib-requirejs": "~0.4.1",
-    "grunt-contrib-uglify": "~0.2.4",
-    "requirejs": "~2.1.9"
+    "through2": "^0.6.3",
+    "vinyl-source-stream": "^1.0.0"
   }
 }
