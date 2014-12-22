@@ -1,8 +1,13 @@
-var _ = require('lodash');
 var assert = require('assert');
 var prefs = require('../lib/assets/preferences');
 
 describe('Preferences', function() {
+	function pluck(arr, key) {
+		return arr.map(function(item) {
+			return item[key];
+		});
+	}
+
 	it('should work', function() {
 		prefs._startTest();
 		
@@ -21,11 +26,11 @@ describe('Preferences', function() {
 		assert.deepEqual(prefs.get('d'), {p: 1}, 'Successfully set property "d"');
 		
 		var list = prefs.list();
-		assert.deepEqual(_.pluck(list, 'name'), ['a', 'b', 'c', 'd'], 'Listed all properties');
-		assert.deepEqual(_.pluck(list, 'value'), [1, 'v1', 'v2', {p: 1}], 'Listed all values');
+		assert.deepEqual(pluck(list, 'name'), ['a', 'b', 'c', 'd'], 'Listed all properties');
+		assert.deepEqual(pluck(list, 'value'), [1, 'v1', 'v2', {p: 1}], 'Listed all values');
 		
 		prefs.remove('d');
-		assert.deepEqual(_.pluck(prefs.list(), 'name'), ['a', 'b', 'c'], 'Removed property "d"');
+		assert.deepEqual(pluck(prefs.list(), 'name'), ['a', 'b', 'c'], 'Removed property "d"');
 		
 		prefs._stopTest();
 	});

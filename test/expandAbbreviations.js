@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var assert = require('assert');
 var editor = require('./stubs/editor');
 var parser = require('../lib/parser/abbreviation');
@@ -32,7 +31,7 @@ describe('Abbreviation Expander engine', function() {
 	var caret = utils.getCaretPlaceholder();
 
 	function expand(abbr, options) {
-		options = _.extend({profile: 'plain'}, options || {});
+		options = utils.extend({profile: 'plain'}, options || {});
 		return tabStops.processText(parser.expand(abbr, options), {
 			escape: function(ch) {
 				return ch;

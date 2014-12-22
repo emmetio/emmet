@@ -1,7 +1,6 @@
 /**
  * Editor stub for unit testing. Implements {@link IEmmetEditor} interface.
  */
-var _ = require('lodash');
 var path = require('path');
 var utils = require('../../lib/utils/common');
 var tabStops = require('../../lib/assets/tabStops');
@@ -17,6 +16,10 @@ var profile = null;
 var promptValue = '';
 var filePath = path.join(__dirname, 'index.html');
 
+function isdef(val) {
+	return typeof val !== 'undefined';
+}
+
 module.exports = {
 	/** @memberOf editorStub */
 	getSelectionRange: function() {
@@ -24,7 +27,7 @@ module.exports = {
 	},
 	
 	createSelection: function(start, end) {
-		if (_.isUndefined(end))
+		if (!isdef(end))
 			end = start;
 		
 		selection.start = caret = start;
@@ -86,9 +89,9 @@ module.exports = {
 	 * @param {Boolean} noIndent Do not auto indent <code>value</code>
 	 */
 	replaceContent: function(value, start, end, noIndent) {
-		if (_.isUndefined(end)) 
-			end = _.isUndefined(start) ? content.length : start;
-		if (_.isUndefined(start)) start = 0;
+		if (!isdef(end)) 
+			end = !isdef(start) ? content.length : start;
+		if (!isdef(start)) start = 0;
 		
 		// indent new value
 		if (!noIndent) {
