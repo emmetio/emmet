@@ -107,6 +107,7 @@ describe('Abbreviation Expander engine', function() {
 
 		// tesing implied atributes
 		assert.equal(expand('script'), '<script></script>');
+		assert.equal(expand('script[src]'), '<script src=""></script>');
 		assert.equal(expand('script[file.js]'), '<script src="file.js"></script>');
 		assert.equal(expand('script[/packages/requiejs/require.js]'), '<script src="/packages/requiejs/require.js"></script>');
 
