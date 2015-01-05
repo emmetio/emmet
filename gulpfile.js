@@ -12,7 +12,7 @@ var DEST = './dist';
 
 function ciuWrapper() {
 	var buf = new Buffer('');
-	return through(function(chunk, end, next) {
+	return through(function(chunk, enc, next) {
 		buf += chunk;
 		next();
 	}, function(next) {
@@ -31,7 +31,8 @@ function bundle() {
 	return browserify({
 		entries: files,
 		detectGlobals: false,
-		standalone: 'emmet'
+		standalone: 'emmet',
+		fullPaths: true
 	})
 	.transform(function(file) {
 		if (path.basename(file) === 'caniuse.json') {
@@ -40,6 +41,23 @@ function bundle() {
 		return through();
 	})
 	.bundle()
+	.pipe(trimPath(path.join(__dirname, 'lib/')));
+}
+
+function escapeRegExp(str) {
+	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+}
+
+function trimPath(base) {
+	var buf = new Buffer('');
+	var reBase = new RegExp(escapeRegExp(base), 'g');
+	return through(function(chunk, enc, next) {
+		buf += chunk;
+		next();
+	}, function(next) {
+		this.push(buf.toString().replace(reBase, ''));
+		next();
+	});
 }
 
 // "App" version of Emmet: does not include snippets.json and caniuse.json,
