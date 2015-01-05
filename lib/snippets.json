@@ -667,6 +667,7 @@
 			"link:touch": "<link rel=\"apple-touch-icon\" href=\"${1:favicon.png}\" />",
 			"link:rss": "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"RSS\" href=\"${1:rss.xml}\" />",
 			"link:atom": "<link rel=\"alternate\" type=\"application/atom+xml\" title=\"Atom\" href=\"${1:atom.xml}\" />",
+			"link:import": "<link rel=\"import\" href=\"${1:component}.html\" />",
 			"meta": "<meta/>",
 			"meta:utf": "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />",
 			"meta:win": "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=windows-1251\" />",
