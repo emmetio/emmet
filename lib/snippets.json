@@ -614,7 +614,6 @@
 			"fxw:w": "flex-wrap:wrap;",
 			"fxw:wr": "flex-wrap:wrap-reverse;",
 			"fxf": "flex-flow:|;",
-			"fxf": "flex-flow:|;",
 			"jc": "justify-content:|;",
 			"jc:fs": "justify-content:flex-start;",
 			"jc:fe": "justify-content:flex-end;",
