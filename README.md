@@ -20,3 +20,12 @@ For example, this abbreviation:
 	</ul>
 
 [Learn more about Emmet features](http://docs.emmet.io)
+
+## This fork adds Corporate babble feature words to Emmet
+
+Use corpem10 to generate ten corporate babble words, corpem20 to generate twenty words. Works exactly like lorem generator and can be used where you can use lorem generator.
+
+In your preferences.json file add the following two preferences. Presently only english language corporate words have been filled. The common part is true by default as common parts in corporate words can be avoided to ensure generating truly random corporate sounding words.
+
+	'corpem.defaultLang', 'en',
+	'corpem.omitCommonPart', true
