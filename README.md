@@ -21,7 +21,7 @@ For example, this abbreviation:
 
 [Learn more about Emmet features](http://docs.emmet.io)
 
-## This fork adds Corporate babble feature words to Emmet
+## This fork adds Corporate babble words feature to Emmet
 
 Use corpem10 to generate ten corporate babble words, corpem20 to generate twenty words. Works exactly like lorem generator and can be used where you can use lorem generator.
 
