@@ -98,10 +98,10 @@ describe('CSS Resolver', function() {
 	it('should work with Stylus dialect', function() {
 		disableCIU();
 
-		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding 0');
-		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position absolute !important');
-		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding 5px !important');
-		assert.equal(resolver.expandToSnippet('-transform!', 'stylus'), '-webkit-transform ${1} !important\n-moz-transform ${1} !important\n-ms-transform ${1} !important\n-o-transform ${1} !important\ntransform ${1} !important');
+		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding: 0');
+		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position: absolute !important');
+		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding: 5px !important');
+		assert.equal(resolver.expandToSnippet('-transform!', 'stylus'), '-webkit-transform: ${1} !important\n-moz-transform: ${1} !important\n-ms-transform: ${1} !important\n-o-transform: ${1} !important\ntransform: ${1} !important');
 
 		restoreCIU();
 	});
