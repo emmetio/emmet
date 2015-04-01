@@ -204,6 +204,21 @@ describe('Filters', function() {
 		});
 	});
 
+	describe('JSX', function() {
+		it('should work', function() {
+			var oldSyntax = editor.getSyntax();
+			var oldProfile = editor.getProfileName();
+			editor.setSyntax('jsx');
+			editor.setProfileName('xml');
+
+			expand('.foo>input[name="bob"]+label[for="bob"]|html|jsx');
+			assert.equal(editor.getContent(), '<div className="foo">\n\t<input type="text" name="bob"/>\n\t<label htmlFor="bob"></label>\n</div>');
+
+			editor.setSyntax(oldSyntax);
+			editor.setProfileName(oldProfile);
+		});
+	});
+
 	describe('Slim', function() {
 		it('should work', function() {
 			var oldSyntax = editor.getSyntax();

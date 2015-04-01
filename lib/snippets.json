@@ -920,6 +920,12 @@
 		"profile": "xml"
 	},
 
+	"jsx": {
+		"filters": "html, jsx",
+		"extends": "html",
+		"profile": "xml"
+	},
+
 	"slim": {
 		"filters": "slim",
 		"extends": "html",
