@@ -211,7 +211,7 @@ describe('Filters', function() {
 			editor.setSyntax('jsx');
 			editor.setProfileName('xml');
 
-			expand('.foo>input[name="bob"]+label[for="bob"]|html|jsx');
+			expand('.foo>input[name="bob"]+label[for="bob"]');
 			assert.equal(editor.getContent(), '<div className="foo">\n\t<input type="text" name="bob"/>\n\t<label htmlFor="bob"></label>\n</div>');
 
 			editor.setSyntax(oldSyntax);
