@@ -159,6 +159,7 @@
 			"bxsh:n": "box-shadow:none;",
 			"m": "margin:|;",
 			"m:a": "margin:auto;",
+			"m:0a": "margin:0 auto;",
 			"mt": "margin-top:|;",
 			"mt:a": "margin-top:auto;",
 			"mr": "margin-right:|;",
