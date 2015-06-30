@@ -351,6 +351,7 @@
 			"c": "color:#${1:000};",
 			"c:r": "color:rgb(${1:0}, ${2:0}, ${3:0});",
 			"c:ra": "color:rgba(${1:0}, ${2:0}, ${3:0}, .${4:5});",
+			"c:i": "color: inherit",
 			"cm": "/* |${child} */",
 			"cnt": "content:'|';",
 			"cnt:n": "content:normal;",
