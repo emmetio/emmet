@@ -858,11 +858,13 @@
 	"svg": {
 		"filters": "html",
 		"profile": "xml",
+		"snippets": {
+			"!!!": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>",
+			"svgdoc": "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
+		},
 		"abbreviations": {
-			"xml": "<?xml version=\"1.0\" standalone=\"no\"?>",
-			"!svg": "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">",
-			"svg": "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\"\" height=\"\">",
-			"!!!svg": "xml+!svg+svg",
+			"!svg": "!!!+svgdoc+svg",
+			"svg": "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">",
 			"a": "<a xlink:href=\"\">",
 			"altGlyph": "<altGlyph>",
 			"altGlyphDef": "<altGlyphDef id=\"\">",
@@ -871,13 +873,13 @@
 			"animateColor": "<animateColor>",
 			"animateMotion": "<animateMotion>",
 			"animateTransform": "<animateTransform>",
-			"circle": "<circle cx=\"\" cy=\"\" r=\"\">",
+			"circle": "<circle cx=\"\" cy=\"\" r=\"\"/>",
 			"clipPath": "<clipPath>",
 			"color-profile": "<color-profile>",
 			"cursor": "<cursor>",
 			"defs": "<defs>",
 			"desc": "<desc>",
-			"ellipse": "<ellipse  cx=\"\" cy=\"\" rx=\"\" ry=\"\">",
+			"ellipse": "<ellipse  cx=\"\" cy=\"\" rx=\"\" ry=\"\"/>",
 			"feBlend": "<feBlend>",
 			"feColorMatrix": "<feColorMatrix>",
 			"feComponentTransfer": "<feComponentTransfer>",
@@ -914,7 +916,7 @@
 			"glyph": "<glyph>",
 			"glyphRef": "<glyphRef>",
 			"hkern": "<hkern>",
-			"image": "<image xlink:href=\"\" x=\"\" y=\"\" width=\"\" height=\"\">>",
+			"image": "<image xlink:href=\"\" x=\"\" y=\"\" width=\"\" height=\"\"/>",
 			"line": "<line>",
 			"linearGradient": "<linearGradient>",
 			"marker": "<marker>",
@@ -927,7 +929,7 @@
 			"polygon": "<polygon points=\"\">",
 			"polyline": "<polyline points=\"\">",
 			"radialGradient": "<radialGradient>",
-			"rect": "<rect x=\"\" y=\"\" width=\"\" height=\"\">",
+			"rect": "<rect x=\"\" y=\"\" width=\"\" height=\"\"/>",
 			"script": "<script>",
 			"set": "<set>",
 			"stop": "<stop>",
@@ -939,9 +941,9 @@
 			"title": "<title>",
 			"tref": "<tref>",
 			"tspan": "<tspan>",
-			"use": "<use xlink:href=\"\">",
+			"use": "<use xlink:href=\"\"/>",
 			"view": "<view>",
-			"vkern": "<vkern>",
+			"vkern": "<vkern>"
 		}
 	},
 	
