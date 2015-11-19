@@ -950,5 +950,13 @@
 
 	"styl": {
 		"extends": "stylus"
+	},
+
+	"postcss": {
+		"extends": "css"
+	},
+
+	"pcss": {
+		"extends": "postcss"
 	}
 }
