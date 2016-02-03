@@ -713,7 +713,8 @@
 			"meta": "<meta/>",
 			"meta:utf": "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />",
 			"meta:win": "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=windows-1251\" />",
-			"meta:vp": "<meta name=\"viewport\" content=\"width=${1:device-width}, user-scalable=${2:no}, initial-scale=${3:1.0}, maximum-scale=${4:1.0}, minimum-scale=${5:1.0}\" />",
+			"meta:edge": "<meta http-equiv=\"X-UA-Compatible\" content=\"${1:ie=edge}\" />",
+			"meta:vp": "<meta name=\"viewport\" content=\"width=${1:device-width}, initial-scale=${3:1.0}\" />",
 			"meta:compat": "<meta http-equiv=\"X-UA-Compatible\" content=\"${1:IE=7}\" />",
 			"style": "<style>",
 			"script": "<script !src=\"\">",
@@ -819,7 +820,8 @@
 			"out": "output",
 			"det": "details",
 			"cmd": "command",
-			"doc": "html>(head>meta[charset=${charset}]+title{${1:Document}})+body",
+
+			"doc": "html>(head>meta[charset=${charset}]+meta:vp+meta:edge+title{${1:Document}})+body",
 			"doc4": "html>(head>meta[http-equiv=\"Content-Type\" content=\"text/html;charset=${charset}\"]+title{${1:Document}})+body",
 
 			"ri:d|ri:dpr": "img:s",
