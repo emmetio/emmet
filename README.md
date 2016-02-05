@@ -1,4 +1,6 @@
 # Emmet — the essential toolkit for web-developers 
+[![bitHound Overall Score](https://www.bithound.io/github/emmetio/emmet/badges/score.svg)](https://www.bithound.io/github/emmetio/emmet)
+[![bitHound Dev Dependencies](https://www.bithound.io/github/emmetio/emmet/badges/devDependencies.svg)](https://www.bithound.io/github/emmetio/emmet/master/dependencies/npm)
 
 [![Get Support](http://codersclan.net/graphics/getSupport_github4.png)](http://codersclan.net/support/step1.php?repo_id=4)
 
