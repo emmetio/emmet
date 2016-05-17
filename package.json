@@ -29,6 +29,7 @@
     "gulp-streamify": "0.0.5",
     "gulp-uglify": "^1.0.1",
     "mocha": "^2.2.1",
+    "pug": "^2.0.0-alpha7",
     "through2": "^0.6.3",
     "vinyl-source-stream": "^1.0.0"
   },
