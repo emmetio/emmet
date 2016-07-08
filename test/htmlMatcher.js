@@ -34,6 +34,14 @@ describe('HTML matcher', function() {
 	
 	function match(text, pos, resultStart, resultEnd, label) {
 		var m = htmlMatcher.find(text, pos);
+		
+		if (resultStart == null) {
+			assert.equal(m, null);
+			return;
+		} else {
+			assert.notEqual(m, null);
+		}
+		
 		var expectedRange = range.create2(resultStart, resultEnd);
 		assertTextRanges(text, m.range, expectedRange, pos);
 	}
@@ -75,6 +83,8 @@ describe('HTML matcher', function() {
 		var htmlString  = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends</p><p>Another paragraph';
 		var htmlString2 = '<div><b><br></b></div>';
 		var htmlString3 = '<b><b><br></b></b>';
+		var htmlString4 = '<div class="test3"><div class="test10"><p><div class="test4"><img src="test.jpg" alt="" width="50" height="50"><div class="test5"><div class="test6"></div></div></div></p></div><div class="test7"></div></div>';
+		var htmlString5 = '<@include "aaaa"><div></div><@include "aaaa">';
 		
 		match(htmlString, 25, 22, 26, 'Matched BR tag');
 		match(htmlString, 27, 3, 82, 'Matched P tag');
@@ -84,6 +94,11 @@ describe('HTML matcher', function() {
 		match(htmlString2, 16, 5, 16);
 		
 		match(htmlString3, 2, 0, 18);
+		
+		match(htmlString4, 174, 19, 177);
+		match(htmlString4, 205, 0, 208);
+		
+		match(htmlString5, 17, null);
 	});
 
 	it('must work fast', function() {
