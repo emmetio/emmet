@@ -6,15 +6,19 @@ With Emmet, you can type CSS-like expressions that can be dynamically parsed, an
 
 For example, this abbreviation:
 
-    ul#nav>li.item$*4>a{Item $}
+```
+ul#nav>li.item$*4>a{Item $}
+```
 
 ...can be expanded into:
 
-	<ul id="nav">
-		<li class="item1"><a href="">Item 1</a></li>
-		<li class="item2"><a href="">Item 2</a></li>
-		<li class="item3"><a href="">Item 3</a></li>
-		<li class="item4"><a href="">Item 4</a></li>
-	</ul>
+```html
+<ul id="nav">
+	<li class="item1"><a href="">Item 1</a></li>
+	<li class="item2"><a href="">Item 2</a></li>
+	<li class="item3"><a href="">Item 3</a></li>
+	<li class="item4"><a href="">Item 4</a></li>
+</ul>
+```
 
 [Learn more about Emmet features](http://docs.emmet.io)
