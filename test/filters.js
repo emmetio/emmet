@@ -10,6 +10,13 @@ describe('Filters', function() {
 		action.expandAbbreviationAction(editor, syntax, profile);
 	}
 
+	describe('Elm (elm)', function() {
+		it('should work', function() {
+			expand('#header.wide>#nav.tools+a.login|elm');
+			assert.equal('div\n  [ id "header"\n  , class "wide"\n  ]\n  [ div\n\t    [ id "nav"\n\t    , class "tools"\n\t    ]\n\t    [ \n\t    ]\n\t  , a\n\t    [ href ""\n\t    , class "login"\n\t    ]\n\t    [ \n\t    ]\n  ]', editor.getContent());
+		});
+	});
+
 	describe('Yandex BEM2 (bem)', function() {
 		it('should work', function() {
 			expand('.b_m1._m2|bem');
