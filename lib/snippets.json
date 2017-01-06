@@ -660,6 +660,8 @@
 			"pgba:r": "page-break-after:right;",
 			"orp": "orphans:|;",
 			"us": "user-select:${none};",
+			"wc": "will-change:|;",
+			"wc:t": "will-change:transform;",
 			"wid": "widows:|;",
 			"wfsm": "-webkit-font-smoothing:${antialiased};",
 			"wfsm:a": "-webkit-font-smoothing:antialiased;",
