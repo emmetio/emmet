@@ -57,7 +57,7 @@ describe('CSS Resolver', function() {
 
 	it('should normalize values', function() {
 		disableCIU();
-		
+
 		assert.equal(resolver.expandToSnippet('p0'), 'padding: 0;', 'Expanded "p0" (no unit for zero)');
 		assert.equal(resolver.expandToSnippet('z1'), 'z-index: 1;', 'Expanded "z1" (unitless value)');
 		assert.equal(resolver.expandToSnippet('p5'), 'padding: 5px;', 'Expanded "p5"');
@@ -87,7 +87,7 @@ describe('CSS Resolver', function() {
 
 	it('should augument values with !important', function() {
 		disableCIU();
-		
+
 		assert.equal(resolver.expandToSnippet('pos-a!'), 'position: absolute !important;', 'Expanded "pos-a" with !important');
 		assert.equal(resolver.expandToSnippet('padding5!'), 'padding: 5px !important;', 'Expanded "padding5" with !important');
 		assert.equal(resolver.expandToSnippet('-transform!'), '-webkit-transform: ${1} !important;\n-moz-transform: ${1} !important;\n-ms-transform: ${1} !important;\n-o-transform: ${1} !important;\ntransform: ${1} !important;', 'Expanded "-transform" with !important');
@@ -98,10 +98,10 @@ describe('CSS Resolver', function() {
 	it('should work with Stylus dialect', function() {
 		disableCIU();
 
-		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding 0');
-		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position absolute !important');
-		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding 5px !important');
-		assert.equal(resolver.expandToSnippet('-transform!', 'stylus'), '-webkit-transform ${1} !important\n-moz-transform ${1} !important\n-ms-transform ${1} !important\n-o-transform ${1} !important\ntransform ${1} !important');
+		assert.equal(resolver.expandToSnippet('p0', 'stylus'), 'padding: 0');
+		assert.equal(resolver.expandToSnippet('pos-a!', 'stylus'), 'position: absolute !important');
+		assert.equal(resolver.expandToSnippet('padding5!', 'stylus'), 'padding: 5px !important');
+		assert.equal(resolver.expandToSnippet('-transform!', 'stylus'), '-webkit-transform: ${1} !important\n-moz-transform: ${1} !important\n-ms-transform: ${1} !important\n-o-transform: ${1} !important\ntransform: ${1} !important');
 
 		restoreCIU();
 	});
@@ -125,19 +125,19 @@ describe('CSS Resolver', function() {
 		};
 
 		editor.setSyntax('css');
-		
+
 		run('p${0}');
 		assert.equal(editor.getContent(), 'padding: ;', 'Expanded "p"');
-		
+
 		run('p0${0}');
 		assert.equal(editor.getContent(), 'padding: 0;', 'Expanded "p0"');
-		
+
 		run('p1.2${0}');
 		assert.equal(editor.getContent(), 'padding: 1.2em;', 'Expanded "p1.2"');
 
 		run('m$s1$s2');
 		assert.equal(editor.getContent(), 'margin: $s1 $s2;', 'Expanded "m$s1$s2"');
-		
+
 		run('margin: 0 !${0};');
 		assert.equal(editor.getContent(), 'margin: 0 !important;', 'Added !important modifier');
 
@@ -163,7 +163,7 @@ describe('CSS Resolver', function() {
 		editor.setSyntax('css');
 		run('trf${0};');
 		assert.equal(editor.getContent(), '-webkit-transform: ;\n-ms-transform: ;\n-o-transform: ;\ntransform: ;');
-		
+
 		editor.setSyntax('html');
 	});
 
@@ -177,7 +177,7 @@ describe('CSS Resolver', function() {
 
 		run('p+m${0}');
 		assert.equal(editor.getContent(), 'padding: ;margin: ;');
-		
+
 		run('p0+m10${0}');
 		assert.equal(editor.getContent(), 'padding: 0;margin: 10px;');
 
