@@ -160,6 +160,10 @@ describe('CSS Resolver', function() {
 		run('trf${0};');
 		assert.equal(editor.getContent(), 'transform: ;');
 
+		editor.setSyntax('postcss');
+		run('trf${0};');
+		assert.equal(editor.getContent(), 'transform: ;');
+
 		editor.setSyntax('css');
 		run('trf${0};');
 		assert.equal(editor.getContent(), '-webkit-transform: ;\n-ms-transform: ;\n-o-transform: ;\ntransform: ;');
