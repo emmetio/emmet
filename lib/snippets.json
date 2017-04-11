@@ -776,7 +776,7 @@
 			"select": "<select name=\"\" id=\"\">",
 			"select:d|select:disabled": "select[disabled.]",
 			"opt|option": "<option value=\"\">",
-			"textarea": "<textarea name=\"\" id=\"\" cols=\"${1:30}\" rows=\"${2:10}\">",
+			"textarea": "<textarea>",
 			"marquee": "<marquee behavior=\"\" direction=\"\">",
 			"menu:c|menu:context": "menu[type=context]>",
 			"menu:t|menu:toolbar": "menu[type=toolbar]>",
