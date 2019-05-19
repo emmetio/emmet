@@ -249,8 +249,54 @@ describe('Filters', function() {
 
 			expand('span{Text 1${newline}Text 2}>b{Text 3}|slim');
 			assert.equal(editor.getContent(), 'span\n\t| Text 1\n\t  Text 2\n\tb Text 3');
-			
-			
+
+
+			editor.setSyntax(oldSyntax);
+			editor.setProfileName(oldProfile);
+		});
+	});
+	
+	describe('Ace', function() {
+		it('should work', function() {
+			var oldSyntax = editor.getSyntax();
+			var oldProfile = editor.getProfileName();
+			editor.setSyntax('ace');
+			editor.setProfileName('xml');
+
+			expand('#header>ul.nav>li[title=test$]*2|ace');
+			assert.equal(editor.getContent(), '#header\n\tul.nav\n\t\tli title=test1\n\t\tli title=test2');
+
+			expand('img', 'slim', 'xml');
+			assert.equal(editor.getContent(), 'img src="" alt=""/');
+
+			expand('img', 'slim', 'html');
+			assert.equal(editor.getContent(), 'img src="" alt=""');
+
+			// check data attrs
+			expand('.c[data-n1=v1 title=test data-n2=v2]|ace');
+			assert.equal(editor.getContent(), '.c data-n1=v1 title=test data-n2=v2');
+
+			// check boolean attrs
+			expand('.c[disabled. title=test]|ace');
+			assert.equal(editor.getContent(), '.c disabled=true title=test');
+
+			// check text
+			expand('span{Text}>b{Text 2}|ace');
+			assert.equal(editor.getContent(), 'span Text\n\tb Text 2');
+
+			expand('span{Text 1${newline}Text 2}>b{Text 3}|ace');
+			assert.equal(editor.getContent(), 'span\n\t||\n\t  Text 1\n\t  Text 2\n\tb Text 3');
+
+			expand('.c{| This is a single line.}|ace');
+			assert.equal(editor.getContent(), '.c\n\t| This is a single line.');
+
+			expand('.c{|| This is a ${newline}block line ${nl}with BR tags.}|ace');
+			assert.equal(editor.getContent(), '.c\n\t||\n\t  This is a \n\t  block line \n\t  with BR tags.');
+
+			expand('script{. var msg = \'Hello Ace\';${nl}alert(msg);}|ace');
+			assert.equal(editor.getContent(), 'script.\n\tvar msg = \'Hello Ace\';\n\talert(msg);');
+
+
 			editor.setSyntax(oldSyntax);
 			editor.setProfileName(oldProfile);
 		});

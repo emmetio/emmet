@@ -982,6 +982,12 @@
 		"profile": "xml"
 	},
 
+	"ace": {
+		"filters": "ace",
+		"extends": "html",
+		"profile": "xml"
+	},
+
 	"jsx": {
 		"filters": "jsx, html",
 		"extends": "html",
