@@ -1,0 +1,21 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "max-line-length": [true, 180],
+    "quotemark": [true, "single"],
+    "ordered-imports": false,
+    "interface-name": false,
+    "object-literal-sort-keys": false,
+    "trailing-comma": false,
+    "arrow-parens": false,
+    "member-access": false,
+    "no-conditional-assignment": false,
+    "max-classes-per-file": false,
+    "prefer-for-of": false,
+    "no-bitwise": false,
+    "indent": [true, "spaces", 4],
+    "forin": false,
+    "no-unused-expression": false,
+    "no-string-literal": false
+  }
+}
