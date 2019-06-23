@@ -1,0 +1,41 @@
+{
+  "name": "@emmetio/snippets-registry",
+  "version": "0.3.1",
+  "description": "JavaScript module for storing and retrieving Emmet snippets",
+  "main": "./dist/snippets-registry.cjs.js",
+  "module": "./dist/snippets-registry.es.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "mocha",
+    "build": "rollup -c",
+    "lint": "tslint ./src/*.ts",
+    "clean": "rm -rf ./dist",
+    "types": "tsc -p ./tsconfig.json --declaration --emitDeclarationOnly",
+    "prepare": "npm run lint && npm test && npm run clean && npm run build && npm run types"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/snippets-registry.git"
+  },
+  "keywords": [],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/snippets-registry/issues"
+  },
+  "homepage": "https://github.com/emmetio/snippets-registry#readme",
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.0.8",
+    "mocha": "^6.1.4",
+    "rollup": "^1.15.6",
+    "rollup-plugin-typescript2": "^0.21.2",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/*.ts"
+  }
+}
