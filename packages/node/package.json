@@ -1,0 +1,43 @@
+{
+  "name": "@emmetio/node",
+  "version": "0.1.2",
+  "description": "Emmet abbreviation node",
+  "main": "./dist/node.cjs.js",
+  "module": "./dist/node.es.js",
+  "types": "./dist/Node.d.ts",
+  "scripts": {
+    "lint": "tslint ./src/*.ts",
+    "test": "mocha",
+    "build": "rollup -c",
+    "clean": "rm -rf ./dist",
+    "types": "tsc -p ./tsconfig.json --declaration --emitDeclarationOnly",
+    "prepare": "npm run lint && npm test && npm run clean && npm run build && npm run types"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/node.git"
+  },
+  "keywords": [],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/emmet/issues"
+  },
+  "homepage": "https://github.com/emmetio/node#readme",
+  "devDependencies": {
+    "mocha": "^6.1.4",
+    "rollup": "^1.16.2",
+    "rollup-plugin-typescript2": "^0.21.2",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/*.ts"
+  }
+}

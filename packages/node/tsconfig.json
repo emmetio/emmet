@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "outDir": "./dist"
+  },
+  "files": ["src/Node.ts"]
+}
