@@ -1,0 +1,42 @@
+{
+  "name": "@emmetio/stream-reader",
+  "version": "2.2.0",
+  "description": "Reads text as stream",
+  "main": "./index.js",
+  "module": "./es/index.js",
+  "types": "./index.d.ts",
+  "scripts": {
+    "test": "mocha",
+    "lint": "tslint ./*.ts",
+    "build": "npm run build:es && npm run build:cjs",
+    "build:es": "tsc -p ./ --module esnext --outDir ./es",
+    "build:cjs": "tsc -p ./",
+    "clean": "rm -rf ./es",
+    "prepare": "npm run lint && npm test && npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/stream-reader.git"
+  },
+  "keywords": [
+    "emmet",
+    "stream",
+    "reader"
+  ],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/stream-reader/issues"
+  },
+  "homepage": "https://github.com/emmetio/stream-reader#readme",
+  "devDependencies": {
+    "mocha": "^6.1.4",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/*.ts"
+  }
+}
