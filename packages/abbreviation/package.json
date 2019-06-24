@@ -1,0 +1,48 @@
+{
+  "name": "@emmetio/abbreviation",
+  "version": "0.6.5",
+  "description": "Emmet standalone abbreviation parser",
+  "main": "./dist/abbreviation.cjs.js",
+  "module": "./dist/abbreviation.es.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "lint": "tslint ./src/*.ts",
+    "test": "mocha",
+    "build": "rollup -c",
+    "clean": "rm -rf ./dist",
+    "prepare": "npm run lint && npm test && npm run clean && npm run build"
+  },
+  "keywords": [
+    "emmet",
+    "abbreviation"
+  ],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@emmetio/node": "^0.1.2",
+    "@emmetio/stream-reader": "^2.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.4",
+    "rollup": "^1.16.2",
+    "rollup-plugin-typescript2": "^0.21.2",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/abbreviation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emmetio/abbreviation/issues"
+  },
+  "homepage": "https://github.com/emmetio/abbreviation#readme",
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/*.ts"
+  }
+}

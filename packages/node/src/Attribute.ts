@@ -1,4 +1,4 @@
-export type AttributeName = string;
+export type AttributeName = string | null;
 export type AttributeValue = string | null;
 
 export interface AttributeOptions {
@@ -7,6 +7,12 @@ export interface AttributeOptions {
 
     /** Attribute is implied (e.g.must be outputted only if contains non-null value) */
     implied?: boolean;
+
+    /** String token before attribute value */
+    before?: string;
+
+    /** String token after attribute value */
+    after?: string;
 }
 
 export interface RawAttribute {

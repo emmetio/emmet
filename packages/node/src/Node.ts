@@ -1,9 +1,19 @@
-import Attribute, { AttributeValue, RawAttribute, AttributeName } from './Attribute';
+import Attribute, { AttributeValue, RawAttribute, AttributeName, AttributeOptions } from './Attribute';
 
-type IncomingAttribute = AttributeName | RawAttribute | Attribute;
-type NodeName = string | null;
-type NodeValue = string | null;
-type AttributeMap = { [name: string]: NodeValue; };
+export type IncomingAttribute = AttributeName | RawAttribute | Attribute;
+export type NodeName = string | null;
+export type NodeValue = string | null;
+
+export interface NodeRepeat {
+    count?: number;
+    value?: string | number;
+}
+
+export { Attribute, AttributeValue, RawAttribute, AttributeName, AttributeOptions };
+
+export interface AttributeMap {
+    [name: string]: NodeValue;
+}
 
 /**
  * A parsed abbreviation AST node. Nodes build up an abbreviation AST tree
@@ -16,10 +26,7 @@ export default class Node {
     value: NodeValue = null;
 
     /** Node repeater data */
-    repeat?: {
-        count: number;
-        value?: string;
-    };
+    repeat?: NodeRepeat;
 
     /**  Indicates current element is self-closing, e.g. should not contain closing pair */
     selfClosing: boolean = false;
@@ -56,7 +63,9 @@ export default class Node {
      */
     get attributesMap(): AttributeMap {
         return this.attributes.reduce((out, attr) => {
-            out[attr.name] = attr.options.boolean ? attr.name : attr.value;
+            if (attr.name != null) {
+                out[attr.name] = attr.options.boolean ? attr.name : attr.value;
+            }
             return out;
         }, {});
     }
@@ -359,13 +368,13 @@ export default class Node {
     toString(): string {
         const attrs = this.attributes.map(attr => {
             const opt = attr.options;
-            let out = `${opt && opt.implied ? '!' : ''}${attr.name || ''}`;
+            let attrOut = `${opt && opt.implied ? '!' : ''}${attr.name || ''}`;
             if (opt && opt.boolean) {
-                out += '.';
+                attrOut += '.';
             } else if (attr.value != null) {
-                out += `="${attr.value}"`;
+                attrOut += `="${attr.value}"`;
             }
-            return out;
+            return attrOut;
         });
 
         let out = `${this.name || ''}`;
