@@ -41,6 +41,14 @@ export function isAlphaNumeric(code: number): boolean {
     return isNumber(code) || isAlpha(code);
 }
 
+export function isAlphaNumericWord(code: number): boolean {
+    return isNumber(code) || isAlphaWord(code);
+}
+
+export function isAlphaWord(code: number): boolean {
+    return code === 95 /* _ */ || isAlpha(code);
+}
+
 export function isWhiteSpace(code: number) {
     return code === 32   /* space */
         || code === 9    /* tab */

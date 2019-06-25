@@ -1,0 +1,40 @@
+{
+  "name": "@emmetio/css-abbreviation",
+  "version": "0.4.0",
+  "description": "Parses Emmet CSS abbreviation into AST tree",
+  "main": "dist/css-abbreviation.cjs.js",
+  "module": "dist/css-abbreviation.es.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/css-transform.git"
+  },
+  "keywords": [],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/css-transform/issues"
+  },
+  "homepage": "https://github.com/emmetio/css-transform#readme",
+  "dependencies": {
+    "@emmetio/stream-reader": "^2.2.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.1.4",
+    "rollup": "^1.16.2",
+    "rollup-plugin-typescript2": "^0.21.2",
+    "ts-lint": "^4.5.1",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/*.ts"
+  }
+}
