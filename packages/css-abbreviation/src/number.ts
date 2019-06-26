@@ -21,7 +21,7 @@ export default function consumeNumber(stream: StreamReader): CSSNumber | undefin
         // eat unit, which can be a % or alpha word
         stream.eat(Chars.Percent) || stream.eatWhile(isAlphaWord);
         return {
-            type: 'number',
+            type: 'CSSNumber',
             value,
             unit: stream.current(),
             start,

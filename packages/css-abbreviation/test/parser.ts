@@ -1,6 +1,6 @@
 import { equal, throws } from 'assert';
 import parser, { CSSFunction, CSSKeyword, CSSString, CSSNumber } from '../src/index';
-import stringify from './assets/strinfigy';
+import stringify from './assets/stringify';
 
 describe('CSS Abbreviation parser', () => {
     const parse = (abbr: string) => stringify(parser(abbr));
@@ -21,9 +21,9 @@ describe('CSS Abbreviation parser', () => {
         equal(parse('p.1-.2.3'), 'p: 0.1 0.2 0.3;');
         equal(parse('p.1--.2.3'), 'p: 0.1 -0.2 0.3;');
 
-        equal(parse('10'), 'null: 10;');
-        equal(parse('.1'), 'null: 0.1;');
-        throws(() => parse('.foo'), /Unexpected character at char 1/);
+        equal(parse('10'), '10;');
+        equal(parse('.1'), '0.1;');
+        throws(() => parse('.foo'), /Unexpected character at 1/);
     });
 
     it('color', () => {
@@ -53,35 +53,35 @@ describe('CSS Abbreviation parser', () => {
 
         let arg = g.arguments[0];
         equal(arg.items.length, 1);
-        equal(arg.items[0].type, 'keyword');
+        equal(arg.items[0].type, 'CSSKeyword');
         equal((arg.items[0] as CSSKeyword).value, 'top');
 
         arg = g.arguments[1];
         equal(arg.items.length, 1);
-        equal(arg.items[0].type, 'string');
+        equal(arg.items[0].type, 'CSSString');
         equal((arg.items[0] as CSSString).value, '"red, black"');
 
         arg = g.arguments[2];
         equal(arg.items.length, 2);
-        equal(arg.items[0].type, 'function');
+        equal(arg.items[0].type, 'CSSFunction');
 
         const args = (arg.items[0] as CSSFunction).arguments;
         equal(args.length, 3);
-        equal(args[0].items[0].type, 'numeric');
+        equal(args[0].items[0].type, 'CSSNumber');
         equal((args[0].items[0] as CSSNumber).value, 0);
     });
 
     it('important/exclamation', () => {
         equal(parse('!'), '!;');
         equal(parse('p!'), 'p: !;');
-        equal(parse('p10!'), 'p: 10 !;');
+        equal(parse('p10!'), 'p: 10!;');
     });
 
     it('mixed', () => {
         equal(parse('bd1-s#fc0'), 'bd: 1 s #ffcc00;');
         equal(parse('bd#fc0-1'), 'bd: #ffcc00 1;');
         equal(parse('p0+m0'), 'p: 0;m: 0;');
-        equal(parse('p0!+m0!'), 'p: 0 !;m: 0 !;');
+        equal(parse('p0!+m0!'), 'p: 0!;m: 0!;');
     });
 
     it('embedded variables', () => {

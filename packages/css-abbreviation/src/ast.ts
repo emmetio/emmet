@@ -10,36 +10,36 @@ export interface CSSNode {
 }
 
 export interface CSSAbbreviation {
-    type: 'abbreviation';
+    type: 'CSSAbbreviation';
     elements: CSSElement[];
     source: string;
 }
 
 export interface CSSElement extends CSSNode {
-    type: 'element';
+    type: 'CSSElement';
     name?: string;
     value?: CSSValue[];
     important?: boolean;
 }
 
 export interface CSSString extends CSSNode {
-    type: 'string';
+    type: 'CSSString';
     value: string;
 }
 
 export interface CSSNumber extends CSSNode {
-    type: 'number';
+    type: 'CSSNumber';
     value: number;
     unit?: string;
 }
 
 export interface CSSKeyword extends CSSNode {
-    type: 'keyword';
+    type: 'CSSKeyword';
     value: string;
 }
 
 export interface CSSColor extends CSSNode {
-    type: 'color';
+    type: 'CSSColor';
     r: number;
     g: number;
     b: number;
@@ -50,12 +50,12 @@ export interface CSSColor extends CSSNode {
 export type CSSValue = CSSString | CSSNumber | CSSKeyword | CSSColor | CSSFunction;
 
 export interface CSSFunction extends CSSNode {
-    type: 'function';
+    type: 'CSSFunction';
     name: string;
     arguments: CSSFunctionArgument[];
 }
 
 export interface CSSFunctionArgument extends CSSNode {
-    type: 'argument';
+    type: 'CSSFunctionArgument';
     items: CSSValue[];
 }

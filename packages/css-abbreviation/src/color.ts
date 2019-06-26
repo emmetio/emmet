@@ -33,7 +33,7 @@ export default function consumeColor(stream: StreamReader): CSSColor | undefined
         const alpha = stream.current();
 
         return {
-            type: 'color',
+            type: 'CSSColor',
             ...parseColor(base, alpha),
             raw: base + alpha,
             start,

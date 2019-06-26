@@ -30,7 +30,7 @@ export default function consumeKeyword(stream: StreamReader, short?: boolean): C
 
     if (stream.start !== stream.pos) {
         return {
-            type: 'keyword',
+            type: 'CSSKeyword',
             value: stream.current(),
             start,
             end: stream.pos

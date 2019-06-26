@@ -70,7 +70,7 @@ function consumeArgument(stream: StreamReader): CSSFunctionArgument | undefined 
 
     if (items.length) {
         return {
-            type: 'argument',
+            type: 'CSSFunctionArgument',
             items,
             start: items[0].start,
             end: items[items.length - 1].end
@@ -87,7 +87,7 @@ export function consumeKeywordOrFunction(stream: StreamReader, short?: boolean):
         const args = consumeArgumentList(stream);
         if (args) {
             return {
-                type: 'function',
+                type: 'CSSFunction',
                 arguments: args,
                 name: kw.value,
                 start: kw.start,

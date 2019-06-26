@@ -22,7 +22,7 @@ const enum Chars {
 export default function parseAbbreviation(source: string): CSSAbbreviation {
     const stream = new StreamReader(source);
     const result: CSSAbbreviation = {
-        type: 'abbreviation',
+        type: 'CSSAbbreviation',
         elements: [],
         source
     };
@@ -31,35 +31,36 @@ export default function parseAbbreviation(source: string): CSSAbbreviation {
     let args: CSSFunctionArgument[] | undefined;
 
     while (!stream.eof()) {
-        if (name = consumeIdent(stream)) {
-            const elem: CSSElement = {
-                type: 'element',
-                start: stream.start
-            };
-
-            if (args = consumeArguments(stream)) {
-                // Edge case: element is a function call, e.g. `lg(...)`
-                elem.value = [{
-                    type: 'function',
-                    name,
-                    arguments: args,
-                    start: elem.start,
-                    end: stream.pos
-                }];
-            } else {
-                elem.name = name;
-                elem.value = consumeValue(stream);
-            }
-
-            elem.important = stream.eat(Chars.Important);
-            elem.end = stream.pos;
-            result.elements.push(elem);
-
-            // CSS abbreviations cannot be nested, only listed
-            stream.eat(Chars.Plus);
+        const elem: CSSElement = {
+            type: 'CSSElement',
+            start: stream.start
+        };
+        name = consumeIdent(stream);
+        if (name && (args = consumeArguments(stream))) {
+            // Edge case: element is a function call, e.g. `lg(...)`
+            elem.value = [{
+                type: 'CSSFunction',
+                name,
+                arguments: args,
+                start: elem.start,
+                end: stream.pos
+            }];
         } else {
+            elem.name = name;
+            elem.value = consumeValue(stream);
+        }
+
+        elem.important = stream.eat(Chars.Important);
+
+        if (!elem.name && !elem.value && !elem.important) {
             throw stream.error('Unexpected character');
         }
+
+        elem.end = stream.pos;
+        result.elements.push(elem);
+
+        // CSS abbreviations cannot be nested, only listed
+        stream.eat(Chars.Plus);
     }
 
     return result;
@@ -70,7 +71,7 @@ export default function parseAbbreviation(source: string): CSSAbbreviation {
  */
 function consumeIdent(stream: StreamReader): string | undefined {
     const start = stream.pos;
-    if (stream.eatWhile(isIdentPrefix)) {
+    if (stream.eat(isAlphaWord) || stream.eatWhile(isIdentPrefix)) {
         stream.eatWhile(isAlphaWord);
         stream.start = start;
         return stream.current();
@@ -109,5 +110,5 @@ function consumeValue(stream: StreamReader): CSSValue[] | undefined {
 }
 
 function isIdentPrefix(code: number): boolean {
-    return code === Chars.At || code === Chars.Dollar || code === Chars.Important;
+    return code === Chars.At || code === Chars.Dollar;
 }

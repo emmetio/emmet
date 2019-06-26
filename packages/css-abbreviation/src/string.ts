@@ -8,7 +8,7 @@ import { CSSString } from './ast';
 export default function consumeString(stream: StreamReader): CSSString | undefined {
     if (eatQuoted(stream, { throws: true })) {
         return {
-            type: 'string',
+            type: 'CSSString',
             value: stream.current(),
             start: stream.start,
             end: stream.pos

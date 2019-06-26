@@ -12,20 +12,21 @@ const visitors: VisitorMap = {
         return node.elements.map(next).join('');
     },
     CSSElement(node: CSSElement, next) {
-        if (node.value) {
-            let value = node.value.map(next).join(' ');
-            if (node.important) {
-                value += ' !';
-            }
-
-            return node.name ? `${node.name}: ${value};` : `${value};`;
-        }
+        let value = '';
 
         if (node.name) {
-            return `${node.name}${node.important ? ' !' : ''};`;
+            value += `${node.name}: `;
         }
 
-        return '';
+        if (node.value) {
+            value += node.value.map(next).join(' ');
+        }
+
+        if (node.important) {
+            value += '!';
+        }
+
+        return `${value};`;
     },
     CSSString(node: CSSString) {
         return node.value;
@@ -56,7 +57,7 @@ export default function stringify(abbr: CSSAbbreviation): string {
             return visitors[node.type](node, next);
         }
 
-        throw new Error(`Unknown node type ${node.type}`);
+        throw new Error(`Unknown node type "${node.type}"`);
     };
 
     return next(abbr);
