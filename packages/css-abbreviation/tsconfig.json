@@ -11,6 +11,5 @@
     "module": "commonjs",
     "outDir": "./dist"
   },
-  "files": ["src/index.ts"],
-  "exclude": ["src/*.ts", "test/**/*.ts"]
+  "files": ["src/index.ts"]
 }

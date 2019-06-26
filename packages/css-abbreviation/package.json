@@ -2,11 +2,15 @@
   "name": "@emmetio/css-abbreviation",
   "version": "0.4.0",
   "description": "Parses Emmet CSS abbreviation into AST tree",
-  "main": "dist/css-abbreviation.cjs.js",
-  "module": "dist/css-abbreviation.es.js",
+  "main": "./dist/css-abbreviation.cjs.js",
+  "module": "./dist/css-abbreviation.es.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "lint": "tslint ./src/*.ts",
+    "test": "mocha",
     "build": "rollup -c",
-    "test": "mocha"
+    "clean": "rm -rf ./dist",
+    "prepare": "npm run lint && npm test && npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
