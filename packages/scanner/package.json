@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/scanner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Scans given text character-by-character",
   "main": "./index.js",
   "module": "./es/index.js",

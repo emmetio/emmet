@@ -1,26 +1,32 @@
 {
-  "name": "@emmetio/abbreviation",
-  "version": "0.6.5",
-  "description": "Emmet standalone abbreviation parser",
-  "main": "./dist/abbreviation.cjs.js",
-  "module": "./dist/abbreviation.es.js",
+  "name": "@emmetio/field-parser",
+  "version": "0.2.0",
+  "description": "Parses snippet fields (aka tab-stops) like `${1:foo}` in given string",
+  "main": "./dist/field-parser.cjs.js",
+  "module": "./dist/field-parser.es.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "lint": "tslint ./src/*.ts",
     "test": "mocha",
-    "build": "rollup -c && cp ./src/ast.ts ./dist",
+    "build": "rollup -c",
     "clean": "rm -rf ./dist",
     "prepare": "npm run lint && npm test && npm run clean && npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/emmet.git"
+  },
   "keywords": [
     "emmet",
-    "abbreviation"
+    "field",
+    "tabstop"
   ],
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "@emmetio/scanner": "^0.0.2"
+  "bugs": {
+    "url": "https://github.com/emmetio/emmet/issues"
   },
+  "homepage": "https://github.com/emmetio/emmet#readme",
   "devDependencies": {
     "mocha": "^6.1.4",
     "rollup": "^1.16.2",
@@ -29,17 +35,9 @@
     "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
   },
-  "directories": {
-    "test": "test"
+  "dependencies": {
+    "@emmetio/scanner": "^0.0.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/emmetio/abbreviation.git"
-  },
-  "bugs": {
-    "url": "https://github.com/emmetio/abbreviation/issues"
-  },
-  "homepage": "https://github.com/emmetio/abbreviation#readme",
   "mocha": {
     "require": "ts-node/register",
     "spec": "./test/*.ts"

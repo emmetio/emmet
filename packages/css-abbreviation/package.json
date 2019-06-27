@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/emmetio/css-transform#readme",
   "dependencies": {
-    "@emmetio/scanner": "^0.0.1"
+    "@emmetio/scanner": "^0.0.2"
   },
   "devDependencies": {
     "mocha": "^6.1.4",
