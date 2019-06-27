@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { isWhiteSpace } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { isWhiteSpace } from '@emmetio/scanner/utils';
 import consumeNumber from './number';
 import consumeColor from './color';
 import consumeKeyword from './keyword';
@@ -18,7 +18,7 @@ const enum Chars {
  * `(1, a2, 'a3')`. Nested lists and quoted strings are supported
  * @return Array of arguments, `null` if arguments cannot be consumed
  */
-export default function consumeArgumentList(stream: StreamReader): CSSFunctionArgument[] | undefined {
+export default function consumeArgumentList(stream: Scanner): CSSFunctionArgument[] | undefined {
     if (!stream.eat(Chars.LBrace)) {
         // not an argument list
         return void 0;
@@ -52,7 +52,7 @@ export default function consumeArgumentList(stream: StreamReader): CSSFunctionAr
  * Consumes a single argument. An argument is a `CSSValue`, e.g. it could be
  * a space-separated string of value
  */
-function consumeArgument(stream: StreamReader): CSSFunctionArgument | undefined {
+function consumeArgument(stream: Scanner): CSSFunctionArgument | undefined {
     let value: CSSValue | undefined;
     const items: CSSValue[] = [];
 
@@ -81,7 +81,7 @@ function consumeArgument(stream: StreamReader): CSSFunctionArgument | undefined 
 /**
  * Consumes either function call like `foo()` or keyword like `foo`
  */
-export function consumeKeywordOrFunction(stream: StreamReader, short?: boolean): CSSKeyword | CSSFunction | undefined {
+export function consumeKeywordOrFunction(stream: Scanner, short?: boolean): CSSKeyword | CSSFunction | undefined {
     const kw = consumeKeyword(stream, short);
     if (kw) {
         const args = consumeArgumentList(stream);

@@ -1,9 +1,9 @@
 import { equal, throws } from 'assert';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
 import consumeLiteral from '../src/literal';
 
 describe('Literal', () => {
-    const parse = (str: string) => consumeLiteral(new StreamReader(str))!;
+    const parse = (str: string) => consumeLiteral(new Scanner(str))!;
 
     it('parse', () => {
         equal(parse('{a b c}').value, 'a b c');

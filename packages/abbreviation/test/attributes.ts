@@ -1,10 +1,10 @@
 import { throws, deepEqual, ok } from 'assert';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
 import consumeAttributes from '../src/attribute';
 import { EMAttribute } from '../src/ast';
 
 describe('Attributes', () => {
-    const parse = (str: string) => consumeAttributes(new StreamReader(str))!;
+    const parse = (str: string) => consumeAttributes(new Scanner(str))!;
     const names = (attrs: EMAttribute[]) => attrs.map(a => a.name);
     const values = (attrs: EMAttribute[]) => attrs.map(a => a.value && a.value.value);
 

@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { isAlphaNumeric } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { isAlphaNumeric } from '@emmetio/scanner/utils';
 import attributes from './attribute';
 import consumeLiteral from './literal';
 import repeater from './repeat';
@@ -9,7 +9,7 @@ import { Chars, toAttribute, toLiteral } from './utils';
 /**
  * Consumes a single element node from current abbreviation stream
  */
-export default function consumeElement(stream: StreamReader): EMElement {
+export default function consumeElement(stream: Scanner): EMElement {
     const start = stream.pos;
     const name = identifier(stream);
     const node: EMElement = {
@@ -56,7 +56,7 @@ export default function consumeElement(stream: StreamReader): EMElement {
     return node;
 }
 
-function identifier(stream: StreamReader): EMLiteral | undefined {
+function identifier(stream: Scanner): EMLiteral | undefined {
     const start = stream.pos;
     if (stream.eatWhile(isIdentifier)) {
         stream.start = start;

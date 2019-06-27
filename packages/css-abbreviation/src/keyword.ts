@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { isAlphaNumericWord, isAlphaWord } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { isAlphaNumericWord, isAlphaWord } from '@emmetio/scanner/utils';
 import { CSSKeyword } from './ast';
 
 const enum Chars {
@@ -16,7 +16,7 @@ const enum Chars {
  * alpha characters only and used for extracting keywords from abbreviation,
  * while “full” notation also supports numbers and dashes
  */
-export default function consumeKeyword(stream: StreamReader, short?: boolean): CSSKeyword | undefined {
+export default function consumeKeyword(stream: Scanner, short?: boolean): CSSKeyword | undefined {
     const start = stream.start = stream.pos;
 
     if (stream.eat(Chars.Dollar) || stream.eat(Chars.At)) {

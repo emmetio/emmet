@@ -8,8 +8,8 @@ export default {
         }
     })],
     external: [
-        '@emmetio/stream-reader',
-        '@emmetio/stream-reader/utils'
+        '@emmetio/scanner',
+        '@emmetio/scanner/utils'
     ],
     output: [{
         format: 'cjs',

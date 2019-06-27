@@ -1,5 +1,5 @@
-import { isNumber, isAlphaWord } from '@emmetio/stream-reader/utils';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
+import { isNumber, isAlphaWord } from '@emmetio/scanner/utils';
 import { CSSNumber } from './ast';
 
 const enum Chars {
@@ -12,7 +12,7 @@ const enum Chars {
  * Consumes numeric CSS value (number with optional unit) from current stream,
  * if possible
  */
-export default function consumeNumber(stream: StreamReader): CSSNumber | undefined {
+export default function consumeNumber(stream: Scanner): CSSNumber | undefined {
     const start = stream.start = stream.pos;
     if (eatNumber(stream)) {
         const value = Number(stream.current());
@@ -34,7 +34,7 @@ export default function consumeNumber(stream: StreamReader): CSSNumber | undefin
  * Eats number value from given stream
  * @return Returns `true` if number was consumed
  */
-function eatNumber(stream: StreamReader): boolean {
+function eatNumber(stream: Scanner): boolean {
     const start = stream.pos;
     stream.eat(Chars.Dash);
     const afterNegative = stream.pos;

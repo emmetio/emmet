@@ -1,9 +1,9 @@
 import { equal } from 'assert';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
 import parseColor, { asHex, asRGB } from '../src/color';
 
 function color(abbr: string, output?: 'hex' | 'shortHex' | 'rgb') {
-    const c = parseColor(new StreamReader(abbr))!;
+    const c = parseColor(new Scanner(abbr))!;
 
     if (output === 'hex') {
         return asHex(c);

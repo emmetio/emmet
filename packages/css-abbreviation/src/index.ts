@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { isAlphaWord } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { isAlphaWord } from '@emmetio/scanner/utils';
 import consumeColor from './color';
 import consumeNumericValue from './number';
 import consumeArguments, { consumeKeywordOrFunction } from './function';
@@ -20,7 +20,7 @@ const enum Chars {
  * Parses given Emmet CSS abbreviation and returns it as parsed Node tree
  */
 export default function parseAbbreviation(source: string): CSSAbbreviation {
-    const stream = new StreamReader(source);
+    const stream = new Scanner(source);
     const result: CSSAbbreviation = {
         type: 'CSSAbbreviation',
         elements: [],
@@ -69,7 +69,7 @@ export default function parseAbbreviation(source: string): CSSAbbreviation {
 /**
  * Consumes CSS property identifier from given stream
  */
-function consumeIdent(stream: StreamReader): string | undefined {
+function consumeIdent(stream: Scanner): string | undefined {
     const start = stream.pos;
     if (stream.eat(isAlphaWord) || stream.eatWhile(isIdentPrefix)) {
         stream.eatWhile(isAlphaWord);
@@ -81,7 +81,7 @@ function consumeIdent(stream: StreamReader): string | undefined {
 /**
  * Consumes embedded value from Emmet CSS abbreviation stream
  */
-function consumeValue(stream: StreamReader): CSSValue[] | undefined {
+function consumeValue(stream: Scanner): CSSValue[] | undefined {
     const values: CSSValue[] = [];
     let value: CSSValue | undefined;
 

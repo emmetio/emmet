@@ -1,9 +1,9 @@
 import { deepEqual } from 'assert';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
 import consumeRepeat from '../src/repeat';
 
 describe('Repeat', () => {
-    const parse = (str: string) => consumeRepeat(new StreamReader(str));
+    const parse = (str: string) => consumeRepeat(new Scanner(str));
 
     it('basic', () => {
         deepEqual(parse('*3'), { count: 3 });

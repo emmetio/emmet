@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { isWhiteSpace } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { isWhiteSpace } from '@emmetio/scanner/utils';
 import { EMAttribute, EMLiteral } from './ast';
 import consumeLiteral from './literal';
 import { Chars, toAttribute } from './utils';
@@ -12,7 +12,7 @@ const reAttributeName = /^\!?[\w\-:\$@]+\.?$/;
  * [attr col=3 title="Quoted string" selected. support={react}]
  * @returns Array of consumed attributes
  */
-export default function attributeList(stream: StreamReader): EMAttribute[] | undefined {
+export default function attributeList(stream: Scanner): EMAttribute[] | undefined {
     if (!stream.eat(Chars.AttrOpen)) {
         return;
     }

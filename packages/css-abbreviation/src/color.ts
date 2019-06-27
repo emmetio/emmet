@@ -1,5 +1,5 @@
-import { isNumber, isAlpha } from '@emmetio/stream-reader/utils';
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
+import { isNumber, isAlpha } from '@emmetio/scanner/utils';
 import { CSSColor } from './ast';
 
 const enum Chars {
@@ -11,7 +11,7 @@ const enum Chars {
 /**
  * Consumes a color token from given string
  */
-export default function consumeColor(stream: StreamReader): CSSColor | undefined {
+export default function consumeColor(stream: Scanner): CSSColor | undefined {
     // supported color variations:
     // #abc   → #aabbccc
     // #0     → #000000

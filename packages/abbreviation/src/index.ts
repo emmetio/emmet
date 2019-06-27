@@ -1,4 +1,4 @@
-import StreamReader from '@emmetio/stream-reader';
+import Scanner from '@emmetio/scanner';
 import consumeRepeat from './repeat';
 import consumeElement from './element';
 import { EMAbbreviation, EMElement, EMGroup, EMNode } from './ast';
@@ -11,7 +11,7 @@ type Container = EMAbbreviation | EMElement | EMGroup;
  * @param str Abbreviation to parse
  */
 export default function parse(str: string): EMAbbreviation {
-    const stream = new StreamReader(str);
+    const stream = new Scanner(str);
     const root: EMAbbreviation = {
         type: 'EMAbbreviation',
         items: [],

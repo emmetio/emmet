@@ -1,5 +1,5 @@
-import StreamReader from '@emmetio/stream-reader';
-import { eatQuoted, isQuote, isSpace } from '@emmetio/stream-reader/utils';
+import Scanner from '@emmetio/scanner';
+import { eatQuoted, isQuote, isSpace } from '@emmetio/scanner/utils';
 import { EMLiteral } from './ast';
 import { Chars } from './utils';
 
@@ -7,7 +7,7 @@ import { Chars } from './utils';
  * Consumes string literal from given stream. A string literal could be either
  * quoted string, unquoted string or expression value, e.g. `{...}`
  */
-export default function consumeLiteral(stream: StreamReader): EMLiteral | undefined {
+export default function consumeLiteral(stream: Scanner): EMLiteral | undefined {
     let value: string | undefined;
     let before = '';
     let after = '';
@@ -37,7 +37,7 @@ export default function consumeLiteral(stream: StreamReader): EMLiteral | undefi
  * Consumes text node `{...}` from stream
  * @return Returns consumed text node or `undefined` if there’s no text at starting position
  */
-export function expression(stream: StreamReader): boolean {
+export function expression(stream: Scanner): boolean {
     const start = stream.pos;
 
     if (stream.eat(Chars.ExpressionStart)) {
@@ -70,14 +70,14 @@ export function expression(stream: StreamReader): boolean {
 /**
  * Consumes quoted string from given stream
  */
-export function quoted(stream: StreamReader): boolean {
+export function quoted(stream: Scanner): boolean {
     return eatQuoted(stream, { throws: true });
 }
 
 /**
  * Consumes unquoted string from given stream
  */
-export function unquoted(stream: StreamReader): boolean {
+export function unquoted(stream: Scanner): boolean {
     const start = stream.pos;
     if (stream.eatWhile(isUnquoted)) {
         stream.start = start;
