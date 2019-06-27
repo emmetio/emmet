@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "tslint ./src/*.ts",
     "test": "mocha",
-    "build": "rollup -c",
+    "build": "rollup -c && cp ./src/ast.ts ./dist",
     "clean": "rm -rf ./dist",
     "prepare": "npm run lint && npm test && npm run clean && npm run build"
   },

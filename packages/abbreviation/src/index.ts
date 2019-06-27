@@ -4,6 +4,8 @@ import consumeElement from './element';
 import { EMAbbreviation, EMElement, EMGroup, EMNode } from './ast';
 import { Chars } from './utils';
 
+export * from './ast';
+
 type Container = EMAbbreviation | EMElement | EMGroup;
 
 /**
