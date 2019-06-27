@@ -1,7 +1,7 @@
 {
-  "name": "@emmetio/stream-reader",
-  "version": "2.2.0",
-  "description": "Reads text as stream",
+  "name": "@emmetio/scanner",
+  "version": "0.0.1",
+  "description": "Scans given text character-by-character",
   "main": "./index.js",
   "module": "./es/index.js",
   "types": "./index.d.ts",

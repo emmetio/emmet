@@ -3,7 +3,7 @@ type MatchFn = (ch: number) => boolean;
 /**
  * A streaming, character code-based string reader
  */
-export default class StreamReader {
+export default class Scanner {
     /** Current string */
     string: string;
 
@@ -37,8 +37,8 @@ export default class StreamReader {
      * range. E.g. its `eof()` method will look at `end` property, not actual
      * stream end
      */
-    limit(start?: number, end?: number): StreamReader {
-        return new StreamReader(this.string, start, end);
+    limit(start?: number, end?: number): Scanner {
+        return new Scanner(this.string, start, end);
     }
 
     /**

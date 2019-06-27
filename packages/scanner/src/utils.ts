@@ -1,7 +1,4 @@
-import StreamReader from './index';
-
-const SINGLE_QUOTE = 39; // '
-const DOUBLE_QUOTE = 34; // "
+import Scanner from './index';
 
 interface QuotedOptions {
     /** A character code of quote-escape symbol */
@@ -69,7 +66,7 @@ export function isSpace(code: number): boolean {
  * @return `true` if quoted string was consumed. The contents of quoted string
  * will be available as `stream.current()`
  */
-export function eatQuoted(stream: StreamReader, options?: QuotedOptions): boolean {
+export function eatQuoted(stream: Scanner, options?: QuotedOptions): boolean {
     options = { ...defaultQuotedOptions, ...options };
     const start = stream.pos;
     const quote = stream.peek();
@@ -103,7 +100,7 @@ export function eatQuoted(stream: StreamReader, options?: QuotedOptions): boolea
  * Check if given character code is a quote character
  */
 export function isQuote(code: number): boolean {
-    return code === SINGLE_QUOTE || code === DOUBLE_QUOTE;
+    return code === 39 /* ' */ || code === 34 /* " */;
 }
 
 /**
@@ -113,7 +110,7 @@ export function isQuote(code: number): boolean {
  * @return Returns `true` if character pair was successfully consumed, it’s
  * content will be available as `stream.current()`
  */
-export function eatPair(stream: StreamReader, open: number, close: number, options?: QuotedOptions): boolean {
+export function eatPair(stream: Scanner, open: number, close: number, options?: QuotedOptions): boolean {
     options = { ...defaultQuotedOptions, ...options };
     const start = stream.pos;
 
