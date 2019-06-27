@@ -1,47 +1,49 @@
-import Node from '@emmetio/node';
 import StreamReader from '@emmetio/stream-reader';
 import { isAlphaNumeric } from '@emmetio/stream-reader/utils';
-import consumeAttributes from './attribute';
-import consumeTextNode from './text';
-import consumeRepeat from './repeat';
-
-const HASH = 35; // #
-const DOT = 46; // .
-const SLASH = 47; // /
+import attributes from './attribute';
+import consumeLiteral from './literal';
+import repeater from './repeat';
+import { EMElement, EMLiteral, EMAttribute, EMRepeat } from './ast';
+import { Chars, toAttribute, toLiteral } from './utils';
 
 /**
  * Consumes a single element node from current abbreviation stream
  */
-export default function consumeElement(stream: StreamReader): Node {
-    // consume element name, if provided
+export default function consumeElement(stream: StreamReader): EMElement {
     const start = stream.pos;
-    const node = new Node(eatName(stream));
-    let next: any;
+    const name = identifier(stream);
+    const node: EMElement = {
+        type: 'EMElement',
+        name: name && name.value,
+        attributes: [],
+        items: [],
+        start: name && name.start
+    };
+    let attrs: EMAttribute[] | undefined;
+    let repeat: EMRepeat | undefined;
 
     while (!stream.eof()) {
-        if (stream.eat(DOT)) {
-            node.addClass(eatName(stream));
-        } else if (stream.eat(HASH)) {
-            node.setAttribute('id', eatName(stream));
-        } else if (stream.eat(SLASH)) {
-            // A self-closing indicator must be at the end of non-grouping node
-            if (node.isGroup) {
+        if (stream.eat(Chars.Dot)) {
+            addAttribute(node, 'class', identifier(stream));
+        } else if (stream.eat(Chars.Hash)) {
+            addAttribute(node, 'id', identifier(stream));
+        } else if (stream.eat(Chars.Slash)) {
+            // A self-closing indicator must be at the end of non-empty node
+            if (isEmpty(node)) {
                 stream.backUp(1);
                 throw stream.error('Unexpected self-closing indicator');
             }
             node.selfClosing = true;
-            if (next = consumeRepeat(stream)) {
-                node.repeat = next;
+            if (repeat = repeater(stream)) {
+                node.repeat = repeat;
             }
             break;
-        } else if (next = consumeAttributes(stream)) {
-            for (let i = 0, il = next.length; i < il; i++) {
-                node.setAttribute(next[i]);
-            }
-        } else if ((next = consumeTextNode(stream)) !== null) {
-            node.value = next;
-        } else if (next = consumeRepeat(stream)) {
-            node.repeat = next;
+        } else if (attrs = attributes(stream)) {
+            node.attributes = node.attributes.concat(attrs);
+        } else if (stream.peek() === Chars.ExpressionStart) {
+            node.value = consumeLiteral(stream);
+        } else if (repeat = repeater(stream)) {
+            node.repeat = repeat;
         } else {
             break;
         }
@@ -54,13 +56,15 @@ export default function consumeElement(stream: StreamReader): Node {
     return node;
 }
 
-function eatName(stream: StreamReader): string {
-    stream.start = stream.pos;
-    stream.eatWhile(isName);
-    return stream.current();
+function identifier(stream: StreamReader): EMLiteral | undefined {
+    const start = stream.pos;
+    if (stream.eatWhile(isIdentifier)) {
+        stream.start = start;
+        return toLiteral(stream.current(), start, stream.pos);
+    }
 }
 
-function isName(code: number) {
+function isIdentifier(code: number) {
     return isAlphaNumeric(code)
         || code === 45 /* - */
         || code === 58 /* : */
@@ -69,4 +73,18 @@ function isName(code: number) {
         || code === 33 /* ! */
         || code === 95 /* _ */
         || code === 37 /* % */;
+}
+
+/**
+ * Creates new attribute and adds it to given element
+ */
+function addAttribute(elem: EMElement, name?: string, value?: EMLiteral, start?: number, end?: number) {
+    elem.attributes.push(toAttribute(name, value));
+}
+
+/**
+ * Check if given element is empty, e.g. has no content
+ */
+function isEmpty(elem: EMElement): boolean {
+    return !elem.name && !elem.value && !elem.attributes.length;
 }

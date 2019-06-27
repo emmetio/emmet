@@ -1,34 +1,79 @@
-import Node from '@emmetio/node';
-import parse from './parser';
+import StreamReader from '@emmetio/stream-reader';
+import consumeRepeat from './repeat';
+import consumeElement from './element';
+import { EMAbbreviation, EMElement, EMGroup, EMNode } from './ast';
+import { Chars } from './utils';
+
+type Container = EMAbbreviation | EMElement | EMGroup;
 
 /**
- * Parses given abbreviation and un-rolls it into a full tree: recursively
- * replaces repeated elements with actual nodes
+ * Parses given string into a node tree
+ * @param str Abbreviation to parse
  */
-export default function parseAbbreviation(abbr: string): Node {
-    const tree = parse(abbr);
-    tree.walk(unroll);
-    return tree;
-}
+export default function parse(str: string): EMAbbreviation {
+    const stream = new StreamReader(str);
+    const root: EMAbbreviation = {
+        type: 'EMAbbreviation',
+        items: [],
+        raw: str
+    };
+    let ctx: Container = root;
+    const stack: Container[] = [];
 
-function unroll(node: Node) {
-    if (!node.repeat || !node.repeat.count) {
-        return;
-    }
+    while (!stream.eof()) {
+        if (stream.eat(Chars.GroupStart)) {
+            const group: EMGroup = {
+                type: 'EMGroup',
+                items: [],
+                start: stream.pos - 1
+            };
+            ctx.items.push(group);
+            stack.push(ctx);
+            ctx = group;
+            continue;
+        }
 
-    for (let i = 0; i < node.repeat.count; i++) {
-        const clone = node.clone(true);
-        clone.repeat!.value = i + 1;
-        clone.walk(unroll);
-        if (clone.isGroup) {
-            while (clone.children.length > 0) {
-                clone.firstChild!.repeat = clone.repeat;
-                node.parent!.insertBefore(clone.firstChild!, node);
+        if (stream.eat(Chars.GroupEnd)) {
+            while (ctx && !isGroup(ctx)) {
+                ctx = stack.pop()!;
             }
-        } else {
-            node.parent!.insertBefore(clone, node);
+
+            if (!ctx) {
+                throw stream.error('Unexpected ")" group end');
+            }
+
+            ctx.end = stream.pos;
+            ctx.repeat = consumeRepeat(stream);
+            ctx = stack.pop()!;
+
+            // For convenience, groups can be joined with optional `+` operator
+            stream.eat(Chars.Sibling);
+            continue;
+        }
+
+        const elem = consumeElement(stream);
+        ctx.items.push(elem);
+
+        if (stream.eof()) {
+            break;
+        }
+
+        if (stream.eat(Chars.Sibling)) {
+            continue;
+        } else if (stream.eat(Chars.Child)) {
+            stack.push(ctx);
+            ctx = elem;
+        } else if (stream.eat(Chars.Climb)) {
+            // it’s perfectly valid to have multiple `^` operators
+            do {
+                ctx = stack.pop() || ctx;
+            } while (stream.eat(Chars.Climb));
         }
     }
 
-    node.parent!.removeChild(node);
+    return root;
+}
+
+function isGroup(node: EMNode): node is EMGroup {
+    return node.type === 'EMGroup';
 }

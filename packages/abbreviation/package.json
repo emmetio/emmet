@@ -19,7 +19,6 @@
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@emmetio/node": "^0.1.2",
     "@emmetio/stream-reader": "^2.2.0"
   },
   "devDependencies": {

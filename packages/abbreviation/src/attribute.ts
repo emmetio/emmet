@@ -1,14 +1,8 @@
-import { RawAttribute, AttributeOptions } from '@emmetio/node';
 import StreamReader from '@emmetio/stream-reader';
-import { isWhiteSpace, isSpace, isQuote } from '@emmetio/stream-reader/utils';
-import consumeQuoted from './quoted';
-import consumeTextNode from './text';
-
-const EXCL = 33; // .
-const DOT = 46; // .
-const EQUALS = 61; // =
-const ATTR_OPEN = 91; // [
-const ATTR_CLOSE = 93; // ]
+import { isWhiteSpace } from '@emmetio/stream-reader/utils';
+import { EMAttribute, EMLiteral } from './ast';
+import consumeLiteral from './literal';
+import { Chars, toAttribute } from './utils';
 
 const reAttributeName = /^\!?[\w\-:\$@]+\.?$/;
 
@@ -18,52 +12,32 @@ const reAttributeName = /^\!?[\w\-:\$@]+\.?$/;
  * [attr col=3 title="Quoted string" selected. support={react}]
  * @returns Array of consumed attributes
  */
-export default function consumeAttribute(stream: StreamReader): RawAttribute[] | null {
-    if (!stream.eat(ATTR_OPEN)) {
-        return null;
+export default function attributeList(stream: StreamReader): EMAttribute[] | undefined {
+    if (!stream.eat(Chars.AttrOpen)) {
+        return;
     }
 
-    const result: RawAttribute[] = [];
-    let token: any;
-    let attr: RawAttribute;
+    const result: EMAttribute[] = [];
+    let token: EMLiteral | undefined;
 
     while (!stream.eof()) {
         stream.eatWhile(isWhiteSpace);
 
-        if (stream.eat(ATTR_CLOSE)) {
+        if (stream.eat(Chars.AttrClose)) {
             return result; // End of attribute set
-        } else if ((token = consumeQuoted(stream)) != null) {
-            // Consumed quoted value: anonymous attribute
-            result.push({
-                name: null,
-                value: token
-            });
-        } else if (eatUnquoted(stream)) {
-            // Consumed next word: could be either attribute name or unquoted default value
-            token = stream.current();
-            if (!reAttributeName.test(token)) {
-                // anonymous attribute
-                result.push({ name: null, value: token });
-            } else {
-                // Looks like a regular attribute
-                attr = parseAttributeName(token);
-                result.push(attr);
+        }
 
-                if (stream.eat(EQUALS)) {
-                    // Explicitly defined value. Could be a word, a quoted string
-                    // or React-like expression
-                    if ((token = consumeQuoted(stream)) != null) {
-                        attr.value = token;
-                    } else if ((token = consumeTextNode(stream)) != null) {
-                        attr.value = token;
-                        attr.options = {
-                            before: '{',
-                            after: '}'
-                        };
-                    } else if (eatUnquoted(stream)) {
-                        attr.value = stream.current();
-                    }
-                }
+        if (token = consumeLiteral(stream)) {
+            // Consumed literal from string: quoted literal is a value for
+            // anonymous attribute, unquoted value could be either attribute name
+            // or anonymous attribute value
+            if (!token.before && reAttributeName.test(token.value)) {
+                // Got unquoted literal, which is attribute name
+                const value = stream.eat(Chars.Equals) ? consumeLiteral(stream) : void 0;
+                result.push(applyOptions(toAttribute(token.value, value, token.start, stream.pos)));
+            } else {
+                // Got value for anonymous attribute
+                result.push(toAttribute(void 0, token));
             }
         } else {
             throw stream.error('Expected attribute name');
@@ -73,44 +47,25 @@ export default function consumeAttribute(stream: StreamReader): RawAttribute[] |
     throw stream.error('Expected closing "]" brace');
 }
 
-function parseAttributeName(name: string): RawAttribute {
-    const options: AttributeOptions = {};
-
+/**
+ * Apply options from just parsed attribute name
+ */
+function applyOptions(attr: EMAttribute): EMAttribute {
     // If a first character in attribute name is `!` — it’s an implied
     // default attribute
-    if (name.charCodeAt(0) === EXCL) {
+    let name = attr.name!;
+
+    if (name!.charCodeAt(0) === Chars.Excl) {
         name = name.slice(1);
-        options.implied = true;
+        attr.implied = true;
     }
 
     // Check for last character: if it’s a `.`, user wants boolean attribute
-    if (name.charCodeAt(name.length - 1) === DOT) {
-        name = name.slice(0, name.length - 1);
-        options.boolean = true;
+    if (name.charCodeAt(name.length - 1) === Chars.Dot) {
+        name = name.slice(0, -1);
+        attr.boolean = true;
     }
 
-    const attr: RawAttribute = { name };
-    if (Object.keys(options).length) {
-        attr.options = options;
-    }
-
+    attr.name = name;
     return attr;
-}
-
-/**
- * Eats token that can be an unquoted value from given stream
- */
-function eatUnquoted(stream: StreamReader): boolean {
-    const start = stream.pos;
-    if (stream.eatWhile(isUnquoted)) {
-        stream.start = start;
-        return true;
-    }
-
-    return false;
-}
-
-function isUnquoted(code: number): boolean {
-    return !isSpace(code) && !isQuote(code)
-        && code !== ATTR_OPEN && code !== ATTR_CLOSE && code !== EQUALS;
 }

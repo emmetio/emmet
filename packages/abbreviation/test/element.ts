@@ -12,7 +12,7 @@ describe('Element node', () => {
         equal(parse('div#foo'), '<div id="foo"></div>');
         equal(parse('div#foo.bar'), '<div id="foo" class="bar"></div>');
         equal(parse('div.foo#bar'), '<div class="foo" id="bar"></div>');
-        equal(parse('div.foo.bar.baz'), '<div class="foo bar baz"></div>');
+        equal(parse('div.foo.bar.baz'), '<div class="foo" class="bar" class="baz"></div>');
         equal(parse('.foo'), '<? class="foo"></?>');
         equal(parse('#foo'), '<? id="foo"></?>');
         equal(parse('.foo_bar'), '<? class="foo_bar"></?>');
@@ -21,8 +21,8 @@ describe('Element node', () => {
         equal(parse('.'), '<? class=""></?>');
         equal(parse('#'), '<? id=""></?>');
         equal(parse('#.'), '<? id="" class=""></?>');
-        equal(parse('.#.'), '<? class="" id=""></?>');
-        equal(parse('.a..'), '<? class="a"></?>');
+        equal(parse('.#.'), '<? class="" id="" class=""></?>');
+        equal(parse('.a..'), '<? class="a" class="" class=""></?>');
     });
 
     it('with attributes', () => {
@@ -39,7 +39,7 @@ describe('Element node', () => {
 
     it('with text node', () => {
         equal(parse('div{foo}'), '<div>foo</div>');
-        equal(parse('{foo}'), 'foo');
+        equal(parse('{foo}'), '<?>foo</?>');
     });
 
     it('mixed', () => {
@@ -63,12 +63,5 @@ describe('Element node', () => {
         equal(parse('.foo*3/'), '<?*3 class="foo" />');
 
         throws(() => parse('/'), /Unexpected self\-closing indicator/);
-    });
-
-    it('toString()', () => {
-        const parseElem = (str: string) => consumeElement(new StreamReader(str));
-
-        equal(parseElem('div.foo*3').toString(), 'div[class="foo"]*3');
-        equal(parseElem('.foo[bar]/'), '[class="foo" bar]/');
     });
 });

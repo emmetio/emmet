@@ -1,36 +1,53 @@
-import Node from '@emmetio/node';
+import { EMNode, EMRepeat, EMAbbreviation, EMGroup, EMElement, EMAttribute } from '../../src/ast';
 
-export default function stringify(node: Node): string {
-    const children = node.children.map(stringify).join('');
-
-    if (!node.parent && node.isGroup) {
-        // a root container: return its content only
-        return children;
-    } else if (node.isGroup) {
-        // grouping node
-        return `(${children})${counter(node)}`;
-    } else if (node.value && !node.name && !node.attributes.length) {
-        // text node
-        return node.value;
-    }
-
-    const attr = node.attributes.map(a => ` ${a.name}="${a.value || ''}"`).join('');
-    const name = node.name || '?';
-
-    return node.selfClosing
-        ? `<${name}${counter(node)}${attr} />`
-        : `<${name}${counter(node)}${attr}>${node.value || ''}${children}</${name}>`;
+type Visitor = (node: EMNode, next: VisitorContinue) => string;
+type VisitorContinue = (node: EMNode) => string;
+interface VisitorMap {
+    [nodeType: string]: Visitor;
 }
 
-function counter(node: Node): string {
-    if (!node.repeat) {
-        return '';
+const visitors: VisitorMap = {
+    EMAbbreviation(node: EMAbbreviation, next) {
+        return node.items.map(next).join('');
+    },
+    EMGroup(node: EMGroup, next) {
+        const repeat = node.repeat ? stringifyRepeater(node.repeat) : '';
+        return `(${node.items.map(next).join('')})${repeat}`;
+    },
+    EMElement(node: EMElement, next) {
+        const name = node.name || '?';
+        const repeat = node.repeat ? stringifyRepeater(node.repeat) : '';
+        const attrs = node.attributes.map(a => ` ${a.name}=${attrValue(a)}`).join('');
+
+        return node.selfClosing
+            ? `<${name}${repeat}${attrs} />`
+            : `<${name}${repeat}${attrs}>${node.value ? node.value.value : ''}${node.items.map(stringify).join('')}</${name}>`;
+    }
+};
+
+function stringifyRepeater(repeater: EMRepeat) {
+    return `*${repeater.count || ''}`;
+}
+
+function attrValue(attr: EMAttribute) {
+    const { value } = attr;
+    if (value) {
+        return value.before === '{'
+            ? `${value.before}${value.value || ''}${value.after}`
+            : `"${value.value || ''}"`;
     }
 
-    let out = `*${node.repeat.count}`;
-    if (node.repeat.value != null) {
-        out += `@${node.repeat.value}`;
-    }
+    return '""';
+}
 
-    return out;
+export default function stringify(abbr: EMNode): string {
+    const next: VisitorContinue = node => {
+        if (node.type in visitors) {
+            return visitors[node.type](node, next);
+        }
+
+        throw new Error(`Unknown node type "${node.type}"`);
+    };
+
+    return next(abbr);
 }

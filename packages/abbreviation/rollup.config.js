@@ -7,18 +7,17 @@ export default {
             compilerOptions: { module: 'esnext' }
         }
     })],
-	external: [
-		'@emmetio/stream-reader',
-		'@emmetio/stream-reader/utils',
-		'@emmetio/node'
-	],
-	output: [{
-		format: 'cjs',
-		sourcemap: true,
-		file: './dist/abbreviation.cjs.js'
-	}, {
-		format: 'es',
-		sourcemap: true,
-		file: './dist/abbreviation.es.js'
-	}]
+    external: [
+        '@emmetio/stream-reader',
+        '@emmetio/stream-reader/utils'
+    ],
+    output: [{
+        format: 'cjs',
+        sourcemap: true,
+        file: './dist/abbreviation.cjs.js'
+    }, {
+        format: 'es',
+        sourcemap: true,
+        file: './dist/abbreviation.es.js'
+    }]
 };
