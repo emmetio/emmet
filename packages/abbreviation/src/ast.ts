@@ -14,6 +14,15 @@ export interface EMAbbreviation extends EMNode {
 
 export interface EMRepeat {
     count?: number;
+
+    /** Counter values of all repeaters (including parents) affected context node */
+    values: number[];
+
+    /** Increment values in reverse order */
+    reverse?: boolean;
+
+    /** Base value to start numbering from */
+    base?: number;
 }
 
 export interface EMGroup extends EMNode {
