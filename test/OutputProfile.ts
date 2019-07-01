@@ -1,5 +1,5 @@
 import { strictEqual } from 'assert';
-import Profile from '../index';
+import Profile from '../src/OutputProfile';
 
 describe('Profile', () => {
     it('tag name', () => {

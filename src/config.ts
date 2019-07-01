@@ -1,4 +1,9 @@
 import { RawConfig, ConfigParams, SyntaxType, ResolvedConfig } from './types';
+import markupSnippets from '../snippets/html.json';
+import stylesheetSnippets from '../snippets/css.json';
+import xslSnippets from '../snippets/xsl.json';
+import SnippetsRegistry from './SnippetsRegistry';
+import OutputProfile from './OutputProfile';
 
 export const defaultSyntaxes = {
     markup: 'html',
@@ -29,14 +34,26 @@ export default function createConfig(config: RawConfig, params: Partial<ConfigPa
  * Resolves config for markup syntax
  */
 function resolveConfig(config: RawConfig, type: SyntaxType, syntax: string, project?: string): ResolvedConfig {
+    const snippets = new SnippetsRegistry();
+    if (type === 'markup') {
+        snippets.load(markupSnippets);
+        if (syntax === 'xsl') {
+            snippets.load(xslSnippets);
+        }
+    } else if (type === 'stylesheet') {
+        snippets.load(stylesheetSnippets);
+    }
+
+    snippets.load(mergeConfig(config, 'snippets', type, syntax, project));
+
     return {
         syntax,
         type,
         project,
-        profile: mergeConfig(config, 'profile', type, syntax, project),
+        profile: new OutputProfile(mergeConfig(config, 'profile', type, syntax, project)),
         options: mergeConfig(config, 'options', type, syntax, project),
         variables: mergeConfig(config, 'variables', type, syntax, project),
-        snippets: mergeConfig(config, 'snippets', type, syntax, project)
+        snippets
     };
 }
 

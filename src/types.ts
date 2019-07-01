@@ -1,3 +1,6 @@
+import SnippetsRegistry from './SnippetsRegistry';
+import OutputProfile from './OutputProfile';
+
 export type StringCase = '' | 'lower' | 'upper';
 export type SyntaxType = 'markup' | 'stylesheet';
 
@@ -79,7 +82,13 @@ export interface ConfigParams {
     field?(index: number, placeholder?: string): string;
 }
 
-export type ResolvedConfig = Config & ConfigParams;
+export interface ResolvedConfig extends ConfigParams {
+    type: SyntaxType;
+    profile: OutputProfile;
+    variables: SnippetsMap;
+    options: Options;
+    snippets: SnippetsRegistry;
+}
 
 interface Options {
     // MARKUP OPTIONS

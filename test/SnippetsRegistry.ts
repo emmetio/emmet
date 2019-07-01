@@ -1,9 +1,9 @@
-import { equal, ok } from 'assert';
-import SnippetsStorage from '../src/storage';
+import { equal } from 'assert';
+import SnippetsRegistry from '../src/SnippetsRegistry';
 
-describe('Storage', () => {
-    it('create', () => {
-        const storage = new SnippetsStorage();
+describe('Snippets Registry', () => {
+    it('resolve', () => {
+        const storage = new SnippetsRegistry();
 
         equal(storage.get('foo'), undefined);
 
@@ -30,7 +30,7 @@ describe('Storage', () => {
     });
 
     it('batch load (object)', () => {
-        const storage = new SnippetsStorage({
+        const storage = new SnippetsRegistry({
             'foo': 'bar',
             'a1|a2': 'baz'
         });
@@ -43,12 +43,12 @@ describe('Storage', () => {
         equal(storage.get('a2')!.value, 'baz');
     });
 
-    it('batch load (map)', () => {
-        const storage = new SnippetsStorage(new Map()
-            .set('foo', 'bar')
-            .set('a1|a2', 'baz')
-            .set(/foo\d+/, 'ban')
-        );
+    it('batch load (array)', () => {
+        const storage = new SnippetsRegistry([
+            ['foo', 'bar'],
+            ['a1|a2', 'baz'],
+            [/foo\d+/, 'ban']
+        ]);
 
         equal(storage.get('foo')!.key, 'foo');
         equal(storage.get('foo')!.value, 'bar');
@@ -57,20 +57,5 @@ describe('Storage', () => {
         equal(storage.get('a1')!.value, 'baz');
         equal(storage.get('a2')!.key, 'a2');
         equal(storage.get('a2')!.value, 'baz');
-    });
-
-    it('enable/disable', () => {
-        const storage = new SnippetsStorage({ foo: 'bar' });
-
-        equal(storage.disabled, false);
-        ok(storage.get('foo'));
-
-        storage.disable();
-        equal(storage.disabled, true);
-        equal(storage.get('foo'), undefined);
-
-        storage.enable();
-        equal(storage.disabled, false);
-        ok(storage.get('foo'));
     });
 });

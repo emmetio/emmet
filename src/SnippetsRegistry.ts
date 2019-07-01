@@ -1,7 +1,14 @@
-import { Snippet, SnippetFunction, RawSnippets } from './types';
+export interface Snippet {
+    key: string | RegExp;
+    value: string | SnippetFunction;
+}
 
-export default class SnippetsStorage {
-    disabled: boolean = false;
+export type RawSnippets = { [name: string]: SnippetValue } | Array<[SnippetKey, SnippetValue]>;
+export type SnippetKey = string | RegExp;
+export type SnippetValue = string | SnippetFunction;
+export type SnippetFunction = (...args: any[]) => string;
+
+export default class SnippetsRegistry {
     private string: Map<string, Snippet> = new Map();
     private regexp: Map<RegExp, Snippet> = new Map();
 
@@ -12,30 +19,15 @@ export default class SnippetsStorage {
     }
 
     /**
-     * Disables current store. A disabled store always returns `undefined`
-     * on `get()` method
-     */
-    disable() {
-        this.disabled = true;
-    }
-
-    /**
-     * Enables current store.
-     */
-    enable() {
-        this.disabled = false;
-    }
-
-    /**
-     * Registers a new snippet item
+     * Registers a new snippet
      */
     set(key: string | RegExp, value: string | SnippetFunction) {
-        if (typeof key === 'string') {
-            key.split('|').forEach(k => this.string.set(k, { key: k, value }));
-        } else if (key instanceof RegExp) {
+        if (key instanceof RegExp) {
             this.regexp.set(key, { key, value });
         } else {
-            throw new Error('Unknown snippet key: ' + key);
+            for (const k of key.split('|')) {
+                this.string.set(k, { key: k, value });
+            }
         }
 
         return this;
@@ -46,10 +38,6 @@ export default class SnippetsStorage {
      * exact match in a string key map, then tries to match one with regexp key
      */
     get(key: string): Snippet | undefined {
-        if (this.disabled) {
-            return undefined;
-        }
-
         if (this.string.has(key)) {
             return this.string.get(key);
         }
@@ -65,11 +53,14 @@ export default class SnippetsStorage {
      * Batch load of snippets data
      */
     load(data: RawSnippets) {
-        this.reset();
-        if (data instanceof Map) {
-            data.forEach((value, key) => this.set(key, value));
-        } else if (data && typeof data === 'object') {
-            Object.keys(data).forEach(key => this.set(key, data[key]));
+        if (Array.isArray(data)) {
+            for (const [key, value] of data) {
+                this.set(key, value);
+            }
+        } else {
+            for (const key of Object.keys(data)) {
+                this.set(key, data[key]);
+            }
         }
     }
 
@@ -84,11 +75,7 @@ export default class SnippetsStorage {
     /**
      * Returns all available snippets from given store
      */
-    values() {
-        if (this.disabled) {
-            return [];
-        }
-
+    values(): Snippet[] {
         const str = Array.from(this.string.values());
         const regexp = Array.from(this.regexp.values());
         return str.concat(regexp);

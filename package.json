@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -21,11 +21,17 @@
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.0.8",
     "lerna": "^3.15.0",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.3.0",
     "tslint": "^5.17.0",
     "typescript": "^3.5.2"
   },
   "dependencies": {
     "@emmetio/abbreviation": "^0.7.0",
     "@emmetio/css-abbreviation": "^0.4.0"
+  },
+  "mocha": {
+    "require": "ts-node/register",
+    "spec": "./test/**/*.ts"
   }
 }

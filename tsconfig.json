@@ -8,6 +8,8 @@
     "strictNullChecks": true,
     "declaration": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "module": "commonjs",
     "outDir": "./dist"
   },
