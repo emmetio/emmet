@@ -10,19 +10,9 @@ import { Chars } from './utils';
 export default function consumeRepeat(stream: Scanner): EMRepeat | undefined {
     if (stream.eat(Chars.Repeater)) {
         stream.start = stream.pos;
-        let reverse = false;
-        let base: number | undefined;
-
-        if (stream.eat(Chars.RepeaterModifier)) {
-            reverse = stream.eat(Chars.Dash);
-            base = consumeNumber(stream);
-        }
-
         return {
             count: consumeNumber(stream),
-            values: [],
-            reverse,
-            base
+            value: 0
         };
     }
 }

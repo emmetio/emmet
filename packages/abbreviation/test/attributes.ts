@@ -13,9 +13,9 @@ describe('Attributes', () => {
         deepEqual(names(attrs), ['a']);
         deepEqual(values(attrs), [undefined]);
 
-        attrs = parse('[a b c]');
-        deepEqual(names(attrs), ['a', 'b', 'c']);
-        deepEqual(values(attrs), [undefined, undefined, undefined]);
+        attrs = parse('[a b c [d]]');
+        deepEqual(names(attrs), ['a', 'b', 'c', '[d]']);
+        deepEqual(values(attrs), [undefined, undefined, undefined, undefined]);
     });
 
     it('unquoted values', () => {
@@ -30,6 +30,10 @@ describe('Attributes', () => {
         attrs = parse('[a=b.c d=тест]');
         deepEqual(names(attrs), ['a', 'd']);
         deepEqual(values(attrs), ['b.c', 'тест']);
+
+        attrs = parse('[[a]=b (c)=d]');
+        deepEqual(names(attrs), ['[a]', '(c)']);
+        deepEqual(values(attrs), ['b', 'd']);
     });
 
     it('quoted values', () => {
@@ -40,6 +44,10 @@ describe('Attributes', () => {
         attrs = parse('[a="b" c=\'d\' e=""]');
         deepEqual(names(attrs), ['a', 'c', 'e']);
         deepEqual(values(attrs), ['b', 'd', '']);
+
+        attrs = parse('[[a]="b" (c)=\'d\']');
+        deepEqual(names(attrs), ['[a]', '(c)']);
+        deepEqual(values(attrs), ['b', 'd']);
     });
 
     it('mixed quotes', () => {

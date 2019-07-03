@@ -1,48 +1,52 @@
-import { EMStatement, EMRepeat } from '@emmetio/abbreviation';
+import { EMStatement, EMGroup, EMRepeat } from '@emmetio/abbreviation';
 import { Container } from './walk';
+import { ResolvedConfig } from '../types';
+import { clone, isGroup } from './utils';
 
-/**
- * Unroll repeated child elements
- */
-export default function unroll<T extends Container>(node: T) {
-    const items: EMStatement[] = [];
+export default function unroll(node: EMStatement, ancestors: Container[], config: ResolvedConfig) {
+    let items: EMStatement[] = [];
 
-    for (let i = 0; i < node.items.length; i++) {
-        const child = node.items[i];
-        if (child.repeat && child.repeat.count) {
-            for (let j = 0; j < child.repeat.count; j++) {
-                const clone: EMStatement = {
-                    ...child,
-                    repeat: addRepeaterValue(child, j + 1)
-                };
-
-                if (clone.type === 'EMGroup') {
-                    for (let k = 0; k < clone.items.length; k++) {
-                        const child2 = clone.items[k];
-                        items.push({
-                            ...child2,
-                            repeat: child2.repeat
-                                ? addRepeaterValue(child2, clone.repeat!.values[0])
-                                : { ...clone.repeat! } as EMRepeat
-                        });
-                    }
+    for (let child of node.items) {
+        if (child.repeat) {
+            const repeat: EMRepeat = {
+                ...child.repeat,
+                // If count is not defined, it’s an implicit repeater: use value from given text
+                count: child.repeat.count
+                    || (Array.isArray(config.text) ? config.text.length : 1)
+            };
+            // Repeat elements and remove groups
+            for (let j = 0; j < repeat.count!; j++) {
+                if (isGroup(child)) {
+                    items = items.concat(ungroup(child, { ...repeat, value: j }));
                 } else {
-                    items.push(clone);
+                    child = clone(child);
+                    child.repeat = repeat;
+                    items.push(child);
                 }
             }
+        } else {
+            items.push(child);
         }
     }
 
     node.items = items;
 }
 
-function addRepeaterValue(node: EMStatement, value: number): EMRepeat {
-    if (node.repeat) {
-        return {
-            ...node.repeat,
-            values: [value, ...node.repeat.values]
-        };
+/**
+ * Returns contents of given group node with updated repeater, if not specified
+ * in cloned node
+ */
+function ungroup(group: EMGroup, repeat: EMRepeat): EMStatement[] {
+    const result: EMStatement[] = [];
+
+    for (let child of group.items) {
+        child = clone(child);
+        if (!child.repeat) {
+            child.repeat = repeat;
+        }
+
+        result.push(child);
     }
 
-    return { values: [value] };
+    return result;
 }

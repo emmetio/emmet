@@ -2,6 +2,7 @@ import parse, { EMElement } from '@emmetio/abbreviation';
 import { Container, walk } from './walk';
 import unroll from './unroll';
 import { ResolvedConfig } from '../types';
+import { findDeepest, isElement } from './utils';
 
 /**
  * Finds matching snippet from `registry` and resolves it into a parsed abbreviation.
@@ -12,7 +13,7 @@ import { ResolvedConfig } from '../types';
  * abbreviation with multiple elements. So we have to get snippet, parse it
  * and recursively resolve it.
  */
-export default function resolveSnippets(node: Container, ancestors: Container[], config: ResolvedConfig) {
+export default function resolveSnippets(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
     const stack = new Set();
     const resolve = (child: EMElement) => {
         const snippet = child.name && config.snippets.get(child.name);
@@ -38,7 +39,7 @@ export default function resolveSnippets(node: Container, ancestors: Container[],
 
         // Move current node contents into new tree
         const deepest = findDeepest(abbr);
-        if (deepest.node.type === 'EMElement') {
+        if (isElement(deepest.node)) {
             merge(deepest.node, child);
         }
 
@@ -56,9 +57,7 @@ export default function resolveSnippets(node: Container, ancestors: Container[],
         }
     };
 
-    if (node.type === 'EMElement') {
-        resolve(node);
-    }
+    resolve(node);
 }
 
 /**
@@ -80,17 +79,4 @@ function merge(from: EMElement, to: EMElement) {
     }
 
     to.attributes = from.attributes.concat(to.attributes);
-}
-
-/**
- * Finds node which is the deepest for in current node or node itself.
- */
-function findDeepest(node: Container): { node: Container, parent?: Container } {
-    let parent: Container | undefined;
-    while (node.items.length) {
-        parent = node;
-        node = node.items[node.items.length - 1];
-    }
-
-    return { parent, node };
 }

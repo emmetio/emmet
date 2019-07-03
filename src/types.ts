@@ -1,58 +1,11 @@
 import SnippetsRegistry from './SnippetsRegistry';
-import OutputProfile from './OutputProfile';
+import OutputProfile, { OutputProfileOptions } from './OutputProfile';
 
-export type StringCase = '' | 'lower' | 'upper';
 export type SyntaxType = 'markup' | 'stylesheet';
-
-export interface ProfileOptions {
-    /** String for one-level indentation. For example, `\t` or `  ` (N spaces) */
-    indent: string;
-
-    /** Tag case: lower, upper or '' (keep as-is) */
-    tagCase: StringCase;
-
-    /** Attribute name case: lower, upper or '' (keep as-is) */
-    attributeCase: StringCase;
-
-    /** Attribute value quotes: 'single' or 'double' */
-    attributeQuotes: 'single' | 'double';
-
-    /** Enable output formatting (indentation and line breaks) */
-    format: boolean;
-
-    /** A list of tag names that should not get inner indentation */
-    formatSkip: string[];
-
-    /** A list of tag names that should *always* get inner indentation. */
-    formatForce: string[];
-
-    /**
-     * How many inline sibling elements should force line break for each tag.
-     * Set to 0 to output all inline elements without formatting.
-     * Set to 1 to output all inline elements with formatting (same as block-level).
-     */
-    inlineBreak: number;
-
-    /**
-     * Produce compact notation of boolean attributes: attributes where name equals value.
-     * With this option enabled, output `<div contenteditable>` instead of
-     * `<div contenteditable="contenteditable">`
-     */
-    compactBooleanAttributes: boolean;
-
-    /** A set of boolean attributes */
-    booleanAttributes: string[];
-
-    /** Style of self-closing tags: html (`<br>`), xml (`<br/>`) or xhtml (`<br />`) */
-    selfClosingStyle: 'html' | 'xml' | 'xhtml';
-
-    /** A set of inline-level elements */
-    inlineElements: string[];
-}
 
 export interface Config {
     type: SyntaxType;
-    profile?: ProfileOptions;
+    profile?: OutputProfileOptions;
     variables?: SnippetsMap;
     snippets?: SnippetsMap;
     options?: Options;
@@ -196,6 +149,6 @@ interface RawConfigBase {
     };
 }
 
-interface SnippetsMap {
+export interface SnippetsMap {
     [name: string]: string;
 }

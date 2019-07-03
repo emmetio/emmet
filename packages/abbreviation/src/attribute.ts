@@ -4,7 +4,7 @@ import { EMAttribute, EMLiteral } from './ast';
 import consumeLiteral from './literal';
 import { Chars, toAttribute } from './utils';
 
-const reAttributeName = /^\!?[\w\-:\$@]+\.?$/;
+const reAttributeName = /^!?[\w\-:\$@\[\]\(\)]+\.?$/;
 
 /**
  * Consumes attributes defined in square braces from given stream.

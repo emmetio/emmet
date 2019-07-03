@@ -8,7 +8,6 @@ export const enum Chars {
     AttrOpen = 91, // [
     AttrClose = 93, // ]
     Repeater = 42, // *
-    RepeaterModifier = 64, // @
     Hash = 35, // #
     Dash = 45, // -
     Dot = 46, // .

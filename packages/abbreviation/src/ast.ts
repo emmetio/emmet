@@ -6,23 +6,23 @@ export interface EMNode {
 
 export type EMStatement = EMElement | EMGroup;
 
-export interface EMAbbreviation extends EMNode {
+export interface EMAbbreviation<T = EMStatement> extends EMNode {
     type: 'EMAbbreviation';
-    items: EMStatement[];
+    items: T[];
     raw?: string;
 }
 
 export interface EMRepeat {
+    /**
+     * How many times context element should be repeated. `undefined` means implicit
+     * repeater, e.g. should be repeated by the amount of text lines selected by user
+     */
     count?: number;
 
-    /** Counter values of all repeaters (including parents) affected context node */
-    values: number[];
-
-    /** Increment values in reverse order */
-    reverse?: boolean;
-
-    /** Base value to start numbering from */
-    base?: number;
+    /**
+     * Position of context element in its repeating sequence
+     */
+    value: number;
 }
 
 export interface EMGroup extends EMNode {

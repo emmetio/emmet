@@ -1,5 +1,5 @@
 import Scanner from '@emmetio/scanner';
-import { eatQuoted, isQuote, isSpace } from '@emmetio/scanner/utils';
+import { eatQuoted, isQuote, isSpace, eatPair } from '@emmetio/scanner/utils';
 import { EMLiteral } from './ast';
 import { Chars } from './utils';
 
@@ -79,7 +79,11 @@ export function quoted(stream: Scanner): boolean {
  */
 export function unquoted(stream: Scanner): boolean {
     const start = stream.pos;
-    if (stream.eatWhile(isUnquoted)) {
+
+    // Consume Angular-style attribute names like `[foo]` or `(bar)`
+    if (eatPair(stream, Chars.AttrOpen, Chars.AttrClose)
+        || eatPair(stream, Chars.GroupStart, Chars.GroupEnd)
+        || stream.eatWhile(isUnquoted)) {
         stream.start = start;
         return true;
     }
