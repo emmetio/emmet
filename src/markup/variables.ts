@@ -68,7 +68,7 @@ function consumeVariable(scanner: Scanner): boolean {
     }
 
     scanner.pos = start;
-    return true;
+    return false;
 }
 
 function isVariableName(ch: number) {

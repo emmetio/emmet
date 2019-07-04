@@ -22,6 +22,7 @@ describe('Parser', () => {
         equal(parse('a>(((b>c))*4)+d'), '<a>(((<b><c></c></b>))*4)<d></d></a>');
         equal(parse('(div>dl>(dt+dd)*2)'), '(<div><dl>(<dt></dt><dd></dd>)*2</dl></div>)');
         equal(parse('a>()'), '<a>()</a>');
-
     });
+
+    // TODO write tests for node ranges (check implicit nodes)
 });

@@ -15,15 +15,18 @@ export const knownSyntaxes = {
     stylesheet: ['css', 'sass', 'scss', 'less', 'sss', 'stylus']
 };
 
+const defaultConfig: RawConfig = {
+    version: 1
+};
+
 /**
- * Config resolver: returns compiled config that can be used in
- * `@emmetio/expand-abbreviation` module for expanding abbreviations
+ * Returns compiled config that can be used in for expanding abbreviations
  * @param config Config object
  * @param params Additional params like `.syntax` and `.project` for
  * config resolving
  */
-export default function createConfig(config: RawConfig, params: Partial<ConfigParams> = {}): ResolvedConfig {
-    const { type, syntax, project } = createParams(config, params);
+export default function createConfig(params: Partial<ConfigParams> = {}, config: RawConfig = defaultConfig): ResolvedConfig {
+    const { type, syntax, project } = createParams(params, config);
     return {
         ...params,
         ...resolveConfig(config, type, syntax, project)
@@ -60,7 +63,7 @@ function resolveConfig(config: RawConfig, type: SyntaxType, syntax: string, proj
 /**
  * Resolves input config params
  */
-function createParams(config: RawConfig, params: Partial<ConfigParams>): ConfigParams {
+function createParams(params: Partial<ConfigParams>, config: RawConfig): ConfigParams {
     let { type, syntax } = params;
 
     if (!type && syntax) {

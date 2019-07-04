@@ -22,11 +22,13 @@ const elementMap: { [name: string]: string } = {
 };
 
 export default function implicitTag(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
-    const parent = getParentElement(ancestors);
-    if (parent) {
-        const parentName = (parent.name || '').toLowerCase();
-        node.name = elementMap[parentName]
-            || (config.profile.isInline(parentName) ? 'span' : 'div');
+    if (!node.name && !node.value) {
+        const parent = getParentElement(ancestors);
+        if (parent) {
+            const parentName = (parent.name || '').toLowerCase();
+            node.name = elementMap[parentName]
+                || (config.profile.isInline(parentName) ? 'span' : 'div');
+        }
     }
 }
 

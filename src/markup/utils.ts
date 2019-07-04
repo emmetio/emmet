@@ -1,22 +1,22 @@
-import { EMStatement, EMAttribute, EMLiteral, EMNode, EMElement, EMGroup } from '@emmetio/abbreviation';
+import { EMAttribute, EMLiteral, EMNode, EMElement, EMGroup } from '@emmetio/abbreviation';
 import { Container } from './walk';
 
 /**
  * Creates deep copy of given abbreviation node
  */
-export function clone(node: EMStatement): EMStatement {
-    const copy: EMStatement = {
+export function clone<T extends Container>(node: T): T {
+    const copy: T = {
         ...node,
         items: node.items.map(clone)
     };
 
-    if (copy.repeat) {
-        copy.repeat = { ...copy.repeat };
-    }
-
-    if (copy.type === 'EMElement') {
+    if (isElement(copy)) {
         copy.attributes = copy.attributes.map(cloneAttribute);
         copy.value = cloneValue(copy.value);
+    }
+
+    if ((isElement(copy) || isGroup(copy)) && copy.repeat) {
+        copy.repeat = { ...copy.repeat };
     }
 
     return copy;

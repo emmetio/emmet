@@ -30,9 +30,7 @@ export default function resolveSnippets(node: EMElement, ancestors: Container[],
             return snippet.value(child, config, resolve);
         }
 
-        const abbr = parse(snippet.value);
-        walk(abbr, unroll, config);
-
+        const abbr = unroll(parse(snippet.value), config);
         stack.add(snippet);
         walk(abbr, resolve, config);
         stack.delete(snippet);

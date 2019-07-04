@@ -1,9 +1,15 @@
-import { EMStatement, EMGroup, EMRepeat } from '@emmetio/abbreviation';
-import { Container } from './walk';
+import { EMStatement, EMGroup, EMRepeat, EMAbbreviation } from '@emmetio/abbreviation';
+import { Container, walk } from './walk';
 import { ResolvedConfig } from '../types';
 import { clone, isGroup } from './utils';
 
-export default function unroll(node: EMStatement, ancestors: Container[], config: ResolvedConfig) {
+export default function unroll(abbr: EMAbbreviation, config: ResolvedConfig): EMAbbreviation {
+    walk(abbr, unrollNode, config);
+    unrollNode(abbr, [], config);
+    return abbr;
+}
+
+export function unrollNode(node: Container, ancestors: Container[], config: ResolvedConfig) {
     let items: EMStatement[] = [];
 
     for (let child of node.items) {
@@ -20,10 +26,12 @@ export default function unroll(node: EMStatement, ancestors: Container[], config
                     items = items.concat(ungroup(child, { ...repeat, value: j }));
                 } else {
                     child = clone(child);
-                    child.repeat = repeat;
+                    child.repeat = { ...repeat, value: j };
                     items.push(child);
                 }
             }
+        } else if (isGroup(child)) {
+            items = items.concat(child.items);
         } else {
             items.push(child);
         }
@@ -41,10 +49,7 @@ function ungroup(group: EMGroup, repeat: EMRepeat): EMStatement[] {
 
     for (let child of group.items) {
         child = clone(child);
-        if (!child.repeat) {
-            child.repeat = repeat;
-        }
-
+        child.repeat = child.repeat || repeat;
         result.push(child);
     }
 

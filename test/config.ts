@@ -7,7 +7,7 @@ describe('Config resolver', () => {
     const defaultConfig = configJSON as any as RawConfig;
     describe('Markup', () => {
         it('should resolve globals', () => {
-            const conf = resolveConfig(defaultConfig, { type: 'markup' });
+            const conf = resolveConfig({ type: 'markup' }, defaultConfig);
 
             equal(conf.type, 'markup');
             equal(conf.syntax, 'html');
@@ -25,7 +25,7 @@ describe('Config resolver', () => {
         });
 
         it('should resolve syntax-specific config', () => {
-            const conf = resolveConfig(defaultConfig, { syntax: 'angular' });
+            const conf = resolveConfig({ syntax: 'angular' }, defaultConfig);
 
             equal(conf.type, 'markup');
             equal(conf.syntax, 'angular');
@@ -41,10 +41,10 @@ describe('Config resolver', () => {
         });
 
         it('should resolve project-specific config', () => {
-            const conf = resolveConfig(defaultConfig, {
+            const conf = resolveConfig({
                 syntax: 'angular',
                 project: 'proj1'
-            });
+            }, defaultConfig);
 
             equal(conf.type, 'markup');
             equal(conf.syntax, 'angular');
@@ -66,7 +66,7 @@ describe('Config resolver', () => {
 
     describe('Stylesheet', () => {
         it('should resolve globals', () => {
-            const conf = resolveConfig(defaultConfig, { type: 'stylesheet' });
+            const conf = resolveConfig({ type: 'stylesheet' }, defaultConfig);
 
             equal(conf.type, 'stylesheet');
             equal(conf.syntax, 'css');
@@ -80,7 +80,7 @@ describe('Config resolver', () => {
         });
 
         it('should resolve syntax-specific config', () => {
-            const conf = resolveConfig(defaultConfig, { syntax: 'sugarss' });
+            const conf = resolveConfig({ syntax: 'sugarss' }, defaultConfig);
 
             equal(conf.type, 'stylesheet');
             equal(conf.syntax, 'sugarss');
@@ -96,10 +96,10 @@ describe('Config resolver', () => {
         });
 
         it('should resolve project-specific config', () => {
-            const conf = resolveConfig(defaultConfig, {
+            const conf = resolveConfig({
                 syntax: 'sugarss',
                 project: 'proj1'
-            });
+            }, defaultConfig);
 
             equal(conf.type, 'stylesheet');
             equal(conf.syntax, 'sugarss');
@@ -114,11 +114,11 @@ describe('Config resolver', () => {
     });
 
     it('known & unknown syntaxes', () => {
-        let conf = resolveConfig(defaultConfig, { syntax: 'pug' });
+        let conf = resolveConfig({ syntax: 'pug' }, defaultConfig);
         equal(conf.type, 'markup');
         equal(conf.syntax, 'pug');
 
-        conf = resolveConfig(defaultConfig, { syntax: 'foo' });
+        conf = resolveConfig({ syntax: 'foo' }, defaultConfig);
         strictEqual(conf.type, 'markup');
         equal(conf.syntax, 'foo');
     });

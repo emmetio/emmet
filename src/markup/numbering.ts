@@ -1,4 +1,4 @@
-import { EMRepeat, EMStatement, EMElement } from '@emmetio/abbreviation';
+import { EMRepeat, EMStatement, EMElement, EMLiteral } from '@emmetio/abbreviation';
 import Scanner from '@emmetio/scanner';
 import { isNumber } from '@emmetio/scanner/utils';
 import { Container } from './walk';
@@ -32,23 +32,20 @@ export default function numbering(node: EMElement, ancestors: Container[], confi
     // it solves issues with abbreviations like `xsl:if[test=$foo]` where
     // `$foo` is preferred output
     if (repeater) {
-        if (node.name) {
-            node.name = replaceNumbering(node.name, repeater);
-        }
-
-        if (node.value) {
-            node.value.value = replaceNumbering(node.value.value, repeater);
-        }
-
+        replaceInItem(node, repeater);
         for (const attr of node.attributes) {
-            if (attr.name) {
-                attr.name = replaceNumbering(attr.name, repeater);
-            }
-
-            if (attr.value) {
-                attr.value.value = replaceNumbering(attr.value.value, repeater);
-            }
+            replaceInItem(attr, repeater);
         }
+    }
+}
+
+function replaceInItem(item: { name?: string, value?: EMLiteral }, repeater: EMRepeat) {
+    if (item.name) {
+        item.name = replaceNumbering(item.name, repeater);
+    }
+
+    if (item.value) {
+        item.value.value = replaceNumbering(item.value.value, repeater);
     }
 }
 
@@ -56,7 +53,7 @@ export default function numbering(node: EMElement, ancestors: Container[], confi
  * Returns closest repeater object for given node ancestors
  */
 function findRepeater(ancestors: Container[]): EMRepeat | undefined {
-    for (let i = ancestors.length - 1; i <= 0; i--) {
+    for (let i = ancestors.length - 1; i >= 0; i--) {
         const node = ancestors[i] as EMStatement;
         if (node.repeat) {
             return node.repeat;
@@ -82,6 +79,8 @@ function consumeNumbering(scanner: Scanner): Numbering | undefined {
                 base = Number(scanner.current());
             }
         }
+
+        scanner.start = start;
 
         return { size, reverse, base };
     }

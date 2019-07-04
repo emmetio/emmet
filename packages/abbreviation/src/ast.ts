@@ -6,9 +6,9 @@ export interface EMNode {
 
 export type EMStatement = EMElement | EMGroup;
 
-export interface EMAbbreviation<T = EMStatement> extends EMNode {
+export interface EMAbbreviation extends EMNode {
     type: 'EMAbbreviation';
-    items: T[];
+    items: EMStatement[];
     raw?: string;
 }
 

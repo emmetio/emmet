@@ -17,19 +17,15 @@ export function parse(abbr: string | EMAbbreviation, config: ResolvedConfig): EM
         abbr = abbreviation(abbr);
     }
 
-    return transform(abbr, config);
-}
-
-/**
- * Rewrites given abbreviation, prepares it for output
- */
-export function transform(abbr: EMAbbreviation, config: ResolvedConfig): EMAbbreviation {
-    walk(abbr, unroll, config);
-    walk(abbr, transformNode, config);
+    unroll(abbr, config);
+    walk(abbr, transform, config);
     return abbr;
 }
 
-function transformNode(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
+/**
+ * Modifies given node and prepares it for output
+ */
+function transform(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
     snippets(node, ancestors, config);
     variables(node, ancestors, config);
 
