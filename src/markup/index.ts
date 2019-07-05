@@ -1,12 +1,13 @@
 import abbreviation, { EMAbbreviation, EMElement } from '@emmetio/abbreviation';
 import { walk, Container } from './walk';
 import { ResolvedConfig } from '../types';
-import unroll from './unroll';
+import unroll, { UnrollState } from './unroll';
 import attributes from './attributes';
 import snippets from './snippets';
 import variables from './variables';
 import implicitTag from './implicit-tag';
 import numbering from './numbering';
+import { findDeepest, isElement } from './utils';
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -17,8 +18,27 @@ export function parse(abbr: string | EMAbbreviation, config: ResolvedConfig): EM
         abbr = abbreviation(abbr);
     }
 
-    unroll(abbr, config);
+    const state: UnrollState = {
+        inserted: false,
+        text: config.text
+    };
+
+    unroll(abbr, state);
     walk(abbr, transform, config);
+
+    if (!state.inserted && state.text) {
+        // Should insert text
+        const value = Array.isArray(state.text) ? state.text.join('\n') : state.text;
+        const deepest = findDeepest(abbr);
+        if (isElement(deepest.node)) {
+            if (deepest.node.value) {
+                deepest.node.value.type += value;
+            } else {
+                deepest.node.value = { type: 'EMLiteral', value };
+            }
+        }
+    }
+
     return abbr;
 }
 
@@ -28,8 +48,6 @@ export function parse(abbr: string | EMAbbreviation, config: ResolvedConfig): EM
 function transform(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
     snippets(node, ancestors, config);
     variables(node, ancestors, config);
-
-    // TODO insert content from `config.text`
     implicitTag(node, ancestors, config);
     attributes(node);
     numbering(node, ancestors, config);
