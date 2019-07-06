@@ -8,8 +8,9 @@ const defaultConfig = resolveConfig({ type: 'markup' });
 // Reset snippets to keep raw snippet names
 defaultConfig.snippets.reset();
 
-function expand(abbr: string, config: ResolvedConfig = defaultConfig): string {
-    return stringify(parse(abbr, config));
+function expand(abbr: string, config?: Partial<ResolvedConfig>): string {
+    const conf = { ...defaultConfig, ...config };
+    return stringify(parse(abbr, conf));
 }
 
 describe('Markup abbreviations', () => {
@@ -28,5 +29,12 @@ describe('Markup abbreviations', () => {
         strictEqual(expand('a*2>b*3'), '<a><b></b><b></b><b></b></a><a><b></b><b></b><b></b></a>');
         strictEqual(expand('a>(b+c)*2'), '<a><b></b><c></c><b></b><c></c></a>');
         strictEqual(expand('a>(b+c)*2+(d+e)*2'), '<a><b></b><c></c><b></b><c></c><d></d><e></e><d></d><e></e></a>');
+    });
+
+    it.only('insert repeater', () => {
+        strictEqual(expand('ul>.item$*', { text: ['foo$', 'bar$']}), '<ul><li class="item1">foo$</li><li class="item2">bar$</li></ul>');
+        strictEqual(expand('ul>[class=$#]{item $}*', { text: ['foo$', 'bar$'] }), '<ul><li class="foo$">item 1</li><li class="bar$">item 2</li></ul>');
+        strictEqual(expand('ul>.item$*'), '<ul><li class="item1"></li></ul>');
+        strictEqual(expand('ul>.item$*', { text: ['foo.bar', 'hello.world'] }), '<ul><li class="item1">foo.bar</li><li class="item2">hello.world</li></ul>');
     });
 });

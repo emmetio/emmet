@@ -7,7 +7,7 @@ import snippets from './snippets';
 import variables from './variables';
 import implicitTag from './implicit-tag';
 import numbering from './numbering';
-import { findDeepest, isElement } from './utils';
+import { addToDeepest } from './utils';
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -28,15 +28,7 @@ export function parse(abbr: string | EMAbbreviation, config: ResolvedConfig): EM
 
     if (!state.inserted && state.text) {
         // Should insert text
-        const value = Array.isArray(state.text) ? state.text.join('\n') : state.text;
-        const deepest = findDeepest(abbr);
-        if (isElement(deepest.node)) {
-            if (deepest.node.value) {
-                deepest.node.value.type += value;
-            } else {
-                deepest.node.value = { type: 'EMLiteral', value };
-            }
-        }
+        addToDeepest(abbr, Array.isArray(state.text) ? state.text.join('\n') : state.text);
     }
 
     return abbr;

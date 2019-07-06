@@ -3,6 +3,7 @@ import Scanner from '@emmetio/scanner';
 import { isNumber } from '@emmetio/scanner/utils';
 import { Container } from './walk';
 import { ResolvedConfig } from '../types';
+import { replaceToken } from './utils';
 
 const enum Chars {
     Numbering = 36, // $
@@ -90,26 +91,10 @@ function consumeNumbering(scanner: Scanner): Numbering | undefined {
  * Replaces numbering in given string with content from given repeater
  */
 function replaceNumbering(text: string, repeater: EMRepeat): string {
-    const scanner = new Scanner(text);
-    let result = '';
-    let offset = 0;
-    let num: Numbering | undefined;
-
-    while (!scanner.eof()) {
-        if (scanner.eat(Chars.Escape)) {
-            scanner.pos++;
-        } else if (num = consumeNumbering(scanner)) {
-            result += text.slice(offset, scanner.start) + resolveNumbering(num, repeater);
-            offset = scanner.pos;
-        } else {
-            scanner.pos++;
-        }
-    }
-
-    return result + text.slice(offset);
+    return replaceToken(text, consumeNumbering, num => resolveNumbering(num!, repeater));
 }
 
-function resolveNumbering(num: Numbering, repeater: EMRepeat): string | number {
+function resolveNumbering(num: Numbering, repeater: EMRepeat): string {
     // TODO implement
     return pad(repeater.value + num.base, num.size);
 }

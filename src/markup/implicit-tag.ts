@@ -22,7 +22,7 @@ const elementMap: { [name: string]: string } = {
 };
 
 export default function implicitTag(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
-    if (!node.name && !node.value) {
+    if (!node.name && node.attributes.length) {
         const parent = getParentElement(ancestors);
         if (parent) {
             const parentName = (parent.name || '').toLowerCase();

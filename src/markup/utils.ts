@@ -60,7 +60,7 @@ export function isGroup(node: EMNode): node is EMGroup {
  * Replaces unescaped token, consumed by `token` function, with value produced
  * by `value` function
  */
-export function replaceToken<T>(text: string, token: (scanner: Scanner) => T, value: string | ((scanner: Scanner, arg: T) => string)): string {
+export function replaceToken<T>(text: string, token: (scanner: Scanner) => T, value: string | ((arg: T, scanner: Scanner) => string)): string {
     const scanner = new Scanner(text);
     let offset = 0;
     let result = '';
@@ -71,12 +71,26 @@ export function replaceToken<T>(text: string, token: (scanner: Scanner) => T, va
             scanner.pos++;
         } else if (t = token(scanner)) {
             result += text.slice(offset, scanner.start)
-                + (typeof value === 'string' ? value : value(scanner, t));
+                + (typeof value === 'string' ? value : value(t, scanner));
             offset = scanner.pos;
         } else {
             scanner.pos++;
         }
     }
 
-    return result;
+    return result + text.slice(offset);
+}
+
+/**
+ * Adds given `value` to deepest child of given node or node itself
+ */
+export function addToDeepest(node: Container, value: string) {
+    const deepest = findDeepest(node);
+    if (isElement(deepest.node)) {
+        if (deepest.node.value) {
+            deepest.node.value.type += value;
+        } else {
+            deepest.node.value = { type: 'EMLiteral', value };
+        }
+    }
 }

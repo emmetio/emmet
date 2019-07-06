@@ -1,7 +1,7 @@
 import Scanner from '@emmetio/scanner';
 import { EMStatement, EMAbbreviation, EMLiteral } from '@emmetio/abbreviation';
 import { Container, walk } from './walk';
-import { clone, isGroup, replaceToken, isElement } from './utils';
+import { clone, isGroup, replaceToken, isElement, addToDeepest } from './utils';
 
 export interface UnrollState {
     inserted?: boolean;
@@ -58,11 +58,16 @@ function handleImplicitRepeater(node: EMStatement, state: UnrollState): EMStatem
 
     for (let i = 0; i < count; i++) {
         const copy = clone(node);
-        const text = Array.isArray(state.text) ? state.text[i] : state.text;
-
-        if (replaceRepeater(copy, text || '')) {
-            state.inserted = true;
+        let text = Array.isArray(state.text) ? state.text[i] : state.text;
+        if (text == null) {
+            text = '';
         }
+
+        if (!replaceRepeater(copy, text)) {
+            addToDeepest(copy, text);
+        }
+
+        state.inserted = true;
 
         if (isGroup(copy)) {
             for (const child of copy.items) {
