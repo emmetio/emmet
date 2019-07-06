@@ -4,7 +4,8 @@ jspm_packages
 .npm
 /.*
 /*.*
-!/*.js
+!/scanner.js
+!/scanner.es.js
 !/*.d.ts
 !/*.js.map
 /test

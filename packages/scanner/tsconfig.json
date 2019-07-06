@@ -11,5 +11,5 @@
     "module": "commonjs",
     "outDir": "./"
   },
-  "files": ["src/index.ts", "src/utils.ts"]
+  "files": ["src/index.ts"]
 }

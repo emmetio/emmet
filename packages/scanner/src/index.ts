@@ -117,7 +117,7 @@ export default class Scanner {
     }
 }
 
-class StreamReaderError extends Error {
+export class StreamReaderError extends Error {
     pos: number;
     string: string;
 
@@ -127,3 +127,5 @@ class StreamReaderError extends Error {
         this.string = str;
     }
 }
+
+export * from './utils';
