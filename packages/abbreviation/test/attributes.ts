@@ -1,12 +1,13 @@
 import { throws, deepEqual, ok } from 'assert';
 import Scanner from '@emmetio/scanner';
-import consumeAttributes from '../src/attribute';
+import attributes from '../src/attribute';
 import { EMAttribute } from '../src/ast';
+import stringify from './assets/stringify';
 
 describe('Attributes', () => {
-    const parse = (str: string) => consumeAttributes(new Scanner(str))!;
-    const names = (attrs: EMAttribute[]) => attrs.map(a => a.name);
-    const values = (attrs: EMAttribute[]) => attrs.map(a => a.value && a.value.value);
+    const parse = (str: string) => attributes(new Scanner(str))!;
+    const names = (attrs: EMAttribute[]) => attrs.map(a => a.name && stringify(a.name));
+    const values = (attrs: EMAttribute[]) => attrs.map(a => a.value && stringify(a.value));
 
     it('names', () => {
         let attrs = parse('[a]');
@@ -53,7 +54,7 @@ describe('Attributes', () => {
     it('mixed quotes', () => {
         const attrs = parse('[a="foo\'bar" b=\'foo"bar\' c="foo\\\"bar"]');
         deepEqual(names(attrs), ['a', 'b', 'c']);
-        deepEqual(values(attrs), ['foo\'bar', 'foo"bar', 'foo\\"bar']);
+        deepEqual(values(attrs), ['foo\'bar', 'foo"bar', 'foo"bar']);
     });
 
     it('boolean', () => {
@@ -70,11 +71,11 @@ describe('Attributes', () => {
     });
 
     it('default attributes', () => {
-        let attrs = parse('[a.b]');
+        let attrs = parse('["a.b"]');
         deepEqual(names(attrs), [undefined]);
         deepEqual(values(attrs), ['a.b']);
 
-        attrs = parse('[a.b "c=d" foo=bar ./test.html]');
+        attrs = parse('[\'a.b\' "c=d" foo=bar "./test.html"]');
         deepEqual(names(attrs), [undefined, undefined, 'foo', undefined]);
         deepEqual(values(attrs), ['a.b', 'c=d', 'bar', './test.html']);
     });
@@ -87,8 +88,8 @@ describe('Attributes', () => {
 
     it('errors', () => {
         throws(() => parse('[a'), /Expected closing "]" brace/);
-        throws(() => parse('[a="foo]'), /Unable to consume quoted string/);
-        throws(() => parse('[a={foo]'), /Unable to find closing/);
+        throws(() => parse('[a="foo]'), /Expecting closing " quote/);
+        throws(() => parse('[a={foo]'), /Expecting closing }/);
         throws(() => parse('[a=b=c]'), /Expected attribute name/);
     });
 });

@@ -7,16 +7,26 @@ import { Chars } from './utils';
  * Consumes node repeat token from current stream position and returns its
  * parsed value
  */
-export default function consumeRepeat(stream: Scanner): EMRepeat | undefined {
-    if (stream.eat(Chars.Repeater)) {
-        stream.start = stream.pos;
+export default function consumeRepeat(scanner: Scanner): EMRepeat | undefined {
+    const start = scanner.pos;
+    if (scanner.eat(Chars.Repeater)) {
+        scanner.start = scanner.pos;
+        let count = 1;
+        let implicit = false;
+
+        if (scanner.eatWhile(isNumber)) {
+            count = Number(scanner.current());
+        } else {
+            implicit = true;
+        }
+
         return {
-            count: consumeNumber(stream),
-            value: 0
+            type: 'EMRepeat',
+            count,
+            value: 0,
+            implicit,
+            start,
+            end: scanner.pos
         };
     }
-}
-
-function consumeNumber(stream: Scanner): number | undefined {
-    return stream.eatWhile(isNumber) ? +stream.current() : undefined;
 }

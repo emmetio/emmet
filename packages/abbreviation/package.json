@@ -19,7 +19,7 @@
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@emmetio/scanner": "^0.0.2"
+    "@emmetio/scanner": "^0.0.3"
   },
   "devDependencies": {
     "mocha": "^6.1.4",
@@ -34,12 +34,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/emmetio/abbreviation.git"
+    "url": "git+https://github.com/emmetio/emmet.git"
   },
   "bugs": {
-    "url": "https://github.com/emmetio/abbreviation/issues"
+    "url": "https://github.com/emmetio/emmet/issues"
   },
-  "homepage": "https://github.com/emmetio/abbreviation#readme",
+  "homepage": "https://github.com/emmetio/emmet#readme",
   "mocha": {
     "require": "ts-node/register",
     "spec": "./test/*.ts"

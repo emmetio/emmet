@@ -1,85 +1,92 @@
-import Scanner from '@emmetio/scanner';
-import { isAlphaNumeric } from '@emmetio/scanner/utils';
+import Scanner, { isAlphaNumeric } from '@emmetio/scanner';
+import { EMElement, EMLiteral, EMAttribute, EMRepeat, EMIdentifier } from './ast';
 import attributes from './attribute';
-import consumeLiteral from './literal';
 import repeater from './repeat';
-import { EMElement, EMLiteral, EMAttribute, EMRepeat } from './ast';
-import { Chars, toAttribute, toLiteral } from './utils';
+import unquoted from './unquoted';
+import expression from './expression';
+import { AllowedTokens } from './next-token';
+import { Chars } from './utils';
 
 /**
  * Consumes a single element node from current abbreviation stream
  */
-export default function consumeElement(stream: Scanner): EMElement {
-    const start = stream.pos;
-    const name = identifier(stream);
+export default function element(scanner: Scanner): EMElement {
+    const start = scanner.pos;
     const node: EMElement = {
         type: 'EMElement',
-        name: name && name.value,
+        name: tagIdentifier(scanner),
         attributes: [],
         items: [],
-        start: name && name.start
+        start
     };
     let attrs: EMAttribute[] | undefined;
     let repeat: EMRepeat | undefined;
 
-    while (!stream.eof()) {
-        if (stream.eat(Chars.Dot)) {
-            addAttribute(node, 'class', identifier(stream));
-        } else if (stream.eat(Chars.Hash)) {
-            addAttribute(node, 'id', identifier(stream));
-        } else if (stream.eat(Chars.Slash)) {
+    while (!scanner.eof()) {
+        scanner.start = scanner.pos;
+        if (scanner.eat(Chars.Dot)) {
+            addAttribute(node, createIdentifier(scanner, 'class'), attrIdentifier(scanner));
+        } else if (scanner.eat(Chars.Hash)) {
+            addAttribute(node, createIdentifier(scanner, 'id'), attrIdentifier(scanner));
+        } else if (scanner.eat(Chars.Slash)) {
             // A self-closing indicator must be at the end of non-empty node
             if (isEmpty(node)) {
-                stream.backUp(1);
-                throw stream.error('Unexpected self-closing indicator');
+                scanner.backUp(1);
+                throw scanner.error('Unexpected self-closing indicator');
             }
             node.selfClosing = true;
-            if (repeat = repeater(stream)) {
+            if (repeat = repeater(scanner)) {
                 node.repeat = repeat;
             }
             break;
-        } else if (attrs = attributes(stream)) {
+        } else if (attrs = attributes(scanner)) {
             node.attributes = node.attributes.concat(attrs);
-        } else if (stream.peek() === Chars.ExpressionStart) {
-            node.value = consumeLiteral(stream);
-        } else if (repeat = repeater(stream)) {
+        } else if (scanner.peek() === Chars.ExpressionStart) {
+            node.value = expression(scanner);
+        } else if (repeat = repeater(scanner)) {
             node.repeat = repeat;
         } else {
             break;
         }
     }
 
-    if (start === stream.pos) {
-        throw stream.error(`Unable to consume abbreviation node, unexpected ${stream.peek()}`);
+    if (start === scanner.pos) {
+        throw scanner.error(`Unable to consume abbreviation node, unexpected ${scanner.peek()}`);
     }
 
     return node;
 }
 
-function identifier(stream: Scanner): EMLiteral | undefined {
-    const start = stream.pos;
-    if (stream.eatWhile(isIdentifier)) {
-        stream.start = start;
-        return toLiteral(stream.current(), start, stream.pos);
-    }
+function createIdentifier(scanner: Scanner, value: string): EMIdentifier {
+    return {
+        type: 'EMTokenGroup',
+        raw: scanner.current(),
+        tokens: [{ type: 'EMString', value }],
+        start: scanner.start,
+        end: scanner.end
+    };
 }
 
-function isIdentifier(code: number) {
+function tagIdentifier(scanner: Scanner): EMIdentifier | undefined {
+    return unquoted(scanner, 0, AllowedTokens.Numbering, isIdentifier);
+}
+
+function attrIdentifier(scanner: Scanner): EMLiteral | undefined {
+    return unquoted(scanner, 0, AllowedTokens.All, isIdentifier);
+}
+
+function isIdentifier(code: number): boolean {
     return isAlphaNumeric(code)
-        || code === 45 /* - */
-        || code === 58 /* : */
-        || code === 36 /* $ */
-        || code === 64 /* @ */
-        || code === 33 /* ! */
-        || code === 95 /* _ */
-        || code === 37 /* % */;
+        || code === Chars.Dash
+        || code === Chars.Colon
+        || code === Chars.Underscore;
 }
 
 /**
  * Creates new attribute and adds it to given element
  */
-function addAttribute(elem: EMElement, name?: string, value?: EMLiteral, start?: number, end?: number) {
-    elem.attributes.push(toAttribute(name, value));
+function addAttribute(elem: EMElement, name?: EMIdentifier, value?: EMLiteral, start?: number, end?: number) {
+    elem.attributes.push({ type: 'EMAttribute', name, value, start, end });
 }
 
 /**

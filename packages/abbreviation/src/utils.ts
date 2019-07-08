@@ -1,43 +1,127 @@
-import { EMLiteral, EMAttribute } from './ast';
+import { EMString, EMNode, EMTokenGroup } from './ast';
+import Scanner from '@emmetio/scanner';
 
 export const enum Chars {
-    ExpressionStart = 123,  // {
-    ExpressionEnd = 125, // }
-    Escape = 92, // \ character
-    Equals = 61, // =
-    AttrOpen = 91, // [
-    AttrClose = 93, // ]
-    Repeater = 42, // *
-    Hash = 35, // #
-    Dash = 45, // -
-    Dot = 46, // .
-    Slash = 47, // /
-    Excl = 33, // .
-    GroupStart = 40, // (
-    GroupEnd = 41, // )
-    Sibling = 43, // +
-    Child = 62, // >
-    Climb = 94, // ^
+    /** `{` character */
+    ExpressionStart = 123,
+
+    /** `}` character */
+    ExpressionEnd = 125,
+
+    /** `\\` character */
+    Escape = 92,
+
+    /** `=` character */
+    Equals = 61,
+
+    /** `[` character */
+    AttrOpen = 91,
+
+    /** `]` character */
+    AttrClose = 93,
+
+    /** `*` character */
+    Repeater = 42,
+
+    /** `#` character */
+    Hash = 35,
+
+    /** `$` character */
+    Dollar = 36,
+
+    /** `-` character */
+    Dash = 45,
+
+    /** `.` character */
+    Dot = 46,
+
+    /** `/` character */
+    Slash = 47,
+
+    /** `:` character */
+    Colon = 58,
+
+    /** `!` character */
+    Excl = 33,
+
+    /** `@` character */
+    At = 64,
+
+    /** `_` character */
+    Underscore = 95,
+
+    /** `(` character */
+    GroupStart = 40,
+
+    /** `)` character */
+    GroupEnd = 41,
+
+    /** `+` character */
+    Sibling = 43,
+
+    /** `>` character */
+    Child = 62,
+
+    /** `^` character */
+    Climb = 94,
 }
 
 /**
- * Creates literal AST node from given data
+ * If consumes escape character, sets current stream range to escaped value
  */
-export function toLiteral(value: string, start?: number, end?: number): EMLiteral {
-    return { type: 'EMLiteral', value, start, end };
+export function escaped(scanner: Scanner): boolean {
+    if (scanner.eat(Chars.Escape)) {
+        if (scanner.eof()) {
+            scanner.start = scanner.pos - 1;
+        } else {
+            scanner.start = scanner.pos++;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 /**
- * Creates attribute AST node from given data
+ * AST string token factory
  */
-export function toAttribute(name?: string, value?: EMLiteral, start?: number, end?: number): EMAttribute {
-    if (start == null && value) {
-        start = value.start;
-    }
+export function stringToken(value: string, start?: number, end?: number): EMString {
+    return { type: 'EMString', value, start, end };
+}
 
-    if (end == null && value) {
-        end = value.end;
-    }
+interface TokenGroupAccumulator<T extends EMNode = EMNode> {
+    tokens: T[];
+    offset: number;
+    str: string;
+}
 
-    return { type: 'EMAttribute', name, value, start, end };
+export function tokenAccumulator<T extends EMNode>(offset: number): TokenGroupAccumulator<T> {
+    return { offset, tokens: [], str: '' };
+}
+
+export function pushString(acc: TokenGroupAccumulator, nextOffset: number) {
+    if (acc.str) {
+        acc.tokens.push(stringToken(acc.str, acc.offset, nextOffset));
+        acc.str = '';
+    }
+    acc.offset = nextOffset;
+}
+
+export function pushToken<T extends EMNode>(acc: TokenGroupAccumulator, token: T) {
+    pushString(acc, token.start!);
+    acc.tokens.push(token);
+    acc.offset = token.end!;
+}
+
+export function createGroup<T extends EMNode>(scanner: Scanner, tokens: T[], before?: string, after?: string): EMTokenGroup<T> {
+    return {
+        type: 'EMTokenGroup',
+        tokens,
+        before,
+        after,
+        raw: scanner.current(),
+        start: scanner.start,
+        end: scanner.pos
+    };
 }

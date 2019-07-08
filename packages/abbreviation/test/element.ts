@@ -1,10 +1,10 @@
 import { equal, throws } from 'assert';
 import Scanner from '@emmetio/scanner';
-import consumeElement from '../src/element';
+import element from '../src/element';
 import stringify from './assets/stringify';
 
 describe('Element node', () => {
-    const parse = (str: string) => stringify(consumeElement(new Scanner(str)));
+    const parse = (str: string) => stringify(element(new Scanner(str)));
 
     it('simple', () => {
         equal(parse('div'), '<div></div>');

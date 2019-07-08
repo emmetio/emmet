@@ -1,14 +1,14 @@
-import { deepEqual } from 'assert';
+import { equal } from 'assert';
 import Scanner from '@emmetio/scanner';
-import consumeRepeat from '../src/repeat';
+import repeat from '../src/repeat';
 
 describe('Repeat', () => {
-    const parse = (str: string) => consumeRepeat(new Scanner(str));
+    const parse = (str: string) => repeat(new Scanner(str));
 
     it('basic', () => {
-        deepEqual(parse('*3')!.count, 3);
-        deepEqual(parse('*123')!.count, 123);
-        deepEqual(parse('*123foo')!.count, 123);
-        deepEqual(parse('*')!.count, undefined);
+        equal(parse('*3')!.count, 3);
+        equal(parse('*123')!.count, 123);
+        equal(parse('*123foo')!.count, 123);
+        equal(parse('*')!.count, 1);
     });
 });
