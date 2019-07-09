@@ -1,6 +1,6 @@
 import Scanner from '@emmetio/scanner';
-import consumeRepeat from './repeat';
 import element from './element';
+import repeater from './repeater';
 import { EMAbbreviation, EMElement, EMGroup, EMNode } from './ast';
 import { Chars } from './utils';
 
@@ -42,7 +42,7 @@ export default function parse(str: string): EMAbbreviation {
             }
 
             ctx.end = scanner.pos;
-            ctx.repeat = consumeRepeat(scanner);
+            ctx.repeat = repeater(scanner);
             ctx = stack.pop()!;
 
             // For convenience, groups can be joined with optional `+` operator

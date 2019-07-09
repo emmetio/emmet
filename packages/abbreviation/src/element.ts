@@ -1,7 +1,7 @@
 import Scanner, { isAlphaNumeric } from '@emmetio/scanner';
 import { EMElement, EMLiteral, EMAttribute, EMRepeat, EMIdentifier } from './ast';
-import attributes from './attribute';
-import repeater from './repeat';
+import attributes from './attributes';
+import repeater from './repeater';
 import unquoted from './unquoted';
 import expression from './expression';
 import { AllowedTokens } from './next-token';

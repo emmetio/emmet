@@ -1,6 +1,6 @@
 import { throws, deepEqual, ok } from 'assert';
 import Scanner from '@emmetio/scanner';
-import attributes from '../src/attribute';
+import attributes from '../src/attributes';
 import { EMAttribute } from '../src/ast';
 import stringify from './assets/stringify';
 

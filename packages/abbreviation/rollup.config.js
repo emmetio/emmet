@@ -8,8 +8,7 @@ export default {
         }
     })],
     external: [
-        '@emmetio/scanner',
-        '@emmetio/scanner/utils'
+        '@emmetio/scanner'
     ],
     output: [{
         format: 'cjs',

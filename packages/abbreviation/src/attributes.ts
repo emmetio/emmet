@@ -1,5 +1,4 @@
-import Scanner from '@emmetio/scanner';
-import { isWhiteSpace, isAlphaNumericWord } from '@emmetio/scanner/utils';
+import Scanner, { isWhiteSpace, isAlphaNumericWord } from '@emmetio/scanner';
 import { EMAttribute, EMLiteral, EMIdentifier, EMIdentifierTokens } from './ast';
 import quoted from './quoted';
 import unquoted, { AllowedChars } from './unquoted';
@@ -13,7 +12,7 @@ import { AllowedTokens } from './next-token';
  * [attr col=3 title="Quoted string" selected. support={react}]
  * @returns Array of consumed attributes
  */
-export default function attributeList(scanner: Scanner): EMAttribute[] | undefined {
+export default function attributes(scanner: Scanner): EMAttribute[] | undefined {
     if (!scanner.eat(Chars.AttrOpen)) {
         return;
     }

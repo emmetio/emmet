@@ -1,9 +1,9 @@
 import { equal } from 'assert';
 import Scanner from '@emmetio/scanner';
-import repeat from '../src/repeat';
+import repeater from '../src/repeater';
 
 describe('Repeat', () => {
-    const parse = (str: string) => repeat(new Scanner(str));
+    const parse = (str: string) => repeater(new Scanner(str));
 
     it('basic', () => {
         equal(parse('*3')!.count, 3);
