@@ -46,6 +46,10 @@ export function isAlphaWord(code: number): boolean {
     return code === 95 /* _ */ || isAlpha(code);
 }
 
+/**
+ * Check if given character code is a white-space character: a space character
+ * or line breaks
+ */
 export function isWhiteSpace(code: number) {
     return code === 32   /* space */
         || code === 9    /* tab */
@@ -53,7 +57,7 @@ export function isWhiteSpace(code: number) {
 }
 
 /**
- * Check if given character code is a space
+ * Check if given character code is a space character
  */
 export function isSpace(code: number): boolean {
     return isWhiteSpace(code)
