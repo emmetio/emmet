@@ -1,5 +1,5 @@
 import { EMAttribute, EMElement } from '@emmetio/abbreviation';
-import { cloneAttribute } from './utils';
+import clone from './clone';
 
 /**
  * Merges attributes in current node: de-duplicates attributes with the same name
@@ -11,9 +11,10 @@ export default function mergeAttributes(node: EMElement) {
 
     for (const attr of node.attributes) {
         if (attr.name) {
-            if (attr.name in lookup) {
-                const prev = lookup[attr.name];
-                if (attr.name === 'class') {
+            const attrName = attr.name.raw;
+            if (attrName in lookup) {
+                const prev = lookup[attrName];
+                if (attrName === 'class') {
                     prev.value = {
                         type: 'EMLiteral',
                         value: getValue(prev) + ' ' + getValue(attr)
@@ -23,7 +24,7 @@ export default function mergeAttributes(node: EMElement) {
                 }
             } else {
                 // Create new attribute instance so we can safely modify it later
-                attributes.push(lookup[attr.name] = cloneAttribute(attr));
+                attributes.push(lookup[attrName] = clone(attr));
             }
         } else {
             attributes.push(attr);

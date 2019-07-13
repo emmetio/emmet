@@ -1,6 +1,13 @@
 export type OperatorType = 'child' | 'sibling' | 'climb' | 'class' | 'id' | 'close' | 'equal';
 export type BracketType = 'group' | 'attribute' | 'expression';
 
+export type AllTokens =
+    Bracket | Field | Literal | Operator | Quote | Repeater | RepeaterNumber |
+    RepeaterPlaceholder | WhiteSpace;
+
+export type Name = Literal | RepeaterNumber;
+export type Value = Literal | Bracket | Field | RepeaterPlaceholder | RepeaterNumber;
+
 export interface Token {
     type: string;
 

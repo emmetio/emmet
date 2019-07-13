@@ -8,7 +8,12 @@ import { Chars } from './utils';
 export default function repeaterPlaceholder(scanner: Scanner): EMRepeaterPlaceholder | undefined {
     const start = scanner.pos;
     if (scanner.eat(Chars.Dollar) && scanner.eat(Chars.Hash)) {
-        return { type: 'EMRepeaterPlaceholder', start, end: scanner.pos };
+        return {
+            type: 'EMRepeaterPlaceholder',
+            value: void 0,
+            start,
+            end: scanner.pos
+        };
     }
 
     scanner.pos = start;

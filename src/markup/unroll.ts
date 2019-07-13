@@ -1,7 +1,8 @@
-import Scanner from '@emmetio/scanner';
-import { EMStatement, EMAbbreviation, EMLiteral } from '@emmetio/abbreviation';
-import { Container, walk } from './walk';
-import { clone, isGroup, replaceToken, isElement, addToDeepest } from './utils';
+import { EMStatement, EMAbbreviation, EMTokenGroup, EMElement, EMGroup, EMRepeaterPlaceholder } from '@emmetio/abbreviation';
+import { isGroup, isElement, isRepeaterPlaceholder, findDeepest } from './utils';
+import clone from './clone';
+
+type RepeatContinue = (ctx: EMStatement) => EMElement[];
 
 export interface UnrollState {
     inserted?: boolean;
@@ -9,75 +10,99 @@ export interface UnrollState {
 }
 
 export default function unroll(abbr: EMAbbreviation, state: UnrollState = {}): EMAbbreviation {
-    walk(abbr, unrollNode, state);
-    unrollNode(abbr, [], state);
-    return abbr;
-}
+    const next: RepeatContinue = ctx =>
+        unrollNode(unrolledCopy(ctx, next), state);
 
-export function unrollNode(node: Container, ancestors: Container[], state: UnrollState) {
-    let items: EMStatement[] = [];
-
-    for (let child of node.items) {
-        if (child.repeat) {
-            if (child.repeat.count == null) {
-                items = items.concat(handleImplicitRepeater(child, state));
-            } else {
-                // Repeat elements and remove groups
-                for (let j = 0; j < child.repeat!.count!; j++) {
-                    if (isGroup(child)) {
-                        for (let child2 of child.items) {
-                            child2 = clone(child2);
-                            child2.repeat = child2.repeat || { ...child.repeat, value: j };
-                            items.push(child2);
-                        }
-                    } else {
-                        child = clone(child);
-                        child.repeat = { ...child.repeat, value: j };
-                        items.push(child);
-                    }
-                }
-            }
-        } else if (isGroup(child)) {
-            items = items.concat(child.items);
-        } else {
-            items.push(child);
-        }
-    }
-
-    node.items = items;
+    return unrolledCopy(abbr, next);
 }
 
 /**
- * Handles node with implicit repeater, a repeater without explicit counter like `ul*`.
- * In this case, we should repeat content by the amount text strings in `config.text`
- * and insert corresponding text value into duplicated node
+ * Inserts given value as a repeater placeholder value of deepest child of `node`
  */
-function handleImplicitRepeater(node: EMStatement, state: UnrollState): EMStatement[] {
-    const result: EMStatement[] = [];
-    const count = Array.isArray(state.text) ? state.text.length : 1;
-
-    for (let i = 0; i < count; i++) {
-        const copy = clone(node);
-        let text = Array.isArray(state.text) ? state.text[i] : state.text;
-        if (text == null) {
-            text = '';
+export function addToDeepest(node: EMAbbreviation | EMStatement, value: string) {
+    const deepest = findDeepest(node).node;
+    if (isElement(deepest)) {
+        if (!deepest.value) {
+            deepest.value = {
+                type: 'EMTokenGroup',
+                tokens: [createPlaceholder(value)],
+                raw: value
+            };
+        } else if (!setPlaceholderValue(deepest.value, value)) {
+            deepest.value.tokens.push(createPlaceholder(value));
         }
+    }
+}
 
-        if (!replaceRepeater(copy, text)) {
-            addToDeepest(copy, text);
-        }
+/**
+ * Creates shallow copy of given container with unrolled content
+ */
+function unrolledCopy<T extends EMAbbreviation | EMStatement>(node: T, next: RepeatContinue): T {
+    let items: EMElement[] = [];
 
-        state.inserted = true;
+    for (const child of node.items) {
+        items = items.concat(next(child));
+    }
 
-        if (isGroup(copy)) {
-            for (const child of copy.items) {
-                child.repeat = child.repeat || { ...node.repeat, count, value: i };
-                result.push(child);
+    // TODO replace repeater value token
+
+    return { ...node, items };
+}
+
+function unrollNode(node: EMStatement, state: UnrollState): EMElement[] {
+    if (node.repeat) {
+        const count = node.repeat.implicit && Array.isArray(state.text)
+            ? state.text.length
+            : (node.repeat.count || 1);
+
+        return isGroup(node)
+            ? repeatGroup(node, count, state)
+            : repeatElement(node, count, state);
+    }
+
+    // No need to repeat, get rid of groups
+    return isGroup(node) ? (node.items as EMElement[]) : [node];
+}
+
+/**
+ * Returns repeated content of given group node
+ * @param node Node to repeat
+ * @param count How many times node should be repeated
+ */
+function repeatGroup(node: EMGroup, count: number, state: UnrollState): EMElement[] {
+    const result: EMElement[] = [];
+
+    for (let value = 0; value < count; value++) {
+        const copy = cloneWithText(node, value, state);
+
+        // NB children are already cloned in `copy`
+        for (const child of copy.items) {
+            if (!child.repeat && node.repeat) {
+                child.repeat = { ...node.repeat, count, value };
             }
-        } else {
-            copy.repeat = { ...node.repeat, count, value: i };
-            result.push(copy);
+            result.push(child as EMElement);
         }
+    }
+
+    return result;
+}
+
+/**
+ * Returns repeated element
+ * @param node Node to repeat
+ * @param count How many times node should be repeated
+ */
+function repeatElement(node: EMElement, count: number, state: UnrollState): EMElement[] {
+    const result: EMElement[] = [];
+
+    for (let value = 0; value < count; value++) {
+        const copy = cloneWithText(node, value, state);
+        if (copy.repeat) {
+            copy.repeat.count = count;
+            copy.repeat.value = value;
+        }
+
+        result.push(copy);
     }
 
     return result;
@@ -87,53 +112,53 @@ function handleImplicitRepeater(node: EMStatement, state: UnrollState): EMStatem
  * Replaces `$#` repeater token in given element with `text`.
  * @returns `1` if repeater was found and replaced, `0` otherwise
  */
-function replaceRepeater(node: Container, text: string): number {
-    let replaced = 0;
+function setPlaceholderInNode(node: EMStatement, text: string): number {
+    let updated = 0;
 
     if (isElement(node)) {
-        replaced = replaceRepeaterInItem(node, text);
+        updated |= setPlaceholderValue(node.name, text) | setPlaceholderValue(node.value, text);
         for (const attr of node.attributes) {
-            replaced |= replaceRepeaterInItem(attr, text);
+            updated |= setPlaceholderValue(attr.name, text) | setPlaceholderValue(attr.value, text);
         }
     }
 
     for (const child of node.items) {
-        replaced |= replaceRepeater(child, text);
+        updated |= setPlaceholderInNode(child, text);
     }
 
-    return replaced;
+    return updated;
 }
 
-function replaceRepeaterInItem(item: { name?: string, value?: EMLiteral }, value: string): number {
-    let result: string | undefined;
-    let replaced = 0;
+function setPlaceholderValue(group: EMTokenGroup | undefined, value: string): number {
+    let result = 0;
 
-    if (item.name) {
-        result = replaceToken(item.name, consumeRepeater, value);
-        if (item.name !== result) {
-            replaced = 1;
-            item.name = result;
+    if (group) {
+        for (const token of group.tokens) {
+            if (isRepeaterPlaceholder(token)) {
+                token.value = value;
+                result = 1;
+            }
         }
     }
 
-    if (item.value) {
-        result = replaceToken(item.value.value, consumeRepeater, value);
-        if (item.value.value !== result) {
-            replaced = 1;
-            item.value.value = result;
-        }
-    }
-
-    return replaced;
+    return result;
 }
 
-function consumeRepeater(scanner: Scanner): boolean {
-    const start = scanner.pos;
-    if (scanner.eat(36) /* # */ && scanner.eat(35) /* # */) {
-        scanner.start = start;
-        return true;
+/**
+ * Creates a deep clone of given node and inserts matching text from state into it
+ */
+function cloneWithText<T extends EMStatement>(node: T, counter: number, state: UnrollState): T {
+    node = clone(node);
+    const text = Array.isArray(state.text) ? state.text[counter] : void 0;
+
+    if (text) {
+        setPlaceholderInNode(node, text) || addToDeepest(node, text);
+        state.inserted = true;
     }
 
-    scanner.pos = start;
-    return false;
+    return node;
+}
+
+function createPlaceholder(value?: string): EMRepeaterPlaceholder {
+    return { type: 'EMRepeaterPlaceholder', value };
 }

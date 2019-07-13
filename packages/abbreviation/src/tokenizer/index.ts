@@ -1,12 +1,14 @@
 import Scanner, { isSpace, isQuote, isNumber, isAlpha } from '@emmetio/scanner';
-import { Token, Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber } from './tokens';
+import { Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber, AllTokens } from './tokens';
 import { Chars, escaped } from './utils';
+
+export * from './tokens';
 
 type Context =  { [ctx in BracketType]: number } & { quote: number };
 
-export default function tokenize(source: string): Token[] {
+export default function tokenize(source: string): AllTokens[] {
     const scanner = new Scanner(source);
-    const result: Token[] = [];
+    const result: AllTokens[] = [];
     const ctx: Context = {
         group: 0,
         attribute: 0,
@@ -15,7 +17,7 @@ export default function tokenize(source: string): Token[] {
     };
 
     let ch = 0;
-    let token: Token | undefined;
+    let token: AllTokens | undefined;
 
     while (!scanner.eof()) {
         ch = scanner.peek();
@@ -34,7 +36,7 @@ export default function tokenize(source: string): Token[] {
             if (token.type === 'Quote') {
                 ctx.quote = ch === ctx.quote ? 0 : ch;
             } else if (token.type === 'Bracket') {
-                ctx[(token as Bracket).context] += (token as Bracket).open ? 1 : -1;
+                ctx[token.context] += token.open ? 1 : -1;
             }
         } else {
             throw scanner.error('Unexpected character');

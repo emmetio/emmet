@@ -47,6 +47,8 @@ export interface EMRepeaterValue extends EMNode {
 
 export interface EMRepeaterPlaceholder extends EMNode {
     type: 'EMRepeaterPlaceholder';
+    /** Value to insert instead of placeholder */
+    value?: string;
 }
 
 export interface EMField extends EMNode {

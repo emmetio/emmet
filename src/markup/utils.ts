@@ -1,39 +1,6 @@
 import Scanner from '@emmetio/scanner';
-import { EMAttribute, EMLiteral, EMNode, EMElement, EMGroup } from '@emmetio/abbreviation';
+import { EMNode, EMElement, EMGroup, EMString, EMRepeaterPlaceholder } from '@emmetio/abbreviation';
 import { Container } from './walk';
-
-/**
- * Creates deep copy of given abbreviation node
- */
-export function clone<T extends Container>(node: T): T {
-    const copy: T = {
-        ...node,
-        items: node.items.map(clone)
-    };
-
-    if (isElement(copy)) {
-        copy.attributes = copy.attributes.map(cloneAttribute);
-        copy.value = cloneValue(copy.value);
-    }
-
-    if ((isElement(copy) || isGroup(copy)) && copy.repeat) {
-        copy.repeat = { ...copy.repeat };
-    }
-
-    return copy;
-}
-
-export function cloneAttribute(attr: EMAttribute): EMAttribute {
-    return { ...attr, value: cloneValue(attr.value) };
-}
-
-export function cloneLiteral(value: EMLiteral): EMLiteral {
-    return { ...value };
-}
-
-export function cloneValue(value?: EMLiteral): EMLiteral | undefined {
-    return value ? cloneLiteral(value) : value;
-}
 
 /**
  * Finds node which is the deepest for in current node or node itself.
@@ -54,6 +21,10 @@ export function isElement(node: EMNode): node is EMElement {
 
 export function isGroup(node: EMNode): node is EMGroup {
     return node.type === 'EMGroup';
+}
+
+export function isRepeaterPlaceholder(node: EMNode): node is EMRepeaterPlaceholder {
+    return node.type === 'EMRepeaterPlaceholder';
 }
 
 /**
@@ -81,16 +52,6 @@ export function replaceToken<T>(text: string, token: (scanner: Scanner) => T, va
     return result + text.slice(offset);
 }
 
-/**
- * Adds given `value` to deepest child of given node or node itself
- */
-export function addToDeepest(node: Container, value: string) {
-    const deepest = findDeepest(node);
-    if (isElement(deepest.node)) {
-        if (deepest.node.value) {
-            deepest.node.value.type += value;
-        } else {
-            deepest.node.value = { type: 'EMLiteral', value };
-        }
-    }
+export function stringToken(value: string): EMString {
+    return { type: 'EMString', value };
 }
