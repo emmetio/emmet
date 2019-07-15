@@ -1,12 +1,12 @@
-import tokenize, { Name, Value, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
+import { Name, Value, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
 import tokenScanner, { TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner';
+
+export type TokenStatement = TokenElement | TokenGroup;
 
 export interface TokenAttribute {
     name?: Value[];
     value?: Value[];
 }
-
-type TokenStatement = TokenElement | TokenGroup;
 
 export interface TokenElement {
     type: 'TokenElement';
@@ -24,8 +24,8 @@ export interface TokenGroup {
     repeat?: Repeater;
 }
 
-export default function abbreviation(abbr: string | AllTokens[]): TokenGroup {
-    const scanner = tokenScanner(typeof abbr === 'string' ? tokenize(abbr) : abbr);
+export default function abbreviation(abbr: AllTokens[]): TokenGroup {
+    const scanner = tokenScanner(abbr);
     const result = statements(scanner);
     if (readable(scanner)) {
         throw error(scanner, 'Unexpected character');
@@ -44,19 +44,23 @@ function statements(scanner: TokenScanner): TokenGroup {
     let node: TokenStatement | undefined;
     const stack: TokenStatement[] = [];
 
-    while (readable(scanner) && (node = element(scanner) || group(scanner))) {
-        ctx.elements.push(node);
-        if (consume(scanner, isChildOperator)) {
-            stack.push(ctx);
-            ctx = node;
-        } else if (consume(scanner, isSiblingOperator)) {
-            continue;
-        } else if (consume(scanner, isClimbOperator)) {
-            do {
-                if (stack.length) {
-                    ctx = stack.pop();
-                }
-            } while (consume(scanner, isClimbOperator));
+    while (readable(scanner)) {
+        if (node = element(scanner) || group(scanner)) {
+            ctx.elements.push(node);
+            if (consume(scanner, isChildOperator)) {
+                stack.push(ctx);
+                ctx = node;
+            } else if (consume(scanner, isSiblingOperator)) {
+                continue;
+            } else if (consume(scanner, isClimbOperator)) {
+                do {
+                    if (stack.length) {
+                        ctx = stack.pop()!;
+                    }
+                } while (consume(scanner, isClimbOperator));
+            }
+        } else {
+            break;
         }
     }
 
@@ -82,14 +86,14 @@ function group(scanner: TokenScanner): TokenGroup | undefined {
 /**
  * Consumes single element from given scanner
  */
-function element(scanner: TokenScanner): TokenElement {
+function element(scanner: TokenScanner): TokenElement | undefined {
     let attr: TokenAttribute | TokenAttribute[] | undefined;
     const elem: TokenElement = {
         type: 'TokenElement',
-        name: null,
-        attributes: null,
-        value: null,
-        repeat: null,
+        name: void 0,
+        attributes: void 0,
+        value: void 0,
+        repeat: void 0,
         selfClose: false,
         elements: []
     };
@@ -127,21 +131,15 @@ function element(scanner: TokenScanner): TokenElement {
 function attributeSet(scanner: TokenScanner): TokenAttribute[] | undefined {
     if (consume(scanner, isAttributeSetStart)) {
         const attributes: TokenAttribute[] = [];
+        let attr: TokenAttribute | undefined;
+
         while (readable(scanner)) {
-            const token = peek(scanner);
-            if (isWhiteSpace(token)) {
-                continue;
-            }
-
-            if (isBracket(token, 'attribute', false)) {
-                break;
-            }
-
-            const attr = attribute(scanner);
-            if (attr) {
+            if (attr = attribute(scanner)) {
                 attributes.push(attr);
-            } else {
-                throw error(scanner, `Unexpected token "${token.type}"`);
+            } else if (consume(scanner, isAttributeSetEnd)) {
+                break;
+            } else if (!consume(scanner, isWhiteSpace)) {
+                throw error(scanner, `Unexpected token "${peek(scanner)!.type}"`);
             }
         }
 
@@ -173,10 +171,10 @@ function attribute(scanner: TokenScanner): TokenAttribute | undefined {
         };
     }
 
-    if (literal(scanner)) {
+    if (literal(scanner, true)) {
         return {
             name: slice(scanner) as Name[],
-            value: consume(scanner, isEquals) && (literal(scanner) || quoted(scanner))
+            value: consume(scanner, isEquals) && (quoted(scanner) || literal(scanner, true))
                 ? slice(scanner) as Value[]
                 : void 0
         };
@@ -213,7 +211,7 @@ function quoted(scanner: TokenScanner): boolean {
 /**
  * Consumes literal (unquoted value) from given scanner
  */
-function literal(scanner: TokenScanner): boolean {
+function literal(scanner: TokenScanner, allowBrackets?: boolean): boolean {
     const start = scanner.pos;
     const brackets: { [type in BracketType]: number } = {
         attribute: 0,
@@ -229,6 +227,10 @@ function literal(scanner: TokenScanner): boolean {
         }
 
         if (isBracket(token)) {
+            if (!allowBrackets) {
+                break;
+            }
+
             if (token.open) {
                 brackets[token.context]++;
             } else if (!brackets[token.context]) {
@@ -238,9 +240,9 @@ function literal(scanner: TokenScanner): boolean {
             } else {
                 brackets[token.context]--;
             }
-        } else {
-            scanner.pos++;
         }
+
+        scanner.pos++;
     }
 
     if (start !== scanner.pos) {
@@ -286,37 +288,41 @@ function text(scanner: TokenScanner): boolean {
 }
 
 function isBracket(token: AllTokens | undefined, context?: BracketType, isOpen?: boolean): token is Bracket {
-    return token && token.type === 'Bracket'
+    return Boolean(token && token.type === 'Bracket'
         && (!context || token.context === context)
-        && (isOpen == null || token.open === isOpen);
+        && (isOpen == null || token.open === isOpen));
 }
 
 function isOperator(token: AllTokens | undefined, type?: OperatorType): token is Operator {
-    return token && token.type === 'Operator' && (!type || token.operator === type);
+    return Boolean(token && token.type === 'Operator' && (!type || token.operator === type));
 }
 
 function isQuote(token: AllTokens | undefined, isSingle?: boolean): token is Quote {
-    return token && token.type === 'Quote' && (isSingle == null || token.single === isSingle);
+    return Boolean(token && token.type === 'Quote' && (isSingle == null || token.single === isSingle));
 }
 
-function isWhiteSpace(token: AllTokens): token is WhiteSpace {
-    return token && token.type === 'WhiteSpace';
+function isWhiteSpace(token?: AllTokens): token is WhiteSpace {
+    return Boolean(token && token.type === 'WhiteSpace');
 }
 
 function isEquals(token: AllTokens) {
     return isOperator(token, 'equal');
 }
 
-function isRepeater(token: AllTokens): token is Repeater {
-    return token && token.type === 'Repeater';
+function isRepeater(token?: AllTokens): token is Repeater {
+    return Boolean(token && token.type === 'Repeater');
 }
 
 function isIdentifier(token: AllTokens): boolean {
     return token.type === 'Literal' || token.type === 'RepeaterNumber' || token.type === 'RepeaterPlaceholder';
 }
 
-function isAttributeSetStart(token: AllTokens) {
+function isAttributeSetStart(token?: AllTokens) {
     return isBracket(token, 'attribute', true);
+}
+
+function isAttributeSetEnd(token?: AllTokens) {
+    return isBracket(token, 'attribute', false);
 }
 
 function isTextStart(token: AllTokens) {

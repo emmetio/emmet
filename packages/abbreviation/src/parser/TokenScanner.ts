@@ -7,7 +7,7 @@ export interface TokenScanner {
     size: number;
 }
 
-type TestFn = (token: AllTokens) => boolean;
+type TestFn = (token?: AllTokens) => boolean;
 
 export default function tokenScanner(tokens: AllTokens[]): TokenScanner {
     return {
