@@ -105,19 +105,22 @@ function element(scanner: TokenScanner): TokenElement | undefined {
     while (readable(scanner)) {
         scanner.start = scanner.pos;
         if (!elem.repeat && !isEmpty(elem) && consume(scanner, isRepeater)) {
-            elem.repeat = scanner.tokens[scanner.start] as Repeater;
+            elem.repeat = scanner.tokens[scanner.pos - 1] as Repeater;
         } else if (!elem.value && text(scanner)) {
-            elem.value = slice(scanner) as Value[];
+            elem.value = getText(scanner);
         } else if (attr = shortAttribute(scanner, 'id') || shortAttribute(scanner, 'class') || attributeSet(scanner)) {
             if (!elem.attributes) {
                 elem.attributes = Array.isArray(attr) ? attr.slice() : [attr];
             } else {
                 elem.attributes = elem.attributes.concat(attr);
             }
-        } else if (consume(scanner, isCloseOperator)) {
-            elem.selfClose = true;
-            break;
         } else {
+            if (!isEmpty(elem) && consume(scanner, isCloseOperator)) {
+                elem.selfClose = true;
+                if (!elem.repeat && consume(scanner, isRepeater)) {
+                    elem.repeat = scanner.tokens[scanner.pos - 1] as Repeater;
+                }
+            }
             break;
         }
     }
@@ -139,7 +142,7 @@ function attributeSet(scanner: TokenScanner): TokenAttribute[] | undefined {
             } else if (consume(scanner, isAttributeSetEnd)) {
                 break;
             } else if (!consume(scanner, isWhiteSpace)) {
-                throw error(scanner, `Unexpected token "${peek(scanner)!.type}"`);
+                throw error(scanner, `Unexpected "${peek(scanner)!.type}" token`);
             }
         }
 
@@ -221,12 +224,14 @@ function literal(scanner: TokenScanner, allowBrackets?: boolean): boolean {
 
     while (readable(scanner)) {
         const token = peek(scanner);
-
-        if (isQuote(token) || isOperator(token) || isWhiteSpace(token) || isRepeater(token)) {
+        if (brackets.expression) {
+            // If we’re inside expression, we should consume all content in it
+            if (isBracket(token, 'expression')) {
+                brackets[token.context] += token.open ? 1 : -1;
+            }
+        } else if (isQuote(token) || isOperator(token) || isWhiteSpace(token) || isRepeater(token)) {
             break;
-        }
-
-        if (isBracket(token)) {
+        } else if (isBracket(token)) {
             if (!allowBrackets) {
                 break;
             }
@@ -257,7 +262,13 @@ function literal(scanner: TokenScanner, allowBrackets?: boolean): boolean {
  * Consumes element identifier from given scanner
  */
 function identifier(scanner: TokenScanner): boolean {
-    return consume(scanner, isIdentifier);
+    const start = scanner.pos;
+    if (consume(scanner, isIdentifier)) {
+        scanner.start = start;
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -285,6 +296,20 @@ function text(scanner: TokenScanner): boolean {
     }
 
     return false;
+}
+
+function getText(scanner: TokenScanner): Value[] {
+    let from = scanner.start;
+    let to = scanner.pos;
+    if (isBracket(scanner.tokens[from], 'expression', true)) {
+        from++;
+    }
+
+    if (isBracket(scanner.tokens[to - 1], 'expression', false)) {
+        to--;
+    }
+
+    return slice(scanner, from, to) as Value[];
 }
 
 function isBracket(token: AllTokens | undefined, context?: BracketType, isOpen?: boolean): token is Bracket {

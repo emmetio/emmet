@@ -63,7 +63,7 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
             break;
         }
 
-        if (!ctx.quote && (isAllowedSpace(ch, ctx) || isQuote(ch) || bracketType(ch))) {
+        if (!ctx.quote && (isAllowedSpace(ch, ctx) || isAllowedRepeater(ch, ctx) || isQuote(ch) || bracketType(ch))) {
             // Stop for characters not allowed in unquoted literal
             break;
         }
@@ -306,6 +306,13 @@ function isAllowedOperator(ch: number, ctx: Context): boolean {
  */
 function isAllowedSpace(ch: number, ctx: Context): boolean {
     return isSpace(ch) && !ctx.expression;
+}
+
+/**
+ * Check if given character can be consumed as repeater in current context
+ */
+function isAllowedRepeater(ch: number, ctx: Context): boolean {
+    return ch === Chars.Asterisk && !ctx.attribute && !ctx.expression;
 }
 
 /**

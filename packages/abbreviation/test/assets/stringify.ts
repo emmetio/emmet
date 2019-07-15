@@ -1,79 +1,106 @@
-import {
-    EMNode, EMRepeat, EMAbbreviation, EMGroup, EMElement, EMAttribute,
-    EMTokenGroup, EMRepeaterValue, EMRepeaterPlaceholder, EMField, EMString, EMVariable
-} from '../../src/ast';
+import { AllTokens, Repeater, RepeaterNumber, Field, OperatorType, Operator, Bracket, Quote, Literal } from '../../src/tokenizer';
+import { TokenElement, TokenAttribute, TokenGroup, TokenStatement } from '../../src/parser';
 
-type Visitor = (node: EMNode, next: VisitorContinue) => string;
-type VisitorContinue = (node?: EMNode) => string;
-interface VisitorMap {
-    [nodeType: string]: Visitor;
+type TokenVisitor = (token: AllTokens) => string;
+interface TokenVisitorMap {
+    [nodeType: string]: TokenVisitor;
 }
 
-const visitors: VisitorMap = {
-    EMAbbreviation(node: EMAbbreviation, next) {
-        return node.items.map(next).join('');
-    },
-    EMGroup(node: EMGroup, next) {
-        return `(${node.items.map(next).join('')})${next(node.repeat)}`;
-    },
-    EMElement(node: EMElement, next) {
-        const name = node.name ? next(node.name) : '?';
-        const attrs = node.attributes.map(next).join('');
-        const repeat = next(node.repeat);
+const operatorMap: { [name in OperatorType]: string } = {
+    id: '#',
+    class: '.',
+    equal: '=',
+    child: '>',
+    climb: '^',
+    sibling: '+',
+    close: '/'
+};
 
-        return node.selfClosing
-            ? `<${name}${repeat}${attrs} />`
-            : `<${name}${repeat}${attrs}>${next(node.value)}${node.items.map(next).join('')}</${name}>`;
+const tokenVisitors: TokenVisitorMap = {
+    Repeater(token: Repeater) {
+        return `*${token.implicit ? '' : token.count}`;
     },
-    EMAttribute(node: EMAttribute, next) {
-        return ` ${node.name ? next(node.name) : '?'}=${attrValue(node, next)}`;
+    RepeaterNumber(token: RepeaterNumber) {
+        return '$'.repeat(token.size);
     },
-    EMTokenGroup(node: EMTokenGroup, next) {
-        return node.tokens.map(next).join('');
-    },
-    EMRepeat(node: EMRepeat) {
-        return `*${node.count || ''}`;
-    },
-    EMRepeaterValue(node: EMRepeaterValue) {
-        return '$'.repeat(node.size);
-    },
-    EMRepeaterPlaceholder(node: EMRepeaterPlaceholder) {
+    RepeaterPlaceholder() {
         return '$#';
     },
-    EMField(node: EMField) {
-        return `\${${node.index}${node.placeholder ? ':' + node.placeholder : ''}}`;
+    Field(node: Field) {
+        const index = node.index != null ? String(node.index) : '';
+        const sep = index && node.name ? ':' : '';
+        return `\${${index}${sep}${node.name}}`;
     },
-    EMString(node: EMString) {
+    Operator(node: Operator) {
+        return operatorMap[node.operator];
+    },
+    Bracket(node: Bracket) {
+        if (node.context === 'attribute') {
+            return node.open ? '[' : ']';
+        }
+
+        if (node.context === 'expression') {
+            return node.open ? '{' : '}';
+        }
+
+        if (node.context === 'group') {
+            return node.open ? '(' : ')';
+        }
+
+        return '?';
+    },
+    Quote(node: Quote) {
+        return node.single ? '\'' : '"';
+    },
+    Literal(node: Literal) {
         return node.value;
     },
-    EMVariable(node: EMVariable) {
-        return `\${${node.name}}`;
+    WhiteSpace() {
+        return ' ';
     }
 };
 
-function attrValue(attr: EMAttribute, next: VisitorContinue) {
-    const { value } = attr;
-    if (value) {
-        return value.before === '{'
-            ? `${value.before}${next(value) || ''}${value.after}`
-            : `"${next(value) || ''}"`;
+function statement(node: TokenElement | TokenGroup): string {
+    if (node.type === 'TokenGroup') {
+        return `(${content(node)})${node.repeat ? str(node.repeat) : ''}`;
     }
 
-    return '""';
+    return element(node);
 }
 
-export default function stringify(abbr?: EMNode): string {
-    const next: VisitorContinue = node => {
-        if (!node) {
-            return '';
-        }
+function element(node: TokenElement): string {
+    const name = node.name ? tokenList(node.name) : '?';
+    const repeat = node.repeat ? str(node.repeat) : '';
+    const attributes = node.attributes ? node.attributes.map(attribute).join(' ') : '';
+    if (node.selfClose && !node.elements.length) {
+        return `<${name}${repeat}${attributes ? ' ' + attributes : ''} />`;
+    }
 
-        if (node.type in visitors) {
-            return visitors[node.type](node, next);
-        }
+    return `<${name}${repeat}${attributes ? ' ' + attributes : ''}>${tokenList(node.value)}${content(node)}</${name}>`;
+}
 
-        throw new Error(`Unknown node type "${node.type}"`);
-    };
+function attribute(attr: TokenAttribute): string {
+    const name = tokenList(attr.name) || '?';
+    return attr.value ? `${name}=${tokenList(attr.value)}` : name;
 
-    return next(abbr);
+}
+
+function tokenList(tokens?: AllTokens[]): string {
+    return tokens ? tokens.map(str).join('') : '';
+}
+
+function str(token: AllTokens): string {
+    if (token.type in tokenVisitors) {
+        return tokenVisitors[token.type](token);
+    }
+
+    throw new Error(`Unknown token "${token.type}"`);
+}
+
+function content(node: TokenStatement): string {
+    return node.elements.map(statement).join('');
+}
+
+export default function stringify(abbr: TokenGroup): string {
+    return content(abbr);
 }

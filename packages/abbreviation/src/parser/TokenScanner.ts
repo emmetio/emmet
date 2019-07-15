@@ -26,8 +26,8 @@ export function next(scanner: TokenScanner): AllTokens | undefined {
     return scanner.tokens[scanner.pos++];
 }
 
-export function slice(scanner: TokenScanner): AllTokens[] {
-    return scanner.tokens.slice(scanner.start, scanner.pos);
+export function slice(scanner: TokenScanner, from = scanner.start, to = scanner.pos): AllTokens[] {
+    return scanner.tokens.slice(from, to);
 }
 
 export function readable(scanner: TokenScanner): boolean {
@@ -44,7 +44,7 @@ export function consume(scanner: TokenScanner, test: TestFn): boolean {
 }
 
 export function error(scanner: TokenScanner, message: string, token = peek(scanner)) {
-    if (token && token.start) {
+    if (token && token.start != null) {
         message += ` at ${token.start}`;
     }
 

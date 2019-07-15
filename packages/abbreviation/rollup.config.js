@@ -13,6 +13,7 @@ export default {
     output: [{
         format: 'cjs',
         sourcemap: true,
+        exports: 'named',
         file: './dist/abbreviation.cjs.js'
     }, {
         format: 'es',
