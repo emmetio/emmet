@@ -30,7 +30,7 @@ export function slice(scanner: TokenScanner): AllTokens[] {
     return scanner.tokens.slice(scanner.start, scanner.pos);
 }
 
-export function end(scanner: TokenScanner): boolean {
+export function readable(scanner: TokenScanner): boolean {
     return scanner.pos < scanner.size;
 }
 
@@ -41,6 +41,17 @@ export function consume(scanner: TokenScanner, test: TestFn): boolean {
     }
 
     return false;
+}
+
+export function error(scanner: TokenScanner, message: string, token = peek(scanner)) {
+    if (token && token.start) {
+        message += ` at ${token.start}`;
+    }
+
+    const err = new Error(message);
+    err['pos'] = token && token.start;
+
+    return err;
 }
 
 export function consumeWhile(scanner: TokenScanner, test: TestFn): boolean {
