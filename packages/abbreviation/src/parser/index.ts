@@ -312,17 +312,17 @@ function getText(scanner: TokenScanner): Value[] {
     return slice(scanner, from, to) as Value[];
 }
 
-function isBracket(token: AllTokens | undefined, context?: BracketType, isOpen?: boolean): token is Bracket {
+export function isBracket(token: AllTokens | undefined, context?: BracketType, isOpen?: boolean): token is Bracket {
     return Boolean(token && token.type === 'Bracket'
         && (!context || token.context === context)
         && (isOpen == null || token.open === isOpen));
 }
 
-function isOperator(token: AllTokens | undefined, type?: OperatorType): token is Operator {
+export function isOperator(token: AllTokens | undefined, type?: OperatorType): token is Operator {
     return Boolean(token && token.type === 'Operator' && (!type || token.operator === type));
 }
 
-function isQuote(token: AllTokens | undefined, isSingle?: boolean): token is Quote {
+export function isQuote(token: AllTokens | undefined, isSingle?: boolean): token is Quote {
     return Boolean(token && token.type === 'Quote' && (isSingle == null || token.single === isSingle));
 }
 

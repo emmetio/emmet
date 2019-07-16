@@ -1,9 +1,12 @@
 import parse from './parser';
 import tokenize from './tokenizer';
+import convert from './convert';
+import { ParserOptions } from './types';
 
-export { parse, tokenize };
+export { parse, tokenize, convert };
 export * from './tokenizer/tokens';
+export * from './types';
 
-export default function parseAbbreviation(abbr: string) {
-    return parse(tokenize(abbr));
+export default function parseAbbreviation(abbr: string, options?: ParserOptions) {
+    return convert(parse(tokenize(abbr)), options);
 }
