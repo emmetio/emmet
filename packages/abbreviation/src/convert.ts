@@ -9,6 +9,7 @@ import stringify from './stringify';
  */
 export default function convert(abbr: TokenGroup, options: ParserOptions = {}): Abbreviation {
     return {
+        type: 'Abbreviation',
         children: convertGroup(abbr, {
             inserted: false,
             repeaters: [],
@@ -97,6 +98,7 @@ function convertElement(node: TokenElement, state: ConvertState): AbbreviationNo
     }
 
     return {
+        type: 'AbbreviationNode',
         name: node.name && stringifyName(node.name, state),
         value: node.value && stringifyValue(node.value, state),
         attributes,

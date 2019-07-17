@@ -20,10 +20,12 @@ export type TokenValue = string | Field;
 export type AttributeType = 'raw' | 'singleQuote' | 'doubleQuote' | 'expression';
 
 export interface Abbreviation {
+    type: 'Abbreviation';
     children: AbbreviationNode[];
 }
 
 export interface AbbreviationNode {
+    type: 'AbbreviationNode';
     name?: string;
     value?: TokenValue[];
     repeat?: Repeater;
