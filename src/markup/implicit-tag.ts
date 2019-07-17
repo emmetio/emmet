@@ -1,7 +1,6 @@
-import { EMElement } from '@emmetio/abbreviation';
-import { Container } from './walk';
+import { AbbreviationNode } from '@emmetio/abbreviation';
 import { ResolvedConfig } from '../types';
-import { isElement } from './utils';
+import { isNode, Container } from './utils';
 
 const elementMap: { [name: string]: string } = {
     p: 'span',
@@ -21,24 +20,22 @@ const elementMap: { [name: string]: string } = {
     map: 'area'
 };
 
-export default function implicitTag(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
-    if (!node.name && node.attributes.length) {
+export default function implicitTag(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
+    if (!node.name && node.attributes) {
         const parent = getParentElement(ancestors);
-        if (parent) {
-            const parentName = (parent.name || '').toLowerCase();
-            node.name = elementMap[parentName]
-                || (config.profile.isInline(parentName) ? 'span' : 'div');
-        }
+        const parentName = (parent && parent.name || '').toLowerCase();
+        node.name = elementMap[parentName]
+            || (config.profile.isInline(parentName) ? 'span' : 'div');
     }
 }
 
 /**
  * Returns closest element node from given ancestors list
  */
-function getParentElement(ancestors: Container[]): EMElement | undefined {
+function getParentElement(ancestors: Container[]): AbbreviationNode | undefined {
     for (let i = ancestors.length - 1; i >= 0; i--) {
         const elem = ancestors[i];
-        if (isElement(elem)) {
+        if (isNode(elem)) {
             return elem;
         }
     }

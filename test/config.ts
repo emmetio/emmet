@@ -1,7 +1,7 @@
 import { equal, strictEqual } from 'assert';
 import resolveConfig from '../src/config';
 import { RawConfig } from '../src/types';
-import configJSON from './sample-config.json';
+import configJSON from './assets/sample-config.json';
 
 describe('Config resolver', () => {
     const defaultConfig = configJSON as any as RawConfig;

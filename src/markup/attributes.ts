@@ -1,30 +1,30 @@
-import { EMAttribute, EMElement } from '@emmetio/abbreviation';
-import clone from './clone';
+import { AbbreviationAttribute, AbbreviationNode, TokenValue } from '@emmetio/abbreviation';
 
 /**
  * Merges attributes in current node: de-duplicates attributes with the same name
  * and merges class names
  */
-export default function mergeAttributes(node: EMElement) {
-    const attributes: EMAttribute[] = [];
-    const lookup: { [name: string]: EMAttribute } = {};
+export default function mergeAttributes(node: AbbreviationNode) {
+    if (!node.attributes) {
+        return;
+    }
+
+    const attributes: AbbreviationAttribute[] = [];
+    const lookup: { [name: string]: AbbreviationAttribute } = {};
 
     for (const attr of node.attributes) {
         if (attr.name) {
-            const attrName = attr.name.raw;
+            const attrName = attr.name;
             if (attrName in lookup) {
                 const prev = lookup[attrName];
                 if (attrName === 'class') {
-                    prev.value = {
-                        type: 'EMLiteral',
-                        value: getValue(prev) + ' ' + getValue(attr)
-                    };
+                    prev.value = mergeValue(prev.value, attr.value, ' ');
                 } else {
                     Object.assign(prev, attr);
                 }
             } else {
                 // Create new attribute instance so we can safely modify it later
-                attributes.push(lookup[attrName] = clone(attr));
+                attributes.push(lookup[attrName] = { ...attr });
             }
         } else {
             attributes.push(attr);
@@ -35,8 +35,30 @@ export default function mergeAttributes(node: EMElement) {
 }
 
 /**
- * Returns attribute value as string. If value is absent, returns empty string
+ * Merges two token lists into single list. Adjacent strings are merged together
  */
-function getValue(attr: EMAttribute): string {
-    return attr.value ? attr.value.value : '';
+function mergeValue(prev?: TokenValue[], next?: TokenValue[], glue?: string): TokenValue[] | undefined {
+    if (prev && next) {
+        if (prev.length && glue) {
+            append(prev, glue);
+        }
+
+        for (const t of next) {
+            append(prev, t);
+        }
+
+        return prev;
+    }
+
+    const result = prev || next;
+    return result && result.slice();
+}
+
+function append(tokens: TokenValue[], value: TokenValue) {
+    const lastIx = tokens.length;
+    if (typeof tokens[lastIx] === 'string' && typeof value === 'string') {
+        tokens[lastIx] += value;
+    } else {
+        tokens.push(value);
+    }
 }

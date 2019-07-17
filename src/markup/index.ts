@@ -1,47 +1,29 @@
-import abbreviation, { EMAbbreviation, EMElement } from '@emmetio/abbreviation';
-import { walk, Container } from './walk';
-import { ResolvedConfig } from '../types';
-import unroll, { UnrollState } from './unroll';
+import abbreviation, { Abbreviation, AbbreviationNode } from '@emmetio/abbreviation';
 import attributes from './attributes';
 import snippets from './snippets';
-import variables from './variables';
 import implicitTag from './implicit-tag';
-import numbering from './numbering';
-import { addToDeepest } from './utils';
+import { ResolvedConfig } from '../types';
+import { walk, Container } from './utils';
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
  */
-export function parse(abbr: string | EMAbbreviation, config: ResolvedConfig): EMAbbreviation {
+export function parse(abbr: string | Abbreviation, config: ResolvedConfig): Abbreviation {
     if (typeof abbr === 'string') {
-        abbr = abbreviation(abbr);
+        abbr = abbreviation(abbr, config);
     }
 
-    const state: UnrollState = {
-        inserted: false,
-        text: config.text
-    };
-
-    unroll(abbr, state);
     walk(abbr, transform, config);
-
-    if (!state.inserted && state.text) {
-        // Should insert text
-        addToDeepest(abbr, Array.isArray(state.text) ? state.text.join('\n') : state.text);
-    }
-
     return abbr;
 }
 
 /**
  * Modifies given node and prepares it for output
  */
-function transform(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
+function transform(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
     snippets(node, ancestors, config);
-    variables(node, ancestors, config);
     implicitTag(node, ancestors, config);
     attributes(node);
-    numbering(node, ancestors, config);
     // TODO apply addons like XSL, JSX, BEM
 }

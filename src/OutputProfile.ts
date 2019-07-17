@@ -1,4 +1,4 @@
-import { EMElement, EMAttribute, EMLiteral } from '@emmetio/abbreviation';
+import { AbbreviationAttribute, AbbreviationNode } from "@emmetio/abbreviation";
 
 type StringCase = '' | 'lower' | 'upper';
 
@@ -97,13 +97,7 @@ export default class OutputProfile {
     /**
      * Quote given string according to profile options
      */
-    quote(str: string | EMLiteral | null): string {
-        if (str && typeof str === 'object') {
-            const before = str.before === '{' ? str.before : this.quoteChar;
-            const after = str.after === '}' ? str.after : this.quoteChar;
-            return `${before}${str.value || ''}${after}`;
-        }
-
+    quote(str: string | null): string {
         return `${this.quoteChar}${str != null ? str : ''}${this.quoteChar}`;
     }
 
@@ -124,7 +118,7 @@ export default class OutputProfile {
     /**
      * Check if given attribute is boolean
      */
-    isBooleanAttribute(attr: EMAttribute): boolean {
+    isBooleanAttribute(attr: AbbreviationAttribute): boolean {
         return attr.boolean
             || this.get('booleanAttributes').includes((attr.name || '').toLowerCase());
     }
@@ -156,13 +150,13 @@ export default class OutputProfile {
      * Check if given tag name belongs to inline-level element
      * @param node Parsed node or tag name
      */
-    isInline(node: string | EMElement): boolean {
+    isInline(node: string | AbbreviationNode): boolean {
         if (typeof node === 'string') {
             return this.get('inlineElements').includes(node.toLowerCase());
         }
 
         // inline node is a node either with inline-level name or text-only node
-        return node.name ? this.isInline(node.name) : Boolean(node.value && !node.attributes.length);
+        return node.name ? this.isInline(node.name) : Boolean(node.value && !node.attributes);
     }
 }
 

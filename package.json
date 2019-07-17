@@ -28,11 +28,10 @@
   },
   "dependencies": {
     "@emmetio/abbreviation": "^0.7.0",
-    "@emmetio/css-abbreviation": "^0.4.0",
-    "@emmetio/scanner": "0.0.2"
+    "@emmetio/css-abbreviation": "^0.4.0"
   },
   "mocha": {
     "require": "ts-node/register",
-    "spec": "./test/**/*.ts"
+    "spec": "./test/*.ts"
   }
 }

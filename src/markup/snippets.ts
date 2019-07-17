@@ -1,8 +1,6 @@
-import parse, { EMElement } from '@emmetio/abbreviation';
-import { Container, walk } from './walk';
-import unroll from './unroll';
+import parse, { AbbreviationNode } from '@emmetio/abbreviation';
 import { ResolvedConfig } from '../types';
-import { findDeepest, isElement } from './utils';
+import { walk, findDeepest, isNode, Container } from './utils';
 
 /**
  * Finds matching snippet from `registry` and resolves it into a parsed abbreviation.
@@ -13,9 +11,9 @@ import { findDeepest, isElement } from './utils';
  * abbreviation with multiple elements. So we have to get snippet, parse it
  * and recursively resolve it.
  */
-export default function resolveSnippets(node: EMElement, ancestors: Container[], config: ResolvedConfig) {
+export default function resolveSnippets(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
     const stack = new Set();
-    const resolve = (child: EMElement) => {
+    const resolve = (child: AbbreviationNode) => {
         const snippet = child.name && config.snippets.get(child.name);
         // A snippet in stack means circular reference.
         // It can be either a user error or a perfectly valid snippet like
@@ -30,28 +28,28 @@ export default function resolveSnippets(node: EMElement, ancestors: Container[],
             return snippet.value(child, config, resolve);
         }
 
-        const abbr = unroll(parse(snippet.value));
+        const abbr = parse(snippet.value, config);
         stack.add(snippet);
         walk(abbr, resolve, config);
         stack.delete(snippet);
 
         // Move current node contents into new tree
         const deepest = findDeepest(abbr);
-        if (isElement(deepest.node)) {
+        if (isNode(deepest.node)) {
             merge(deepest.node, child);
         }
 
         const parent = ancestors[ancestors.length - 1];
         if (parent) {
             if (deepest.parent) {
-                const pos = deepest.parent.items.indexOf(deepest.node as EMElement);
-                deepest.parent.items[pos] = child;
+                const pos = deepest.parent.children.indexOf(deepest.node as AbbreviationNode);
+                deepest.parent.children[pos] = child;
             }
 
-            const ix = parent.items.indexOf(child);
-            parent.items = parent.items.slice(0, ix)
-                .concat(abbr.items)
-                .concat(parent.items.slice(ix + 1));
+            const ix = parent.children.indexOf(child);
+            parent.children = parent.children.slice(0, ix)
+                .concat(abbr.children)
+                .concat(parent.children.slice(ix + 1));
         }
     };
 
@@ -61,7 +59,7 @@ export default function resolveSnippets(node: EMElement, ancestors: Container[],
 /**
  * Adds data from first node into second node
  */
-function merge(from: EMElement, to: EMElement) {
+function merge(from: AbbreviationNode, to: AbbreviationNode) {
     to.name = from.name;
 
     if (from.selfClosing) {
@@ -73,8 +71,11 @@ function merge(from: EMElement, to: EMElement) {
     }
 
     if (from.repeat) {
-        to.repeat = Object.assign({}, from.repeat);
+        to.repeat = from.repeat;
     }
 
-    to.attributes = from.attributes.concat(to.attributes);
+    if (from.attributes) {
+        // TODO add config option to specify attribute merge direction
+        to.attributes = from.attributes.concat(to.attributes || []);
+    }
 }
