@@ -10,10 +10,11 @@ function elem(node: AbbreviationNode): string {
         ? node.attributes.map(attr => ' ' + attribute(attr))
         : '';
     const value = node.value ? stringifyValue(node.value) : '';
+    const repeat = node.repeat ? `*${node.repeat.count}@${node.repeat.value}` : '';
 
     return node.selfClosing && !node.value && !node.children.length
-        ? `<${name}${attributes} />`
-        : `<${name}${attributes}>${value}${node.children.map(elem).join('')}</${name}>`;
+        ? `<${name}${repeat}${attributes} />`
+        : `<${name}${repeat}${attributes}>${value}${node.children.map(elem).join('')}</${name}>`;
 
 }
 

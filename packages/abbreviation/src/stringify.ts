@@ -60,6 +60,9 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
         }
 
         return result;
+    },
+    WhiteSpace() {
+        return ' ';
     }
 };
 
@@ -67,5 +70,8 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
  * Converts given value token to string
  */
 export default function stringify(token: Value, state: ConvertState): string {
+    if (!tokenVisitor[token.type]) {
+        throw new Error(`Unknown token ${token.type}`);
+    }
     return tokenVisitor[token.type](token, state);
 }

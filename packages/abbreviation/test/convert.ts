@@ -8,11 +8,11 @@ function parse(abbr: string, options?: ParserOptions) {
 
 describe('Convert token abbreviations', () => {
     it('basic', () => {
-        equal(parse('ul>li.item$*3'), '<ul><li class="item1"></li><li class="item2"></li><li class="item3"></li></ul>');
-        equal(parse('ul>li.item$*', { text: ['foo$', 'bar$'] }), '<ul><li class="item1">foo$</li><li class="item2">bar$</li></ul>');
-        equal(parse('ul>li[class=$#]{item $}*', { text: ['foo$', 'bar$'] }), '<ul><li class="foo$">item 1</li><li class="bar$">item 2</li></ul>');
-        equal(parse('ul>li.item$*'), '<ul><li class="item1"></li></ul>');
-        equal(parse('ul>li.item$*', { text: ['foo.bar', 'hello.world'] }), '<ul><li class="item1">foo.bar</li><li class="item2">hello.world</li></ul>');
+        equal(parse('ul>li.item$*3'), '<ul><li*3@0 class="item1"></li><li*3@1 class="item2"></li><li*3@2 class="item3"></li></ul>');
+        equal(parse('ul>li.item$*', { text: ['foo$', 'bar$'] }), '<ul><li*2@0 class="item1">foo$</li><li*2@1 class="item2">bar$</li></ul>');
+        equal(parse('ul>li[class=$#]{item $}*', { text: ['foo$', 'bar$'] }), '<ul><li*2@0 class="foo$">item 1</li><li*2@1 class="bar$">item 2</li></ul>');
+        equal(parse('ul>li.item$*'), '<ul><li*1@0 class="item1"></li></ul>');
+        equal(parse('ul>li.item$*', { text: ['foo.bar', 'hello.world'] }), '<ul><li*2@0 class="item1">foo.bar</li><li*2@1 class="item2">hello.world</li></ul>');
     });
 
     it('unroll', () => {
@@ -20,11 +20,11 @@ describe('Convert token abbreviations', () => {
         equal(parse('(a>b)+(c>d)'), '<a><b></b></a><c><d></d></c>');
         equal(parse('a>((b>c)(d>e))f'), '<a><b><c></c></b><d><e></e></d><f></f></a>');
         equal(parse('a>((((b>c))))+d'), '<a><b><c></c></b><d></d></a>');
-        equal(parse('a>(((b>c))*4)+d'), '<a><b><c></c></b><b><c></c></b><b><c></c></b><b><c></c></b><d></d></a>');
-        equal(parse('(div>dl>(dt+dd)*2)'), '<div><dl><dt></dt><dd></dd><dt></dt><dd></dd></dl></div>');
+        equal(parse('a>(((b>c))*4)+d'), '<a><b*4@0><c></c></b><b*4@1><c></c></b><b*4@2><c></c></b><b*4@3><c></c></b><d></d></a>');
+        equal(parse('(div>dl>(dt+dd)*2)'), '<div><dl><dt*2@0></dt><dd*2@0></dd><dt*2@1></dt><dd*2@1></dd></dl></div>');
 
-        equal(parse('a*2>b*3'), '<a><b></b><b></b><b></b></a><a><b></b><b></b><b></b></a>');
-        equal(parse('a>(b+c)*2'), '<a><b></b><c></c><b></b><c></c></a>');
-        equal(parse('a>(b+c)*2+(d+e)*2'), '<a><b></b><c></c><b></b><c></c><d></d><e></e><d></d><e></e></a>');
+        equal(parse('a*2>b*3'), '<a*2@0><b*3@0></b><b*3@1></b><b*3@2></b></a><a*2@1><b*3@0></b><b*3@1></b><b*3@2></b></a>');
+        equal(parse('a>(b+c)*2'), '<a><b*2@0></b><c*2@0></c><b*2@1></b><c*2@1></c></a>');
+        equal(parse('a>(b+c)*2+(d+e)*2'), '<a><b*2@0></b><c*2@0></c><b*2@1></b><c*2@1></c><d*2@0></d><e*2@0></e><d*2@1></d><e*2@1></e></a>');
     });
 });

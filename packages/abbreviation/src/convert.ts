@@ -40,14 +40,14 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
         // and supply context token with actual repeater state
         const original = node.repeat;
         const repeat = { ...original } as Repeater;
-        const count = repeat.implicit && Array.isArray(state.text)
+        repeat.count = repeat.implicit && Array.isArray(state.text)
             ? state.text.length
             : (repeat.count || 1);
         let items: AbbreviationNode | AbbreviationNode[];
 
         state.repeaters.push(repeat);
 
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < repeat.count; i++) {
             repeat.value = i;
             node.repeat = repeat;
             items = isGroup(node)
@@ -103,7 +103,7 @@ function convertElement(node: TokenElement, state: ConvertState): AbbreviationNo
         value: node.value && stringifyValue(node.value, state),
         attributes,
         children,
-        repeat: node.repeat,
+        repeat: node.repeat && { ...node.repeat },
         selfClosing: node.selfClose,
     };
 }
@@ -112,6 +112,10 @@ function convertGroup(node: TokenGroup, state: ConvertState): AbbreviationNode[]
     let result: AbbreviationNode[] = [];
     for (let i = 0; i < node.elements.length; i++) {
         result = result.concat(convertStatement(node.elements[i], state));
+    }
+
+    if (node.repeat) {
+        result = attachRepeater(result, node.repeat);
     }
 
     return result;
@@ -230,4 +234,14 @@ function insertText(node: AbbreviationNode, text: string) {
     } else {
         node.value = [text];
     }
+}
+
+function attachRepeater(items: AbbreviationNode[], repeater: Repeater): AbbreviationNode[] {
+    for (const item of items) {
+        if (!item.repeat) {
+            item.repeat = { ...repeater };
+        }
+    }
+
+    return items;
 }
