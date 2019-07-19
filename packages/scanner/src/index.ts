@@ -112,12 +112,12 @@ export default class Scanner {
     /**
      * Creates error object with current stream state
      */
-    error(message: string): StreamReaderError {
-        return new StreamReaderError(`${message} at ${this.pos + 1}`, this.pos, this.string);
+    error(message: string, pos = this.pos): ScannerError {
+        return new ScannerError(`${message} at ${pos + 1}`, pos, this.string);
     }
 }
 
-export class StreamReaderError extends Error {
+export class ScannerError extends Error {
     pos: number;
     string: string;
 
