@@ -1,15 +1,14 @@
 import typescript from 'rollup-plugin-typescript2';
+import resolve from 'rollup-plugin-node-resolve';
 
 export default {
     input: './src/index.ts',
-    plugins: [typescript({
+    plugins: [resolve(), typescript({
         tsconfigOverride: {
             compilerOptions: { module: 'esnext' }
         }
     })],
-    external: [
-        '@emmetio/scanner'
-    ],
+    
     output: [{
         format: 'cjs',
         sourcemap: true,

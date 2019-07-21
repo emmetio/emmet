@@ -14,17 +14,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/emmetio/css-transform.git"
+    "url": "git+https://github.com/emmetio/emmet.git"
   },
   "keywords": [],
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/emmetio/css-transform/issues"
+    "url": "https://github.com/emmetio/emmet/issues"
   },
-  "homepage": "https://github.com/emmetio/css-transform#readme",
+  "homepage": "https://github.com/emmetio/emmet#readme",
   "dependencies": {
-    "@emmetio/scanner": "^0.0.2"
+    "@emmetio/scanner": "^0.0.4"
   },
   "devDependencies": {
     "mocha": "^6.1.4",

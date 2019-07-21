@@ -24,6 +24,7 @@
   "devDependencies": {
     "mocha": "^6.1.4",
     "rollup": "^1.16.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript2": "^0.21.2",
     "ts-lint": "^4.5.1",
     "ts-node": "^8.3.0",
