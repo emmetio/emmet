@@ -98,10 +98,14 @@ function numberValue(scanner: Scanner): NumberValue | undefined {
 function stringValue(scanner: Scanner): StringValue | undefined {
     const ch = scanner.peek();
     const start = scanner.pos;
+    let finished = false;
+
     if (ch === Chars.SingleQuote || ch === Chars.DoubleQuote) {
         scanner.pos++;
         while (!scanner.eof()) {
+            // Do not throw error on malformed string
             if (scanner.eat(ch)) {
+                finished = true;
                 break;
             } else {
                 scanner.pos++;
@@ -111,7 +115,7 @@ function stringValue(scanner: Scanner): StringValue | undefined {
         scanner.start = start;
         return {
             type: 'StringValue',
-            value: scanner.current(),
+            value: scanner.substring(start + 1, scanner.pos - (finished ? 1 : 0)),
             quote: ch === Chars.SingleQuote ? 'single' : 'double',
             start,
             end: scanner.pos
@@ -233,11 +237,11 @@ function isIdentPrefix(code: number): boolean {
  * If given character is an operator, returns it’s type
  */
 function operatorType(ch: number): OperatorType | undefined {
-    return (ch === Chars.Sibling && 'sibling')
-        || (ch === Chars.Excl && 'important')
-        || (ch === Chars.Comma && 'argument-delimiter')
-        || (ch === Chars.Colon && 'property-delimiter')
-        || (ch === Chars.Dash && 'value-delimiter')
+    return (ch === Chars.Sibling && OperatorType.Sibling)
+        || (ch === Chars.Excl && OperatorType.Important)
+        || (ch === Chars.Comma && OperatorType.ArgumentDelimiter)
+        || (ch === Chars.Colon && OperatorType.PropertyDelimiter)
+        || (ch === Chars.Dash && OperatorType.ValueDelimiter)
         || void 0;
 }
 

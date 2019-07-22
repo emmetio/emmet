@@ -1,5 +1,12 @@
-export type OperatorType = 'sibling' | 'important' | 'argument-delimiter' | 'value-delimiter' | 'property-delimiter';
 export type AllTokens = Bracket | Literal | Operator | WhiteSpace | ColorValue | NumberValue | StringValue;
+
+export const enum OperatorType {
+    Sibling = '+',
+    Important = '!',
+    ArgumentDelimiter = ',',
+    ValueDelimiter = '-',
+    PropertyDelimiter = ':'
+}
 
 export interface Token {
     type: string;
