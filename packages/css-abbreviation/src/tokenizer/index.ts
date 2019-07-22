@@ -138,22 +138,23 @@ function colorValue(scanner: Scanner): ColorValue | undefined {
 
         scanner.eat(Chars.Transparent) || scanner.eatWhile(isHex);
         const color = scanner.current();
-        let alpha: number | undefined;
+        let alpha: string | undefined;
 
         // a hex color can be followed by `.num` alpha value
         scanner.start = scanner.pos;
         if (scanner.eat(Chars.Dot)) {
             if (scanner.eatWhile(isNumber)) {
-                alpha = Number(scanner.current());
+                alpha = scanner.current();
             } else {
                 throw scanner.error('Unexpected character for alpha value of color');
             }
         }
 
+        const { r, g, b, a } = parseColor(color, alpha);
         return {
             type: 'ColorValue',
-            color,
-            alpha,
+            r, g, b, a,
+            raw: scanner.substring(start + 1, scanner.pos),
             start,
             end: scanner.pos
         };
@@ -254,4 +255,50 @@ function isHex(code: number): boolean {
 
 function isKeyword(code: number): boolean {
     return isAlphaNumericWord(code) || code === Chars.Dash;
+}
+
+/**
+ * Parses given color value from abbreviation into RGBA format
+ */
+function parseColor(value: string, alpha?: string): { r: number, g: number, b: number, a: number } {
+    let r = '0';
+    let g = '0';
+    let b = '0';
+    let a = Number(alpha != null && alpha !== '' ? alpha : 1);
+
+    if (value === 't') {
+        a = 0;
+    } else {
+        switch (value.length) {
+            case 0:
+                break;
+
+            case 1:
+                r = g = b = value + value;
+                break;
+
+            case 2:
+                r = g = b = value;
+                break;
+
+            case 3:
+                r = value[0] + value[0];
+                g = value[1] + value[1];
+                b = value[2] + value[2];
+                break;
+
+            default:
+                value += value;
+                r = value.slice(0, 2);
+                g = value.slice(2, 4);
+                b = value.slice(4, 6);
+        }
+    }
+
+    return {
+        r: parseInt(r, 16),
+        g: parseInt(g, 16),
+        b: parseInt(b, 16),
+        a
+    };
 }

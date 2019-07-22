@@ -109,49 +109,49 @@ describe('Tokenizer', () => {
     it('color values', () => {
         deepEqual(tokenize('c#'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: '', alpha: undefined, start: 1, end: 2 }
+            { type: 'ColorValue', r: 0, g: 0, b: 0, a: 1, raw: '', start: 1, end: 2 }
         ]);
 
         deepEqual(tokenize('c#1'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: '1', alpha: undefined, start: 1, end: 3 }
+            { type: 'ColorValue', r: 17, g: 17, b: 17, a: 1, raw: '1', start: 1, end: 3 }
         ]);
 
         deepEqual(tokenize('c#f'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: 'f', alpha: undefined, start: 1, end: 3 }
+            { type: 'ColorValue', r: 255, g: 255, b: 255, a: 1, raw: 'f', start: 1, end: 3 }
         ]);
 
         deepEqual(tokenize('c#a#b#c'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: 'a', alpha: undefined, start: 1, end: 3 },
-            { type: 'ColorValue', color: 'b', alpha: undefined, start: 3, end: 5 },
-            { type: 'ColorValue', color: 'c', alpha: undefined, start: 5, end: 7 }
+            { type: 'ColorValue', r: 170, g: 170, b: 170, a: 1, raw: 'a', start: 1, end: 3 },
+            { type: 'ColorValue', r: 187, g: 187, b: 187, a: 1, raw: 'b', start: 3, end: 5 },
+            { type: 'ColorValue', r: 204, g: 204, b: 204, a: 1, raw: 'c', start: 5, end: 7 }
         ]);
 
         deepEqual(tokenize('c#af'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: 'af', alpha: undefined, start: 1, end: 4 }
+            { type: 'ColorValue', r: 175, g: 175, b: 175, a: 1, raw: 'af', start: 1, end: 4 }
         ]);
 
         deepEqual(tokenize('c#fc0'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: 'fc0', alpha: undefined, start: 1, end: 5 }
+            { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 1, end: 5 }
         ]);
 
         deepEqual(tokenize('c#11.5'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: '11', alpha: 0.5, start: 1, end: 6 }
+            { type: 'ColorValue', r: 17, g: 17, b: 17, a: 0.5, raw: '11.5', start: 1, end: 6 }
         ]);
 
         deepEqual(tokenize('c#.99'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: '', alpha: 0.99, start: 1, end: 5 }
+            { type: 'ColorValue', r: 0, g: 0, b: 0, a: 0.99, raw: '.99', start: 1, end: 5 }
         ]);
 
         deepEqual(tokenize('c#t'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
-            { type: 'ColorValue', color: 't', alpha: undefined, start: 1, end: 3 }
+            { type: 'ColorValue', r: 0, g: 0, b: 0, a: 0, raw: 't', start: 1, end: 3 }
         ]);
     });
 
@@ -240,12 +240,12 @@ describe('Tokenizer', () => {
             { type: 'NumberValue', value: 1, unit: '', start: 2, end: 3 },
             { type: 'Operator', operator: '-', start: 3, end: 4 },
             { type: 'Literal', value: 's', start: 4, end: 5 },
-            { type: 'ColorValue', color: 'fc0', alpha: undefined, start: 5, end: 9 }
+            { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 5, end: 9 }
         ]);
 
         deepEqual(tokenize('bd#fc0-1'), [
             { type: 'Literal', value: 'bd', start: 0, end: 2 },
-            { type: 'ColorValue', color: 'fc0', alpha: undefined, start: 2, end: 6 },
+            { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 2, end: 6 },
             { type: 'NumberValue', value: -1, unit: '', start: 6, end: 8 }
         ]);
 

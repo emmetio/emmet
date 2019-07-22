@@ -41,8 +41,11 @@ export interface NumberValue extends Token {
 
 export interface ColorValue extends Token {
     type: 'ColorValue';
-    color: string;
-    alpha?: number;
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+    raw: string;
 }
 
 export interface StringValue extends Token {
