@@ -9,12 +9,12 @@ export default function tokenize(abbr: string): AllTokens[] {
     const tokens: AllTokens[] = [];
 
     while (!scanner.eof()) {
-        token = bracket(scanner)
-            || operator(scanner)
-            || literal(scanner, true)
+        token = literal(scanner, true)
             || numberValue(scanner)
             || colorValue(scanner)
             || stringValue(scanner)
+            || bracket(scanner)
+            || operator(scanner)
             || (brackets && whiteSpace(scanner))
             || void 0;
 
@@ -30,6 +30,12 @@ export default function tokenize(abbr: string): AllTokens[] {
         }
 
         tokens.push(token);
+
+        // Forcibly consume next operator after numeric value:
+        // next dash `-` must be used as value delimiter
+        if (token.type === 'NumberValue' && (token = operator(scanner))) {
+            tokens.push(token);
+        }
     }
 
     return tokens;
@@ -52,7 +58,8 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
         scanner.eatWhile(short ? isAlphaWord : isKeyword);
     }
 
-    if (scanner.start !== scanner.pos) {
+    if (start !== scanner.pos) {
+        scanner.start = start;
         return {
             type: 'Literal',
             value: scanner.current(),
@@ -126,7 +133,7 @@ function colorValue(scanner: Scanner): ColorValue | undefined {
         scanner.start = scanner.pos;
 
         scanner.eat(Chars.Transparent) || scanner.eatWhile(isHex);
-        const base = scanner.current();
+        const color = scanner.current();
         let alpha: number | undefined;
 
         // a hex color can be followed by `.num` alpha value
@@ -141,7 +148,7 @@ function colorValue(scanner: Scanner): ColorValue | undefined {
 
         return {
             type: 'ColorValue',
-            base,
+            color,
             alpha,
             start,
             end: scanner.pos

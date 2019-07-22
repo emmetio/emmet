@@ -34,7 +34,7 @@ export interface NumberValue extends Token {
 
 export interface ColorValue extends Token {
     type: 'ColorValue';
-    base: string;
+    color: string;
     alpha?: number;
 }
 
