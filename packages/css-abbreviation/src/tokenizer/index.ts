@@ -2,6 +2,8 @@ import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace } 
 import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue } from './tokens';
 import { Chars } from './utils';
 
+export * from './tokens';
+
 export default function tokenize(abbr: string): AllTokens[] {
     let brackets = 0;
     let token: AllTokens | undefined;

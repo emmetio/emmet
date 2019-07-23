@@ -1,6 +1,6 @@
 import { equal } from 'assert';
 import Scanner from '@emmetio/scanner';
-import parseColor, { asHex, asRGB } from '../src/color';
+import parseColor, { asHex, asRGB } from '../../src/color';
 
 function color(abbr: string, output?: 'hex' | 'shortHex' | 'rgb') {
     const c = parseColor(new Scanner(abbr))!;
