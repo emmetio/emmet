@@ -33,9 +33,9 @@ export default function tokenize(abbr: string): AllTokens[] {
 
         tokens.push(token);
 
-        // Forcibly consume next operator after numeric value:
+        // Forcibly consume next operator after unit-less numeric value or color:
         // next dash `-` must be used as value delimiter
-        if (token.type === 'NumberValue' && (token = operator(scanner))) {
+        if (shouldConsumeDashAfter(token) && (token = operator(scanner))) {
             tokens.push(token);
         }
     }
@@ -303,4 +303,12 @@ function parseColor(value: string, alpha?: string): { r: number, g: number, b: n
         b: parseInt(b, 16),
         a
     };
+}
+
+/**
+ * Check if scanner reader must consume dash after given token.
+ * Used in cases where user must explicitly separate numeric values
+ */
+function shouldConsumeDashAfter(token: AllTokens): boolean {
+    return token.type === 'ColorValue' || (token.type === 'NumberValue' && !token.unit);
 }

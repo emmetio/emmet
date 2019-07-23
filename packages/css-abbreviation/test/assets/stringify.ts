@@ -1,64 +1,45 @@
-import { CSSNode, CSSAbbreviation, CSSElement, CSSString, CSSNumber, CSSKeyword, CSSColor, CSSFunction, CSSFunctionArgument } from '../../src/ast';
-import { asHex, asRGB } from '../../src/color';
+import { CSSProperty, CSSValue, Value } from '../../src/parser';
 
-type Visitor = (node: CSSNode, next: VisitorContinue) => string;
-type VisitorContinue = (node: CSSNode) => string;
-interface VisitorMap {
-    [nodeType: string]: Visitor;
+export default function stringify(prop: CSSProperty): string {
+    return `${prop.name || '?'}: ${prop.value.map(stringifyValue).join(', ')}${prop.important ? ' !important' : ''};`;
 }
 
-const visitors: VisitorMap = {
-    CSSAbbreviation(node: CSSAbbreviation, next) {
-        return node.elements.map(next).join('');
-    },
-    CSSElement(node: CSSElement, next) {
-        let value = '';
+function stringifyValue(value: CSSValue): string {
+    return value.value.map(stringifyToken).join(' ');
+}
 
-        if (node.name) {
-            value += `${node.name}: `;
-        }
-
-        if (node.value) {
-            value += node.value.map(next).join(' ');
-        }
-
-        if (node.important) {
-            value += '!';
-        }
-
-        return `${value};`;
-    },
-    CSSString(node: CSSString) {
-        return node.value;
-    },
-    CSSNumber(node: CSSNumber) {
-        return `${node.value}${node.unit || ''}`;
-    },
-    CSSKeyword(node: CSSKeyword) {
-        return node.value;
-    },
-    CSSColor(node: CSSColor) {
-        if (!node.r && !node.g && !node.b && !node.a) {
+function stringifyToken(token: Value): string {
+    if (token.type === 'ColorValue') {
+        const { r, g, b, a } = token;
+        if (!r && !g && !b && !a) {
             return 'transparent';
         }
-        return node.a === 1 ? asHex(node) : asRGB(node);
-    },
-    CSSFunction(node: CSSFunction, next) {
-        return `${node.name}(${node.arguments.map(next).join(', ')})`;
-    },
-    CSSFunctionArgument(node: CSSFunctionArgument, next) {
-        return node.items.map(next).join(' ');
-    }
-};
 
-export default function stringify(abbr: CSSAbbreviation): string {
-    const next: VisitorContinue = node => {
-        if (node.type in visitors) {
-            return visitors[node.type](node, next);
+        if (a === 1) {
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
         }
 
-        throw new Error(`Unknown node type "${node.type}"`);
-    };
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+    } else if (token.type === 'NumberValue') {
+        return `${token.value}${token.unit}`;
+    } else if (token.type === 'StringValue') {
+        return `"${token.value}"`;
+    } else if (token.type === 'Literal') {
+        return token.value;
+    } else if (token.type === 'FunctionCall') {
+        return `${token.name}(${token.arguments.map(stringifyValue).join(', ')})`;
+    }
 
-    return next(abbr);
+    throw new Error('Unexpected token');
+}
+
+function toHex(num: number): string {
+    return pad(num.toString(16), 2);
+}
+
+function pad(value: string, len: number): string {
+    while (value.length < len) {
+        value = '0' + value;
+    }
+    return value;
 }

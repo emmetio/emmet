@@ -20,7 +20,7 @@ export interface CSSProperty {
     important: boolean;
 }
 
-interface ParseOptions {
+export interface ParseOptions {
     /** Consumes given abbreviation tokens as value */
     value?: boolean;
 }
@@ -51,7 +51,7 @@ function consumeProperty(scanner: TokenScanner, options: ParseOptions): CSSPrope
     const value: CSSValue[] = [];
     const token = peek(scanner)!;
 
-    if (!options.value && isLiteral(token)) {
+    if (!options.value && isLiteral(token) && !isFunctionStart(scanner)) {
         scanner.pos++;
         name = token.value;
         // Consume any following value delimiter after property name
@@ -177,4 +177,10 @@ function isValueDelimiter(token: AllTokens): boolean {
     return isWhiteSpace(token)
         || isOperator(token, OperatorType.PropertyDelimiter)
         || isOperator(token, OperatorType.ValueDelimiter);
+}
+
+function isFunctionStart(scanner: TokenScanner): boolean {
+    const t1 = scanner.tokens[scanner.pos];
+    const t2 = scanner.tokens[scanner.pos + 1];
+    return t1 && t2 && isLiteral(t1) && t2.type === 'Bracket';
 }

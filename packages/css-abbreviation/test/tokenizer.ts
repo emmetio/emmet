@@ -45,8 +45,7 @@ describe('Tokenizer', () => {
         deepEqual(tokenize('p-10p-20--30'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
             { type: 'NumberValue', value: -10, unit: 'p', start: 1, end: 5 },
-            { type: 'Operator', operator: '-', start: 5, end: 6 },
-            { type: 'NumberValue', value: 20, unit: '', start: 6, end: 8 },
+            { type: 'NumberValue', value: -20, unit: '', start: 5, end: 8 },
             { type: 'Operator', operator: '-', start: 8, end: 9 },
             { type: 'NumberValue', value: -30, unit: '', start: 9, end: 12 }
         ]);
@@ -54,8 +53,7 @@ describe('Tokenizer', () => {
         deepEqual(tokenize('p-10%-20--30'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
             { type: 'NumberValue', value: -10, unit: '%', start: 1, end: 5 },
-            { type: 'Operator', operator: '-', start: 5, end: 6 },
-            { type: 'NumberValue', value: 20, unit: '', start: 6, end: 8 },
+            { type: 'NumberValue', value: -20, unit: '', start: 5, end: 8 },
             { type: 'Operator', operator: '-', start: 8, end: 9 },
             { type: 'NumberValue', value: -30, unit: '', start: 9, end: 12 }
         ]);
@@ -246,7 +244,8 @@ describe('Tokenizer', () => {
         deepEqual(tokenize('bd#fc0-1'), [
             { type: 'Literal', value: 'bd', start: 0, end: 2 },
             { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 2, end: 6 },
-            { type: 'NumberValue', value: -1, unit: '', start: 6, end: 8 }
+            { type: 'Operator', operator: '-', start: 6, end: 7 },
+            { type: 'NumberValue', value: 1, unit: '', start: 7, end: 8 }
         ]);
 
         deepEqual(tokenize('p0+m0'), [
