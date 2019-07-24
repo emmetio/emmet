@@ -1,4 +1,4 @@
-import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, Value, Quote } from './tokenizer/tokens';
+import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote } from './tokenizer/tokens';
 import { ConvertState } from './types';
 
 type TokenVisitor = (token: Token, state: ConvertState) => string;
@@ -69,7 +69,7 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
 /**
  * Converts given value token to string
  */
-export default function stringify(token: Value, state: ConvertState): string {
+export default function stringify(token: ValueToken, state: ConvertState): string {
     if (!tokenVisitor[token.type]) {
         throw new Error(`Unknown token ${token.type}`);
     }

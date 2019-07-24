@@ -5,8 +5,8 @@ export type AllTokens =
     Bracket | Field | Literal | Operator | Quote | Repeater | RepeaterNumber |
     RepeaterPlaceholder | WhiteSpace;
 
-export type Name = Literal | RepeaterNumber;
-export type Value = Literal | Quote | Bracket | Field | RepeaterPlaceholder | RepeaterNumber;
+export type NameToken = Literal | RepeaterNumber;
+export type ValueToken = Literal | Quote | Bracket | Field | RepeaterPlaceholder | RepeaterNumber;
 
 export interface Token {
     type: string;

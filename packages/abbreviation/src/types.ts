@@ -16,7 +16,7 @@ export interface ConvertState {
     getVariable(name: string): string;
 }
 
-export type TokenValue = string | Field;
+export type Value = string | Field;
 export type AttributeType = 'raw' | 'singleQuote' | 'doubleQuote' | 'expression';
 
 export interface Abbreviation {
@@ -27,7 +27,7 @@ export interface Abbreviation {
 export interface AbbreviationNode {
     type: 'AbbreviationNode';
     name?: string;
-    value?: TokenValue[];
+    value?: Value[];
     repeat?: Repeater;
     attributes?: AbbreviationAttribute[];
     children: AbbreviationNode[];
@@ -38,7 +38,7 @@ export interface AbbreviationNode {
 
 export interface AbbreviationAttribute {
     name?: string;
-    value?: TokenValue[];
+    value?: Value[];
 
     /** Indicates type of value stored in `.value` property */
     valueType: AttributeType;

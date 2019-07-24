@@ -1,6 +1,6 @@
 import { TokenGroup, TokenStatement, TokenElement, TokenAttribute, isQuote, isBracket } from './parser';
-import { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, TokenValue, AbbreviationAttribute, AttributeType } from './types';
-import { Repeater, Value, Quote } from './tokenizer';
+import { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, Value, AbbreviationAttribute, AttributeType } from './types';
+import { Repeater, ValueToken, Quote } from './tokenizer';
 import stringify from './stringify';
 
 /**
@@ -125,7 +125,7 @@ function convertAttribute(node: TokenAttribute, state: ConvertState): Abbreviati
     let implied = false;
     let isBoolean = false;
     let valueType: AttributeType = 'raw';
-    let value: TokenValue[] | undefined;
+    let value: Value[] | undefined;
     const name = node.name && stringifyName(node.name, state);
 
     if (name && name[0] === '!') {
@@ -173,7 +173,7 @@ function convertAttribute(node: TokenAttribute, state: ConvertState): Abbreviati
 /**
  * Converts given token list to string
  */
-function stringifyName(tokens: Value[], state: ConvertState): string {
+function stringifyName(tokens: ValueToken[], state: ConvertState): string {
     let str = '';
     for (let i = 0; i < tokens.length; i++) {
         str += stringify(tokens[i], state);
@@ -185,10 +185,10 @@ function stringifyName(tokens: Value[], state: ConvertState): string {
 /**
  * Converts given token list to value list
  */
-function stringifyValue(tokens: Value[], state: ConvertState): TokenValue[] {
-    const result: TokenValue[] = [];
+function stringifyValue(tokens: ValueToken[], state: ConvertState): Value[] {
+    const result: Value[] = [];
     let str = '';
-    for (let i = 0, token: Value; i < tokens.length; i++) {
+    for (let i = 0, token: ValueToken; i < tokens.length; i++) {
         token = tokens[i];
         if (token.type === 'Field' && token.index != null) {
             // We should keep original fields in output since some editors has their

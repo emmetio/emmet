@@ -1,18 +1,18 @@
-import { Name, Value, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
+import { NameToken, ValueToken, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
 import tokenScanner, { TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner';
 
 export type TokenStatement = TokenElement | TokenGroup;
 
 export interface TokenAttribute {
-    name?: Value[];
-    value?: Value[];
+    name?: ValueToken[];
+    value?: ValueToken[];
 }
 
 export interface TokenElement {
     type: 'TokenElement';
-    name?: Name[];
+    name?: NameToken[];
     attributes?: TokenAttribute[];
-    value?: Value[];
+    value?: ValueToken[];
     repeat?: Repeater;
     selfClose: boolean;
     elements: TokenStatement[];
@@ -99,7 +99,7 @@ function element(scanner: TokenScanner): TokenElement | undefined {
     };
 
     if (identifier(scanner)) {
-        elem.name = slice(scanner) as Name[];
+        elem.name = slice(scanner) as NameToken[];
     }
 
     while (readable(scanner)) {
@@ -158,7 +158,7 @@ function shortAttribute(scanner: TokenScanner, type: 'class' | 'id'): TokenAttri
         scanner.pos++;
         return {
             name: [createLiteral(type)],
-            value: literal(scanner) ? slice(scanner) as Value[] : void 0
+            value: literal(scanner) ? slice(scanner) as ValueToken[] : void 0
         };
     }
 }
@@ -170,15 +170,15 @@ function attribute(scanner: TokenScanner): TokenAttribute | undefined {
     if (quoted(scanner)) {
         // Consumed quoted value: it’s a value for default attribute
         return {
-            value: slice(scanner) as Value[]
+            value: slice(scanner) as ValueToken[]
         };
     }
 
     if (literal(scanner, true)) {
         return {
-            name: slice(scanner) as Name[],
+            name: slice(scanner) as NameToken[],
             value: consume(scanner, isEquals) && (quoted(scanner) || literal(scanner, true))
-                ? slice(scanner) as Value[]
+                ? slice(scanner) as ValueToken[]
                 : void 0
         };
     }
@@ -298,7 +298,7 @@ function text(scanner: TokenScanner): boolean {
     return false;
 }
 
-function getText(scanner: TokenScanner): Value[] {
+function getText(scanner: TokenScanner): ValueToken[] {
     let from = scanner.start;
     let to = scanner.pos;
     if (isBracket(scanner.tokens[from], 'expression', true)) {
@@ -309,7 +309,7 @@ function getText(scanner: TokenScanner): Value[] {
         to--;
     }
 
-    return slice(scanner, from, to) as Value[];
+    return slice(scanner, from, to) as ValueToken[];
 }
 
 export function isBracket(token: AllTokens | undefined, context?: BracketType, isOpen?: boolean): token is Bracket {
