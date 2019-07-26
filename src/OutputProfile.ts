@@ -1,4 +1,4 @@
-import { AbbreviationAttribute, AbbreviationNode } from "@emmetio/abbreviation";
+import { AbbreviationAttribute, AbbreviationNode } from '@emmetio/abbreviation';
 
 type StringCase = '' | 'lower' | 'upper';
 
@@ -36,7 +36,7 @@ export interface OutputProfileOptions {
      * With this option enabled, output `<div contenteditable>` instead of
      * `<div contenteditable="contenteditable">`
      */
-    compactBooleanAttributes: boolean;
+    compactBoolean: boolean;
 
     /** A set of boolean attributes */
     booleanAttributes: string[];
@@ -57,7 +57,7 @@ export const defaultProfile: OutputProfileOptions = {
     formatSkip: ['html'],
     formatForce: ['body'],
     inlineBreak: 3,
-    compactBooleanAttributes: false,
+    compactBoolean: false,
     booleanAttributes: [
         'contenteditable', 'seamless', 'async', 'autofocus',
         'autoplay', 'checked', 'controls', 'defer', 'disabled', 'formnovalidate',

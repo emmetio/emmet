@@ -26,14 +26,9 @@ export interface ConfigParams {
 
     /** Text to wrap with abbreviation */
     text?: string | string[];
-
-    /**
-     * A function that takes field index and optional placeholder and returns
-     * a string field (tabstop) for host editor. For example, a TextMate-style
-     * field is `$index` or `${index:placeholder}`
-     */
-    field?(index: number, placeholder?: string): string;
 }
+
+export type FieldOutput = (index: number, placeholder: string, offset: number, line: number, column: number) => string;
 
 export interface ResolvedConfig extends ConfigParams {
     type: SyntaxType;
@@ -43,54 +38,94 @@ export interface ResolvedConfig extends ConfigParams {
     snippets: SnippetsRegistry;
 }
 
-interface Options {
-    // MARKUP OPTIONS
+export type Options = Partial<FormatOptions> & Partial<MarkupOptions> & Partial<StylesheetOptions>;
 
-    /** Options for element commenting */
-    comment?: {
-        /**
-         * Enable/disable element commenting: generate comments before open and/or
-         * after close tag
-         */
-        enabled: boolean;
+/**
+ * Options for formatting abbreviation output
+ */
+export interface FormatOptions {
+    /** A string for one level indent */
+    indent: string;
 
-        /**
-         * Attributes that should trigger node commenting on specific node,
-         * if commenting is enabled
-         */
-        trigger?: string[];
+    /**
+     * A string for base indent, e.g. context indentation which will be added
+     * for every generated line
+     */
+    baseIndent: string;
 
-        /** Template string for comment to be placed *before* opening tag */
-        before?: string;
+    /** A string to use as a new line */
+    newline: string;
 
-        /**
-         * Template string for comment to be placed *after* closing tag.
-         * Example: `\n<!-- /[#ID][.CLASS] -->`
-         */
-        after?: string;
-    };
+    /**
+     * A function that takes field index and optional placeholder and returns
+     * a string field (tabstop) for host editor. For example, a TextMate-style
+     * field is `$index` or `${index:placeholder}`
+     * @param index Field index
+     * @param placeholder Field placeholder (default value), if any
+     * @param offset Current character offset from the beginning of generated content
+     * @param line Current line of generated output
+     * @param column Current column in line
+     */
+    field: FieldOutput;
+}
 
-    bem?: {
-        /** Enable/disable BEM addon */
-        enabled: boolean;
+/**
+ * Options for comments addon which adds comments before/after specific HTML element
+ */
+export interface CommentOptions {
+    /**
+     * Enable/disable element commenting: generate comments before open and/or
+     * after close tag
+     */
+    enabled: boolean;
 
-        /** A string for separating elements in output class */
-        element?: string;
+    /**
+     * Attributes that should trigger node commenting on specific node,
+     * if commenting is enabled
+     */
+    trigger: string[];
 
-        /** A string for separating modifiers in output class */
-        modifier?: string;
-    };
+    /** Template string for comment to be placed *before* opening tag */
+    before: string;
 
-    // STYLESHEET OPTIONS
+    /**
+     * Template string for comment to be placed *after* closing tag.
+     * Example: `\n<!-- /[#ID][.CLASS] -->`
+     */
+    after: string;
+}
 
-    /** Enable JSX addon */
-    jsx?: boolean;
+/** Options for BEM addon */
+export interface BEMOptions {
+    /** Enable/disable BEM addon */
+    enabled: boolean;
 
+    /** A string for separating elements in output class */
+    element: string;
+
+    /** A string for separating modifiers in output class */
+    modifier: string;
+}
+
+/** Options for JSX addon */
+export interface JSXOptions {
+    /** Enable/disable JSX addon */
+    enabled: boolean;
+}
+
+export interface MarkupOptions {
+    comment: Partial<CommentOptions>;
+    bem: Partial<BEMOptions>;
+    jsx: Partial<JSXOptions>;
+}
+
+/** Options for stylesheet output formatter */
+export interface StylesheetOptions {
     /** Use short hex notation where possible, e.g. `#000` instead of `#000000` */
-    shortHex?: boolean;
+    shortHex: boolean;
 
     /** A string between property name and value */
-    between?: string;
+    between: string;
 
     /** A string after property value */
     after: string;

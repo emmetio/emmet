@@ -1,4 +1,4 @@
-import { AbbreviationAttribute, AbbreviationNode, TokenValue } from '@emmetio/abbreviation';
+import { AbbreviationAttribute, AbbreviationNode, Value } from '@emmetio/abbreviation';
 
 /**
  * Merges attributes in current node: de-duplicates attributes with the same name
@@ -37,7 +37,7 @@ export default function mergeAttributes(node: AbbreviationNode) {
 /**
  * Merges two token lists into single list. Adjacent strings are merged together
  */
-function mergeValue(prev?: TokenValue[], next?: TokenValue[], glue?: string): TokenValue[] | undefined {
+function mergeValue(prev?: Value[], next?: Value[], glue?: string): Value[] | undefined {
     if (prev && next) {
         if (prev.length && glue) {
             append(prev, glue);
@@ -54,7 +54,7 @@ function mergeValue(prev?: TokenValue[], next?: TokenValue[], glue?: string): To
     return result && result.slice();
 }
 
-function append(tokens: TokenValue[], value: TokenValue) {
+function append(tokens: Value[], value: Value) {
     const lastIx = tokens.length;
     if (typeof tokens[lastIx] === 'string' && typeof value === 'string') {
         tokens[lastIx] += value;
