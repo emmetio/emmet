@@ -1,4 +1,4 @@
-import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
+import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value, Field } from '@emmetio/abbreviation';
 import { CommentOptions, ResolvedConfig } from '../../types';
 import createOutputStream, { pushField, pushIndent, pushNewline, pushString } from '../../output-stream';
 import OutputProfile from '../../OutputProfile';
@@ -19,6 +19,8 @@ const commentOptions: CommentOptions = {
     after: '\n<!-- /[#ID][.CLASS] -->'
 };
 
+const caret = [{ type: 'Field', index: 0, name: '' } as Field];
+
 export default function html(abbr: Abbreviation, config: ResolvedConfig): string {
     const state: HTMLWalkState = {
         // @ts-ignore: Will set value in iterator
@@ -27,6 +29,7 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
         ancestors: [],
         profile: config.profile,
         comment: { ...commentOptions, ...config.options.comment },
+        field: 1,
         out: createOutputStream(config.options)
     };
 
@@ -43,14 +46,20 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
  */
 function element(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: HTMLWalkState, next: WalkNext) {
     const { out, profile } = state;
+    const format = shouldFormat(node, index, items, state);
+
+    if (format) {
+        pushNewline(out);
+        pushIndent(out, state.ancestors.length);
+    }
+
     if (node.name) {
         const name = profile.name(node.name);
-        pushIndent(out, state.ancestors.length);
         pushString(out, `<${name}`);
 
         if (node.attributes) {
             for (const attr of node.attributes) {
-                attribute(attr, state);
+                pushAttribute(attr, state);
             }
         }
 
@@ -59,19 +68,36 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
         } else {
             pushString(out, '>');
 
-            if (node.value) {
-                outputValue(node.value, state);
+            if (!pushSnippet(node, state, next)) {
+                if (node.value) {
+                    outputValue(node.value, state);
+                }
+
+                node.children.forEach(next);
+
+                if (!node.value && !node.children.length) {
+                    outputValue(caret, state);
+                }
             }
 
             pushString(out, `</${name}>`);
         }
+    } else if (!pushSnippet(node, state, next) && node.value) {
+        // A text-only node (snippet)
+        outputValue(node.value, state);
+        node.children.forEach(next);
+    }
+
+    if (format && index === items.length - 1 && state.parent) {
+        pushNewline(out);
+        pushIndent(out, state.ancestors.length - 1);
     }
 }
 
 /**
  * Outputs given attribute’s content into output stream
  */
-function attribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
+function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
     const { out, profile } = state;
 
     if (attr.name) {
@@ -80,29 +106,61 @@ function attribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
         const lQuote = attr.valueType === 'expression' ? '{' : profile.quoteChar;
         const rQuote = attr.valueType === 'expression' ? '}' : profile.quoteChar;
 
-        if (profile.isBooleanAttribute(attr) && !value && !profile.get('compactBoolean')) {
-            value = [name];
+        if (profile.isBooleanAttribute(attr) && !value) {
+            // If attribute value is omitted and it’s a boolean value, check for
+            // `compactBoolean` option: if it’s disabled, set value to attribute name
+            // (XML style)
+            if (!profile.get('compactBoolean')) {
+                value = [name];
+            }
+        } else if (!value) {
+            value = caret;
         }
 
-        pushString(out, name);
+        pushString(out, ' ' + name);
         if (value) {
             pushString(out, '=' + lQuote);
             outputValue(value, state);
-            pushString(out, '=' + rQuote);
+            pushString(out, rQuote);
         } else if (profile.get('selfClosingStyle') !== 'html') {
             pushString(out, '=' + lQuote + rQuote);
         }
     }
 }
 
+function pushSnippet(node: AbbreviationNode, state: HTMLWalkState, next: WalkNext): boolean {
+    if (node.value && node.children.length) {
+        // We have a value and child nodes. In case if value contains fields,
+        // we should output children as a content of first field
+        const fieldIx = node.value.findIndex(isField);
+        if (fieldIx !== -1) {
+            outputValue(node.value.slice(0, fieldIx), state);
+            node.children.forEach(next);
+            outputValue(node.value.slice(fieldIx + 1), state);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function outputValue(tokens: Value[], state: HTMLWalkState) {
     const { out } = state;
+    let largestIndex = -1;
+
     for (const t of tokens) {
         if (typeof t === 'string') {
             pushString(out, t);
         } else {
-            pushField(out, t.index!, t.name);
+            pushField(out, state.field + t.index!, t.name);
+            if (t.index! > largestIndex) {
+                largestIndex = t.index!;
+            }
         }
+    }
+
+    if (largestIndex !== -1) {
+        state.field += largestIndex + 1;
     }
 }
 
@@ -112,7 +170,12 @@ function outputValue(tokens: Value[], state: HTMLWalkState) {
 function shouldFormat(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: HTMLWalkState): boolean {
     const { profile } = state;
 
-    if (!profile.get('format') || isTextOnly(node)) {
+    if (!profile.get('format')) {
+        return false;
+    }
+
+    if (index === 0 && !state.parent) {
+        // Do not format very first node
         return false;
     }
 
@@ -162,9 +225,22 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
     return true;
 }
 
-function isTextOnly(node: AbbreviationNode): boolean {
-    return !node.name && !node.attributes && !node.children.length;
-}
+/**
+ * Check if contents of given node should be formatted
+ */
+// function shouldFormatContent(node: AbbreviationNode, state: HTMLWalkState): boolean {
+//     for (let i = 0; i < node.children.length; i++) {
+//         if (shouldFormat(node.children[i], i, node.children, state)) {
+//             return true;
+//         }
+//     }
+
+//     return false;
+// }
+
+// function isTextOnly(node: AbbreviationNode): boolean {
+//     return !node.name && !node.attributes && !node.children.length;
+// }
 
 /**
  * Check if given node is inline-level element, e.g. element with explicitly
@@ -172,4 +248,8 @@ function isTextOnly(node: AbbreviationNode): boolean {
  */
 function isInlineElement(node: AbbreviationNode | undefined, profile: OutputProfile): boolean {
     return node ? profile.isInline(node) : false;
+}
+
+function isField(token: Value): token is Field {
+    return typeof token === 'object' && token.type === 'Field';
 }

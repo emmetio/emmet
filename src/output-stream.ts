@@ -5,7 +5,7 @@ const formatOptions: FormatOptions = {
     baseIndent: '',
     newline: '\n',
     field(index: number, placeholder: string) {
-        return placeholder ? `\${${index}:${placeholder}}` : `\${${index}}`;
+        return placeholder;
     }
 };
 
@@ -50,7 +50,7 @@ export function pushNewline(stream: OutputStream) {
  * Adds indentation of `size` to current output stream
  */
 export function pushIndent(stream: OutputStream, size: number = 1) {
-    pushString(stream, stream.format.indent.repeat(size));
+    pushString(stream, stream.format.indent.repeat(Math.max(size, 0)));
 }
 
 /**

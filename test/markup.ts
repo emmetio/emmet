@@ -1,5 +1,5 @@
 import { strictEqual } from 'assert';
-import { parse } from '../src/markup';
+import parse from '../src/markup';
 import resolveConfig from '../src/config';
 import { ResolvedConfig } from '../src/types';
 import stringify from './assets/stringify';

@@ -1,6 +1,6 @@
 import { TokenGroup, TokenStatement, TokenElement, TokenAttribute, isQuote, isBracket } from './parser';
 import { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, Value, AbbreviationAttribute, AttributeType } from './types';
-import { Repeater, ValueToken, Quote } from './tokenizer';
+import { Repeater, ValueToken, Quote, Field } from './tokenizer';
 import stringify from './stringify';
 
 /**
@@ -43,7 +43,7 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
         repeat.count = repeat.implicit && Array.isArray(state.text)
             ? state.text.length
             : (repeat.count || 1);
-        let items: AbbreviationNode | AbbreviationNode[];
+        let items: AbbreviationNode[];
 
         state.repeaters.push(repeat);
 
@@ -57,7 +57,7 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
             if (repeat.implicit && !state.inserted) {
                 // It’s an implicit repeater but no repeater placeholders found inside,
                 // we should insert text into deepest node
-                const target = Array.isArray(items) ? last(items) : items;
+                const target = last(items);
                 const deepest = target && deepestNode(target);
                 if (deepest) {
                     insertText(deepest, state.getText(repeat.value));
@@ -73,45 +73,53 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
         if (repeat.implicit) {
             state.inserted = true;
         }
-    } else if (isGroup(node)) {
-        result = result.concat(convertGroup(node, state));
     } else {
-        result.push(convertElement(node, state));
+        result = result.concat(isGroup(node) ? convertGroup(node, state) : convertElement(node, state));
     }
 
     return result;
 }
 
-function convertElement(node: TokenElement, state: ConvertState): AbbreviationNode {
+function convertElement(node: TokenElement, state: ConvertState): AbbreviationNode[] {
     let children: AbbreviationNode[] = [];
-    let attributes: AbbreviationAttribute[] | undefined;
 
-    for (let i = 0; i < node.elements.length; i++) {
-        children = children.concat(convertStatement(node.elements[i], state));
-    }
-
-    if (node.attributes) {
-        attributes = [];
-        for (let i = 0; i < node.attributes.length; i++) {
-            attributes.push(convertAttribute(node.attributes[i], state));
-        }
-    }
-
-    return {
+    const elem = {
         type: 'AbbreviationNode',
         name: node.name && stringifyName(node.name, state),
         value: node.value && stringifyValue(node.value, state),
-        attributes,
+        attributes: void 0,
         children,
         repeat: node.repeat && { ...node.repeat },
         selfClosing: node.selfClose,
-    };
+    } as AbbreviationNode;
+    let result: AbbreviationNode[] = [elem];
+
+    for (const child of node.elements) {
+        children = children.concat(convertStatement(child, state));
+    }
+
+    if (node.attributes) {
+        elem.attributes = [];
+        for (const attr of node.attributes) {
+            elem.attributes.push(convertAttribute(attr, state));
+        }
+    }
+
+    // In case if current node is a text-only snippet without fields, we should
+    // put all children as siblings
+    if (!elem.name && !elem.attributes && elem.value && !elem.value.some(isField)) {
+        result = result.concat(children);
+    } else {
+        elem.children = children;
+    }
+
+    return result;
 }
 
 function convertGroup(node: TokenGroup, state: ConvertState): AbbreviationNode[] {
     let result: AbbreviationNode[] = [];
-    for (let i = 0; i < node.elements.length; i++) {
-        result = result.concat(convertStatement(node.elements[i], state));
+    for (const child of node.elements) {
+        result = result.concat(convertStatement(child, state));
     }
 
     if (node.repeat) {
@@ -213,6 +221,10 @@ function stringifyValue(tokens: ValueToken[], state: ConvertState): Value[] {
 
 export function isGroup(node: any): node is TokenGroup {
     return node.type === 'TokenGroup';
+}
+
+function isField(token: Value): token is Field {
+    return typeof token === 'object' && token.type === 'Field' && token.index != null;
 }
 
 function last<T>(arr: T[]): T {

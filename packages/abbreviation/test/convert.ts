@@ -26,5 +26,9 @@ describe('Convert token abbreviations', () => {
         equal(parse('a*2>b*3'), '<a*2@0><b*3@0></b><b*3@1></b><b*3@2></b></a><a*2@1><b*3@0></b><b*3@1></b><b*3@2></b></a>');
         equal(parse('a>(b+c)*2'), '<a><b*2@0></b><c*2@0></c><b*2@1></b><c*2@1></c></a>');
         equal(parse('a>(b+c)*2+(d+e)*2'), '<a><b*2@0></b><c*2@0></c><b*2@1></b><c*2@1></c><d*2@0></d><e*2@0></e><d*2@1></d><e*2@1></e></a>');
+
+        // Should move `<div>` as sibling of `{foo}`
+        equal(parse('p>{foo}>div'), '<p><?>foo</?><div></div></p>');
+        equal(parse('p>{foo ${0}}>div'), '<p><?>foo ${0}<div></div></?></p>');
     });
 });

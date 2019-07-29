@@ -16,21 +16,24 @@ export interface WalkState {
 
     /** Output stream */
     out: OutputStream;
+
+    /** CUrrent field index, used to output field marks for editor tabstops */
+    field: number;
 }
 
 export default function walk<S extends WalkState>(abbr: Abbreviation, visitor: Visitor<S>, state: S) {
     const callback = (ctx: AbbreviationNode, index: number, items: AbbreviationNode[]) => {
+        const { parent, current } = state;
+        state.parent = current;
+        state.current = ctx;
         visitor(ctx, index, items, state, next);
+        state.current = current;
+        state.parent = parent;
     };
 
     const next: WalkNext = (node, index, items) => {
-        const { parent, current } = state;
-        state.ancestors.push(current);
-        state.parent = current;
-        state.current = node;
+        state.ancestors.push(state.current);
         callback(node, index, items);
-        state.current = current;
-        state.parent = parent;
         state.ancestors.pop();
     };
 

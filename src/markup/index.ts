@@ -9,7 +9,7 @@ import { walk, Container } from './utils';
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
  */
-export function parse(abbr: string | Abbreviation, config: ResolvedConfig): Abbreviation {
+export default function parse(abbr: string | Abbreviation, config: ResolvedConfig): Abbreviation {
     if (typeof abbr === 'string') {
         abbr = abbreviation(abbr, config);
     }

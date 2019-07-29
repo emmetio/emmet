@@ -1,4 +1,4 @@
-import { Abbreviation, AbbreviationNode, TokenValue, AbbreviationAttribute } from '@emmetio/abbreviation';
+import { Abbreviation, AbbreviationNode, Value, AbbreviationAttribute } from '@emmetio/abbreviation';
 
 export default function stringify(abbr: Abbreviation): string {
     return abbr.children.map(elem).join('');
@@ -28,7 +28,7 @@ function attribute(attr: AbbreviationAttribute): string {
     return `${name}=${value}`;
 }
 
-function stringifyValue(items: TokenValue[]): string {
+function stringifyValue(items: Value[]): string {
     return items.map(item =>
         typeof item === 'string'
             ? item

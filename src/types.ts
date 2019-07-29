@@ -159,6 +159,8 @@ export interface RawConfig<T = any> extends RawConfigBase {
      */
     editor?: T;
 
+    options?: Options;
+
     /** Project-specific settings */
     project?: {
         [projectName: string]: RawConfigBase
