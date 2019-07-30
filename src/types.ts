@@ -85,14 +85,16 @@ export interface CommentOptions {
      */
     trigger: string[];
 
-    /** Template string for comment to be placed *before* opening tag */
-    before: string;
+    /**
+     * Template string for comment to be placed *before* opening tag
+     */
+    before?: string;
 
     /**
      * Template string for comment to be placed *after* closing tag.
      * Example: `\n<!-- /[#ID][.CLASS] -->`
      */
-    after: string;
+    after?: string;
 }
 
 /** Options for BEM addon */

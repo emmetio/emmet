@@ -126,5 +126,19 @@ describe('Format', () => {
             equal(format('{<!DOCTYPE html>}+html>(head>meta[charset=${charset}]/+title{${1:Document}})+body', field),
                 '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="charset">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
         });
+
+        it.only('comment', () => {
+            const opt = createConfig();
+            opt.options.comment = { enabled: true };
+
+            equal(format('ul>li.item', opt), '<ul>\n\t<li class="item"></li>\n\t<!-- /.item -->\n</ul>');
+            equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li>\n\t\t<!-- /#foo.item -->\n\t</ul>\n</div>');
+
+            opt.options.comment = {
+                enabled: true,
+                after: ' { [%ID] }'
+            };
+            equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li> { %foo }\n\t</ul>\n</div>');
+        });
     });
 });

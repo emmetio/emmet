@@ -1,19 +1,19 @@
-import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value, Field } from '@emmetio/abbreviation';
+import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Field } from '@emmetio/abbreviation';
 import { CommentOptions, ResolvedConfig } from '../../types';
-import createOutputStream, { pushField, pushNewline, pushString } from '../../output-stream';
+import createOutputStream, { pushNewline, pushString } from '../../output-stream';
 import OutputProfile from '../../OutputProfile';
 import walk, { WalkState } from './walk';
-import { isInlineElement, isSnippet, isField } from './utils';
+import { isInlineElement, isSnippet, isField, pushTokens } from './utils';
+import { CommentWalkState, createCommentState, commentNodeBefore, commentNodeAfter } from './comment';
 
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
-interface HTMLWalkState extends WalkState {
-    comment: CommentOptions;
+export interface HTMLWalkState extends WalkState {
+    comment: CommentWalkState;
     profile: OutputProfile;
 }
 
 const commentOptions: CommentOptions = {
-    // enable node commenting
     enabled: false,
     trigger: ['id', 'class'],
     before: '',
@@ -29,7 +29,7 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
         parent: void 0,
         ancestors: [],
         profile: config.profile,
-        comment: { ...commentOptions, ...config.options.comment },
+        comment: createCommentState({ ...commentOptions, ...config.options.comment }),
         field: 1,
         out: createOutputStream(config.options)
     };
@@ -57,6 +57,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
     if (node.name) {
         const name = profile.name(node.name);
+        commentNodeBefore(node, state);
         pushString(out, `<${name}`);
 
         if (node.attributes) {
@@ -72,7 +73,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
             if (!pushSnippet(node, state, next)) {
                 if (node.value) {
-                    outputValue(node.value, state);
+                    pushTokens(node.value, state);
                 }
 
                 node.children.forEach(next);
@@ -80,16 +81,17 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
                 if (!node.value && !node.children.length) {
                     const innerFormat = profile.options.formatForce.includes(node.name);
                     innerFormat && pushNewline(state.out, out.level + 1);
-                    outputValue(caret, state);
+                    pushTokens(caret, state);
                     innerFormat && pushNewline(state.out, true);
                 }
             }
 
             pushString(out, `</${name}>`);
+            commentNodeAfter(node, state);
         }
     } else if (!pushSnippet(node, state, next) && node.value) {
         // A text-only node (snippet)
-        outputValue(node.value, state);
+        pushTokens(node.value, state);
         node.children.forEach(next);
     }
 
@@ -127,7 +129,7 @@ function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
         pushString(out, ' ' + name);
         if (value) {
             pushString(out, '=' + lQuote);
-            outputValue(value, state);
+            pushTokens(value, state);
             pushString(out, rQuote);
         } else if (profile.get('selfClosingStyle') !== 'html') {
             pushString(out, '=' + lQuote + rQuote);
@@ -141,7 +143,7 @@ function pushSnippet(node: AbbreviationNode, state: HTMLWalkState, next: WalkNex
         // we should output children as a content of first field
         const fieldIx = node.value.findIndex(isField);
         if (fieldIx !== -1) {
-            outputValue(node.value.slice(0, fieldIx), state);
+            pushTokens(node.value.slice(0, fieldIx), state);
             const line = state.out.line;
             let pos = fieldIx + 1;
             node.children.forEach(next);
@@ -151,32 +153,12 @@ function pushSnippet(node: AbbreviationNode, state: HTMLWalkState, next: WalkNex
                 pushString(state.out, (node.value[pos++] as string).trimLeft());
             }
 
-            outputValue(node.value.slice(pos), state);
+            pushTokens(node.value.slice(pos), state);
             return true;
         }
     }
 
     return false;
-}
-
-function outputValue(tokens: Value[], state: HTMLWalkState) {
-    const { out } = state;
-    let largestIndex = -1;
-
-    for (const t of tokens) {
-        if (typeof t === 'string') {
-            pushString(out, t);
-        } else {
-            pushField(out, state.field + t.index!, t.name);
-            if (t.index! > largestIndex) {
-                largestIndex = t.index!;
-            }
-        }
-    }
-
-    if (largestIndex !== -1) {
-        state.field += largestIndex + 1;
-    }
 }
 
 /**
@@ -250,13 +232,6 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
 
     return true;
 }
-
-/**
- * Adds comment for
- */
-// function commentNode(node: AbbreviationNode, state: HTMLWalkState) {
-
-// }
 
 /**
  * Returns indentation offset for given node
