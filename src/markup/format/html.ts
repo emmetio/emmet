@@ -50,6 +50,10 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
     const { out, profile } = state;
     const format = shouldFormat(node, index, items, state);
 
+    // Pick offset level for current node
+    const level = getIndent(state);
+    state.level += level;
+
     if (format) {
         pushNewline(out);
         pushIndent(out, state.level);
@@ -78,7 +82,16 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
                 node.children.forEach(next);
 
                 if (!node.value && !node.children.length) {
+                    const innerFormat = profile.options.formatForce.includes(node.name);
+                    if (innerFormat) {
+                        pushNewline(state.out);
+                        pushIndent(state.out, state.level + 1);
+                    }
                     outputValue(caret, state);
+                    if (innerFormat) {
+                        pushNewline(state.out);
+                        pushIndent(state.out, state.level);
+                    }
                 }
             }
 
@@ -95,6 +108,8 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
         const offset = isSnippet(state.parent) ? 0 : 1;
         pushIndent(out, state.level - offset);
     }
+
+    state.level -= level;
 }
 
 /**
@@ -179,19 +194,19 @@ function outputValue(tokens: Value[], state: HTMLWalkState) {
  * Check if given node should be formatted in its parent context
  */
 function shouldFormat(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: HTMLWalkState): boolean {
-    const { profile } = state;
+    const { profile, parent } = state;
 
     if (!profile.get('format')) {
         return false;
     }
 
-    if (index === 0 && !state.parent) {
+    if (index === 0 && !parent) {
         // Do not format very first node
         return false;
     }
 
     // Do not format single child of snippet
-    if (state.parent && isSnippet(state.parent) && items.length === 1) {
+    if (parent && isSnippet(parent) && items.length === 1) {
         return false;
     }
 
@@ -245,4 +260,17 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
     }
 
     return true;
+}
+
+/**
+ * Returns indentation offset for given node
+ */
+function getIndent(state: HTMLWalkState): number {
+    const { profile, parent } = state;
+
+    if (!parent || isSnippet(parent) || (parent.name && profile.options.formatSkip.includes(parent.name))) {
+        return 0;
+    }
+
+    return 1;
 }

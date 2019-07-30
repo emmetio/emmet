@@ -13,6 +13,8 @@ describe('Convert token abbreviations', () => {
         equal(parse('ul>li[class=$#]{item $}*', { text: ['foo$', 'bar$'] }), '<ul><li*2@0 class="foo$">item 1</li><li*2@1 class="bar$">item 2</li></ul>');
         equal(parse('ul>li.item$*'), '<ul><li*1@0 class="item1"></li></ul>');
         equal(parse('ul>li.item$*', { text: ['foo.bar', 'hello.world'] }), '<ul><li*2@0 class="item1">foo.bar</li><li*2@1 class="item2">hello.world</li></ul>');
+
+        equal(parse('html[lang=${lang}]'), '<html lang="lang"></html>');
     });
 
     it('unroll', () => {

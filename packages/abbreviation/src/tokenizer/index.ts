@@ -231,13 +231,13 @@ function field(scanner: Scanner, ctx: Context): Field | undefined {
         let index: number | undefined;
         let name: string = '';
 
-        if (scanner.eat(isAlpha)) {
-            // It’s a variable
-            name = consumePlaceholder(scanner);
-        } else if (scanner.eatWhile(isNumber)) {
+        if (scanner.eatWhile(isNumber)) {
             // It’s a field
             index = Number(scanner.current());
             name = scanner.eat(Chars.Colon) ? consumePlaceholder(scanner) : '';
+        } else if (isAlpha(scanner.peek())) {
+            // It’s a variable
+            name = consumePlaceholder(scanner);
         }
 
         if (scanner.eat(Chars.CurlyBracketClose)) {

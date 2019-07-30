@@ -91,5 +91,40 @@ describe('Format', () => {
             equal(format('div>{<!-- ${0} -->}', field), '<div><!-- ${1} --></div>');
             equal(format('div>{<!-- ${0} -->}>b', field), '<div>\n\t<!-- <b>${1}</b> -->\n</div>');
         });
+
+        it('self-closing', () => {
+            const xmlStyle = createProfile({ selfClosingStyle: 'xml' });
+            const htmlStyle = createProfile({ selfClosingStyle: 'html' });
+            const xhtmlStyle = createProfile({ selfClosingStyle: 'xhtml' });
+
+            equal(format('img[src]/', htmlStyle), '<img src="" alt="">');
+            equal(format('img[src]/', xhtmlStyle), '<img src="" alt="" />');
+            equal(format('img[src]/', xmlStyle), '<img src="" alt=""/>');
+            equal(format('div>img[src]/', xhtmlStyle), '<div><img src="" alt="" /></div>');
+        });
+
+        it('boolean attributes', () => {
+            const compact = createProfile({ compactBoolean: true });
+            const noCompact = createProfile({ compactBoolean: false });
+
+            equal(format('p[b.]', noCompact), '<p b="b"></p>');
+            equal(format('p[b.]', compact), '<p b></p>');
+            equal(format('p[contenteditable]', compact), '<p contenteditable></p>');
+            equal(format('p[contenteditable]', noCompact), '<p contenteditable="contenteditable"></p>');
+            equal(format('p[contenteditable=foo]', compact), '<p contenteditable="foo"></p>');
+        });
+
+        it('no formatting', () => {
+            const profile = createProfile({ format: false });
+            equal(format('div>p', profile), '<div><p></p></div>');
+            equal(format('div>{foo}+p+{bar}', profile), '<div>foo<p></p>bar</div>');
+            equal(format('div>{foo}>p', profile), '<div>foo<p></p></div>');
+            equal(format('div>{<!-- ${0} -->}>p', profile), '<div><!-- <p></p> --></div>');
+        });
+
+        it('format specific nodes', () => {
+            equal(format('{<!DOCTYPE html>}+html>(head>meta[charset=${charset}]/+title{${1:Document}})+body', field),
+                '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="charset">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
+        });
     });
 });
