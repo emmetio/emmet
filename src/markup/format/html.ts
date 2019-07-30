@@ -1,6 +1,6 @@
 import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value, Field } from '@emmetio/abbreviation';
 import { CommentOptions, ResolvedConfig } from '../../types';
-import createOutputStream, { pushField, pushIndent, pushNewline, pushString } from '../../output-stream';
+import createOutputStream, { pushField, pushNewline, pushString } from '../../output-stream';
 import OutputProfile from '../../OutputProfile';
 import walk, { WalkState } from './walk';
 import { isInlineElement, isSnippet, isField } from './utils';
@@ -31,7 +31,6 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
         profile: config.profile,
         comment: { ...commentOptions, ...config.options.comment },
         field: 1,
-        level: 0,
         out: createOutputStream(config.options)
     };
 
@@ -52,12 +51,9 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
     // Pick offset level for current node
     const level = getIndent(state);
-    state.level += level;
+    out.level += level;
 
-    if (format) {
-        pushNewline(out);
-        pushIndent(out, state.level);
-    }
+    format && pushNewline(out, true);
 
     if (node.name) {
         const name = profile.name(node.name);
@@ -83,15 +79,9 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
                 if (!node.value && !node.children.length) {
                     const innerFormat = profile.options.formatForce.includes(node.name);
-                    if (innerFormat) {
-                        pushNewline(state.out);
-                        pushIndent(state.out, state.level + 1);
-                    }
+                    innerFormat && pushNewline(state.out, out.level + 1);
                     outputValue(caret, state);
-                    if (innerFormat) {
-                        pushNewline(state.out);
-                        pushIndent(state.out, state.level);
-                    }
+                    innerFormat && pushNewline(state.out, true);
                 }
             }
 
@@ -104,12 +94,11 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
     }
 
     if (format && index === items.length - 1 && state.parent) {
-        pushNewline(out);
         const offset = isSnippet(state.parent) ? 0 : 1;
-        pushIndent(out, state.level - offset);
+        pushNewline(out, out.level - offset);
     }
 
-    state.level -= level;
+    out.level -= level;
 }
 
 /**
@@ -261,6 +250,13 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
 
     return true;
 }
+
+/**
+ * Adds comment for
+ */
+// function commentNode(node: AbbreviationNode, state: HTMLWalkState) {
+
+// }
 
 /**
  * Returns indentation offset for given node

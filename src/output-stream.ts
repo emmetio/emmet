@@ -12,16 +12,18 @@ const formatOptions: FormatOptions = {
 export interface OutputStream {
     format: FormatOptions;
     value: string;
+    level: number;
     offset: number;
     line: number;
     column: number;
 }
 
-export default function createOutputStream(options: Options): OutputStream {
+export default function createOutputStream(options: Options, level = 0): OutputStream {
     // TODO add unit tests
     return {
         format: { ...formatOptions, ...options },
         value: '',
+        level,
         offset: 0,
         line: 0,
         column: 0
@@ -32,26 +34,35 @@ export default function createOutputStream(options: Options): OutputStream {
  * Pushes given string into output
  */
 export function pushString(stream: OutputStream, value: string) {
-    // TODO handle value with newlines
-    stream.value += value;
-    stream.offset += value.length;
-    stream.column += value.length;
+    // If given value contains newlines, we should push content line-by-line and
+    // use `pushNewline()` to maintain proper line/column state
+    const lines = value.split(/\r?\n|\r/);
+
+    for (let i = 0, il = lines.length - 1; i <= il; i++) {
+        push(stream, lines[i]);
+        if (i !== il) {
+            pushNewline(stream);
+        }
+    }
 }
 
 /**
  * Pushes new line into given output stream
  */
-export function pushNewline(stream: OutputStream) {
+export function pushNewline(stream: OutputStream, indent?: boolean | number) {
     const { baseIndent, newline } = stream.format;
-    pushString(stream, newline + baseIndent);
+    push(stream, newline + baseIndent);
     stream.line++;
     stream.column = baseIndent.length;
+    if (indent) {
+        pushIndent(stream, indent === true ? stream.level : indent);
+    }
 }
 
 /**
  * Adds indentation of `size` to current output stream
  */
-export function pushIndent(stream: OutputStream, size: number = 1) {
+export function pushIndent(stream: OutputStream, size = stream.level) {
     pushString(stream, stream.format.indent.repeat(Math.max(size, 0)));
 }
 
@@ -60,4 +71,10 @@ export function pushIndent(stream: OutputStream, size: number = 1) {
  */
 export function pushField(stream: OutputStream, index: number, placeholder: string) {
     pushString(stream, stream.format.field(index, placeholder, stream.offset, stream.line, stream.column));
+}
+
+function push(stream: OutputStream, text: string) {
+    stream.value += text;
+    stream.offset += text.length;
+    stream.column += text.length;
 }

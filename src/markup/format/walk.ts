@@ -17,9 +17,6 @@ export interface WalkState {
     /** Output stream */
     out: OutputStream;
 
-    /** Current indentation level */
-    level: number;
-
     /** CUrrent field index, used to output field marks for editor tabstops */
     field: number;
 }
