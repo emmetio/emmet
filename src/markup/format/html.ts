@@ -3,6 +3,7 @@ import { CommentOptions, ResolvedConfig } from '../../types';
 import createOutputStream, { pushField, pushIndent, pushNewline, pushString } from '../../output-stream';
 import OutputProfile from '../../OutputProfile';
 import walk, { WalkState } from './walk';
+import { isInlineElement, isSnippet, isField } from './utils';
 
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
@@ -30,6 +31,7 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
         profile: config.profile,
         comment: { ...commentOptions, ...config.options.comment },
         field: 1,
+        level: 0,
         out: createOutputStream(config.options)
     };
 
@@ -50,7 +52,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
     if (format) {
         pushNewline(out);
-        pushIndent(out, state.ancestors.length);
+        pushIndent(out, state.level);
     }
 
     if (node.name) {
@@ -90,7 +92,8 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
     if (format && index === items.length - 1 && state.parent) {
         pushNewline(out);
-        pushIndent(out, state.ancestors.length - 1);
+        const offset = isSnippet(state.parent) ? 0 : 1;
+        pushIndent(out, state.level - offset);
     }
 }
 
@@ -135,8 +138,16 @@ function pushSnippet(node: AbbreviationNode, state: HTMLWalkState, next: WalkNex
         const fieldIx = node.value.findIndex(isField);
         if (fieldIx !== -1) {
             outputValue(node.value.slice(0, fieldIx), state);
+            const line = state.out.line;
+            let pos = fieldIx + 1;
             node.children.forEach(next);
-            outputValue(node.value.slice(fieldIx + 1), state);
+
+            // If there was a line change, trim leading whitespace for better result
+            if (state.out.line !== line && typeof node.value[pos] === 'string') {
+                pushString(state.out, (node.value[pos++] as string).trimLeft());
+            }
+
+            outputValue(node.value.slice(pos), state);
             return true;
         }
     }
@@ -177,6 +188,17 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
     if (index === 0 && !state.parent) {
         // Do not format very first node
         return false;
+    }
+
+    // Do not format single child of snippet
+    if (state.parent && isSnippet(state.parent) && items.length === 1) {
+        return false;
+    }
+
+    // If given node is a snippet, format it if it will be handled as wrapper
+    // (contains children which will be outputted as field content)
+    if (isSnippet(node) && node.value!.some(isField) && node.children.length) {
+        return true;
     }
 
     if (profile.isInline(node)) {
@@ -223,33 +245,4 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
     }
 
     return true;
-}
-
-/**
- * Check if contents of given node should be formatted
- */
-// function shouldFormatContent(node: AbbreviationNode, state: HTMLWalkState): boolean {
-//     for (let i = 0; i < node.children.length; i++) {
-//         if (shouldFormat(node.children[i], i, node.children, state)) {
-//             return true;
-//         }
-//     }
-
-//     return false;
-// }
-
-// function isTextOnly(node: AbbreviationNode): boolean {
-//     return !node.name && !node.attributes && !node.children.length;
-// }
-
-/**
- * Check if given node is inline-level element, e.g. element with explicitly
- * defined node name
- */
-function isInlineElement(node: AbbreviationNode | undefined, profile: OutputProfile): boolean {
-    return node ? profile.isInline(node) : false;
-}
-
-function isField(token: Value): token is Field {
-    return typeof token === 'object' && token.type === 'Field';
 }

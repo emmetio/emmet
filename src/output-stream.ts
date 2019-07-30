@@ -18,6 +18,7 @@ export interface OutputStream {
 }
 
 export default function createOutputStream(options: Options): OutputStream {
+    // TODO add unit tests
     return {
         format: { ...formatOptions, ...options },
         value: '',
@@ -31,6 +32,7 @@ export default function createOutputStream(options: Options): OutputStream {
  * Pushes given string into output
  */
 export function pushString(stream: OutputStream, value: string) {
+    // TODO handle value with newlines
     stream.value += value;
     stream.offset += value.length;
     stream.column += value.length;
