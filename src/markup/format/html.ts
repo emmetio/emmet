@@ -1,16 +1,14 @@
-import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Field } from '@emmetio/abbreviation';
+import { Abbreviation, AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
 import { CommentOptions, ResolvedConfig } from '../../types';
 import createOutputStream, { pushNewline, pushString } from '../../output-stream';
-import OutputProfile from '../../OutputProfile';
 import walk, { WalkState } from './walk';
-import { isInlineElement, isSnippet, isField, pushTokens } from './utils';
+import { caret, isInlineElement, isSnippet, isField, pushTokens } from './utils';
 import { CommentWalkState, createCommentState, commentNodeBefore, commentNodeAfter } from './comment';
 
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
 export interface HTMLWalkState extends WalkState {
     comment: CommentWalkState;
-    profile: OutputProfile;
 }
 
 const commentOptions: CommentOptions = {
@@ -19,8 +17,6 @@ const commentOptions: CommentOptions = {
     before: '',
     after: '\n<!-- /[#ID][.CLASS] -->'
 };
-
-const caret = [{ type: 'Field', index: 0, name: '' } as Field];
 
 export default function html(abbr: Abbreviation, config: ResolvedConfig): string {
     const state: HTMLWalkState = {
@@ -111,9 +107,9 @@ function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
 
     if (attr.name) {
         const name = profile.attribute(attr.name);
-        let value = attr.value;
         const lQuote = attr.valueType === 'expression' ? '{' : profile.quoteChar;
         const rQuote = attr.valueType === 'expression' ? '}' : profile.quoteChar;
+        let value = attr.value;
 
         if (profile.isBooleanAttribute(attr) && !value) {
             // If attribute value is omitted and it’s a boolean value, check for
@@ -137,7 +133,7 @@ function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
     }
 }
 
-function pushSnippet(node: AbbreviationNode, state: HTMLWalkState, next: WalkNext): boolean {
+export function pushSnippet(node: AbbreviationNode, state: WalkState, next: WalkNext): boolean {
     if (node.value && node.children.length) {
         // We have a value and child nodes. In case if value contains fields,
         // we should output children as a content of first field

@@ -1,5 +1,6 @@
 import { AbbreviationNode, Abbreviation } from '@emmetio/abbreviation';
 import { OutputStream } from '../../output-stream';
+import OutputProfile from '../../OutputProfile';
 
 export type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 export type Visitor<S extends WalkState> = (node: AbbreviationNode, index: number, items: AbbreviationNode[], state: S, next: WalkNext) => void;
@@ -16,6 +17,9 @@ export interface WalkState {
 
     /** Output stream */
     out: OutputStream;
+
+    /** Output profile */
+    profile: OutputProfile;
 
     /** CUrrent field index, used to output field marks for editor tabstops */
     field: number;

@@ -1,5 +1,6 @@
 import { equal } from 'assert';
 import html from '../src/markup/format/html';
+import haml from '../src/markup/format/haml';
 import parse from '../src/markup';
 import createConfig from '../src/config';
 import { OutputProfileOptions } from '../src/OutputProfile';
@@ -139,6 +140,24 @@ describe('Format', () => {
                 after: ' { [%ID] }'
             };
             equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li> { %foo }\n\t</ul>\n</div>');
+        });
+    });
+
+    describe('HAML', () => {
+        const format = (abbr: string, config = defaultConfig) => haml(parse(abbr, config), config);
+
+        it.only('basic', () => {
+            equal(format('div#header>ul.nav>li[title=test].nav-item*2'),
+                '#header\n\t%ul.nav\n\t\t%li.nav-item(title="test")\n\t\t%li.nav-item(title="test")');
+
+            equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
+                '#foo.bar(data-n1="v1" title="test" data-n2="v2")');
+
+            let profile = createProfile({ compactBoolean: true });
+            equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled foo="" title="test")/');
+
+            profile = createProfile({ compactBoolean: false });
+            equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled=true foo="" title="test")/');
         });
     });
 });

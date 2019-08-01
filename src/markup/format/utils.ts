@@ -3,7 +3,7 @@ import OutputProfile from '../../OutputProfile';
 import { WalkState } from './walk';
 import { pushString, pushField } from '../../output-stream';
 
-export interface TemplateData { [token: string]: string; }
+export const caret = [{ type: 'Field', index: 0, name: '' } as Field];
 
 /**
  * Check if given node is a snippet: a node without name and attributes

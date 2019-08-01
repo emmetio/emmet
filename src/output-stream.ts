@@ -36,7 +36,7 @@ export default function createOutputStream(options: Options, level = 0): OutputS
 export function pushString(stream: OutputStream, value: string) {
     // If given value contains newlines, we should push content line-by-line and
     // use `pushNewline()` to maintain proper line/column state
-    const lines = value.split(/\r?\n|\r/);
+    const lines = splitByLines(value);
 
     for (let i = 0, il = lines.length - 1; i <= il; i++) {
         push(stream, lines[i]);
@@ -71,6 +71,13 @@ export function pushIndent(stream: OutputStream, size = stream.level) {
  */
 export function pushField(stream: OutputStream, index: number, placeholder: string) {
     pushString(stream, stream.format.field(index, placeholder, stream.offset, stream.line, stream.column));
+}
+
+/**
+ * Splits given text by lines
+ */
+export function splitByLines(text: string): string[] {
+    return text.split(/\r\n|\r|\n/g);
 }
 
 function push(stream: OutputStream, text: string) {
