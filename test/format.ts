@@ -15,7 +15,7 @@ describe('Format', () => {
         return config;
     }
 
-    describe.only('HTML', () => {
+    describe('HTML', () => {
         const format = (abbr: string, config = defaultConfig) => html(parse(abbr, config), config);
         it('basic', () => {
             equal(format('div>p'), '<div>\n\t<p></p>\n</div>');
@@ -127,7 +127,7 @@ describe('Format', () => {
                 '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="charset">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
         });
 
-        it.only('comment', () => {
+        it('comment', () => {
             const opt = createConfig();
             opt.options.comment = { enabled: true };
 

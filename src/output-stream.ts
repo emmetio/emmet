@@ -41,7 +41,7 @@ export function pushString(stream: OutputStream, value: string) {
     for (let i = 0, il = lines.length - 1; i <= il; i++) {
         push(stream, lines[i]);
         if (i !== il) {
-            pushNewline(stream);
+            pushNewline(stream, true);
         }
     }
 }

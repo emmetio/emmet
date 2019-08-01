@@ -4,8 +4,7 @@ import { CommentOptions } from '../../types';
 import { HTMLWalkState } from './html';
 import { WalkState } from './walk';
 import { pushTokens } from './utils';
-
-type TemplateToken = string | [string];
+import template, { TemplateToken } from './template';
 
 export interface CommentWalkState {
     enabled: boolean;
@@ -17,8 +16,8 @@ export interface CommentWalkState {
 export function createCommentState(options: CommentOptions): CommentWalkState {
     return {
         ...options,
-        before: options.before ? tokenize(options.before) : void 0,
-        after: options.after ? tokenize(options.after) : void 0
+        before: options.before ? template(options.before) : void 0,
+        after: options.after ? template(options.after) : void 0
     };
 }
 
@@ -60,48 +59,6 @@ function shouldComment(node: AbbreviationNode, state: HTMLWalkState): boolean {
 }
 
 /**
- * Splits given string into template tokens
- */
-function tokenize(str: string): TemplateToken[] {
-    const tokens: TemplateToken[] = [];
-
-    let pos = 0;
-    let start = 0;
-    let stack = 0;
-    let out = '';
-
-    while (pos < str.length) {
-        const code = str.charCodeAt(pos);
-        if (code === 91 /* [ */) {
-            if (++stack !== 1) {
-                out += str[pos];
-            }
-            pos++;
-        } else if (code === 93 /* ] */) {
-            if (--stack !== 0) {
-                out += str[pos];
-            }
-            pos++;
-        } else if (isTokenStart(code)) {
-            out && tokens.push(out);
-            out = '';
-            start = pos;
-
-            while (isToken(str.charCodeAt(pos))) {
-                pos++;
-            }
-
-            tokens.push([str.slice(start, pos)]);
-        } else {
-            out += str[pos++];
-        }
-    }
-
-    out && tokens.push(out);
-    return tokens;
-}
-
-/**
  * Pushes given template tokens into output stream
  */
 function output(node: AbbreviationNode, tokens: TemplateToken[], state: WalkState) {
@@ -119,19 +76,10 @@ function output(node: AbbreviationNode, tokens: TemplateToken[], state: WalkStat
     for (const token of tokens) {
         if (typeof token === 'string') {
             pushString(out, token);
-        } else if (attrs[token[0]]) {
-            pushTokens(attrs[token[0]], state);
+        } else if (attrs[token.name]) {
+            pushString(out, token.before);
+            pushTokens(attrs[token.name], state);
+            pushString(out, token.after);
         }
     }
-}
-
-function isTokenStart(code: number): boolean {
-    return code >= 65 && code <= 90; // A-Z
-}
-
-function isToken(code: number): boolean {
-    return isTokenStart(code)
-        || (code > 47 && code < 58) /* 0-9 */
-        || code === 95 /* _ */
-        || code === 45 /* - */;
 }
