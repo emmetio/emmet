@@ -2,6 +2,7 @@ import { equal } from 'assert';
 import html from '../src/markup/format/html';
 import haml from '../src/markup/format/haml';
 import pug from '../src/markup/format/pug';
+import slim from '../src/markup/format/slim';
 import parse from '../src/markup';
 import createConfig from '../src/config';
 import { OutputProfileOptions } from '../src/OutputProfile';
@@ -207,6 +208,46 @@ describe('Format', () => {
             equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar foo bar');
             equal(format('ul>li*2', field), 'ul\n\tli ${1}\n\tli ${2}');
             equal(format('div>img[src]/', field), 'div\n\timg(src="${1}", alt="${2}")/');
+        });
+    });
+
+    describe('Slim', () => {
+        const format = (abbr: string, config = defaultConfig) => slim(parse(abbr, config), config);
+
+        it('basic', () => {
+            equal(format('div#header>ul.nav>li[title=test].nav-item*2'),
+                '#header\n\tul.nav\n\t\tli.nav-item title="test" \n\t\tli.nav-item title="test" ');
+
+            equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
+                '#foo.bar data-n1="v1" title="test" data-n2="v2" ');
+
+            // const profile = createProfile({ inlineBreak: 0 });
+            // equal(format('ul>li>span{Text}', profile), 'ul\n\tli: span Text');
+            // equal(format('ul>li>span{Text}'), 'ul\n\tli\n\t\tspan Text');
+            // equal(format('ul>li>span{Text}*2', profile), 'ul\n\tli\n\t\tspan Text\n\t\tspan Text');
+        });
+
+        // it.skip('attribute wrappers', () => {
+        //     equal(format('input[disabled. foo title=test]'), 'input disabled=true foo="" title="test"');
+        //     equal(format('input[disabled. foo title=test]', null, { attributeWrap: 'round' }),
+        //         'input(disabled foo="" title="test")');
+        // });
+
+        it('nodes with text', () => {
+            equal(format('{Text 1}'), 'Text 1');
+            equal(format('span{Text 1}'), 'span Text 1');
+            equal(format('span{Text 1}>b{Text 2}'), 'span Text 1\n\tb Text 2');
+            equal(format('span{Text 1\nText 2}>b{Text 3}'), 'span\n\t| Text 1\n\t| Text 2\n\tb Text 3');
+            equal(format('div>span{Text 1\nText 2}>b{Text 3}'), 'div\n\tspan\n\t\t| Text 1\n\t\t| Text 2\n\t\tb Text 3');
+        });
+
+        it('generate fields', () => {
+            equal(format('a[href]', field), 'a href="${1}" ${2}');
+            equal(format('a[href]*2', field), 'a href="${1}" ${2}\na href="${3}" ${4}');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2', field), '${1} ${2:foo} ${3:bar}${4} ${5:foo} ${6:bar}');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar foo bar');
+            equal(format('ul>li*2', field), 'ul\n\tli ${1}\n\tli ${2}');
+            equal(format('div>img[src]/', field), 'div\n\timg src="${1}" alt="${2}"/');
         });
     });
 });

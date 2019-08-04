@@ -4,9 +4,8 @@ import indentFormat from './indent-format';
 
 export default function pug(abbr: Abbreviation, config: ResolvedConfig): string {
     return indentFormat(abbr, config, {
-        beforeAttribute: '(',
-        afterAttribute: ')',
-        glueAttribute: ', ',
+        beforeAttribute: ' ',
+        glueAttribute: ' ',
         beforeTextLine: '| '
     });
 }

@@ -1,7 +1,8 @@
-import { AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
+import { AbbreviationNode, AbbreviationAttribute, Value, Abbreviation } from '@emmetio/abbreviation';
 import { pushString, pushNewline, push } from '../../output-stream';
-import { pushTokens, caret, splitByLines } from './utils';
-import { WalkState } from './walk';
+import { pushTokens, caret, splitByLines, isSnippet } from './utils';
+import walk, { WalkState, createWalkState, WalkNext } from './walk';
+import { ResolvedConfig } from '../../types';
 
 /**
  * @description Utility methods for working with indent-based markup languages
@@ -16,19 +17,79 @@ interface AttributesCollection {
     secondary: AbbreviationAttribute[];
 }
 
-interface SecondaryArgsOptions {
-    before: string;
-    after: string;
-    glue: string;
-    booleanValue: string;
+export interface IndentWalkState extends WalkState {
+    options: FormatOptions;
 }
 
-const defaultSecondaryOptions: SecondaryArgsOptions = {
-    before: '',
-    after: '',
-    glue: ' ',
-    booleanValue: 'true'
-};
+export interface FormatOptions {
+    /** String to output before tag name */
+    beforeName?: string;
+
+    /** String to output after tag name */
+    afterName?: string;
+
+    /** String to output before secondary attribute set */
+    beforeAttribute?: string;
+
+    /** String to output after secondary attribute set */
+    afterAttribute?: string;
+
+    /** String to put between secondary attributes */
+    glueAttribute?: string;
+
+    /** Value for boolean attributes */
+    booleanValue?: string;
+
+    /** String to put before content line (if value is multiline) */
+    beforeTextLine?: string;
+
+    /** String to put after content line (if value is multiline) */
+    afterTextLine?: string;
+}
+
+export default function indentFormat(abbr: Abbreviation, config: ResolvedConfig, options?: Partial<FormatOptions>): string {
+    const state = createWalkState(config) as IndentWalkState;
+    state.options = options || {};
+    walk(abbr, element, state);
+    return state.out.value;
+}
+
+/**
+ * Outputs `node` content to output stream of `state`
+ * @param node Context node
+ * @param index Index of `node` in `items`
+ * @param items List of `node`’s siblings
+ * @param state Current walk state
+ */
+export function element(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: IndentWalkState, next: WalkNext) {
+    const { out, options } = state;
+    const { primary, secondary } = collectAttributes(node);
+
+    // Pick offset level for current node
+    const level = state.parent ? 1 : 0;
+    out.level += level;
+
+    // Do not indent top-level elements
+    if (shouldFormat(node, index, items, state)) {
+        pushNewline(out, true);
+    }
+
+    if (node.name && (node.name !== 'div' || !primary.length)) {
+        pushString(out, (options.beforeName || '') + node.name + (options.afterName || ''));
+    }
+
+    pushPrimaryAttributes(primary, state);
+    pushSecondaryAttributes(secondary, state);
+
+    if (node.selfClosing && !node.value && !node.children.length) {
+        pushString(out, '/');
+    } else {
+        pushValue(node, state);
+        node.children.forEach(next);
+    }
+
+    out.level -= level;
+}
 
 /**
  * From given node, collects all attributes as `primary` (id, class) and
@@ -72,12 +133,11 @@ export function pushPrimaryAttributes(attrs: AbbreviationAttribute[], state: Wal
 /**
  * Outputs given attributes as secondary into output stream
  */
-export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: WalkState, opts: Partial<SecondaryArgsOptions> = {}) {
+export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: IndentWalkState) {
     if (attrs.length) {
-        const { out, profile } = state;
-        const options: SecondaryArgsOptions = { ...defaultSecondaryOptions, ...opts };
+        const { out, profile, options } = state;
 
-        pushString(out, options.before);
+        options.beforeAttribute && pushString(out, options.beforeAttribute);
 
         for (let i = 0; i < attrs.length; i++) {
             const attr = attrs[i];
@@ -92,19 +152,19 @@ export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: W
                 pushString(out, profile.quoteChar);
             }
 
-            if (i !== attrs.length - 1) {
-                pushString(out, options.glue);
+            if (i !== attrs.length - 1 && options.glueAttribute) {
+                pushString(out, options.glueAttribute);
             }
         }
 
-        pushString(out, options.after);
+        options.afterAttribute && pushString(out, options.afterAttribute);
     }
 }
 
 /**
  * Outputs given node value into state output stream
  */
-export function pushValue(node: AbbreviationNode, state: WalkState, before = '', after = '') {
+export function pushValue(node: AbbreviationNode, state: IndentWalkState) {
     // We should either output value or add caret but for leaf nodes only (no children)
     if (!node.value && node.children.length) {
         return;
@@ -112,7 +172,7 @@ export function pushValue(node: AbbreviationNode, state: WalkState, before = '',
 
     const value = node.value || caret;
     const lines = splitByLines(value);
-    const { out } = state;
+    const { out, options } = state;
 
     if (lines.length === 1) {
         if (node.name || node.attributes) {
@@ -138,10 +198,12 @@ export function pushValue(node: AbbreviationNode, state: WalkState, before = '',
         out.level++;
         for (let i = 0; i < lines.length; i++) {
             pushNewline(out, true);
-            before && push(out, before);
+            options.beforeTextLine && push(out, options.beforeTextLine);
             pushTokens(lines[i], state);
-            push(out, ' '.repeat(maxLength - lineLengths[i]));
-            after && push(out, after);
+            if (options.afterTextLine) {
+                push(out, ' '.repeat(maxLength - lineLengths[i]));
+                push(out, options.afterTextLine);
+            }
         }
         out.level--;
     }
@@ -162,4 +224,12 @@ function valueLength(tokens: Value[]): number {
     }
 
     return len;
+}
+
+function shouldFormat(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: WalkState): boolean {
+    // Do not format first top-level element or snippets
+    if (!state.parent && index === 0) {
+        return false;
+    }
+    return !isSnippet(node);
 }
