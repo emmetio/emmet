@@ -43,8 +43,12 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
         booleanValue: ''
     });
 
-    pushValue(node, state, '| ');
-    node.children.forEach(next);
+    if (node.selfClosing && !node.value && !node.children.length) {
+        pushString(out, '/');
+    } else {
+        pushValue(node, state, '| ');
+        node.children.forEach(next);
+    }
 
     out.level -= level;
 }
