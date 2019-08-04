@@ -31,7 +31,16 @@ export default function createOutputStream(options: Options, level = 0): OutputS
 }
 
 /**
- * Pushes given string into output
+ * Pushes raw string into output stream
+ */
+export function push(stream: OutputStream, text: string) {
+    stream.value += text;
+    stream.offset += text.length;
+    stream.column += text.length;
+}
+
+/**
+ * Pushes given string with newline formatting into output
  */
 export function pushString(stream: OutputStream, value: string) {
     // If given value contains newlines, we should push content line-by-line and
@@ -78,10 +87,4 @@ export function pushField(stream: OutputStream, index: number, placeholder: stri
  */
 export function splitByLines(text: string): string[] {
     return text.split(/\r\n|\r|\n/g);
-}
-
-function push(stream: OutputStream, text: string) {
-    stream.value += text;
-    stream.offset += text.length;
-    stream.column += text.length;
 }

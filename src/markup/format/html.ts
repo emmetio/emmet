@@ -1,7 +1,7 @@
 import { Abbreviation, AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
 import { CommentOptions, ResolvedConfig } from '../../types';
-import createOutputStream, { pushNewline, pushString } from '../../output-stream';
-import walk, { WalkState } from './walk';
+import { pushNewline, pushString } from '../../output-stream';
+import walk, { WalkState, createWalkState } from './walk';
 import { caret, isInlineElement, isSnippet, isField, pushTokens } from './utils';
 import { CommentWalkState, createCommentState, commentNodeBefore, commentNodeAfter } from './comment';
 
@@ -19,16 +19,8 @@ const commentOptions: CommentOptions = {
 };
 
 export default function html(abbr: Abbreviation, config: ResolvedConfig): string {
-    const state: HTMLWalkState = {
-        // @ts-ignore: Will set value in iterator
-        current: null,
-        parent: void 0,
-        ancestors: [],
-        profile: config.profile,
-        comment: createCommentState({ ...commentOptions, ...config.options.comment }),
-        field: 1,
-        out: createOutputStream(config.options)
-    };
+    const state = createWalkState(config) as HTMLWalkState;
+    state.comment = createCommentState({ ...commentOptions, ...config.options.comment });
 
     walk(abbr, element, state);
     return state.out.value;

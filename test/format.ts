@@ -146,18 +146,35 @@ describe('Format', () => {
     describe('HAML', () => {
         const format = (abbr: string, config = defaultConfig) => haml(parse(abbr, config), config);
 
-        it.only('basic', () => {
+        it('basic', () => {
             equal(format('div#header>ul.nav>li[title=test].nav-item*2'),
-                '#header\n\t%ul.nav\n\t\t%li.nav-item(title="test")\n\t\t%li.nav-item(title="test")');
+                '#header\n\t%ul.nav\n\t\t%li.nav-item(title="test") \n\t\t%li.nav-item(title="test") ');
 
             equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
-                '#foo.bar(data-n1="v1" title="test" data-n2="v2")');
+                '#foo.bar(data-n1="v1" title="test" data-n2="v2") ');
 
             let profile = createProfile({ compactBoolean: true });
             equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled foo="" title="test")/');
 
             profile = createProfile({ compactBoolean: false });
             equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled=true foo="" title="test")/');
+        });
+
+        it('nodes with text', () => {
+            equal(format('{Text 1}'), 'Text 1');
+            equal(format('span{Text 1}'), '%span Text 1');
+            equal(format('span{Text 1}>b{Text 2}'), '%span Text 1\n\t%b Text 2');
+            equal(format('span{Text 1\nText 2}>b{Text 3}'), '%span\n\tText 1 |\n\tText 2 |\n\t%b Text 3');
+            equal(format('div>span{Text 1\nText 2\nText 123}>b{Text 3}'), '%div\n\t%span\n\t\tText 1   |\n\t\tText 2   |\n\t\tText 123 |\n\t\t%b Text 3');
+        });
+
+        it('generate fields', () => {
+            equal(format('a[href]', field), '%a(href="${1}") ${2}');
+            equal(format('a[href]*2', field), '%a(href="${1}") ${2}\n%a(href="${3}") ${4}');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2', field), '${1} ${2:foo} ${3:bar}${4} ${5:foo} ${6:bar}');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar foo bar');
+            equal(format('ul>li*2', field), '%ul\n\t%li ${1}\n\t%li ${2}');
+            equal(format('div>img[src]/', field), '%div\n\t%img(src="${1}" alt="${2}")/');
         });
     });
 });

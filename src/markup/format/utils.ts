@@ -46,3 +46,28 @@ export function pushTokens(tokens: Value[], state: WalkState) {
         state.field += largestIndex + 1;
     }
 }
+
+/**
+ * Splits given value token by lines: returns array where each entry is a token list
+ * for a single line
+ */
+export function splitByLines(tokens: Value[]): Value[][] {
+    const result: Value[][] = [];
+    let line: Value[] = [];
+
+    for (const t of tokens) {
+        if (typeof t === 'string') {
+            const lines = t.split(/\r\n?|\n/g);
+            line.push(lines.shift() || '');
+            while (lines.length) {
+                result.push(line);
+                line = [lines.shift() || ''];
+            }
+        } else {
+            line.push(t);
+        }
+    }
+
+    line.length && result.push(line);
+    return result;
+}
