@@ -5,7 +5,7 @@ import { pushNewline, pushString } from '../../output-stream';
 import { isSnippet } from './utils';
 import { pushPrimaryAttributes, pushSecondaryAttributes, pushValue, collectAttributes } from './indent-format';
 
-export default function haml(abbr: Abbreviation, config: ResolvedConfig): string {
+export default function pug(abbr: Abbreviation, config: ResolvedConfig): string {
     const state = createWalkState(config);
     walk(abbr, element, state);
     return state.out.value;
@@ -32,21 +32,19 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
     }
 
     if (node.name && (node.name !== 'div' || !primary.length)) {
-        pushString(out, '%' + node.name);
+        pushString(out, node.name);
     }
 
     pushPrimaryAttributes(primary, state);
     pushSecondaryAttributes(secondary, state, {
         before: '(',
-        after: ')'
+        after: ')',
+        glue: ', ',
+        booleanValue: ''
     });
 
-    if (node.selfClosing && !node.value && !node.children.length) {
-        pushString(out, '/');
-    } else {
-        pushValue(node, state, '', ' |');
-        node.children.forEach(next);
-    }
+    pushValue(node, state, '| ');
+    node.children.forEach(next);
 
     out.level -= level;
 }

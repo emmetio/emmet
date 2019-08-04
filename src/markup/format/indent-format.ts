@@ -16,6 +16,20 @@ interface AttributesCollection {
     secondary: AbbreviationAttribute[];
 }
 
+interface SecondaryArgsOptions {
+    before: string;
+    after: string;
+    glue: string;
+    booleanValue: string;
+}
+
+const defaultSecondaryOptions: SecondaryArgsOptions = {
+    before: '',
+    after: '',
+    glue: ' ',
+    booleanValue: 'true'
+};
+
 /**
  * From given node, collects all attributes as `primary` (id, class) and
  * `secondary` (all the rest) lists. In most indent-based syntaxes, primary attribute
@@ -58,18 +72,19 @@ export function pushPrimaryAttributes(attrs: AbbreviationAttribute[], state: Wal
 /**
  * Outputs given attributes as secondary into output stream
  */
-export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: WalkState, before = '', after = '') {
+export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: WalkState, opts: Partial<SecondaryArgsOptions> = {}) {
     if (attrs.length) {
         const { out, profile } = state;
+        const options: SecondaryArgsOptions = { ...defaultSecondaryOptions, ...opts };
 
-        pushString(out, before);
+        pushString(out, options.before);
 
         for (let i = 0; i < attrs.length; i++) {
             const attr = attrs[i];
             pushString(out, profile.attribute(attr.name || ''));
             if (profile.isBooleanAttribute(attr) && !attr.value) {
-                if (!profile.get('compactBoolean')) {
-                    pushString(out, '=true');
+                if (!profile.get('compactBoolean') && options.booleanValue) {
+                    pushString(out, '=' + options.booleanValue);
                 }
             } else {
                 pushString(out, '=' + profile.quoteChar);
@@ -78,11 +93,11 @@ export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: W
             }
 
             if (i !== attrs.length - 1) {
-                pushString(out, ' ');
+                pushString(out, options.glue);
             }
         }
 
-        pushString(out, after);
+        pushString(out, options.after);
     }
 }
 
