@@ -7,7 +7,7 @@ export default function stringify(abbr: Abbreviation): string {
 function elem(node: AbbreviationNode): string {
     const name = node.name || '?';
     const attributes = node.attributes
-        ? node.attributes.map(attr => ' ' + attribute(attr))
+        ? node.attributes.map(attr => ' ' + attribute(attr)).join('')
         : '';
     const value = node.value ? stringifyValue(node.value) : '';
     const repeat = node.repeat ? `*${node.repeat.count}@${node.repeat.value}` : '';

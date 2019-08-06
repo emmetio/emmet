@@ -2,6 +2,9 @@ import abbreviation, { Abbreviation, AbbreviationNode } from '@emmetio/abbreviat
 import attributes from './attributes';
 import snippets from './snippets';
 import implicitTag from './implicit-tag';
+import jsx from './addon/jsx';
+import xsl from './addon/xsl';
+import bem from './addon/bem';
 import { ResolvedConfig } from '../types';
 import { walk, Container } from './utils';
 
@@ -25,5 +28,16 @@ function transform(node: AbbreviationNode, ancestors: Container[], config: Resol
     snippets(node, ancestors, config);
     implicitTag(node, ancestors, config);
     attributes(node);
-    // TODO apply addons like XSL, JSX, BEM
+
+    if (config.syntax === 'xsl') {
+        xsl(node);
+    }
+
+    if (config.options.jsx && config.options.jsx.enabled) {
+        jsx(node);
+    }
+
+    if (config.options.bem && config.options.bem.enabled) {
+        bem(node, ancestors, config);
+    }
 }
