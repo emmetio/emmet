@@ -1,9 +1,9 @@
 import { Abbreviation, AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
-import { CommentOptions, ResolvedConfig } from '../../types';
-import { pushNewline, pushString } from '../../output-stream';
+import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline } from '../../output-stream';
 import walk, { WalkState, createWalkState } from './walk';
 import { caret, isInlineElement, isSnippet, isField, pushTokens } from './utils';
-import { CommentWalkState, createCommentState, commentNodeBefore, commentNodeAfter } from './comment';
+import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
+import { Config } from '../../config';
 
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
@@ -11,17 +11,9 @@ export interface HTMLWalkState extends WalkState {
     comment: CommentWalkState;
 }
 
-const commentOptions: CommentOptions = {
-    enabled: false,
-    trigger: ['id', 'class'],
-    before: '',
-    after: '\n<!-- /[#ID][.CLASS] -->'
-};
-
-export default function html(abbr: Abbreviation, config: ResolvedConfig): string {
+export default function html(abbr: Abbreviation, config: Config): string {
     const state = createWalkState(config) as HTMLWalkState;
-    state.comment = createCommentState({ ...commentOptions, ...config.options.comment });
-
+    state.comment = createCommentState(config);
     walk(abbr, element, state);
     return state.out.value;
 }
@@ -34,7 +26,7 @@ export default function html(abbr: Abbreviation, config: ResolvedConfig): string
  * @param state Current walk state
  */
 function element(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: HTMLWalkState, next: WalkNext) {
-    const { out, profile } = state;
+    const { out, config } = state;
     const format = shouldFormat(node, index, items, state);
 
     // Pick offset level for current node
@@ -44,7 +36,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
     format && pushNewline(out, true);
 
     if (node.name) {
-        const name = profile.name(node.name);
+        const name = tagName(node.name, config);
         commentNodeBefore(node, state);
         pushString(out, `<${name}`);
 
@@ -55,7 +47,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
         }
 
         if (node.selfClosing && !node.children.length && !node.value) {
-            pushString(out, `${profile.selfClose()}>`);
+            pushString(out, `${selfClose(config)}>`);
         } else {
             pushString(out, '>');
 
@@ -67,7 +59,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
                 node.children.forEach(next);
 
                 if (!node.value && !node.children.length) {
-                    const innerFormat = profile.options.formatForce.includes(node.name);
+                    const innerFormat = config.options['output.formatForce'].includes(node.name);
                     innerFormat && pushNewline(state.out, out.level + 1);
                     pushTokens(caret, state);
                     innerFormat && pushNewline(state.out, true);
@@ -94,20 +86,20 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 /**
  * Outputs given attribute’s content into output stream
  */
-function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
-    const { out, profile } = state;
+function pushAttribute(attr: AbbreviationAttribute, state: WalkState) {
+    const { out, config } = state;
 
     if (attr.name) {
-        const name = profile.attribute(attr.name);
-        const lQuote = attr.valueType === 'expression' ? '{' : profile.quoteChar;
-        const rQuote = attr.valueType === 'expression' ? '}' : profile.quoteChar;
+        const name = attrName(attr.name, config);
+        const lQuote = attrQuote(attr, config, true);
+        const rQuote = attrQuote(attr, config);
         let value = attr.value;
 
-        if (profile.isBooleanAttribute(attr) && !value) {
+        if (isBooleanAttribute(attr, config) && !value) {
             // If attribute value is omitted and it’s a boolean value, check for
             // `compactBoolean` option: if it’s disabled, set value to attribute name
             // (XML style)
-            if (!profile.get('compactBoolean')) {
+            if (!config.options['output.compactBoolean']) {
                 value = [name];
             }
         } else if (!value) {
@@ -119,7 +111,7 @@ function pushAttribute(attr: AbbreviationAttribute, state: HTMLWalkState) {
             pushString(out, '=' + lQuote);
             pushTokens(value, state);
             pushString(out, rQuote);
-        } else if (profile.get('selfClosingStyle') !== 'html') {
+        } else if (config.options['output.selfClosingStyle'] !== 'html') {
             pushString(out, '=' + lQuote + rQuote);
         }
     }
@@ -152,10 +144,10 @@ export function pushSnippet(node: AbbreviationNode, state: WalkState, next: Walk
 /**
  * Check if given node should be formatted in its parent context
  */
-function shouldFormat(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: HTMLWalkState): boolean {
-    const { profile, parent } = state;
+function shouldFormat(node: AbbreviationNode, index: number, items: AbbreviationNode[], state: WalkState): boolean {
+    const { config, parent } = state;
 
-    if (!profile.get('format')) {
+    if (!config.options['output.format']) {
         return false;
     }
 
@@ -175,35 +167,35 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
         return true;
     }
 
-    if (profile.isInline(node)) {
+    if (isInline(node, config)) {
         // Check if inline node is the next sibling of block-level node
         if (index === 0) {
             // First node in parent: format if it’s followed by a block-level element
             for (let i = 0; i < items.length; i++) {
-                if (!profile.isInline(items[i])) {
+                if (!isInline(items[i], config)) {
                     return true;
                 }
             }
-        } else if (!profile.isInline(items[index - 1])) {
+        } else if (!isInline(items[index - 1], config)) {
             // Node is right after block-level element
             return true;
         }
 
-        if (profile.get('inlineBreak')) {
+        if (config.options['output.inlineBreak']) {
             // check for adjacent inline elements before and after current element
             let adjacentInline = 1;
             let before = index;
             let after = index;
 
-            while (isInlineElement(items[--before], profile)) {
+            while (isInlineElement(items[--before], config)) {
                 adjacentInline++;
             }
 
-            while (isInlineElement(items[++after], profile)) {
+            while (isInlineElement(items[++after], config)) {
                 adjacentInline++;
             }
 
-            if (adjacentInline >= profile.get('inlineBreak')) {
+            if (adjacentInline >= config.options['output.inlineBreak']) {
                 return true;
             }
         }
@@ -224,10 +216,10 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
 /**
  * Returns indentation offset for given node
  */
-function getIndent(state: HTMLWalkState): number {
-    const { profile, parent } = state;
+function getIndent(state: WalkState): number {
+    const { config, parent } = state;
 
-    if (!parent || isSnippet(parent) || (parent.name && profile.options.formatSkip.includes(parent.name))) {
+    if (!parent || isSnippet(parent) || (parent.name && config.options['output.formatSkip'].includes(parent.name))) {
         return 0;
     }
 

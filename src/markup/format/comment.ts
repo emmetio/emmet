@@ -1,10 +1,10 @@
 import { AbbreviationNode, Value } from '@emmetio/abbreviation';
 import { pushString } from '../../output-stream';
-import { CommentOptions } from '../../types';
-import { HTMLWalkState } from './html';
 import { WalkState } from './walk';
 import { pushTokens } from './utils';
 import template, { TemplateToken } from './template';
+import { Config } from '../../config';
+import { HTMLWalkState } from './html';
 
 export interface CommentWalkState {
     enabled: boolean;
@@ -13,11 +13,13 @@ export interface CommentWalkState {
     after?: TemplateToken[];
 }
 
-export function createCommentState(options: CommentOptions): CommentWalkState {
+export function createCommentState(config: Config): CommentWalkState {
+    const { options } = config;
     return {
-        ...options,
-        before: options.before ? template(options.before) : void 0,
-        after: options.after ? template(options.after) : void 0
+        enabled: options['comment.enabled'],
+        trigger: options['comment.trigger'],
+        before: options['comment.before'] ? template(options['comment.before']) : void 0,
+        after: options['comment.after'] ? template(options['comment.after']) : void 0
     };
 }
 

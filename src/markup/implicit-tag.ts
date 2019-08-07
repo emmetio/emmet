@@ -1,6 +1,7 @@
 import { AbbreviationNode } from '@emmetio/abbreviation';
-import { ResolvedConfig } from '../types';
 import { isNode, Container } from './utils';
+import { Config } from '../config';
+import { isInline } from '../output-stream';
 
 const elementMap: { [name: string]: string } = {
     p: 'span',
@@ -20,12 +21,12 @@ const elementMap: { [name: string]: string } = {
     map: 'area'
 };
 
-export default function implicitTag(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
+export default function implicitTag(node: AbbreviationNode, ancestors: Container[], config: Config) {
     if (!node.name && node.attributes) {
         const parent = getParentElement(ancestors);
         const parentName = (parent && parent.name || '').toLowerCase();
         node.name = elementMap[parentName]
-            || (config.profile.isInline(parentName) ? 'span' : 'div');
+            || (isInline(parentName, config) ? 'span' : 'div');
     }
 }
 

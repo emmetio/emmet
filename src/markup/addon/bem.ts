@@ -1,12 +1,6 @@
 import { AbbreviationNode, Value } from '@emmetio/abbreviation';
-import { BEMOptions, ResolvedConfig } from '../../types';
 import { Container } from '../utils';
-
-const defaultOptions: BEMOptions = {
-    enabled: false,
-    element: '__',
-    modifier: '_'
-};
+import { Config } from '../../config';
 
 interface BEMAbbreviationNode extends AbbreviationNode {
     _bem?: BEMData;
@@ -22,7 +16,7 @@ const reModifier = /^(_+)([a-z0-9]+[a-z0-9-_]*)/i;
 const blockCandidates1 = (className: string) => /^[a-z]\-/i.test(className);
 const blockCandidates2 = (className: string) => /^[a-z]/i.test(className);
 
-export default function bem(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
+export default function bem(node: AbbreviationNode, ancestors: Container[], config: Config) {
     expandClassNames(node);
     expandShortNotation(node, ancestors, config);
 
@@ -58,10 +52,10 @@ function expandClassNames(node: BEMAbbreviationNode) {
 /**
  * Expands short BEM notation, e.g. `-element` and `_modifier`
  */
-function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
+function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], config: Config) {
     const data = getBEMData(node);
     const classNames: Set<string> = new Set();
-    const options: BEMOptions = { ...defaultOptions, ...config.options.bem };
+    const { options } = config;
     const path = ancestors.slice(1).concat(node) as BEMAbbreviationNode[];
 
     for (let cl of data.classNames) {
@@ -71,7 +65,7 @@ function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], 
 
         // parse element definition (could be only one)
         if (m = cl.match(reElement)) {
-            prefix = getBlockName(path, m[1].length) + options.element + m[2];
+            prefix = getBlockName(path, m[1].length) + options['bem.element'] + m[2];
             classNames.add(prefix);
             cl = cl.slice(m[0].length);
         }
@@ -83,7 +77,7 @@ function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], 
                 classNames.add(prefix);
             }
 
-            classNames.add(`${prefix}${options.modifier}${m[2]}`);
+            classNames.add(`${prefix}${options['bem.modifier']}${m[2]}`);
             cl = cl.slice(m[0].length);
         }
 

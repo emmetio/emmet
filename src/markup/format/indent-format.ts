@@ -1,8 +1,8 @@
 import { AbbreviationNode, AbbreviationAttribute, Value, Abbreviation } from '@emmetio/abbreviation';
-import { pushString, pushNewline, push } from '../../output-stream';
+import { pushString, pushNewline, push, attrName, isBooleanAttribute, attrQuote } from '../../output-stream';
 import { pushTokens, caret, splitByLines, isSnippet } from './utils';
 import walk, { WalkState, createWalkState, WalkNext } from './walk';
-import { ResolvedConfig } from '../../types';
+import { Config } from '../../config';
 
 /**
  * @description Utility methods for working with indent-based markup languages
@@ -47,7 +47,7 @@ export interface FormatOptions {
     afterTextLine?: string;
 }
 
-export default function indentFormat(abbr: Abbreviation, config: ResolvedConfig, options?: Partial<FormatOptions>): string {
+export default function indentFormat(abbr: Abbreviation, config: Config, options?: Partial<FormatOptions>): string {
     const state = createWalkState(config) as IndentWalkState;
     state.options = options || {};
     walk(abbr, element, state);
@@ -135,21 +135,21 @@ export function pushPrimaryAttributes(attrs: AbbreviationAttribute[], state: Wal
  */
 export function pushSecondaryAttributes(attrs: AbbreviationAttribute[], state: IndentWalkState) {
     if (attrs.length) {
-        const { out, profile, options } = state;
+        const { out, config, options } = state;
 
         options.beforeAttribute && pushString(out, options.beforeAttribute);
 
         for (let i = 0; i < attrs.length; i++) {
             const attr = attrs[i];
-            pushString(out, profile.attribute(attr.name || ''));
-            if (profile.isBooleanAttribute(attr) && !attr.value) {
-                if (!profile.get('compactBoolean') && options.booleanValue) {
+            pushString(out, attrName(attr.name || '', config));
+            if (isBooleanAttribute(attr, config) && !attr.value) {
+                if (!config.options['output.compactBoolean'] && options.booleanValue) {
                     pushString(out, '=' + options.booleanValue);
                 }
             } else {
-                pushString(out, '=' + profile.quoteChar);
+                pushString(out, '=' + attrQuote(attr, config, true));
                 pushTokens(attr.value || caret, state);
-                pushString(out, profile.quoteChar);
+                pushString(out, attrQuote(attr, config));
             }
 
             if (i !== attrs.length - 1 && options.glueAttribute) {

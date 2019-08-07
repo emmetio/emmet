@@ -4,17 +4,18 @@ import haml from '../src/markup/format/haml';
 import pug from '../src/markup/format/pug';
 import slim from '../src/markup/format/slim';
 import parse from '../src/markup';
-import createConfig from '../src/config';
-import { OutputProfileOptions } from '../src/OutputProfile';
+import createConfig, { Options } from '../src/config';
 
 describe('Format', () => {
     const defaultConfig = createConfig();
-    const field = createConfig();
-    field.options.field = (index, placeholder) => placeholder ? `\${${index}:${placeholder}}` : `\${${index}}`;
+    const field = createConfig({
+        options: {
+            'output.field': (index, placeholder) => placeholder ? `\${${index}:${placeholder}}` : `\${${index}}`
+        }
+    });
 
-    function createProfile(profile: Partial<OutputProfileOptions>) {
-        const config = createConfig();
-        Object.assign(config.profile.options, profile);
+    function createProfile(options: Partial<Options>) {
+        const config = createConfig({ options });
         return config;
     }
 
@@ -31,10 +32,10 @@ describe('Format', () => {
         });
 
         it('inline elements', () => {
-            const profile = createProfile({ inlineBreak: 3 });
-            const breakInline = createProfile({ inlineBreak: 1 });
-            const keepInline = createProfile({ inlineBreak: 0 });
-            const xhtml = createProfile({ selfClosingStyle: 'xhtml' });
+            const profile = createProfile({ 'output.inlineBreak': 3 });
+            const breakInline = createProfile({ 'output.inlineBreak': 1 });
+            const keepInline = createProfile({ 'output.inlineBreak': 0 });
+            const xhtml = createProfile({ 'output.selfClosingStyle': 'xhtml' });
 
             equal(format('div>a>b*3', xhtml), '<div>\n\t<a href="">\n\t\t<b></b>\n\t\t<b></b>\n\t\t<b></b>\n\t</a>\n</div>');
 
@@ -96,9 +97,9 @@ describe('Format', () => {
         });
 
         it('self-closing', () => {
-            const xmlStyle = createProfile({ selfClosingStyle: 'xml' });
-            const htmlStyle = createProfile({ selfClosingStyle: 'html' });
-            const xhtmlStyle = createProfile({ selfClosingStyle: 'xhtml' });
+            const xmlStyle = createProfile({ 'output.selfClosingStyle': 'xml' });
+            const htmlStyle = createProfile({ 'output.selfClosingStyle': 'html' });
+            const xhtmlStyle = createProfile({ 'output.selfClosingStyle': 'xhtml' });
 
             equal(format('img[src]/', htmlStyle), '<img src="" alt="">');
             equal(format('img[src]/', xhtmlStyle), '<img src="" alt="" />');
@@ -107,8 +108,8 @@ describe('Format', () => {
         });
 
         it('boolean attributes', () => {
-            const compact = createProfile({ compactBoolean: true });
-            const noCompact = createProfile({ compactBoolean: false });
+            const compact = createProfile({ 'output.compactBoolean': true });
+            const noCompact = createProfile({ 'output.compactBoolean': false });
 
             equal(format('p[b.]', noCompact), '<p b="b"></p>');
             equal(format('p[b.]', compact), '<p b></p>');
@@ -118,7 +119,7 @@ describe('Format', () => {
         });
 
         it('no formatting', () => {
-            const profile = createProfile({ format: false });
+            const profile = createProfile({ 'output.format': false });
             equal(format('div>p', profile), '<div><p></p></div>');
             equal(format('div>{foo}+p+{bar}', profile), '<div>foo<p></p>bar</div>');
             equal(format('div>{foo}>p', profile), '<div>foo<p></p></div>');
@@ -127,20 +128,16 @@ describe('Format', () => {
 
         it('format specific nodes', () => {
             equal(format('{<!DOCTYPE html>}+html>(head>meta[charset=${charset}]/+title{${1:Document}})+body', field),
-                '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="charset">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
+                '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="UTF-8">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
         });
 
         it('comment', () => {
-            const opt = createConfig();
-            opt.options.comment = { enabled: true };
+            const opt = createConfig({ options: { 'comment.enabled': true } });
 
             equal(format('ul>li.item', opt), '<ul>\n\t<li class="item"></li>\n\t<!-- /.item -->\n</ul>');
             equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li>\n\t\t<!-- /#foo.item -->\n\t</ul>\n</div>');
 
-            opt.options.comment = {
-                enabled: true,
-                after: ' { [%ID] }'
-            };
+            opt.options['comment.after'] = ' { [%ID] }';
             equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li> { %foo }\n\t</ul>\n</div>');
         });
     });
@@ -155,10 +152,10 @@ describe('Format', () => {
             equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
                 '#foo.bar(data-n1="v1" title="test" data-n2="v2") ');
 
-            let profile = createProfile({ compactBoolean: true });
+            let profile = createProfile({ 'output.compactBoolean': true });
             equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled foo="" title="test")/');
 
-            profile = createProfile({ compactBoolean: false });
+            profile = createProfile({ 'output.compactBoolean': false });
             equal(format('input[disabled. foo title=test]/', profile), '%input(type="text" disabled=true foo="" title="test")/');
         });
 

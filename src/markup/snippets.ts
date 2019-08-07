@@ -1,6 +1,6 @@
 import parse, { AbbreviationNode } from '@emmetio/abbreviation';
-import { ResolvedConfig } from '../types';
 import { walk, findDeepest, isNode, Container } from './utils';
+import { Config } from '../config';
 
 /**
  * Finds matching snippet from `registry` and resolves it into a parsed abbreviation.
@@ -11,10 +11,10 @@ import { walk, findDeepest, isNode, Container } from './utils';
  * abbreviation with multiple elements. So we have to get snippet, parse it
  * and recursively resolve it.
  */
-export default function resolveSnippets(node: AbbreviationNode, ancestors: Container[], config: ResolvedConfig) {
+export default function resolveSnippets(node: AbbreviationNode, ancestors: Container[], config: Config) {
     const stack = new Set();
     const resolve = (child: AbbreviationNode) => {
-        const snippet = child.name && config.snippets.get(child.name);
+        const snippet = child.name && config.snippets[child.name];
         // A snippet in stack means circular reference.
         // It can be either a user error or a perfectly valid snippet like
         // "img": "img[src alt]/", e.g. an element with predefined shape.
@@ -23,12 +23,7 @@ export default function resolveSnippets(node: AbbreviationNode, ancestors: Conta
             return;
         }
 
-        // In case if matched snippet is a function, pass control into it
-        if (typeof snippet.value === 'function') {
-            return snippet.value(child, config, resolve);
-        }
-
-        const abbr = parse(snippet.value, config);
+        const abbr = parse(snippet, config);
         stack.add(snippet);
         walk(abbr, resolve, config);
         stack.delete(snippet);

@@ -1,16 +1,8 @@
-import { FormatOptions, Options } from './types';
-
-const formatOptions: FormatOptions = {
-    indent: '\t',
-    baseIndent: '',
-    newline: '\n',
-    field(index: number, placeholder: string) {
-        return placeholder;
-    }
-};
+import { AbbreviationAttribute, AbbreviationNode } from '@emmetio/abbreviation';
+import { Config, Options, StringCase } from './config';
 
 export interface OutputStream {
-    format: FormatOptions;
+    options: Options;
     value: string;
     level: number;
     offset: number;
@@ -19,9 +11,8 @@ export interface OutputStream {
 }
 
 export default function createOutputStream(options: Options, level = 0): OutputStream {
-    // TODO add unit tests
     return {
-        format: { ...formatOptions, ...options },
+        options,
         value: '',
         level,
         offset: 0,
@@ -59,7 +50,8 @@ export function pushString(stream: OutputStream, value: string) {
  * Pushes new line into given output stream
  */
 export function pushNewline(stream: OutputStream, indent?: boolean | number) {
-    const { baseIndent, newline } = stream.format;
+    const baseIndent = stream.options['output.baseIndent'];
+    const newline = stream.options['output.newline'];
     push(stream, newline + baseIndent);
     stream.line++;
     stream.column = baseIndent.length;
@@ -72,14 +64,73 @@ export function pushNewline(stream: OutputStream, indent?: boolean | number) {
  * Adds indentation of `size` to current output stream
  */
 export function pushIndent(stream: OutputStream, size = stream.level) {
-    pushString(stream, stream.format.indent.repeat(Math.max(size, 0)));
+    const indent = stream.options['output.indent'];
+    pushString(stream, indent.repeat(Math.max(size, 0)));
 }
 
 /**
  * Pushes field/tabstop into output stream
  */
 export function pushField(stream: OutputStream, index: number, placeholder: string) {
-    pushString(stream, stream.format.field(index, placeholder, stream.offset, stream.line, stream.column));
+    const field = stream.options['output.field'];
+    pushString(stream, field(index, placeholder, stream.offset, stream.line, stream.column));
+}
+
+/**
+ * Returns given tag name formatted according to given config
+ */
+export function tagName(name: string, config: Config) {
+    return strCase(name, config.options['output.tagCase']);
+}
+
+/**
+ * Returns given attribute name formatted according to given config
+ */
+export function attrName(name: string, config: Config) {
+    return strCase(name, config.options['output.attributeCase']);
+}
+
+/**
+ * Returns character for quoting value of given attribute
+ */
+export function attrQuote(attr: AbbreviationAttribute, config: Config, isOpen?: boolean): string {
+    if (attr.valueType === 'expression') {
+        return isOpen ? '{' : '}';
+    }
+
+    return config.options['output.attributeQuotes'] === 'single' ? '\'' : '"';
+}
+
+/**
+ * Check if given attribute is boolean
+ */
+export function isBooleanAttribute(attr: AbbreviationAttribute, config: Config): boolean {
+    return attr.boolean
+        || config.options['output.booleanAttributes'].includes((attr.name || '').toLowerCase());
+}
+
+/**
+ * Returns a token for self-closing tag, depending on current options
+ */
+export function selfClose(config: Config): string {
+    switch (config.options['output.selfClosingStyle']) {
+        case 'xhtml': return ' /';
+        case 'xml': return '/';
+        default: return '';
+    }
+}
+
+/**
+ * Check if given tag name belongs to inline-level element
+ * @param node Parsed node or tag name
+ */
+export function isInline(node: string | AbbreviationNode, config: Config): boolean {
+    if (typeof node === 'string') {
+        return config.options.inlineElements.includes(node.toLowerCase());
+    }
+
+    // inline node is a node either with inline-level name or text-only node
+    return node.name ? isInline(node.name, config) : Boolean(node.value && !node.attributes);
 }
 
 /**
@@ -87,4 +138,12 @@ export function pushField(stream: OutputStream, index: number, placeholder: stri
  */
 export function splitByLines(text: string): string[] {
     return text.split(/\r\n|\r|\n/g);
+}
+
+function strCase(str: string, type: StringCase) {
+    if (type) {
+        return type === 'upper' ? str.toUpperCase() : str.toLowerCase();
+    }
+
+    return str;
 }

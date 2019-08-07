@@ -1,7 +1,7 @@
 import { AbbreviationNode, Field, Value } from '@emmetio/abbreviation';
-import OutputProfile from '../../OutputProfile';
 import { WalkState } from './walk';
-import { pushString, pushField } from '../../output-stream';
+import { pushString, pushField, isInline } from '../../output-stream';
+import { Config } from '../../config';
 
 export const caret = [{ type: 'Field', index: 0, name: '' } as Field];
 
@@ -16,8 +16,8 @@ export function isSnippet(node: AbbreviationNode): boolean {
  * Check if given node is inline-level element, e.g. element with explicitly
  * defined node name
  */
-export function isInlineElement(node: AbbreviationNode | undefined, profile: OutputProfile): boolean {
-    return node ? profile.isInline(node) : false;
+export function isInlineElement(node: AbbreviationNode | undefined, config: Config): boolean {
+    return node ? isInline(node, config) : false;
 }
 
 /**

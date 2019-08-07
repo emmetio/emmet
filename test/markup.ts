@@ -3,9 +3,7 @@ import parse from '../src/markup';
 import resolveConfig from '../src/config';
 import stringify from './assets/stringify';
 
-const defaultConfig = resolveConfig({ type: 'markup' });
-// Reset snippets to keep raw snippet names
-defaultConfig.snippets.reset();
+const defaultConfig = resolveConfig();
 
 function expand(abbr: string, config = defaultConfig): string {
     return stringify(parse(abbr, config));
@@ -24,19 +22,13 @@ describe('Markup abbreviations', () => {
     });
 
     it('JSX', () => {
-        const config = { ...defaultConfig };
-        config.options = {
-            ...config.options,
-            jsx: { enabled: true }
-        };
-
+        const config = resolveConfig({ syntax: 'jsx' });
         equal(expand('div#foo.bar', config), '<div id="foo" className="bar"></div>');
         equal(expand('label[for=a]', config), '<label htmlFor="a"></label>');
     });
 
     it('XSL', () => {
-        const config = { ...defaultConfig };
-        config.syntax = 'xsl';
+        const config = resolveConfig({ syntax: 'xsl' });
         equal(expand('xsl:variable[select]', config), '<xsl:variable select=""></xsl:variable>');
         equal(expand('xsl:with-param[select]', config), '<xsl:with-param select=""></xsl:with-param>');
         equal(expand('xsl:variable[select]>div', config), '<xsl:variable><div></div></xsl:variable>');
@@ -44,11 +36,9 @@ describe('Markup abbreviations', () => {
     });
 
     describe('BEM transform', () => {
-        const config = { ...defaultConfig };
-        config.options = {
-            ...config.options,
-            bem: { enabled: true }
-        };
+        const config = resolveConfig({
+            options: { 'bem.enabled': true }
+        });
 
         it('modifiers', () => {
             equal(expand('div.b_m', config), '<div class="b b_m"></div>');
@@ -79,12 +69,13 @@ describe('Markup abbreviations', () => {
         });
 
         it('customize modifier', () => {
-            const localConfig = {
-                ...config, options: {
-                    ...config.options,
-                    bem: { enabled: true, element: '-', modifier: '__' }
+            const localConfig = resolveConfig({
+                options: {
+                    'bem.enabled': true,
+                    'bem.element': '-',
+                    'bem.modifier': '__'
                 }
-            };
+            });
             equal(expand('div.b_m', localConfig), '<div class="b b__m"></div>');
             equal(expand('div.b._m', localConfig), '<div class="b b__m"></div>');
         });
