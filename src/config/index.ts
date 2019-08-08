@@ -26,6 +26,7 @@ export default function resolveConfig(config: UserConfig = {}, globals: GlobalCo
 
     return {
         ...defaultConfig,
+        ...config,
         type,
         syntax,
         variables: mergedData(type, syntax, 'variables', config, globals),

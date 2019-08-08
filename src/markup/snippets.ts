@@ -11,9 +11,9 @@ import { Config } from '../config';
  * abbreviation with multiple elements. So we have to get snippet, parse it
  * and recursively resolve it.
  */
-export default function resolveSnippets(node: AbbreviationNode, ancestors: Container[], config: Config) {
-    const stack = new Set();
-    const resolve = (child: AbbreviationNode) => {
+export default function resolveSnippets(node: AbbreviationNode, parentAncestors: Container[], parentConfig: Config) {
+    const stack: Set<string> = new Set();
+    const resolve = (child: AbbreviationNode, ancestors: Container[], config: Config) => {
         const snippet = child.name && config.snippets[child.name];
         // A snippet in stack means circular reference.
         // It can be either a user error or a perfectly valid snippet like
@@ -32,23 +32,26 @@ export default function resolveSnippets(node: AbbreviationNode, ancestors: Conta
         const deepest = findDeepest(abbr);
         if (isNode(deepest.node)) {
             merge(deepest.node, child);
+            deepest.node.children = deepest.node.children.concat(child.children);
         }
 
-        const parent = ancestors[ancestors.length - 1];
-        if (parent) {
-            if (deepest.parent) {
-                const pos = deepest.parent.children.indexOf(deepest.node as AbbreviationNode);
-                deepest.parent.children[pos] = child;
+        // Add attributes from current node into every top-level node of parsed abbreviation
+        if (child.attributes) {
+            // TODO add option with attribute merge direction
+            for (const topNode of abbr.children) {
+                topNode.attributes = (topNode.attributes || []).concat(child.attributes);
             }
-
-            const ix = parent.children.indexOf(child);
-            parent.children = parent.children.slice(0, ix)
-                .concat(abbr.children)
-                .concat(parent.children.slice(ix + 1));
         }
+
+        // Replace original child with contents of parsed snippet
+        const parent = ancestors[ancestors.length - 1]!;
+        const ix = parent.children.indexOf(child);
+        parent.children = parent.children.slice(0, ix)
+            .concat(abbr.children)
+            .concat(parent.children.slice(ix + 1));
     };
 
-    resolve(node);
+    resolve(node, parentAncestors, parentConfig);
 }
 
 /**
@@ -67,10 +70,5 @@ function merge(from: AbbreviationNode, to: AbbreviationNode) {
 
     if (from.repeat) {
         to.repeat = from.repeat;
-    }
-
-    if (from.attributes) {
-        // TODO add config option to specify attribute merge direction
-        to.attributes = from.attributes.concat(to.attributes || []);
     }
 }

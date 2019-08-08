@@ -26,6 +26,11 @@ export default function parse(abbr: string | Abbreviation, config: Config): Abbr
         abbr = abbreviation(abbr, config);
     }
 
+    // Run abbreviation resolve in two passes:
+    // 1. Map each node to snippets, which are abbreviations as well. A single snippet
+    // may produce multiple nodes
+    // 2. Transform every resolved node
+    walk(abbr, snippets, config);
     walk(abbr, transform, config);
     return abbr;
 }
@@ -42,7 +47,6 @@ export function stringify(abbr: Abbreviation, config: Config): string {
  * Modifies given node and prepares it for output
  */
 function transform(node: AbbreviationNode, ancestors: Container[], config: Config) {
-    snippets(node, ancestors, config);
     implicitTag(node, ancestors, config);
     attributes(node);
     lorem(node, ancestors, config);
