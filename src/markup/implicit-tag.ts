@@ -23,11 +23,19 @@ const elementMap: { [name: string]: string } = {
 
 export default function implicitTag(node: AbbreviationNode, ancestors: Container[], config: Config) {
     if (!node.name && node.attributes) {
-        const parent = getParentElement(ancestors);
-        const parentName = (parent && parent.name || '').toLowerCase();
-        node.name = elementMap[parentName]
-            || (isInline(parentName, config) ? 'span' : 'div');
+        resolveImplicitTag(node, ancestors, config);
     }
+}
+
+export function resolveImplicitTag(node: AbbreviationNode, ancestors: Container[], config: Config) {
+    const parent = getParentElement(ancestors);
+    const parentName = lowercase(parent ? parent.name : config.parentTag);
+    node.name = elementMap[parentName]
+        || (isInline(parentName, config) ? 'span' : 'div');
+}
+
+function lowercase(str?: string): string {
+    return (str || '').toLowerCase();
 }
 
 /**

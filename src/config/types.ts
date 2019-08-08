@@ -10,7 +10,7 @@ export interface SnippetsMap {
  * reserved for global settings for all markup and stylesheet syntaxes
  */
 export interface GlobalConfig {
-    [syntax: string]: RawConfig;
+    [syntax: string]: Partial<BaseConfig>;
 }
 
 export interface BaseConfig {
@@ -27,18 +27,19 @@ export interface BaseConfig {
     snippets: SnippetsMap;
 }
 
-export interface Config extends BaseConfig {
+interface ResolvedConfig extends BaseConfig {
     /** Host syntax */
     syntax: string;
 
-    /** Options for abbreviation output */
-    options: Options;
+    /** Name parent tag in current document where abbreviation is expanded */
+    parentTag?: string;
 
     /** Text to wrap with abbreviation */
     text?: string | string[];
 }
 
-export type RawConfig = Partial<BaseConfig>;
+export type Config = ResolvedConfig & { options: Options };
+export type UserConfig = Partial<ResolvedConfig>;
 
 export interface Options {
     /////////////////////

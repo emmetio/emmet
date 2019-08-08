@@ -1,14 +1,8 @@
-import { SyntaxType, Config, GlobalConfig, BaseConfig } from './types';
+import { SyntaxType, Config, GlobalConfig, BaseConfig, UserConfig } from './types';
 import { defaultConfig, syntaxConfig } from './defaults';
 
 export * from './types';
 export * from './defaults';
-
-export type UserConfig = Partial<BaseConfig> & {
-    syntax?: string,
-    type?: SyntaxType,
-    text?: string | string[]
-};
 
 /**
  * Default syntaxes for abbreviation types
