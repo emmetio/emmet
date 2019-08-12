@@ -1,4 +1,4 @@
-export type AllTokens = Bracket | Literal | Operator | WhiteSpace | ColorValue | NumberValue | StringValue;
+export type AllTokens = Bracket | Literal | Operator | WhiteSpace | ColorValue | NumberValue | StringValue | Field;
 
 export const enum OperatorType {
     Sibling = '+',
@@ -56,4 +56,10 @@ export interface StringValue extends Token {
 
 export interface WhiteSpace extends Token {
     type: 'WhiteSpace';
+}
+
+export interface Field extends Token {
+    type: 'Field';
+    index?: number;
+    name: string;
 }

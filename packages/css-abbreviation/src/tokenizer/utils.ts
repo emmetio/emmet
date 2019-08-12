@@ -35,6 +35,12 @@ export const enum Chars {
     /** `)` character */
     RoundBracketClose = 41,
 
+    /** `{` character */
+    CurlyBracketOpen = 123,
+
+    /** `}` character */
+    CurlyBracketClose = 125,
+
     /** `+` character */
     Sibling = 43,
 

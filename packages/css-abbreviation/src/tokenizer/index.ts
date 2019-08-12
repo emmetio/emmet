@@ -1,5 +1,5 @@
 import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace } from '@emmetio/scanner';
-import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue } from './tokens';
+import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field } from './tokens';
 import { Chars } from './utils';
 
 export * from './tokens';
@@ -11,7 +11,8 @@ export default function tokenize(abbr: string): AllTokens[] {
     const tokens: AllTokens[] = [];
 
     while (!scanner.eof()) {
-        token = literal(scanner, true)
+        token = field(scanner)
+            || literal(scanner, true)
             || numberValue(scanner)
             || colorValue(scanner)
             || stringValue(scanner)
@@ -41,6 +42,69 @@ export default function tokenize(abbr: string): AllTokens[] {
     }
 
     return tokens;
+}
+
+function field(scanner: Scanner): Field | undefined {
+    const start = scanner.pos;
+    if (scanner.eat(Chars.Dollar) && scanner.eat(Chars.CurlyBracketOpen)) {
+        scanner.start = scanner.pos;
+
+        let index: number | undefined;
+        let name: string = '';
+
+        if (scanner.eatWhile(isNumber)) {
+            // It’s a field
+            index = Number(scanner.current());
+            name = scanner.eat(Chars.Colon) ? consumePlaceholder(scanner) : '';
+        } else if (isAlpha(scanner.peek())) {
+            // It’s a variable
+            name = consumePlaceholder(scanner);
+        }
+
+        if (scanner.eat(Chars.CurlyBracketClose)) {
+            return {
+                type: 'Field',
+                index, name,
+                start,
+                end: scanner.pos
+            };
+        }
+
+        throw scanner.error('Expecting }');
+    }
+
+    // If we reached here then there’s no valid field here, revert
+    // back to starting position
+    scanner.pos = start;
+}
+
+/**
+ * Consumes a placeholder: value right after `:` in field. Could be empty
+ */
+function consumePlaceholder(stream: Scanner): string {
+    const stack: number[] = [];
+    stream.start = stream.pos;
+
+    while (!stream.eof()) {
+        if (stream.eat(Chars.CurlyBracketOpen)) {
+            stack.push(stream.pos);
+        } else if (stream.eat(Chars.CurlyBracketClose)) {
+            if (!stack.length) {
+                stream.pos--;
+                break;
+            }
+            stack.pop();
+        } else {
+            stream.pos++;
+        }
+    }
+
+    if (stack.length) {
+        stream.pos = stack.pop()!;
+        throw stream.error(`Expecting }`);
+    }
+
+    return stream.current();
 }
 
 /**

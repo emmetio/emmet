@@ -29,7 +29,7 @@ export default function implicitTag(node: AbbreviationNode, ancestors: Container
 
 export function resolveImplicitTag(node: AbbreviationNode, ancestors: Container[], config: Config) {
     const parent = getParentElement(ancestors);
-    const parentName = lowercase(parent ? parent.name : config.parentTag);
+    const parentName = lowercase(parent ? parent.name : config.context);
     node.name = elementMap[parentName]
         || (isInline(parentName, config) ? 'span' : 'div');
 }

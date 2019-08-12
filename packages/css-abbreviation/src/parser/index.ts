@@ -1,7 +1,7 @@
-import { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, OperatorType } from '../tokenizer/tokens';
+import { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, OperatorType, Field } from '../tokenizer/tokens';
 import tokenScanner, { TokenScanner, readable, peek, consume, error } from './TokenScanner';
 
-export type Value = StringValue | NumberValue | ColorValue | Literal | FunctionCall;
+export type Value = StringValue | NumberValue | ColorValue | Literal | FunctionCall | Field;
 
 export interface FunctionCall {
     type: 'FunctionCall';
@@ -57,6 +57,9 @@ function consumeProperty(scanner: TokenScanner, options: ParseOptions): CSSPrope
         // Consume any following value delimiter after property name
         consume(scanner, isValueDelimiter);
     }
+
+    // Skip whitespace right after property name, if any
+    consume(scanner, isWhiteSpace);
 
     while (readable(scanner)) {
         if (consume(scanner, isImportant)) {
@@ -170,7 +173,8 @@ function isValue(token: AllTokens): token is StringValue | NumberValue | ColorVa
     return token.type === 'StringValue'
         || token.type === 'ColorValue'
         || token.type === 'NumberValue'
-        || token.type === 'Literal';
+        || token.type === 'Literal'
+        || token.type === 'Field';
 }
 
 function isValueDelimiter(token: AllTokens): boolean {

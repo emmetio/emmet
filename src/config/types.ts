@@ -31,8 +31,12 @@ interface ResolvedConfig extends BaseConfig {
     /** Host syntax */
     syntax: string;
 
-    /** Name parent tag in current document where abbreviation is expanded */
-    parentTag?: string;
+    /**
+     * Context of abbreviation. For markup abbreviation, it’s a parent tag name,
+     * for stylesheet abbreviation, it’s a property name if abbreviation is expanded
+     * as value
+     */
+    context?: string;
 
     /** Text to wrap with abbreviation */
     text?: string | string[];
@@ -165,6 +169,15 @@ export interface Options {
     ////////////////////////
     // Stylesheet options //
     ////////////////////////
+
+    /** List of globally available keywords for properties */
+    'stylesheet.keywords': string[];
+
+    /**
+     * List of unitless properties, e.g. properties where numeric values without
+     * explicit unit will be outputted as is, without default value
+     */
+    'stylesheet.unitless': string[];
 
     /** Use short hex notation where possible, e.g. `#000` instead of `#000000` */
     'stylesheet.shortHex': boolean;
