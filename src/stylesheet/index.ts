@@ -3,7 +3,7 @@ import { Config, SnippetsMap } from '../config';
 import createSnippet, { CSSSnippet, nest, getKeywords, CSSSnippetType, CSSSnippetRaw, CSSSnippetProperty, CSSKeywordRef } from './snippets';
 import calculateScore from './score';
 
-type MatchInput = CSSSnippet | CSSKeywordRef;
+type MatchInput = CSSSnippet | CSSKeywordRef | string;
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -14,14 +14,14 @@ export default function parse(abbr: string | CSSAbbreviation, config: Config, sn
         abbr = abbreviation(abbr);
     }
 
-    // Run abbreviation resolve in two passes:
-    // 1. Map each node to snippets, which are abbreviations as well. A single snippet
-    // may produce multiple nodes
-    // 2. Transform every resolved node
-    // walk(abbr, snippets, config);
-    // walk(abbr, transform, config);
+    for (const node of abbr) {
+        resolveNode(node, snippets, config);
+    }
+
     return abbr;
 }
+
+export { default as stringify } from './format';
 
 /**
  * Converts given raw snippets into internal snippets representation
@@ -40,22 +40,25 @@ export function convertSnippets(snippets: SnippetsMap): CSSSnippet[] {
  * keyword aliases from node value
  */
 function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty {
-    // TODO implement
-    // if (config.context) {
-    //     // Resolve as value of given CSS property
-    //     return resolveAsPropertyValue(node, snippets.find(s => s.property === config.context), config);
-    // }
+    if (config.context) {
+        // Resolve as value of given CSS property
+        const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
+        resolveAsPropertyValue(node, config, snippet);
+    } else {
+        const snippet = findBestMatch(node.name!, snippets, config.options['stylesheet.fuzzySearchMinScore']);
 
-    const snippet = findBestMatch(node.name!, snippets, config.options['stylesheet.fuzzySearchMinScore']);
-
-    if (!snippet) {
-        // Edge case: `!important` snippet
-        return node.important ? setNodeAsText(node, '!important') : node;
+        if (snippet) {
+            if (snippet.type === CSSSnippetType.Property) {
+                resolveAsProperty(node, snippet, config);
+            } else {
+                resolveAsSnippet(node, snippet);
+            }
+        }
     }
 
-    return snippet.type === CSSSnippetType.Property
-        ? resolveAsProperty(node, snippet, config)
-        : resolveAsSnippet(node, snippet);
+    resolveNumericValue(node, config);
+
+    return node;
 }
 
 /**
@@ -65,36 +68,21 @@ function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, confi
     const abbr = node.name!;
     node.name = snippet.property;
 
-    // Resolve keyword shortcuts
-    const keywords = getKeywords(snippet);
-
     if (!node.value.length) {
-        // No value defined, try to resolve unmatched part as a keyword alias
-        const kw = findBestMatch(getUnmatchedPart(abbr, snippet.key), keywords);
-        if (kw) {
-            node.value = snippet.value[kw.index]!;
-        } else if (snippet.value.length) {
+        // No value defined in abbreviation node, try to resolve unmatched part
+        // as a keyword alias
+        if (!resolveSnippetKeyword(node, getUnmatchedPart(abbr, snippet.key), snippet) && snippet.value.length) {
             const defaultValue = snippet.value[0]!;
             node.value = defaultValue.some(hasField)
                 ? defaultValue
                 : defaultValue.map(n => wrapWithField(n));
         }
     } else {
-        // replace keyword aliases in current node value
-        for (let i = 0, token; i < node.value.value.length; i++) {
-            token = node.value.value[i];
-
-            if (token === '!') {
-                token = `${!i ? '${1} ' : ''}!important`;
-            } else if (isKeyword(token)) {
-                token = findBestMatch(token.value, keywords)
-                    || findBestMatch(token.value, globalKeywords)
-                    || token;
-            } else if (isNumericValue(token)) {
-                token = resolveNumericValue(node.name, token, formatOptions);
-            }
-
-            node.value.value[i] = token;
+        // Replace keyword alias from current abbreviation node with matched keyword
+        const kw = getSingleKeyword(node);
+        if (kw) {
+            resolveSnippetKeyword(node, kw.value, snippet)
+                || resolveGlobalKeyword(node, kw.value, config);
         }
     }
 
@@ -112,30 +100,13 @@ function resolveAsSnippet(node: CSSProperty, snippet: CSSSnippetRaw): CSSPropert
  * Resolves given parsed abbreviation node as property value of given `snippet`:
  * tries to find best matching keyword from CSS snippet
  */
-function resolveAsPropertyValue(node: CSSProperty, snippet: CSSSnippet, config: Config): CSSProperty {
-    // Possible resolved result for CSS property:
-    // * matched snippet keyword
-    // * color (starts with #)
-    // Everything else should result the same as input abbreviation
-    let keywords = config.options['stylesheet.keywords'].slice();
-    if (snippet) {
-        keywords = keywords.concat(getKeywords(snippet));
+function resolveAsPropertyValue(node: CSSProperty, config: Config, snippet?: CSSSnippetProperty): CSSProperty {
+    const kw = getSingleKeyword(node);
+    if (kw) {
+        const score = config.options['stylesheet.fuzzySearchMinScore'];
+        snippet && resolveSnippetKeyword(node, kw.value, snippet, score)
+            || resolveGlobalKeyword(node, kw.value, config, score);
     }
-
-    const values = [node.name].concat(node.value.value)
-        .filter(Boolean)
-        .map(value => {
-            if (typeof value === 'string' || value.type === 'keyword') {
-                value = String(value);
-                return findBestMatch(value, keywords, null, config.fuzzySearchMinScore) || value;
-            }
-
-            return value;
-        });
-
-    node.name = null;
-    node.value.value = values;
-
     return node;
 }
 
@@ -176,6 +147,9 @@ export function findBestMatch<T extends MatchInput>(abbr: string, items: T[], mi
 }
 
 function getScoringPart(item: MatchInput): string {
+    if (typeof item === 'string') {
+        return item;
+    }
     return (item as CSSKeywordRef).keyword || (item as CSSSnippet).key;
 }
 
@@ -196,45 +170,66 @@ function getUnmatchedPart(abbr: string, str: string): string {
     return '';
 }
 
-/**
- * Check if given CSS value token is a keyword
- * @param {*} token
- * @return {Boolean}
- */
-function isKeyword(token) {
-    return tokenTypeOf(token, 'keyword');
-}
+function resolveSnippetKeyword(node: CSSProperty, kw: string, snippet: CSSSnippetProperty, minScore?: number): boolean {
+    const keywords = getKeywords(snippet);
+    const ref = findBestMatch(kw, keywords, minScore);
 
-/**
- * Check if given CSS value token is a numeric value
- * @param  {*}  token
- * @return {Boolean}
- */
-function isNumericValue(token) {
-    return tokenTypeOf(token, 'numeric');
-}
-
-function tokenTypeOf(token, type) {
-    return token && typeof token === 'object' && token.type === type;
-}
-
-/**
- * Resolves numeric value for given CSS property
- * @param  {String} property    CSS property name
- * @param  {NumericValue} token CSS numeric value token
- * @param  {Object} formatOptions Formatting options for units
- * @return {NumericValue}
- */
-function resolveNumericValue(property, token, formatOptions) {
-    if (token.unit) {
-        token.unit = formatOptions.unitAliases[token.unit] || token.unit;
-    } else if (token.value !== 0 && unitlessProperties.indexOf(property) === -1) {
-        // use `px` for integers, `em` for floats
-        // NB: num|0 is a quick alternative to Math.round(0)
-        token.unit = token.value === (token.value | 0) ? formatOptions.intUnit : formatOptions.floatUnit;
+    if (ref) {
+        node.value = snippet.value[ref.index]!;
+        return true;
     }
 
-    return token;
+    return false;
+}
+
+/**
+ * Tries to resolve node’s value with matched global keyword from given `kw` alias
+ * @returns `true` if value was successfully resolved
+ */
+function resolveGlobalKeyword(node: CSSProperty, kw: string, config: Config, minScore?: number): boolean {
+    const ref = findBestMatch(kw, config.options['stylesheet.keywords'], minScore);
+    if (ref) {
+        node.value = [literalValue(ref)];
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Resolves numeric values in given abbreviation node
+ */
+function resolveNumericValue(node: CSSProperty, config: Config) {
+    const aliases = config.options['stylesheet.unitAliases'];
+    const unitless = config.options['stylesheet.unitless'];
+
+    for (const v of node.value) {
+        for (const t of v.value) {
+            if (t.type === 'NumberValue') {
+                if (t.unit) {
+                    t.unit = aliases[t.unit] || t.unit;
+                } else if (t.value !== 0 && !unitless.includes(node.name!)) {
+                    // use `px` for integers, `em` for floats
+                    // NB: num|0 is a quick alternative to Math.round(0)
+                    t.unit = t.value === (t.value | 0)
+                        ? config.options['stylesheet.intUnit']
+                        : config.options['stylesheet.floatUnit'];
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Returns literal token if it’s a single value of given abbreviation node
+ */
+function getSingleKeyword(node: CSSProperty): Literal | void {
+    if (node.value.length === 1) {
+        const value = node.value[0]!;
+        if (value.value.length === 1 && value.value[0].type === 'Literal') {
+            return value.value[0] as Literal;
+        }
+    }
 }
 
 /**
