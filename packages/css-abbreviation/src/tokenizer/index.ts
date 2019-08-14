@@ -4,7 +4,7 @@ import { Chars } from './utils';
 
 export * from './tokens';
 
-export default function tokenize(abbr: string): AllTokens[] {
+export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
     let brackets = 0;
     let token: AllTokens | undefined;
     const scanner = new Scanner(abbr);
@@ -12,13 +12,13 @@ export default function tokenize(abbr: string): AllTokens[] {
 
     while (!scanner.eof()) {
         token = field(scanner)
-            || literal(scanner, true)
+            || literal(scanner, brackets === 0 && !isValue)
             || numberValue(scanner)
             || colorValue(scanner)
             || stringValue(scanner)
             || bracket(scanner)
             || operator(scanner)
-            || (brackets && whiteSpace(scanner))
+            || whiteSpace(scanner)
             || void 0;
 
         if (!token) {
@@ -26,6 +26,10 @@ export default function tokenize(abbr: string): AllTokens[] {
         }
 
         if (token.type === 'Bracket') {
+            if (!brackets && token.open) {
+                mergeTokens(scanner, tokens);
+            }
+
             brackets += token.open ? 1 : -1;
             if (brackets < 0) {
                 throw scanner.error('Unexpected bracket', token.start);
@@ -120,19 +124,23 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
     if (scanner.eat(isIdentPrefix)) {
         // SCSS or LESS variable
         scanner.eatWhile(isKeyword);
-    } else {
+    } else if (scanner.eat(isAlphaWord)) {
         scanner.eatWhile(short ? isAlphaWord : isKeyword);
     }
 
     if (start !== scanner.pos) {
         scanner.start = start;
-        return {
-            type: 'Literal',
-            value: scanner.current(),
-            start,
-            end: scanner.pos
-        };
+        return createLiteral(scanner, scanner.start = start);
     }
+}
+
+function createLiteral(scanner: Scanner, start = scanner.start, end = scanner.pos): Literal {
+    return {
+        type: 'Literal',
+        value: scanner.substring(start, end),
+        start,
+        end
+    };
 }
 
 /**
@@ -375,4 +383,38 @@ function parseColor(value: string, alpha?: string): { r: number, g: number, b: n
  */
 function shouldConsumeDashAfter(token: AllTokens): boolean {
     return token.type === 'ColorValue' || (token.type === 'NumberValue' && !token.unit);
+}
+
+/**
+ * Merges last adjacent tokens into a single literal.
+ * This function is used to overcome edge case when function name was parsed
+ * as a list of separate tokens. For example, a `scale3d()` value will be
+ * parsed as literal and number tokens (`scale` and `3d`) which is a perfectly
+ * valid abbreviation but undesired result. This function will detect last adjacent
+ * literal and number values and combine them into single literal
+ */
+function mergeTokens(scanner: Scanner, tokens: AllTokens[]) {
+    let start = 0;
+    let end = 0;
+
+    while (tokens.length) {
+        const token = last(tokens)!;
+        if (token.type === 'Literal' || token.type === 'NumberValue') {
+            start = token.start!;
+            if (!end) {
+                end = token.end!;
+            }
+            tokens.pop();
+        } else {
+            break;
+        }
+    }
+
+    if (start !== end) {
+        tokens.push(createLiteral(scanner, start, end));
+    }
+}
+
+function last<T>(arr: T[]): T | undefined {
+    return arr[arr.length - 1];
 }

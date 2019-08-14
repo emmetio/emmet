@@ -1,9 +1,9 @@
-import { equal } from 'assert';
-import parser from '../src/parser';
+import { strictEqual as equal } from 'assert';
+import parser, { ParseOptions, FunctionCall } from '../src/parser';
 import tokenizer from '../src/tokenizer';
 import stringify from './assets/stringify';
 
-const parse = (abbr: string) => parser(tokenizer(abbr));
+const parse = (abbr: string, opt?: ParseOptions) => parser(tokenizer(abbr), opt);
 const expand = (abbr: string) => parse(abbr).map(stringify).join('');
 
 describe('CSS Abbreviation parser', () => {
@@ -55,5 +55,22 @@ describe('CSS Abbreviation parser', () => {
         equal(expand('foo$bar'), 'foo: $bar;');
         equal(expand('foo$bar-2'), 'foo: $bar-2;');
         equal(expand('foo$bar@bam'), 'foo: $bar @bam;');
+    });
+
+    it('parse value', () => {
+        const opt: ParseOptions = { value: true };
+        let prop = parse('${1:foo} ${2:bar}, baz', opt)[0];
+        equal(prop.name, undefined);
+        equal(prop.value.length, 2);
+        equal(prop.value[0].value.length, 2);
+        equal(prop.value[0].value[0].type, 'Field');
+
+        prop = parse('scale3d(${1:x}, ${2:y}, ${3:z})', opt)[0];
+        const fn = prop.value[0].value[0] as FunctionCall;
+        equal(prop.value.length, 1);
+        equal(prop.value[0].value.length, 1);
+        equal(fn.type, 'FunctionCall');
+        equal(fn.name, 'scale3d');
+
     });
 });

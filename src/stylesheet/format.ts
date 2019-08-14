@@ -1,6 +1,7 @@
-import { CSSAbbreviation, CSSProperty, Value, CSSValue, ColorValue } from '@emmetio/css-abbreviation';
+import { CSSAbbreviation, CSSProperty, Value, CSSValue } from '@emmetio/css-abbreviation';
 import createOutputStream, { OutputStream, push, pushString, pushField } from '../output-stream';
 import { Config } from '../config';
+import color, { frac } from './color';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);
@@ -18,7 +19,11 @@ function property(node: CSSProperty, out: OutputStream, config: Config) {
     if (node.name) {
         // It’s a CSS property
         pushString(out, node.name + config.options['stylesheet.between']);
-        propertyValue(node, out, config);
+        if (node.value.length) {
+            propertyValue(node, out, config);
+        } else {
+            pushField(out, 0, '');
+        }
         push(out, config.options['stylesheet.after']);
     } else {
         // It’s a regular snippet
@@ -29,27 +34,26 @@ function property(node: CSSProperty, out: OutputStream, config: Config) {
 function propertyValue(node: CSSProperty, out: OutputStream, config: Config) {
     for (let i = 0; i < node.value.length; i++) {
         if (i !== 0) {
-            push(out, ' ');
+            push(out, ', ');
         }
         outputValue(node.value[i], out, config);
     }
 }
 
 function outputValue(value: CSSValue, out: OutputStream, config: Config) {
-    for (const t of value.value) {
-        outputToken(t, out, config);
+    for (let i = 0; i < value.value.length; i++) {
+        const token = value.value[i];
+        if (i !== 0) {
+            push(out, ' ');
+        }
+
+        outputToken(token, out, config);
     }
 }
 
 function outputToken(token: Value, out: OutputStream, config: Config) {
     if (token.type === 'ColorValue') {
-        if (!token.r && !token.g && !token.b && !token.a) {
-            push(out, 'transparent');
-        } else if (token.a === 1) {
-            push(out, asHex(token, config.options['stylesheet.shortHex']));
-        } else {
-            push(out, asRGB(token));
-        }
+        push(out, color(token, config.options['stylesheet.shortHex']));
     } else if (token.type === 'Literal') {
         pushString(out, token.value);
     } else if (token.type === 'NumberValue') {
@@ -69,50 +73,4 @@ function outputToken(token: Value, out: OutputStream, config: Config) {
         }
         push(out, ')');
     }
-}
-
-/**
- * Output given color as hex value
- * @param short Produce short value (e.g. #fff instead of #ffffff), if possible
- */
-function asHex(color: ColorValue, short?: boolean): string {
-    const fn = (short && isShortHex(color.r) && isShortHex(color.g) && isShortHex(color.b))
-        ? toShortHex : toHex;
-
-    return '#' + fn(color.r) + fn(color.g) + fn(color.b);
-}
-
-/**
- * Output current color as `rgba?(...)` CSS color
- */
-function asRGB(color: ColorValue): string {
-    const values: Array<string | number> = [color.r, color.g, color.b];
-    if (color.a !== 1) {
-        values.push(frac(color.a, 8));
-    }
-
-    return `${values.length === 3 ? 'rgb' : 'rgba'}(${values.join(', ')})`;
-}
-
-function isShortHex(hex: number): boolean {
-    return !(hex % 17);
-}
-
-function toShortHex(num: number): string {
-    return (num >> 4).toString(16);
-}
-
-function toHex(num: number): string {
-    return pad(num.toString(16), 2);
-}
-
-function pad(value: string, len: number): string {
-    while (value.length < len) {
-        value = '0' + value;
-    }
-    return value;
-}
-
-function frac(num: number, digits = 4): string {
-    return num.toFixed(digits).replace(/\.?0+$/, '');
 }

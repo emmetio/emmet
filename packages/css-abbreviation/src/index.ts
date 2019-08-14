@@ -1,3 +1,4 @@
+import { ScannerError } from '@emmetio/scanner';
 import tokenize, { AllTokens } from './tokenizer';
 import parser, { CSSProperty, ParseOptions } from './parser';
 
@@ -10,9 +11,14 @@ export type CSSAbbreviation = CSSProperty[];
  * Parses given abbreviation into property set
  */
 export default function parse(abbr: string | AllTokens[], options?: ParseOptions): CSSAbbreviation {
-    if (typeof abbr === 'string') {
-        abbr = tokenize(abbr);
-    }
+    try {
+        const tokens = typeof abbr === 'string' ? tokenize(abbr, options && options.value) : abbr;
+        return parser(tokens, options);
+    } catch (err) {
+        if (err instanceof ScannerError && typeof abbr === 'string') {
+            err.message += `\n${abbr}\n${'-'.repeat(err.pos)}^`;
+        }
 
-    return parser(abbr, options);
+        throw err;
+    }
 }

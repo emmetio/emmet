@@ -1,6 +1,10 @@
-import parse, { CSSValue, ParseOptions } from '@emmetio/css-abbreviation';
+import parse, { CSSValue, ParseOptions, FunctionCall, Literal } from '@emmetio/css-abbreviation';
 
 export type CSSSnippet = CSSSnippetRaw | CSSSnippetProperty;
+
+interface KeywordMap {
+    [name: string]: FunctionCall | Literal;
+}
 
 export const enum CSSSnippetType {
     Raw = 'Raw',
@@ -21,6 +25,7 @@ export interface CSSSnippetProperty extends CSSSnippetBase {
     type: CSSSnippetType.Property;
     property: string;
     value: CSSValue[][];
+    keywords: KeywordMap;
     dependencies: CSSSnippetProperty[];
 }
 
@@ -43,11 +48,21 @@ export default function createSnippet(key: string, value: string): CSSSnippet {
     // In latter case, we have to parse snippet as CSS abbreviation
     const m = value.match(reProperty);
     if (m) {
+        const keywords: KeywordMap = {};
+        const parsed: CSSValue[][] = m[2] ? m[2].split('|').map(parseValue) : [];
+
+        for (const item of parsed) {
+            for (const cssVal of item) {
+                collectKeywords(cssVal, keywords);
+            }
+        }
+
         return {
             type: CSSSnippetType.Property,
             key,
             property: m[1],
-            value: m[2].split('|').map(parseValue),
+            value: parsed,
+            keywords,
             dependencies: []
         };
     }
@@ -165,4 +180,14 @@ function parseValue(value: string): CSSValue[] {
 
 function isProperty(snippet: CSSSnippet): snippet is CSSSnippetProperty {
     return snippet.type === CSSSnippetType.Property;
+}
+
+function collectKeywords(cssVal: CSSValue, dest: KeywordMap) {
+    for (const v of cssVal.value) {
+        if (v.type === 'Literal') {
+            dest[v.value] = v;
+        } else if (v.type === 'FunctionCall') {
+            dest[v.name] = v;
+        }
+    }
 }
