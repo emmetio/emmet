@@ -1,12 +1,16 @@
 import { CSSAbbreviation, CSSProperty, Value, CSSValue } from '@emmetio/css-abbreviation';
-import createOutputStream, { OutputStream, push, pushString, pushField } from '../output-stream';
+import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream';
 import { Config } from '../config';
 import color, { frac } from './color';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);
-    for (const node of abbr) {
-        property(node, out, config);
+
+    for (let i = 0; i < abbr.length; i++) {
+        if (i !== 0) {
+            pushNewline(out, true);
+        }
+        property(abbr[i], out, config);
     }
 
     return out.value;
@@ -24,10 +28,12 @@ function property(node: CSSProperty, out: OutputStream, config: Config) {
         } else {
             pushField(out, 0, '');
         }
+        outputImportant(node, out, true);
         push(out, config.options['stylesheet.after']);
     } else {
         // It’s a regular snippet
         propertyValue(node, out, config);
+        outputImportant(node, out, node.value.length > 0);
     }
 }
 
@@ -37,6 +43,15 @@ function propertyValue(node: CSSProperty, out: OutputStream, config: Config) {
             push(out, ', ');
         }
         outputValue(node.value[i], out, config);
+    }
+}
+
+function outputImportant(node: CSSProperty, out: OutputStream, separator?: boolean) {
+    if (node.important) {
+        if (separator) {
+            push(out, ' ');
+        }
+        push(out, '!important');
     }
 }
 

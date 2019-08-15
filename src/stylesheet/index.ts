@@ -1,10 +1,10 @@
 import abbreviation, { CSSAbbreviation, CSSProperty, CSSValue, Literal, Value, Field, FunctionCall } from '@emmetio/css-abbreviation';
 import { Config, SnippetsMap } from '../config';
-import createSnippet, { CSSSnippet, nest, CSSSnippetType, CSSSnippetRaw, CSSSnippetProperty, CSSKeywordRef } from './snippets';
+import createSnippet, { CSSSnippet, nest, CSSSnippetType, CSSSnippetRaw, CSSSnippetProperty } from './snippets';
 import calculateScore from './score';
 import color from './color';
 
-type MatchInput = CSSSnippet | CSSKeywordRef | string;
+type MatchInput = CSSSnippet | string;
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -45,10 +45,9 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
         // Resolve as value of given CSS property
         const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
         const score = config.options['stylesheet.fuzzySearchMinScore'];
-        // resolveAsPropertyValue(node, config, snippet);
         resolveValueKeywords(node, config, snippet, score);
-    } else {
-        const snippet = findBestMatch(node.name!, snippets, config.options['stylesheet.fuzzySearchMinScore']);
+    } else if (node.name) {
+        const snippet = findBestMatch(node.name, snippets, config.options['stylesheet.fuzzySearchMinScore']);
 
         if (snippet) {
             if (snippet.type === CSSSnippetType.Property) {
@@ -97,6 +96,18 @@ function resolveValueKeywords(node: CSSProperty, config: Config, snippet?: CSSSn
         for (const token of cssVal.value) {
             if (token.type === 'Literal') {
                 value.push(resolveKeyword(token.value, config, snippet, minScore) || token);
+            } else if (token.type === 'FunctionCall') {
+                // For function calls, we should find matching function call
+                // and merge arguments
+                const match = resolveKeyword(token.name, config, snippet, minScore);
+                if (match && match.type === 'FunctionCall') {
+                    value.push({
+                        ...match,
+                        arguments: token.arguments.concat(match.arguments.slice(token.arguments.length))
+                    });
+                } else {
+                    value.push(token);
+                }
             } else {
                 value.push(token);
             }
@@ -149,10 +160,7 @@ export function findBestMatch<T extends MatchInput>(abbr: string, items: T[], mi
 }
 
 function getScoringPart(item: MatchInput): string {
-    if (typeof item === 'string') {
-        return item;
-    }
-    return (item as CSSKeywordRef).keyword || (item as CSSSnippet).key;
+    return typeof item === 'string' ? item : item.key;
 }
 
 /**

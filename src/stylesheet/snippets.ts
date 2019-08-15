@@ -29,14 +29,7 @@ export interface CSSSnippetProperty extends CSSSnippetBase {
     dependencies: CSSSnippetProperty[];
 }
 
-export interface CSSKeywordRef {
-    keyword: string;
-
-    /** Reference to CSS snippet value which contains current keyword */
-    index: number;
-}
-
-const reProperty = /^([a-z-]+)(?:\s*:\s*([^\n\r]+))?$/;
+const reProperty = /^([a-z-]+)(?:\s*:\s*([^\n\r;]+?);*)?$/;
 const opt: ParseOptions = { value: true };
 
 /**
@@ -68,61 +61,6 @@ export default function createSnippet(key: string, value: string): CSSSnippet {
     }
 
     return { type: CSSSnippetType.Raw, key, value };
-}
-
-/**
- * Returns list of unique keywords for current CSS snippet and its dependencies
- */
-export function getKeywords(snippet: CSSSnippet): CSSKeywordRef[] {
-    const stack: CSSSnippetProperty[] = [];
-    const result: CSSKeywordRef[] = [];
-    const lookup: Set<string> = new Set();
-    let i = 0;
-
-    if (snippet.type === CSSSnippetType.Property) {
-        // Scan valid CSS-properties only
-        stack.push(snippet);
-    }
-
-    while (i < stack.length) {
-        // NB Keep items in stack instead of push/pop to avoid possible
-        // circular references
-        const item = stack[i++];
-
-        // Extract possible keywords from snippet values
-        for (let index = 0; index < item.value.length; index++) {
-            for (const keyword of keywordsFromValue(item.value[index])) {
-                if (!lookup.has(keyword)) {
-                    result.push({ index, keyword });
-                    lookup.add(keyword);
-                }
-            }
-        }
-
-        // Add dependencies into scan stack
-        for (const dep of item.dependencies) {
-            if (!stack.includes(dep)) {
-                stack.push(dep);
-            }
-        }
-    }
-
-    return result;
-}
-
-function keywordsFromValue(value: CSSValue[]): string[] {
-    const keywords: string[] = [];
-    for (const v of value) {
-        for (const kw of v.value) {
-            if (kw.type === 'Literal') {
-                keywords.push(kw.value);
-            } else if (kw.type === 'FunctionCall') {
-                keywords.push(kw.name);
-            }
-        }
-    }
-
-    return keywords;
 }
 
 /**
