@@ -1,5 +1,6 @@
-import { strictEqual as equal } from 'assert';
+import { strictEqual as equal, ok } from 'assert';
 import { stylesheet as expandAbbreviation, parseStylesheetSnippets, resolveConfig } from '../src';
+import score from '../src/stylesheet/score';
 
 const defaultConfig = resolveConfig({
     type: 'stylesheet',
@@ -17,6 +18,36 @@ function expand(abbr: string, config = defaultConfig) {
 }
 
 describe('Stylesheet abbreviations', () => {
+    describe('Scoring', () => {
+        const pick = (abbr: string, items: string[]) => items
+            .map(item => ({ item, score: score(abbr, item) }))
+            .filter(obj => obj.score)
+            .sort((a, b) => b.score - a.score)
+            .map(obj => obj.item)[0];
+
+        it('compare scores', () => {
+            equal(score('aaa', 'aaa'), 1);
+            equal(score('baa', 'aaa'), 0);
+
+            ok(!score('b', 'aaa'));
+            ok(score('a', 'aaa'));
+            ok(score('a', 'abc'));
+            ok(score('ac', 'abc'));
+            ok(score('a', 'aaa') < score('aa', 'aaa'));
+            ok(score('ab', 'abc') > score('ab', 'acb'));
+
+            // acronym bonus
+            ok(score('ab', 'a-b') > score('ab', 'acb'));
+        });
+
+        it('pick padding or position', () => {
+            const items = ['p', 'pb', 'pl', 'pos', 'pa', 'oa', 'soa', 'pr', 'pt'];
+
+            equal(pick('p', items), 'p');
+            equal(pick('poa', items), 'pos');
+        });
+    });
+
     it('keywords', () => {
         equal(expand('bd1-s'), 'border: 1px solid;');
         equal(expand('dib'), 'display: inline-block;');
