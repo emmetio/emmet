@@ -41,19 +41,21 @@ export function convertSnippets(snippets: SnippetsMap): CSSSnippet[] {
  * keyword aliases from node value
  */
 function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty {
-    if (config.context) {
-        // Resolve as value of given CSS property
-        const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
-        const score = config.options['stylesheet.fuzzySearchMinScore'];
-        resolveValueKeywords(node, config, snippet, score);
-    } else if (node.name) {
-        const snippet = findBestMatch(node.name, snippets, config.options['stylesheet.fuzzySearchMinScore']);
+    if (!resolveGradient(node, config)) {
+        if (config.context) {
+            // Resolve as value of given CSS property
+            const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
+            const score = config.options['stylesheet.fuzzySearchMinScore'];
+            resolveValueKeywords(node, config, snippet, score);
+        } else if (node.name) {
+            const snippet = findBestMatch(node.name, snippets, config.options['stylesheet.fuzzySearchMinScore']);
 
-        if (snippet) {
-            if (snippet.type === CSSSnippetType.Property) {
-                resolveAsProperty(node, snippet, config);
-            } else {
-                resolveAsSnippet(node, snippet);
+            if (snippet) {
+                if (snippet.type === CSSSnippetType.Property) {
+                    resolveAsProperty(node, snippet, config);
+                } else {
+                    resolveAsSnippet(node, snippet);
+                }
             }
         }
     }
@@ -61,6 +63,44 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
     resolveNumericValue(node, config);
 
     return node;
+}
+
+/**
+ * Resolves CSS gradient shortcut from given propert, if possible
+ */
+function resolveGradient(node: CSSProperty, config: Config): boolean {
+    let gradientFn: FunctionCall | null = null;
+    const cssVal = node.value.length === 1 ? node.value[0]! : null;
+
+    if (cssVal && cssVal.value.length === 1) {
+        const v = cssVal.value[0]!;
+        if (v.type === 'FunctionCall' && v.name === 'lg') {
+            gradientFn = v;
+        }
+    }
+
+    if (gradientFn || node.name === 'lg') {
+        if (!gradientFn) {
+            gradientFn = {
+                type: 'FunctionCall',
+                name: 'linear-gradient',
+                arguments: [cssValue(field(0, ''))]
+            };
+        } else {
+            gradientFn = {
+                ...gradientFn,
+                name: 'linear-gradient'
+            };
+        }
+
+        if (!config.context) {
+            node.name = 'background-image';
+        }
+        node.value = [cssValue(gradientFn)];
+        return true;
+    }
+
+    return false;
 }
 
 /**
@@ -75,7 +115,7 @@ function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, confi
         // as a keyword alias
         const kw = resolveKeyword(getUnmatchedPart(abbr, snippet.key), config, snippet);
         if (kw) {
-            node.value.push({ type: 'CSSValue', value: [kw] });
+            node.value.push(cssValue(kw));
         } else if (snippet.value.length) {
             const defaultValue = snippet.value[0]!;
             node.value = defaultValue.some(hasField)
@@ -128,7 +168,7 @@ function resolveAsSnippet(node: CSSProperty, snippet: CSSSnippetRaw): CSSPropert
  */
 function setNodeAsText(node: CSSProperty, text: string): CSSProperty {
     node.name = void 0;
-    node.value = [literalValue(text)];
+    node.value = [cssValue(literal(text))];
     return node;
 }
 
@@ -231,12 +271,12 @@ function resolveNumericValue(node: CSSProperty, config: Config) {
 }
 
 /**
- * Constructs CSS property value with given literal
+ * Constructs CSS value token
  */
-function literalValue(value: string): CSSValue {
+function cssValue(...args: Value[]): CSSValue {
     return {
         type: 'CSSValue',
-        value: [literal(value)]
+        value: args
     };
 }
 

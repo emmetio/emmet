@@ -71,6 +71,5 @@ describe('CSS Abbreviation parser', () => {
         equal(prop.value[0].value.length, 1);
         equal(fn.type, 'FunctionCall');
         equal(fn.name, 'scale3d');
-
     });
 });

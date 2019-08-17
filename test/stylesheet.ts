@@ -135,6 +135,11 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('trf:rx'), 'transform: rotateX(${1:angle});');
     });
 
+    it('gradient resolver', () => {
+        equal(expand('lg'), 'background-image: linear-gradient(${0});');
+        equal(expand('lg(to right, #0, #f00.5)'), 'background-image: linear-gradient(to right, #000, rgba(255, 0, 0, 0.5));');
+    });
+
     it('use min score when finding best match for snippets', () => {
         equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0 } })), 'align-self: unset;');
         equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0.3 } })), 'auto: ;');
