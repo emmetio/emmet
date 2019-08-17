@@ -1,6 +1,6 @@
 {
   "name": "emmet",
-  "version": "2.0.0",
+  "version": "2.0.0-rc.0",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs.js",
   "module": "./dist/emmet.es.js",
@@ -9,7 +9,8 @@
     "build": "rollup -c",
     "watch": "rollup -wc",
     "test": "mocha",
-    "prepare": "npm test && rm -rf ./dist && npm run build"
+    "clean": "rm -rf ./dist",
+    "prepare": "npm test && npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -36,8 +37,8 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "@emmetio/abbreviation": "^0.7.0",
-    "@emmetio/css-abbreviation": "^0.4.0"
+    "@emmetio/abbreviation": "^2.0.0-rc.0",
+    "@emmetio/css-abbreviation": "^2.0.0-rc.0"
   },
   "mocha": {
     "require": "ts-node/register",
