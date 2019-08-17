@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/scanner",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Scans given text character-by-character",
   "main": "./scanner.js",
   "module": "./scanner.es.js",
@@ -9,7 +9,7 @@
     "test": "mocha",
     "lint": "tslint ./*.ts",
     "build": "rollup -c",
-    "clean": "rm ./scanner.* ./*.d.ts",
+    "clean": "rm -f ./scanner.* ./*.d.ts",
     "prepare": "npm run lint && npm test && npm run clean && npm run build"
   },
   "repository": {
