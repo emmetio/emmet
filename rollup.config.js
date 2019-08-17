@@ -1,6 +1,6 @@
+import { extname } from 'path';
 import typescript from 'rollup-plugin-typescript2';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import json from 'rollup-plugin-json';
 
 export default {
     input: './src/index.ts',
@@ -20,3 +20,13 @@ export default {
         sourcemap: true
     }]
 };
+
+function json() {
+    return {
+        transform(code, id) {
+            if (extname(id) === '.json') {
+                return { code: `export default ${code}`, map: null };
+            }
+        }
+    };
+}

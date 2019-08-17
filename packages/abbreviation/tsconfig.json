@@ -1,5 +1,4 @@
 {
   "extends": "../../tsconfig",
-  "files": ["src/index.ts"],
-  "include": ["src/**/*.ts"]
+  "files": ["src/index.ts"]
 }

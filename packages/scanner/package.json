@@ -28,6 +28,8 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.7.2",
     "mocha": "^6.1.4",
     "rollup": "^1.16.6",
     "rollup-plugin-typescript2": "^0.21.2",
