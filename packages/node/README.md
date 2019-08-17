@@ -1,2 +1,0 @@
-# node
-Emmet abbreviation node
