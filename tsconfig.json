@@ -11,8 +11,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "module": "commonjs",
-    "outDir": "./dist"
+    "outDir": "./dist",
   },
-  "files": ["src/index.ts"],
-  "include": ["src/**/*.ts", "test/*.ts"]
+  "files": ["src/index.ts"]
 }
