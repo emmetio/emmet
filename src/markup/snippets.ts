@@ -12,21 +12,21 @@ import { Config } from '../config';
  * and recursively resolve it.
  */
 export default function resolveSnippets(node: AbbreviationNode, parentAncestors: Container[], parentConfig: Config) {
-    const stack: Set<string> = new Set();
+    const stack: string[] = [];
     const resolve = (child: AbbreviationNode, ancestors: Container[], config: Config) => {
         const snippet = child.name && config.snippets[child.name];
         // A snippet in stack means circular reference.
         // It can be either a user error or a perfectly valid snippet like
         // "img": "img[src alt]/", e.g. an element with predefined shape.
         // In any case, simply stop parsing and keep element as is
-        if (!snippet || stack.has(snippet)) {
+        if (!snippet || stack.includes(snippet)) {
             return;
         }
 
         const abbr = parse(snippet, config);
-        stack.add(snippet);
+        stack.push(snippet);
         walk(abbr, resolve, config);
-        stack.delete(snippet);
+        stack.pop();
 
         // Move current node contents into new tree
         const deepest = findDeepest(abbr);

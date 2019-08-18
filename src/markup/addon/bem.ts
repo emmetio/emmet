@@ -30,20 +30,20 @@ export default function bem(node: AbbreviationNode, ancestors: Container[], conf
 function expandClassNames(node: BEMAbbreviationNode) {
     const data = getBEMData(node);
 
-    const classNames: Set<string> = new Set();
+    const classNames: string[] = [];
     for (const cl of data.classNames) {
         // remove all modifiers and element prefixes from class name to get a base element name
         const ix = cl.indexOf('_');
         if (ix > 0 && !cl.startsWith('-')) {
-            classNames.add(cl.slice(0, ix));
-            classNames.add(cl.slice(ix));
+            classNames.push(cl.slice(0, ix));
+            classNames.push(cl.slice(ix));
         } else {
-            classNames.add(cl);
+            classNames.push(cl);
         }
     }
 
-    if (classNames.size) {
-        data.classNames = Array.from(classNames);
+    if (classNames.length) {
+        data.classNames = classNames.filter(uniqueClass);
         data.block = findBlockName(data.classNames);
         updateClass(node, data.classNames.join(' '));
     }
@@ -54,7 +54,7 @@ function expandClassNames(node: BEMAbbreviationNode) {
  */
 function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], config: Config) {
     const data = getBEMData(node);
-    const classNames: Set<string> = new Set();
+    const classNames: string[] = [];
     const { options } = config;
     const path = ancestors.slice(1).concat(node) as BEMAbbreviationNode[];
 
@@ -66,7 +66,7 @@ function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], 
         // parse element definition (could be only one)
         if (m = cl.match(reElement)) {
             prefix = getBlockName(path, m[1].length) + options['bem.element'] + m[2];
-            classNames.add(prefix);
+            classNames.push(prefix);
             cl = cl.slice(m[0].length);
         }
 
@@ -74,21 +74,21 @@ function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], 
         if (m = cl.match(reModifier)) {
             if (!prefix) {
                 prefix = getBlockName(path, m[1].length);
-                classNames.add(prefix);
+                classNames.push(prefix);
             }
 
-            classNames.add(`${prefix}${options['bem.modifier']}${m[2]}`);
+            classNames.push(`${prefix}${options['bem.modifier']}${m[2]}`);
             cl = cl.slice(m[0].length);
         }
 
         if (cl === originalClass) {
             // class name wasn’t modified: it’s not a BEM-specific class,
             // add it as-is into output
-            classNames.add(originalClass);
+            classNames.push(originalClass);
         }
     }
 
-    const arrClassNames = Array.from(classNames).filter(Boolean);
+    const arrClassNames = classNames.filter(uniqueClass);
     if (arrClassNames.length) {
         updateClass(node, arrClassNames.join(' '));
     }
@@ -177,4 +177,8 @@ function stringifyValue(value: Value[]): string {
     }
 
     return result;
+}
+
+function uniqueClass<T>(item: T, ix: number, arr: T[]): boolean {
+    return !!item && arr.indexOf(item) === ix;
 }

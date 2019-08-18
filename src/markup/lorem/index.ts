@@ -40,13 +40,16 @@ function rand(from: number, to: number): number {
 function sample(arr: string[], count: number): string[] {
     const len = arr.length;
     const iterations = Math.min(len, count);
-    const result: Set<string> = new Set();
+    const result: string[] = [];
 
-    while (result.size < iterations) {
-        result.add(arr[rand(0, len)]);
+    while (result.length < iterations) {
+        const str = arr[rand(0, len)];
+        if (!result.includes(str)) {
+            result.push(str);
+        }
     }
 
-    return Array.from(result);
+    return result;
 }
 
 function choice(val: string): string {
