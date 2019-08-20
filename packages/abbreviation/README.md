@@ -1,10 +1,8 @@
-# Emmet abbreviation parser [![Build Status](https://travis-ci.org/emmetio/abbreviation.svg?branch=master)](https://travis-ci.org/emmetio/abbreviation)
+# Emmet markup abbreviation parser
 
-Reference parser implementation for [Emmet](http://emmet.io) project. Parser takes an abbreviation string and produces a tree. This tree can then be analyzed, updated etc., similar to DOM tree. Use it to produce a string output afterwards.
+Parses given Emmet *markup* abbreviation into AST. Parsing is performed in two steps: first it tokenizes given abbreviation (useful for syntax highlighting in editors) and then tokens are analyzed and converted into AST nodes as plain, JSON-serializable objects.
 
-Note that this module *does not* produce a tree that can be used for final HTML output: the tree might miss tag names, predefined attributes, resolved snippets and so on. The goal of this parser is to be a basic embeddable building block for projects that wish to utilize Emmet abbreviations syntax.
-
-If you need a complete HTML or CSS abbreviation expander, you should transform parsed abbreviation tree via [`@emmetio/html-transform`](https://github.com/emmetio/html-transform) or `@emmetio/css-tansform` as well.
+Note that AST tree in most cases cannot be used directly for output: for example, AST node produced from `.foo.bar` element misses element name and contains two `class` attributes with `foo` and `bar` values (not a single `class` with `foo bar` value).
 
 ## Usage
 
@@ -17,40 +15,37 @@ npm install @emmetio/abbreviation
 Then add it into your project:
 
 ```js
-'use strict';
-import parseAbbreviation from '@emmetio/abbreviation';
+import parse from '@emmetio/abbreviation';
 
-const tree = parseAbbreviation('div#foo>span.bar*3');
-tree.walk((node, level) => {
-	let pad = '';
-	while (level--) {
-		pad += '  ';
-	}
-	console.log('%s%s', level, node.name);
-});
+const tree = parse('div#foo>span.bar*3');
+/* {
+    type: 'Abbreviation',
+    children: [{
+        type: 'AbbreviationNode',
+        name: 'div',
+        attributes: [...],
+        children: [...]
+    }]
+} */
+
 ```
-
-After abbreviation is expanded, use returned tree to read and update via [DOM-like API](/lib/node.js).
-
-There are two types of nodes in returned tree:
-
-* *Element node* is a basic node with name, attributes and/or text content. E.g. an element that can be represented somehow.
-* *Grouping node* is used to group sub-nodes and doesn’t has its own representation. It it mostly used to repeat a set of elements, for example `a>(b+c)*3`. Such nodes has `node.isGroup` set to `true`.
+The returned tree contains `AbbreviationNode` items: a node with name, attributes and/or text content. E.g. an element that can be represented somehow. Repeated and grouped nodes like `a>(b+c)*3` are automatically converted and duplicated as distinct `AbbreviationNode` with distinct `.repeat` property which identifies node in repeating sequence.
 
 ## Abbreviation syntax
 
-Emmet abbreviation has the following basic parts:
+Emmet abbreviation element has the following basic parts:
 
 ```
 name.class#id[attributes?, ...]{text value}*repeater/
 ```
 
 * `name` — element name, like `div`, `span` etc. Stored as `node.name` property.
-* `[attributes]` — list of attributes. Each attribute is stored as [`Attribute`](/lib/attribute.js) instance and can be accessed by `node.getAttribute(name)`. Each attribute can be written in different formats:
+* `[attributes]` — list of attributes. Each attribute is stored as [`AbbreviationAttribute`](/src/types.ts) instance and can be accessed by `node.getAttribute(name)`. Each attribute can be written in different formats:
 	* `attr` — attribute with empty value.
 	* `attr=value` — attribute with value. The `value` may contain any character except space or `]`.
-	* `attr="value"` or `attr='value'` — attribute with value in quotes. Quotes are automatically removed.
+	* `attr="value"` or `attr='value'` — attribute with value in quotes. Quotes are automatically removed. Expression values like `attr={value}` are supported and can be identified by `valueType: "expression"` property.
 	* `attr.` — boolean attribute, e.g. attribute without value, like `required` in `<input>`.
+    * `!attr` – implicit attribute, will be outputted if its value is not empty. Used as a placeholder to preserve attribute order in output.
 	* `./non/attr/value` — value for default attribute. In other words, anything that doesn’t match a attribute name characters. Can be a single- or double-quotted as well. Default attribute is stored with `null` as name and should be used later, for example, to resolve predefined attributes.
 * `.class` — shorthand for `class` attribute. Note that an element can have multiple classes, like `.class1.class2.class3`.
 * `#id` — shorthand for `id` attribute.
