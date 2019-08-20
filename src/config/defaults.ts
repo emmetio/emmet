@@ -29,6 +29,7 @@ export const defaultOptions: Options = {
         'hidden', 'ismap', 'loop', 'multiple', 'muted', 'novalidate', 'readonly',
         'required', 'reversed', 'selected', 'typemustmatch'
     ],
+    'output.reverseAttributes': false,
     'output.selfClosingStyle': 'html',
     'output.field': (index, placeholder) => placeholder,
 
@@ -52,7 +53,7 @@ export const defaultOptions: Options = {
     'stylesheet.floatUnit': 'em',
     'stylesheet.unitAliases': { e: 'em', p: '%', x: 'ex', r: 'rem' },
     'stylesheet.json': false,
-    'stylesheet.json-double-quotes': false,
+    'stylesheet.jsonDoubleQuotes': false,
     'stylesheet.fuzzySearchMinScore': 0.3
 };
 

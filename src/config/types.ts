@@ -104,6 +104,9 @@ export interface Options {
     /** A list of boolean attributes */
     'output.booleanAttributes': string[];
 
+    /** Reverses attribute merging directions when resolving snippets */
+    'output.reverseAttributes': boolean;
+
     /** Style of self-closing tags: html (`<br>`), xml (`<br/>`) or xhtml (`<br />`) */
     'output.selfClosingStyle': 'html' | 'xml' | 'xhtml';
 
@@ -204,7 +207,7 @@ export interface Options {
     'stylesheet.json': boolean;
 
     /** Use double quotes for JSON values */
-    'stylesheet.json-double-quotes': boolean;
+    'stylesheet.jsonDoubleQuotes': boolean;
 
     /**
      * A float number between 0 and 1 to pick fuzzy-matched abbreviations.

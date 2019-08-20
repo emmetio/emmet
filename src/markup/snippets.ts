@@ -1,4 +1,4 @@
-import parse, { AbbreviationNode } from '@emmetio/abbreviation';
+import parse, { AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
 import { walk, findDeepest, isNode, Container } from './utils';
 import { Config } from '../config';
 
@@ -37,9 +37,12 @@ export default function resolveSnippets(node: AbbreviationNode, parentAncestors:
 
         // Add attributes from current node into every top-level node of parsed abbreviation
         if (child.attributes) {
-            // TODO add option with attribute merge direction
             for (const topNode of abbr.children) {
-                topNode.attributes = (topNode.attributes || []).concat(child.attributes);
+                const from: AbbreviationAttribute[] = topNode.attributes || [];
+                const to: AbbreviationAttribute[] = child.attributes || [];
+                topNode.attributes = config.options['output.reverseAttributes']
+                    ? to.concat(from)
+                    : from.concat(to);
             }
         }
 

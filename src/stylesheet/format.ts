@@ -132,5 +132,5 @@ function toCamelCase(str: string): string {
 }
 
 function getQuote(config: Config): string {
-    return config.options['stylesheet.json-double-quotes'] ? '"' : '\'';
+    return config.options['stylesheet.jsonDoubleQuotes'] ? '"' : '\'';
 }

@@ -59,6 +59,11 @@ describe('Expand Abbreviation', () => {
                 '<ul>\n\t<li class="item1"></li>\n\t<!-- /.item1 -->\n\t<li class="item2"></li>\n\t<!-- /.item2 -->\n</ul>');
         });
 
+        it('reverse attributes merge', () => {
+            equal(expand('a.test'), '<a href="" class="test"></a>');
+            equal(expand('a.test', { options: { 'output.reverseAttributes': true } }), '<a class="test" href=""></a>');
+        });
+
         // it.only('debug', () => {
         //     equal(expand('link:css'), '<link rel="stylesheet" href="style.css">');
         // });
