@@ -200,6 +200,12 @@ export interface Options {
      */
     'stylesheet.unitAliases': SnippetsMap;
 
+    /** Output abbreviation as JSON object properties (for CSS-in-JS syntaxes) */
+    'stylesheet.json': boolean;
+
+    /** Use double quotes for JSON values */
+    'stylesheet.json-double-quotes': boolean;
+
     /**
      * A float number between 0 and 1 to pick fuzzy-matched abbreviations.
      * Lower value will pick more abbreviations (and less accurate)

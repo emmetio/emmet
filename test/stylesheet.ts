@@ -144,4 +144,15 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0 } })), 'align-self: unset;');
         equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0.3 } })), 'auto: ;');
     });
+
+    it('CSS-in-JS', () => {
+        const config = resolveConfig({
+            options: {
+                'stylesheet.json': true,
+                'stylesheet.between': ': '
+            }
+        });
+
+        equal(expand('p10+mt10-20', config), 'padding: 10,\nmarginTop: \'10px 20px\',');
+    });
 });

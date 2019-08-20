@@ -51,6 +51,8 @@ export const defaultOptions: Options = {
     'stylesheet.intUnit': 'px',
     'stylesheet.floatUnit': 'em',
     'stylesheet.unitAliases': { e: 'em', p: '%', x: 'ex', r: 'rem' },
+    'stylesheet.json': false,
+    'stylesheet.json-double-quotes': false,
     'stylesheet.fuzzySearchMinScore': 0.3
 };
 
