@@ -38,7 +38,8 @@ describe('Expand Abbreviation', () => {
         it('custom snippets', () => {
             const snippets = {
                 link: 'link[foo=bar href]/',
-                foo: '.foo[bar=baz]'
+                foo: '.foo[bar=baz]',
+                repeat: 'div>ul>li{Hello World}*3'
             };
 
             equal(expand('foo', { snippets }), '<div class="foo" bar="baz"></div>');
@@ -47,6 +48,9 @@ describe('Expand Abbreviation', () => {
             // altered `link:css` result
             equal(expand('link:css'), '<link rel="stylesheet" href="style.css">');
             equal(expand('link:css', { snippets }), '<link foo="bar" href="style.css">');
+
+            // https://github.com/emmetio/emmet/issues/468
+            equal(expand('repeat', { snippets }), '<div>\n\t<ul>\n\t\t<li>Hello World</li>\n\t\t<li>Hello World</li>\n\t\t<li>Hello World</li>\n\t</ul>\n</div>');
         });
 
         it('formatter options', () => {
