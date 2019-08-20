@@ -149,6 +149,9 @@ describe('Format', () => {
             equal(format('div#header>ul.nav>li[title=test].nav-item*2'),
                 '#header\n\t%ul.nav\n\t\t%li.nav-item(title="test") \n\t\t%li.nav-item(title="test") ');
 
+            // https://github.com/emmetio/emmet/issues/446
+            equal(format('li>a'), '%li\n\t%a(href="") ');
+
             equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
                 '#foo.bar(data-n1="v1" title="test" data-n2="v2") ');
 
