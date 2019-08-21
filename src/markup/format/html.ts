@@ -161,6 +161,13 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
         return false;
     }
 
+    /**
+     * Adjacent text-only/snippet nodes
+     */
+    if (isSnippet(node) && (isSnippet(items[index - 1]) || isSnippet(items[index + 1]))) {
+        return true;
+    }
+
     // If given node is a snippet, format it if it will be handled as wrapper
     // (contains children which will be outputted as field content)
     if (isSnippet(node) && node.value!.some(isField) && node.children.length) {

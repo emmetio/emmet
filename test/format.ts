@@ -60,8 +60,8 @@ describe('Format', () => {
         it('generate fields', () => {
             equal(format('a[href]', field), '<a href="${1}">${2}</a>');
             equal(format('a[href]*2', field), '<a href="${1}">${2}</a><a href="${3}">${4}</a>');
-            equal(format('{${0} ${1:foo} ${2:bar}}*2', field), '${1} ${2:foo} ${3:bar}${4} ${5:foo} ${6:bar}');
-            equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar foo bar');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2', field), '${1} ${2:foo} ${3:bar}\n${4} ${5:foo} ${6:bar}');
+            equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar\n foo bar');
             equal(format('ul>li*2', field), '<ul>\n\t<li>${1}</li>\n\t<li>${2}</li>\n</ul>');
             equal(format('div>img[src]/', field), '<div><img src="${1}" alt="${2}"></div>');
         });
@@ -73,9 +73,9 @@ describe('Format', () => {
         it('mixed content', () => {
             equal(format('div{foo}'), '<div>foo</div>');
             equal(format('div>{foo}'), '<div>foo</div>');
-            equal(format('div>{foo}+{bar}'), '<div>foobar</div>');
-            equal(format('div>{foo}+{bar}+p'), '<div>\n\tfoobar\n\t<p></p>\n</div>');
-            equal(format('div>{foo}+{bar}+p+{foo}+{bar}+p'), '<div>\n\tfoobar\n\t<p></p>\n\tfoobar\n\t<p></p>\n</div>');
+            equal(format('div>{foo}+{bar}'), '<div>\n\tfoo\n\tbar\n</div>');
+            equal(format('div>{foo}+{bar}+p'), '<div>\n\tfoo\n\tbar\n\t<p></p>\n</div>');
+            equal(format('div>{foo}+{bar}+p+{foo}+{bar}+p'), '<div>\n\tfoo\n\tbar\n\t<p></p>\n\tfoo\n\tbar\n\t<p></p>\n</div>');
             equal(format('div>{foo}+p+{bar}'), '<div>\n\tfoo\n\t<p></p>\n\tbar\n</div>');
             equal(format('div>{foo}>p'), '<div>\n\tfoo\n\t<p></p>\n</div>');
 

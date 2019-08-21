@@ -8,8 +8,8 @@ export const caret = [{ type: 'Field', index: 0, name: '' } as Field];
 /**
  * Check if given node is a snippet: a node without name and attributes
  */
-export function isSnippet(node: AbbreviationNode): boolean {
-    return !node.name && !node.attributes;
+export function isSnippet(node?: AbbreviationNode): boolean {
+    return node ? !node.name && !node.attributes : false;
 }
 
 /**

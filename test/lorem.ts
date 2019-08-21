@@ -40,6 +40,11 @@ describe('Lorem Ipsum generator', () => {
         ok(/^Lorem,?\sipsum/.test(output));
         equal(lines.length, 3);
 
+        output = expand('lorem6*2');
+        lines = splitLines(output);
+        ok(/^Lorem,?\sipsum/.test(output));
+        equal(lines.length, 2);
+
         output = expand('p*3>lorem');
         lines = splitLines(output);
         ok(/^<p>Lorem,?\sipsum/.test(lines[0]!));
