@@ -3,11 +3,13 @@ import { Field, Repeater } from './tokenizer';
 export interface ParserOptions {
     text?: string | string[];
     variables?: { [name: string]: string };
+    maxRepeat?: number;
 }
 
 export interface ConvertState {
     inserted: boolean;
     text?: string | string[];
+    repeatGuard: number;
 
     /** Context repeaters, e.g. all actual repeaters from parent */
     repeaters: Repeater[];

@@ -40,6 +40,9 @@ interface ResolvedConfig extends BaseConfig {
 
     /** Text to wrap with abbreviation */
     text?: string | string[];
+
+    /** Max amount of repeated elements (fool proof) */
+    maxRepeat?: number;
 }
 
 export type Config = ResolvedConfig & { options: Options };

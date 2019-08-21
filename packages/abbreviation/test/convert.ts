@@ -33,4 +33,11 @@ describe('Convert token abbreviations', () => {
         equal(parse('p>{foo}>div'), '<p><?>foo</?><div></div></p>');
         equal(parse('p>{foo ${0}}>div'), '<p><?>foo ${0}<div></div></?></p>');
     });
+
+    it('limit unroll', () => {
+        // Limit amount of repeated elements
+        equal(parse('a*10', { maxRepeat: 5 }), '<a*10@0></a><a*10@1></a><a*10@2></a><a*10@3></a><a*10@4></a>');
+        equal(parse('a*10'), '<a*10@0></a><a*10@1></a><a*10@2></a><a*10@3></a><a*10@4></a><a*10@5></a><a*10@6></a><a*10@7></a><a*10@8></a><a*10@9></a>');
+        equal(parse('a*3>b*3', { maxRepeat: 5 }), '<a*3@0><b*3@0></b><b*3@1></b><b*3@2></b></a><a*3@1><b*3@0></b></a>');
+    });
 });

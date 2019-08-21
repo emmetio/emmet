@@ -14,6 +14,7 @@ export default function convert(abbr: TokenGroup, options: ParserOptions = {}): 
             inserted: false,
             repeaters: [],
             text: options.text,
+            repeatGuard: options.maxRepeat || Number.POSITIVE_INFINITY,
             getText(pos) {
                 const value = Array.isArray(options.text)
                     ? (pos != null ? options.text[pos] : options.text.join('\n'))
@@ -65,6 +66,12 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
             }
 
             result = result.concat(items);
+
+            // We should output at least one repeated item even if it’s reached
+            // repeat limit
+            if (--state.repeatGuard <= 0) {
+                break;
+            }
         }
 
         state.repeaters.pop();
