@@ -25,6 +25,13 @@ describe('Lorem Ipsum generator', () => {
 
         output = expand('p>lorem');
         ok(/^<p>Lorem,?\sipsum/.test(output));
+
+        // https://github.com/emmetio/expand-abbreviation/issues/24
+        output = expand('(p)lorem2');
+        ok(/^<p><\/p>\nLorem,?\sipsum/.test(output));
+
+        output = expand('p(lorem10)');
+        ok(/^<p><\/p>\nLorem,?\sipsum/.test(output));
     });
 
     it('multiple', () => {
