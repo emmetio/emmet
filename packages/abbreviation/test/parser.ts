@@ -11,6 +11,7 @@ describe('Parser', () => {
         equal(str('p'), '<p></p>');
         equal(str('p{text}'), '<p>text</p>');
         equal(str('.nav'), '<? class=nav></?>');
+        equal(str('div.width1\\/2'), '<div class=width1/2></div>');
         equal(str('#sample*3'), '<?*3 id=sample></?>');
 
         equal(str('a>b'), '<a><b></b></a>');
