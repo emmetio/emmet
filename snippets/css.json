@@ -118,7 +118,7 @@
 	"fxg": "flex-grow",
 	"fxsh": "flex-shrink",
 	"fxw": "flex-wrap:nowrap|wrap|wrap-reverse",
-	"fz": "font-size",
+	"fsz": "font-size",
 	"fza": "font-size-adjust",
 	"gtc": "grid-template-columns:repeat()|minmax()",
 	"gtr": "grid-template-rows:repeat()|minmax()",

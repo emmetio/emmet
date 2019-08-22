@@ -8,7 +8,8 @@ const defaultConfig = resolveConfig({
         'output.field': (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
     },
     snippets: {
-        mten: 'margin: 10px;'
+        mten: 'margin: 10px;',
+        fsz: 'font-size'
     }
 });
 const snippets = parseStylesheetSnippets(defaultConfig.snippets);
@@ -88,6 +89,13 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('z10'), 'z-index: 10;', 'Unitless property');
         equal(expand('p10r'), 'padding: 10rem;', 'unit alias');
         equal(expand('mten'), 'margin: ${1:10px};', 'Ignore terminating `;` in snippet');
+
+        // https://github.com/microsoft/vscode/issues/59951
+        equal(expand('fz'), 'font-size: ${0};');
+        equal(expand('fz12'), 'font-size: 12px;');
+        equal(expand('fsz'), 'font-size: ${0};');
+        equal(expand('fsz12'), 'font-size: 12px;');
+        equal(expand('fs'), 'font-style: ${1:italic};');
     });
 
     it('numeric with format options', () => {
