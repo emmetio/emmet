@@ -14,6 +14,9 @@ describe('Parser', () => {
         equal(str('div.width1\\/2'), '<div class=width1/2></div>');
         equal(str('#sample*3'), '<?*3 id=sample></?>');
 
+        // https://github.com/emmetio/emmet/issues/562
+        equal(str('li[repeat.for="todo of todoList"]'), '<li repeat.for="todo of todoList"></li>', 'Dots in attribute names');
+
         equal(str('a>b'), '<a><b></b></a>');
         equal(str('a+b'), '<a></a><b></b>');
         equal(str('a+b>c+d'), '<a></a><b><c></c><d></d></b>');
