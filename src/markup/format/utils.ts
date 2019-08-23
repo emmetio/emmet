@@ -1,4 +1,4 @@
-import { AbbreviationNode, Field, Value } from '@emmetio/abbreviation';
+import { AbbreviationNode, Field, Value, AbbreviationAttribute } from '@emmetio/abbreviation';
 import { WalkState } from './walk';
 import { pushString, pushField, isInline } from '../../output-stream';
 import { Config } from '../../config';
@@ -70,4 +70,13 @@ export function splitByLines(tokens: Value[]): Value[][] {
 
     line.length && result.push(line);
     return result;
+}
+
+/**
+ * Check if given attribute should be outputted
+ */
+export function shouldOutputAttribute(attr: AbbreviationAttribute): boolean {
+    // In case if attribute is implied, check if it has a defined value:
+    // either non-empty value or quoted empty value
+    return !attr.implied || attr.valueType !== 'raw' || (!!attr.value && attr.value.length > 0);
 }

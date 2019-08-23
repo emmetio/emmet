@@ -17,6 +17,29 @@ describe('Expand Abbreviation', () => {
             }), '<ul>\n\t<li class="item1">${1}</li>\n\t<li class="item2">${2}</li>\n</ul>');
         });
 
+        it('attributes', () => {
+            const snippets = {
+                test: 'test[!foo bar. baz={}]'
+            };
+            const opt = { snippets };
+            const reverse = {
+                options: { 'output.reverseAttributes': true },
+                snippets
+            };
+
+            equal(expand('a.test'), '<a href="" class="test"></a>');
+            equal(expand('a.test', reverse), '<a class="test" href=""></a>');
+
+            equal(expand('test', opt), '<test bar="bar" baz={}></test>');
+            equal(expand('test[foo]', opt), '<test bar="bar" baz={}></test>');
+            equal(expand('test[baz=a foo=1]', opt), '<test foo="1" bar="bar" baz={a}></test>');
+
+            // Apply attributes in reverse order
+            equal(expand('test', reverse), '<test bar="bar" baz={}></test>');
+            equal(expand('test[foo]', reverse), '<test bar="bar" baz={}></test>');
+            equal(expand('test[baz=a foo=1]', reverse), '<test baz={a} foo="1" bar="bar"></test>');
+        });
+
         it('syntax', () => {
             equal(expand('ul>.item$*2', { syntax: 'html' }), '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>');
             equal(expand('ul>.item$*2', { syntax: 'slim' }), 'ul\n\tli.item1 \n\tli.item2 ');
@@ -57,11 +80,6 @@ describe('Expand Abbreviation', () => {
             equal(expand('ul>.item$*2'), '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>');
             equal(expand('ul>.item$*2', { options: { 'comment.enabled': true } }),
                 '<ul>\n\t<li class="item1"></li>\n\t<!-- /.item1 -->\n\t<li class="item2"></li>\n\t<!-- /.item2 -->\n</ul>');
-        });
-
-        it('reverse attributes merge', () => {
-            equal(expand('a.test'), '<a href="" class="test"></a>');
-            equal(expand('a.test', { options: { 'output.reverseAttributes': true } }), '<a class="test" href=""></a>');
         });
 
         // it.only('debug', () => {

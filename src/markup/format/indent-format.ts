@@ -1,6 +1,6 @@
 import { AbbreviationNode, AbbreviationAttribute, Value, Abbreviation } from '@emmetio/abbreviation';
 import { pushString, pushNewline, push, attrName, isBooleanAttribute, attrQuote } from '../../output-stream';
-import { pushTokens, caret, splitByLines, isSnippet } from './utils';
+import { pushTokens, caret, splitByLines, isSnippet, shouldOutputAttribute } from './utils';
 import walk, { WalkState, createWalkState, WalkNext } from './walk';
 import { Config } from '../../config';
 
@@ -79,7 +79,7 @@ export function element(node: AbbreviationNode, index: number, items: Abbreviati
     }
 
     pushPrimaryAttributes(primary, state);
-    pushSecondaryAttributes(secondary, state);
+    pushSecondaryAttributes(secondary.filter(shouldOutputAttribute), state);
 
     if (node.selfClosing && !node.value && !node.children.length) {
         pushString(out, '/');

@@ -48,7 +48,7 @@ export function stringify(abbr: Abbreviation, config: Config): string {
  */
 function transform(node: AbbreviationNode, ancestors: Container[], config: Config) {
     implicitTag(node, ancestors, config);
-    attributes(node);
+    attributes(node, config);
     lorem(node, ancestors, config);
 
     if (config.syntax === 'xsl') {

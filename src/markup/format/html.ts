@@ -1,7 +1,7 @@
 import { Abbreviation, AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
 import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline } from '../../output-stream';
 import walk, { WalkState, createWalkState } from './walk';
-import { caret, isInlineElement, isSnippet, isField, pushTokens } from './utils';
+import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAttribute } from './utils';
 import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
 import { Config } from '../../config';
 
@@ -42,7 +42,9 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
         if (node.attributes) {
             for (const attr of node.attributes) {
-                pushAttribute(attr, state);
+                if (shouldOutputAttribute(attr)) {
+                    pushAttribute(attr, state);
+                }
             }
         }
 

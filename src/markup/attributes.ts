@@ -1,10 +1,11 @@
 import { AbbreviationAttribute, AbbreviationNode, Value } from '@emmetio/abbreviation';
+import { Config } from '../config';
 
 /**
  * Merges attributes in current node: de-duplicates attributes with the same name
  * and merges class names
  */
-export default function mergeAttributes(node: AbbreviationNode) {
+export default function mergeAttributes(node: AbbreviationNode, config: Config) {
     if (!node.attributes) {
         return;
     }
@@ -20,7 +21,7 @@ export default function mergeAttributes(node: AbbreviationNode) {
                 if (attrName === 'class') {
                     prev.value = mergeValue(prev.value, attr.value, ' ');
                 } else {
-                    Object.assign(prev, attr);
+                    mergeDeclarations(prev, attr, config);
                 }
             } else {
                 // Create new attribute instance so we can safely modify it later
@@ -52,6 +53,32 @@ function mergeValue(prev?: Value[], next?: Value[], glue?: string): Value[] | un
 
     const result = prev || next;
     return result && result.slice();
+}
+
+/**
+ * Merges data from `src` attribute into `dest` and returns it
+ */
+function mergeDeclarations(dest: AbbreviationAttribute, src: AbbreviationAttribute, config: Config): AbbreviationAttribute {
+    dest.name = src.name;
+
+    if (!config.options['output.reverseAttributes']) {
+        dest.value = src.value;
+    }
+
+    // Keep high-priority properties
+    if (!dest.implied) {
+        dest.implied = src.implied;
+    }
+
+    if (!dest.boolean) {
+        dest.boolean = src.boolean;
+    }
+
+    if (dest.valueType !== 'expression') {
+        dest.valueType = src.valueType;
+    }
+
+    return dest;
 }
 
 function append(tokens: Value[], value: Value) {
