@@ -199,9 +199,14 @@ function repeaterNumber(scanner: Scanner): RepeaterNumber | undefined {
         const size = scanner.pos - start;
         let reverse = false;
         let base = 1;
+        let parent = 0;
 
         if (Chars.At) {
             // Consume numbering modifiers
+            while (scanner.eat(Chars.Climb)) {
+                parent++;
+            }
+
             reverse = scanner.eat(Chars.Dash);
             scanner.start = scanner.pos;
             if (scanner.eatWhile(isNumber)) {
@@ -216,6 +221,7 @@ function repeaterNumber(scanner: Scanner): RepeaterNumber | undefined {
             size,
             reverse,
             base,
+            parent,
             start,
             end: scanner.pos
         };

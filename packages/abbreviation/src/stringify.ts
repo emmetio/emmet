@@ -60,11 +60,21 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
     },
     RepeaterNumber(token: RepeaterNumber, state) {
         let value = 1;
-        const repeater = state.repeaters[state.repeaters.length - 1];
+        const lastIx = state.repeaters.length - 1;
+        // const repeaterIx = Math.max(0, state.repeaters.length - 1 - token.parent);
+        const repeater = state.repeaters[lastIx];
         if (repeater) {
             value = token.reverse
                 ? token.base + repeater.count - repeater.value!
                 : token.base + repeater.value!;
+
+            if (token.parent) {
+                const parentIx = Math.max(0, lastIx - token.parent);
+                if (parentIx !== lastIx) {
+                    const parentRepeater = state.repeaters[parentIx];
+                    value += repeater.count * parentRepeater.value;
+                }
+            }
         }
 
         let result = String(value);

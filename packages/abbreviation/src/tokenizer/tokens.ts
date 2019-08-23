@@ -42,6 +42,9 @@ export interface RepeaterNumber extends Token {
 
     /** Base value to start numbering from */
     base: number;
+
+    /** Parent offset from which numbering should be used */
+    parent: number;
 }
 
 export interface RepeaterPlaceholder extends Token {

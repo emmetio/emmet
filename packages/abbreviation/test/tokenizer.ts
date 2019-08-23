@@ -33,7 +33,7 @@ describe('Tokenizer', () => {
 
         deepStrictEqual(tokenize('h${some${1:field placeholder}}'), [
             { type: 'Literal', value: 'h', start: 0, end: 1 },
-            { type: 'RepeaterNumber', size: 1, reverse: false, base: 1, start: 1, end: 2 },
+            { type: 'RepeaterNumber', size: 1, parent: 0, reverse: false, base: 1, start: 1, end: 2 },
             { type: 'Bracket', open: true, context: 'expression', start: 2, end: 3 },
             { type: 'Literal', value: 'some', start: 3, end: 7 },
             { type: 'Field', index: 1, name: 'field placeholder', start: 7, end: 29 },
