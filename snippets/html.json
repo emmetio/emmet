@@ -33,7 +33,7 @@
 	"meta:kw": "meta[name=keywords content]",
 	"meta:desc": "meta[name=description content]",
 	"style": "style",
-	"script": "script[!src]",
+	"script": "script",
 	"script:src": "script[src]",
 	"img": "img[src alt]/",
 	"img:s|img:srcset": "img[srcset src alt]",
