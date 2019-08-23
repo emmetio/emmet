@@ -1,8 +1,13 @@
 import { Field, Repeater } from './tokenizer';
 
 export interface ParserOptions {
+    /** Text strings to insert into implicitly repeated elements */
     text?: string | string[];
+
+    /** Variable values for `${var}` tokens */
     variables?: { [name: string]: string };
+
+    /** Max amount of repeated elements in abbreviation */
     maxRepeat?: number;
 }
 

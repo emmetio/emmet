@@ -98,7 +98,7 @@ function element(scanner: TokenScanner): TokenElement | undefined {
         elements: []
     };
 
-    if (identifier(scanner)) {
+    if (elementName(scanner)) {
         elem.name = slice(scanner) as NameToken[];
     }
 
@@ -259,11 +259,28 @@ function literal(scanner: TokenScanner, allowBrackets?: boolean): boolean {
 }
 
 /**
- * Consumes element identifier from given scanner
+ * Consumes element name from given scanner
  */
-function identifier(scanner: TokenScanner): boolean {
+function elementName(scanner: TokenScanner): boolean {
     const start = scanner.pos;
-    if (consume(scanner, isIdentifier)) {
+
+    if (consume(scanner, isCapitalizedLiteral)) {
+        // Check for edge case: consume immediate capitalized class names
+        // for React-like components, e.g. `Foo.Bar.Baz`
+        while (readable(scanner)) {
+            const { pos } = scanner;
+            if (!consume(scanner, isClassNameOperator) || !consume(scanner, isCapitalizedLiteral)) {
+                scanner.pos = pos;
+                break;
+            }
+        }
+    }
+
+    while (readable(scanner) && consume(scanner, isElementName)) {
+        // empty
+    }
+
+    if (scanner.pos !== start) {
         scanner.start = start;
         return true;
     }
@@ -338,8 +355,24 @@ function isRepeater(token?: AllTokens): token is Repeater {
     return Boolean(token && token.type === 'Repeater');
 }
 
-function isIdentifier(token: AllTokens): boolean {
+function isLiteral(token: AllTokens): token is Literal {
+    return token.type === 'Literal';
+}
+
+function isCapitalizedLiteral(token: AllTokens) {
+    if (isLiteral(token)) {
+        const ch = token.value.charCodeAt(0);
+        return ch >= 65 && ch <= 90;
+    }
+    return false;
+}
+
+function isElementName(token: AllTokens): boolean {
     return token.type === 'Literal' || token.type === 'RepeaterNumber' || token.type === 'RepeaterPlaceholder';
+}
+
+function isClassNameOperator(token: AllTokens) {
+    return isOperator(token, 'class');
 }
 
 function isAttributeSetStart(token?: AllTokens) {

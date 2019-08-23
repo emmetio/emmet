@@ -10,6 +10,7 @@ describe('Parser', () => {
     it('basic abbreviations', () => {
         equal(str('p'), '<p></p>');
         equal(str('p{text}'), '<p>text</p>');
+        equal(str('h$'), '<h$></h$>');
         equal(str('.nav'), '<? class=nav></?>');
         equal(str('div.width1\\/2'), '<div class=width1/2></div>');
         equal(str('#sample*3'), '<?*3 id=sample></?>');
@@ -128,5 +129,13 @@ describe('Parser', () => {
         equal(str('.foo*3/'), '<?*3 class=foo />');
 
         throws(() => parse('/'), /Unexpected character/);
+    });
+
+    it('JSX names', () => {
+        equal(str('foo.bar'), '<foo class=bar></foo>');
+        equal(str('Foo.bar'), '<Foo class=bar></Foo>');
+        equal(str('Foo.Bar'), '<Foo.Bar></Foo.Bar>');
+        equal(str('Foo.Bar.baz'), '<Foo.Bar class=baz></Foo.Bar>');
+        equal(str('Foo.Bar.Baz'), '<Foo.Bar.Baz></Foo.Bar.Baz>');
     });
 });
