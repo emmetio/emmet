@@ -42,13 +42,13 @@ export function convertSnippets(snippets: SnippetsMap): CSSSnippet[] {
  */
 function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty {
     if (!resolveGradient(node, config)) {
+        const score = config.options['stylesheet.fuzzySearchMinScore'];
         if (config.context) {
             // Resolve as value of given CSS property
             const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
-            const score = config.options['stylesheet.fuzzySearchMinScore'];
             resolveValueKeywords(node, config, snippet, score);
         } else if (node.name) {
-            const snippet = findBestMatch(node.name, snippets, config.options['stylesheet.fuzzySearchMinScore']);
+            const snippet = findBestMatch(node.name, snippets, score);
 
             if (snippet) {
                 if (snippet.type === CSSSnippetType.Property) {
@@ -113,12 +113,17 @@ function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, confi
     if (!node.value.length) {
         // No value defined in abbreviation node, try to resolve unmatched part
         // as a keyword alias
-        const kw = resolveKeyword(getUnmatchedPart(abbr, snippet.key), config, snippet);
+        const inlineValue = getUnmatchedPart(abbr, snippet.key);
+        const kw = inlineValue ? resolveKeyword(inlineValue, config, snippet) : null;
         if (kw) {
             node.value.push(cssValue(kw));
         } else if (snippet.value.length) {
             const defaultValue = snippet.value[0]!;
-            node.value = defaultValue.some(hasField)
+
+            // https://github.com/emmetio/emmet/issues/558
+            // We should auto-select inserted value only if there’s multiple value
+            // choice
+            node.value = snippet.value.length === 1 || defaultValue.some(hasField)
                 ? defaultValue
                 : defaultValue.map(n => wrapWithField(n, config));
         }

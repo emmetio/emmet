@@ -126,6 +126,12 @@ function collectKeywords(cssVal: CSSValue, dest: KeywordMap) {
             dest[v.value] = v;
         } else if (v.type === 'FunctionCall') {
             dest[v.name] = v;
+        } else if (v.type === 'Field') {
+            // Create literal from field, if available
+            const value = v.name.trim();
+            if (value) {
+                dest[value] = { type: 'Literal', value };
+            }
         }
     }
 }

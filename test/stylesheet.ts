@@ -88,7 +88,7 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('p10p'), 'padding: 10%;', 'unit alias');
         equal(expand('z10'), 'z-index: 10;', 'Unitless property');
         equal(expand('p10r'), 'padding: 10rem;', 'unit alias');
-        equal(expand('mten'), 'margin: ${1:10px};', 'Ignore terminating `;` in snippet');
+        equal(expand('mten'), 'margin: 10px;', 'Ignore terminating `;` in snippet');
 
         // https://github.com/microsoft/vscode/issues/59951
         equal(expand('fz'), 'font-size: ${0};');
@@ -96,6 +96,9 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('fsz'), 'font-size: ${0};');
         equal(expand('fsz12'), 'font-size: 12px;');
         equal(expand('fs'), 'font-style: ${1:italic};');
+
+        // https://github.com/emmetio/emmet/issues/558
+        equal(expand('us'), 'user-select: none;');
     });
 
     it('numeric with format options', () => {
