@@ -8,7 +8,9 @@ import stringify from './stringify';
  * abbreviation
  */
 export default function convert(abbr: TokenGroup, options: ParserOptions = {}): Abbreviation {
-    return {
+    let textInserted = false;
+
+    const result: Abbreviation = {
         type: 'Abbreviation',
         children: convertGroup(abbr, {
             inserted: false,
@@ -16,6 +18,7 @@ export default function convert(abbr: TokenGroup, options: ParserOptions = {}): 
             text: options.text,
             repeatGuard: options.maxRepeat || Number.POSITIVE_INFINITY,
             getText(pos) {
+                textInserted = true;
                 const value = Array.isArray(options.text)
                     ? (pos != null ? options.text[pos] : options.text.join('\n'))
                     : options.text;
@@ -28,6 +31,18 @@ export default function convert(abbr: TokenGroup, options: ParserOptions = {}): 
             }
         })
     };
+
+    if (options.text != null && !textInserted) {
+        // Text given but no implicitly repeated elements: insert it into
+        // deepest child
+        const deepest = deepestNode(last(result.children));
+        if (deepest) {
+            const text = Array.isArray(options.text) ? options.text.join('\n') : options.text;
+            insertText(deepest, text);
+        }
+    }
+
+    return result;
 }
 
 /**

@@ -14,6 +14,10 @@ describe('Convert token abbreviations', () => {
         equal(parse('ul>li.item$*'), '<ul><li*1@0 class="item1"></li></ul>');
         equal(parse('ul>li.item$*', { text: ['foo.bar', 'hello.world'] }), '<ul><li*2@0 class="item1">foo.bar</li><li*2@1 class="item2">hello.world</li></ul>');
 
+        equal(parse('p{hi}', { text: ['hello'] }), '<p>hihello</p>');
+        equal(parse('p*{hi}', { text: ['1', '2'] }), '<p*2@0>hi1</p><p*2@1>hi2</p>');
+        equal(parse('div>p+p{hi}', { text: ['hello'] }), '<div><p></p><p>hihello</p></div>');
+
         equal(parse('html[lang=${lang}]'), '<html lang="lang"></html>');
     });
 
