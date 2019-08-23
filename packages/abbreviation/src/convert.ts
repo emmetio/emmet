@@ -154,7 +154,7 @@ function convertGroup(node: TokenGroup, state: ConvertState): AbbreviationNode[]
 function convertAttribute(node: TokenAttribute, state: ConvertState): AbbreviationAttribute {
     let implied = false;
     let isBoolean = false;
-    let valueType: AttributeType = 'raw';
+    let valueType: AttributeType = node.expression ? 'expression' : 'raw';
     let value: Value[] | undefined;
     const name = node.name && stringifyName(node.name, state);
 

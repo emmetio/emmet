@@ -9,6 +9,9 @@ export interface ParserOptions {
 
     /** Max amount of repeated elements in abbreviation */
     maxRepeat?: number;
+
+    /** Enabled JSX parsing mode */
+    jsx?: boolean;
 }
 
 export interface ConvertState {

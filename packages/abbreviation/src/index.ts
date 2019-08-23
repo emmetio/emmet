@@ -14,7 +14,7 @@ export * from './types';
 export default function parseAbbreviation(abbr: string | AllTokens[], options?: ParserOptions) {
     try {
         const tokens = typeof abbr === 'string' ? tokenize(abbr) : abbr;
-        return convert(parse(tokens), options);
+        return convert(parse(tokens, options), options);
     } catch (err) {
         if (err instanceof ScannerError && typeof abbr === 'string') {
             err.message += `\n${abbr}\n${'-'.repeat(err.pos)}^`;

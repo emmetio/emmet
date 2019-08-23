@@ -21,12 +21,6 @@ describe('Markup abbreviations', () => {
         equal(expand('ul>.item$*2'), '<ul><li*2@0 class="item1"></li><li*2@1 class="item2"></li></ul>');
     });
 
-    it('JSX', () => {
-        const config = resolveConfig({ syntax: 'jsx' });
-        equal(expand('div#foo.bar', config), '<div id="foo" className="bar"></div>');
-        equal(expand('label[for=a]', config), '<label htmlFor="a"></label>');
-    });
-
     it('XSL', () => {
         const config = resolveConfig({ syntax: 'xsl' });
         equal(expand('xsl:variable[select]', config), '<xsl:variable select=""></xsl:variable>');

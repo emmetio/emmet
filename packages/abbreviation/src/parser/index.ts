@@ -1,11 +1,13 @@
 import { NameToken, ValueToken, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
 import tokenScanner, { TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner';
+import { ParserOptions } from '../types';
 
 export type TokenStatement = TokenElement | TokenGroup;
 
 export interface TokenAttribute {
     name?: ValueToken[];
     value?: ValueToken[];
+    expression?: boolean;
 }
 
 export interface TokenElement {
@@ -24,9 +26,9 @@ export interface TokenGroup {
     repeat?: Repeater;
 }
 
-export default function abbreviation(abbr: AllTokens[]): TokenGroup {
+export default function abbreviation(abbr: AllTokens[], options: ParserOptions = {}): TokenGroup {
     const scanner = tokenScanner(abbr);
-    const result = statements(scanner);
+    const result = statements(scanner, options);
     if (readable(scanner)) {
         throw error(scanner, 'Unexpected character');
     }
@@ -34,7 +36,7 @@ export default function abbreviation(abbr: AllTokens[]): TokenGroup {
     return result;
 }
 
-function statements(scanner: TokenScanner): TokenGroup {
+function statements(scanner: TokenScanner, options: ParserOptions): TokenGroup {
     const result: TokenGroup = {
         type: 'TokenGroup',
         elements: []
@@ -45,7 +47,7 @@ function statements(scanner: TokenScanner): TokenGroup {
     const stack: TokenStatement[] = [];
 
     while (readable(scanner)) {
-        if (node = element(scanner) || group(scanner)) {
+        if (node = element(scanner, options) || group(scanner, options)) {
             ctx.elements.push(node);
             if (consume(scanner, isChildOperator)) {
                 stack.push(ctx);
@@ -70,9 +72,9 @@ function statements(scanner: TokenScanner): TokenGroup {
 /**
  * Consumes group from given scanner
  */
-function group(scanner: TokenScanner): TokenGroup | undefined {
+function group(scanner: TokenScanner, options: ParserOptions): TokenGroup | undefined {
     if (consume(scanner, isGroupStart)) {
-        const result = statements(scanner);
+        const result = statements(scanner, options);
         const token = next(scanner);
         if (isBracket(token, 'group', false)) {
             result.repeat = repeater(scanner);
@@ -86,7 +88,7 @@ function group(scanner: TokenScanner): TokenGroup | undefined {
 /**
  * Consumes single element from given scanner
  */
-function element(scanner: TokenScanner): TokenElement | undefined {
+function element(scanner: TokenScanner, options: ParserOptions): TokenElement | undefined {
     let attr: TokenAttribute | TokenAttribute[] | undefined;
     const elem: TokenElement = {
         type: 'TokenElement',
@@ -98,7 +100,7 @@ function element(scanner: TokenScanner): TokenElement | undefined {
         elements: []
     };
 
-    if (elementName(scanner)) {
+    if (elementName(scanner, options)) {
         elem.name = slice(scanner) as NameToken[];
     }
 
@@ -108,7 +110,7 @@ function element(scanner: TokenScanner): TokenElement | undefined {
             elem.repeat = scanner.tokens[scanner.pos - 1] as Repeater;
         } else if (!elem.value && text(scanner)) {
             elem.value = getText(scanner);
-        } else if (attr = shortAttribute(scanner, 'id') || shortAttribute(scanner, 'class') || attributeSet(scanner)) {
+        } else if (attr = shortAttribute(scanner, 'id', options) || shortAttribute(scanner, 'class', options) || attributeSet(scanner)) {
             if (!elem.attributes) {
                 elem.attributes = Array.isArray(attr) ? attr.slice() : [attr];
             } else {
@@ -153,13 +155,22 @@ function attributeSet(scanner: TokenScanner): TokenAttribute[] | undefined {
 /**
  * Consumes attribute shorthand (class or id) from given scanner
  */
-function shortAttribute(scanner: TokenScanner, type: 'class' | 'id'): TokenAttribute | undefined {
+function shortAttribute(scanner: TokenScanner, type: 'class' | 'id', options: ParserOptions): TokenAttribute | undefined {
     if (isOperator(peek(scanner), type)) {
         scanner.pos++;
-        return {
-            name: [createLiteral(type)],
-            value: literal(scanner) ? slice(scanner) as ValueToken[] : void 0
+        const attr: TokenAttribute = {
+            name: [createLiteral(type)]
         };
+
+        // Consume expression after shorthand start for React-like components
+        if (options.jsx && text(scanner)) {
+            attr.value = getText(scanner);
+            attr.expression = true;
+        } else {
+            attr.value = literal(scanner) ? slice(scanner) as ValueToken[] : void 0;
+        }
+
+        return attr;
     }
 }
 
@@ -261,10 +272,10 @@ function literal(scanner: TokenScanner, allowBrackets?: boolean): boolean {
 /**
  * Consumes element name from given scanner
  */
-function elementName(scanner: TokenScanner): boolean {
+function elementName(scanner: TokenScanner, options: ParserOptions): boolean {
     const start = scanner.pos;
 
-    if (consume(scanner, isCapitalizedLiteral)) {
+    if (options.jsx && consume(scanner, isCapitalizedLiteral)) {
         // Check for edge case: consume immediate capitalized class names
         // for React-like components, e.g. `Foo.Bar.Baz`
         while (readable(scanner)) {

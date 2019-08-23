@@ -24,7 +24,14 @@ function elem(node: AbbreviationNode): string {
 
 function attribute(attr: AbbreviationAttribute): string {
     const name = attr.name || '?';
-    const value = attr.value ? `"${stringifyValue(attr.value)}"` : '""';
+    let before = '"';
+    let after = '"';
+    if (attr.valueType === 'expression') {
+        before = '{';
+        after = '}';
+    }
+
+    const value = before + (attr.value ? `${stringifyValue(attr.value)}` : '') + after;
     return `${name}=${value}`;
 }
 

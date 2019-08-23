@@ -2,9 +2,10 @@ import { equal, throws } from 'assert';
 import parser from '../src/parser';
 import tokenizer from '../src/tokenizer';
 import stringify from './assets/stringify';
+import { ParserOptions } from '../src';
 
-const parse = (abbr: string) => parser(tokenizer(abbr));
-const str = (abbr: string) => stringify(parse(abbr));
+const parse = (abbr: string, options?: ParserOptions) => parser(tokenizer(abbr), options);
+const str = (abbr: string, options?: ParserOptions) => stringify(parse(abbr, options));
 
 describe('Parser', () => {
     it('basic abbreviations', () => {
@@ -131,11 +132,16 @@ describe('Parser', () => {
         throws(() => parse('/'), /Unexpected character/);
     });
 
-    it('JSX names', () => {
-        equal(str('foo.bar'), '<foo class=bar></foo>');
-        equal(str('Foo.bar'), '<Foo class=bar></Foo>');
-        equal(str('Foo.Bar'), '<Foo.Bar></Foo.Bar>');
-        equal(str('Foo.Bar.baz'), '<Foo.Bar class=baz></Foo.Bar>');
-        equal(str('Foo.Bar.Baz'), '<Foo.Bar.Baz></Foo.Bar.Baz>');
+    it('JSX', () => {
+        const opt = { jsx: true };
+        equal(str('foo.bar', opt), '<foo class=bar></foo>');
+        equal(str('Foo.bar', opt), '<Foo class=bar></Foo>');
+        equal(str('Foo.Bar', opt), '<Foo.Bar></Foo.Bar>');
+        equal(str('Foo.Bar.baz', opt), '<Foo.Bar class=baz></Foo.Bar>');
+        equal(str('Foo.Bar.Baz', opt), '<Foo.Bar.Baz></Foo.Bar.Baz>');
+
+        equal(str('.{theme.class}', opt), '<? class=theme.class></?>');
+        equal(str('#{id}', opt), '<? id=id></?>');
+        equal(str('Foo.{theme.class}', opt), '<Foo class=theme.class></Foo>');
     });
 });

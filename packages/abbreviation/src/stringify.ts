@@ -1,7 +1,17 @@
-import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote } from './tokenizer/tokens';
+import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote, Operator, OperatorType } from './tokenizer/tokens';
 import { ConvertState } from './types';
 
 type TokenVisitor = (token: Token, state: ConvertState) => string;
+
+const operators: { [key in OperatorType]: string } = {
+    child: '>',
+    class: '.',
+    climb: '^',
+    id: '#',
+    equal: '=',
+    close: '/',
+    sibling: '+'
+};
 
 const tokenVisitor: { [name: string]: TokenVisitor } = {
     Literal(token: Literal): string {
@@ -18,6 +28,9 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
         } else {
             return token.open ? '(' : '}';
         }
+    },
+    Operator(token: Operator) {
+        return operators[token.operator];
     },
     Field(token: Field, state) {
         if (token.index != null) {

@@ -1,4 +1,4 @@
-import abbreviation, { Abbreviation, AbbreviationNode } from '@emmetio/abbreviation';
+import abbreviation, { Abbreviation, AbbreviationNode, ParserOptions } from '@emmetio/abbreviation';
 import attributes from './attributes';
 import snippets from './snippets';
 import implicitTag from './implicit-tag';
@@ -23,7 +23,15 @@ const formatters: { [syntax: string]: Formatter } = { html, haml, slim, pug };
  */
 export default function parse(abbr: string | Abbreviation, config: Config): Abbreviation {
     if (typeof abbr === 'string') {
-        abbr = abbreviation(abbr, config);
+        let parseOpt: ParserOptions = config;
+        if (config.options['jsx.enabled']) {
+            parseOpt = {
+                ...parseOpt,
+                jsx: true
+            };
+        }
+
+        abbr = abbreviation(abbr, parseOpt);
     }
 
     // Run abbreviation resolve in two passes:
@@ -55,7 +63,7 @@ function transform(node: AbbreviationNode, ancestors: Container[], config: Confi
         xsl(node);
     }
 
-    if (config.syntax === 'jsx' || config.options['jsx.enabled']) {
+    if (config.options['jsx.enabled']) {
         jsx(node);
     }
 
