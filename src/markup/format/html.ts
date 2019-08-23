@@ -1,4 +1,4 @@
-import { Abbreviation, AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
+import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
 import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline } from '../../output-stream';
 import walk, { WalkState, createWalkState } from './walk';
 import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAttribute } from './utils';
@@ -55,16 +55,19 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
             if (!pushSnippet(node, state, next)) {
                 if (node.value) {
+                    const innerFormat = node.value.some(hasNewline);
+                    innerFormat && pushNewline(state.out, ++out.level);
                     pushTokens(node.value, state);
+                    innerFormat && pushNewline(state.out, --out.level);
                 }
 
                 node.children.forEach(next);
 
                 if (!node.value && !node.children.length) {
                     const innerFormat = config.options['output.formatForce'].includes(node.name);
-                    innerFormat && pushNewline(state.out, out.level + 1);
+                    innerFormat && pushNewline(state.out, ++out.level);
                     pushTokens(caret, state);
-                    innerFormat && pushNewline(state.out, true);
+                    innerFormat && pushNewline(state.out, --out.level);
                 }
             }
 
@@ -166,14 +169,19 @@ function shouldFormat(node: AbbreviationNode, index: number, items: Abbreviation
     /**
      * Adjacent text-only/snippet nodes
      */
-    if (isSnippet(node) && (isSnippet(items[index - 1]) || isSnippet(items[index + 1]))) {
-        return true;
-    }
+    if (isSnippet(node)) {
+        // Adjacent text-only/snippet nodes
+        const format = isSnippet(items[index - 1]) || isSnippet(items[index + 1])
 
-    // If given node is a snippet, format it if it will be handled as wrapper
-    // (contains children which will be outputted as field content)
-    if (isSnippet(node) && node.value!.some(isField) && node.children.length) {
-        return true;
+            // Has newlines: looks like wrapping code fragment
+            || node.value!.some(hasNewline)
+
+            // Format as wrapper: contains children which will be outputted as field content
+            || (node.value!.some(isField) && node.children.length);
+
+        if (format) {
+            return true;
+        }
     }
 
     if (isInline(node, config)) {
@@ -233,4 +241,11 @@ function getIndent(state: WalkState): number {
     }
 
     return 1;
+}
+
+/**
+ * Check if given node value contains newlines
+ */
+function hasNewline(value: Value): boolean {
+    return typeof value === 'string' && /\r|\n/.test(value);
 }

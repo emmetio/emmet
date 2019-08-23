@@ -82,6 +82,11 @@ describe('Expand Abbreviation', () => {
                 '<ul>\n\t<li class="item1"></li>\n\t<!-- /.item1 -->\n\t<li class="item2"></li>\n\t<!-- /.item2 -->\n</ul>');
         });
 
+        it('wrap with abbreviation', () => {
+            equal(expand('div>ul', { text: ['<div>line1</div>\n<div>line2</div>'] }),
+                '<div>\n\t<ul>\n\t\t<div>line1</div>\n\t\t<div>line2</div>\n\t</ul>\n</div>');
+        });
+
         // it.only('debug', () => {
         //     equal(expand('link:css'), '<link rel="stylesheet" href="style.css">');
         // });
