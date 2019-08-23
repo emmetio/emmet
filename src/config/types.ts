@@ -84,6 +84,9 @@ export interface Options {
     /** Enable output formatting (indentation and line breaks) */
     'output.format': boolean;
 
+    /** When enabled, automatically adds inner line breaks for leaf (e.g. without children) nodes */
+    'output.formatLeafNode': boolean;
+
     /** A list of tag names that should not get inner indentation */
     'output.formatSkip': string[];
 

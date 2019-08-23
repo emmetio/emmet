@@ -80,6 +80,9 @@ describe('Expand Abbreviation', () => {
             equal(expand('ul>.item$*2'), '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>');
             equal(expand('ul>.item$*2', { options: { 'comment.enabled': true } }),
                 '<ul>\n\t<li class="item1"></li>\n\t<!-- /.item1 -->\n\t<li class="item2"></li>\n\t<!-- /.item2 -->\n</ul>');
+
+            equal(expand('div>p'), '<div>\n\t<p></p>\n</div>');
+            equal(expand('div>p', { options: { 'output.formatLeafNode': true } }), '<div>\n\t<p>\n\t\t\n\t</p>\n</div>');
         });
 
         it('JSX', () => {

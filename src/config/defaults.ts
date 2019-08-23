@@ -19,6 +19,7 @@ export const defaultOptions: Options = {
     'output.attributeCase': '',
     'output.attributeQuotes': 'double',
     'output.format': true,
+    'output.formatLeafNode': false,
     'output.formatSkip': ['html'],
     'output.formatForce': ['body'],
     'output.inlineBreak': 3,

@@ -64,7 +64,8 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
                 node.children.forEach(next);
 
                 if (!node.value && !node.children.length) {
-                    const innerFormat = config.options['output.formatForce'].includes(node.name);
+                    const innerFormat = config.options['output.formatLeafNode']
+                        || config.options['output.formatForce'].includes(node.name);
                     innerFormat && pushNewline(state.out, ++out.level);
                     pushTokens(caret, state);
                     innerFormat && pushNewline(state.out, --out.level);
