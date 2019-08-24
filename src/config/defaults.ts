@@ -2,7 +2,7 @@ import markupSnippets from '../../snippets/html.json';
 import stylesheetSnippets from '../../snippets/css.json';
 import xslSnippets from '../../snippets/xsl.json';
 import variables from '../../snippets/variables.json';
-import { Options, Config, GlobalConfig } from './types';
+import { Options, Config, GlobalConfig, SnippetsMap } from './types';
 
 export const defaultOptions: Options = {
     'inlineElements': [
@@ -71,7 +71,7 @@ export const defaultConfig: Config = {
  */
 export const syntaxConfig: GlobalConfig = {
     markup: {
-        snippets: markupSnippets,
+        snippets: parseSnippets(markupSnippets),
     },
     xhtml: {
         options: {
@@ -84,7 +84,7 @@ export const syntaxConfig: GlobalConfig = {
         }
     },
     xsl: {
-        snippets: xslSnippets,
+        snippets: parseSnippets(xslSnippets),
         options: {
             'output.selfClosingStyle': 'xml'
         }
@@ -96,7 +96,7 @@ export const syntaxConfig: GlobalConfig = {
     },
 
     stylesheet: {
-        snippets: stylesheetSnippets
+        snippets: parseSnippets(stylesheetSnippets)
     },
 
     sass: {
@@ -111,3 +111,18 @@ export const syntaxConfig: GlobalConfig = {
         }
     }
 };
+
+/**
+ * Parses raw snippets definitions with possibly multiple keys into a plan
+ * snippet map
+ */
+export function parseSnippets(snippets: SnippetsMap): SnippetsMap {
+    const result: SnippetsMap = {};
+    Object.keys(snippets).forEach(k => {
+        for (const name of k.split('|')) {
+            result[name] = snippets[k];
+        }
+    });
+
+    return result;
+}
