@@ -71,7 +71,7 @@ console.log(expand('p10', { syntax: 'css' })); // padding: 10px;
 console.log(expand('p10', { syntax: 'stylus' })); // padding 10px
 ```
 
-Predefined syntaxes already have `type` attribute which describes whether given abbreviation is markup or stylesheet, but if you wnt to use it with your custom syntax name, you should provide `type` config option as well (default it `markup`):
+Predefined syntaxes already have `type` attribute which describes whether given abbreviation is markup or stylesheet, but if you want to use it with your custom syntax name, you should provide `type` config option as well (default it `markup`):
 
 ```js
 import expand from 'emmet';
