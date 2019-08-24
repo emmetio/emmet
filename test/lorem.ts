@@ -19,6 +19,10 @@ describe('Lorem Ipsum generator', () => {
         ok(/^Lorem,?\sipsum/.test(output));
         equal(wordCount(output), 5);
 
+        output = expand('lorem5-10');
+        ok(/^Lorem,?\sipsum/.test(output));
+        ok(wordCount(output) >= 5 && wordCount(output) <= 10);
+
         output = expand('loremru4');
         ok(/^Далеко-далеко,?\sза,?\sсловесными/.test(output));
         equal(wordCount(output), 4);

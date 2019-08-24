@@ -12,13 +12,15 @@ interface LoremVocabulary {
 }
 
 const vocabularies: { [lang: string]: LoremVocabulary } = { ru, sp, latin };
-const reLorem = /^lorem([a-z]*)(\d*)$/i;
+const reLorem = /^lorem([a-z]*)(\d*)(-\d*)?$/i;
 
 export default function lorem(node: AbbreviationNode, ancestors: Container[], config: Config) {
     let m: RegExpMatchArray | null;
     if (node.name && (m = node.name.match(reLorem))) {
         const db: LoremVocabulary = vocabularies[m[1]] || vocabularies.latin;
-        const wordCount = m[2] ? Math.max(1, Number(m[2])) : 30;
+        const minWordCount = m[2] ? Math.max(1, Number(m[2])) : 30;
+        const maxWordCount = m[3] ? Math.max(minWordCount, Number(m[2].slice(1))) : minWordCount;
+        const wordCount = rand(minWordCount, maxWordCount);
         const repeat = node.repeat || findRepeater(ancestors);
 
         node.name = node.attributes = void 0;
