@@ -1,6 +1,6 @@
 {
   "name": "emmet",
-  "version": "2.0.0-rc.0",
+  "version": "2.0.0-rc.1",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs.js",
   "module": "./dist/emmet.es.js",
@@ -37,8 +37,8 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "@emmetio/abbreviation": "^2.0.0-rc.0",
-    "@emmetio/css-abbreviation": "^2.0.0-rc.0"
+    "@emmetio/abbreviation": "^2.0.0-rc.1",
+    "@emmetio/css-abbreviation": "^2.0.0-rc.1"
   },
   "mocha": {
     "require": "ts-node/register",
