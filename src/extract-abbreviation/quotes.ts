@@ -9,7 +9,7 @@ const enum Chars {
 /**
  * Check if given character code is a quote
  */
-export function isQuote(c: number) {
+export function isQuote(c?: number) {
     return c === Chars.SingleQuote || c === Chars.DoubleQuote;
 }
 

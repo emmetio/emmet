@@ -15,7 +15,7 @@ export interface BackwardScanner {
  * Creates structure for scanning given string in backward direction
  */
 export default function backwardScanner(text: string, start = 0): BackwardScanner {
-    return { text, start, pos: 0 };
+    return { text, start, pos: text.length };
 }
 
 /**

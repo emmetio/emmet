@@ -34,4 +34,5 @@ export function stylesheet(abbr: string | CSSAbbreviation, config: Config, snipp
 }
 
 export { parseMarkup, stringifyMarkup, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets, resolveConfig };
+export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
 export * from './config/types';

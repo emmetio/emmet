@@ -70,13 +70,16 @@ const defaultOptions: ExtractOptions = {
  * The goal of this module is to extract abbreviation from current editor’s line,
  * e.g. like this: `<span>.foo[title=bar|]</span>` -> `.foo[title=bar]`, where
  * `|` is a current caret position.
+ * @param line A text line where abbreviation should be expanded
+ * @param pos Caret position in line. If not given, uses end of line
+ * @param options Extracting options
  */
-export default function extractAbbreviation(line: string, pos: number, options: Partial<ExtractOptions> = {}): ExtractedAbbreviation | undefined {
+export default function extractAbbreviation(line: string, pos: number = line.length, options: Partial<ExtractOptions> = {}): ExtractedAbbreviation | undefined {
     // make sure `pos` is within line range
     const opt: ExtractOptions = { ...defaultOptions, ...options };
     pos = Math.min(line.length, Math.max(0, pos == null ? line.length : pos));
 
-    if (options.lookAhead) {
+    if (opt.lookAhead) {
         pos = offsetPastAutoClosed(line, pos, opt);
     }
 
