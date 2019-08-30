@@ -201,7 +201,7 @@ function repeaterNumber(scanner: Scanner): RepeaterNumber | undefined {
         let base = 1;
         let parent = 0;
 
-        if (Chars.At) {
+        if (scanner.eat(Chars.At)) {
             // Consume numbering modifiers
             while (scanner.eat(Chars.Climb)) {
                 parent++;
