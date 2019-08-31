@@ -33,6 +33,6 @@ export function stylesheet(abbr: string | CSSAbbreviation, config: Config, snipp
     return stringifyStylesheet(parseStylesheet(abbr, config, snippets), config);
 }
 
-export { parseMarkup, stringifyMarkup, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets, resolveConfig };
+export { parseMarkup, stringifyMarkup, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets };
 export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
-export * from './config/types';
+export { GlobalConfig, SyntaxType, Config, UserConfig, Options, default as resolveConfig } from './config';
