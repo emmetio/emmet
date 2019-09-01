@@ -22,16 +22,15 @@ export default function createOutputStream(options: Options, level = 0): OutputS
 }
 
 /**
- * Pushes raw string into output stream
+ * Pushes plain string into output stream without newline processing
  */
 export function push(stream: OutputStream, text: string) {
-    stream.value += text;
-    stream.offset += text.length;
-    stream.column += text.length;
+    const processText = stream.options['output.text'];
+    _push(stream, processText(text, stream.offset, stream.line, stream.column));
 }
 
 /**
- * Pushes given string with newline formatting into output
+ * Pushes given string with possible newline formatting into output
  */
 export function pushString(stream: OutputStream, value: string) {
     // If given value contains newlines, we should push content line-by-line and
@@ -65,7 +64,7 @@ export function pushNewline(stream: OutputStream, indent?: boolean | number) {
  */
 export function pushIndent(stream: OutputStream, size = stream.level) {
     const indent = stream.options['output.indent'];
-    pushString(stream, indent.repeat(Math.max(size, 0)));
+    push(stream, indent.repeat(Math.max(size, 0)));
 }
 
 /**
@@ -73,7 +72,8 @@ export function pushIndent(stream: OutputStream, size = stream.level) {
  */
 export function pushField(stream: OutputStream, index: number, placeholder: string) {
     const field = stream.options['output.field'];
-    pushString(stream, field(index, placeholder, stream.offset, stream.line, stream.column));
+    // NB: use `_push` instead of `push` to skip text processing
+    _push(stream, field(index, placeholder, stream.offset, stream.line, stream.column));
 }
 
 /**
@@ -138,6 +138,15 @@ export function isInline(node: string | AbbreviationNode, config: Config): boole
  */
 export function splitByLines(text: string): string[] {
     return text.split(/\r\n|\r|\n/g);
+}
+
+/**
+ * Pushes raw string into output stream without any processing
+ */
+function _push(stream: OutputStream, text: string) {
+    stream.value += text;
+    stream.offset += text.length;
+    stream.column += text.length;
 }
 
 function strCase(str: string, type: StringCase) {

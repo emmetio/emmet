@@ -5,6 +5,7 @@ import variables from '../snippets/variables.json';
 
 export type SyntaxType = 'markup' | 'stylesheet';
 export type FieldOutput = (index: number, placeholder: string, offset: number, line: number, column: number) => string;
+export type TextOutput = (text: string, offset: number, line: number, column: number) => string;
 export type StringCase = '' | 'lower' | 'upper';
 export interface SnippetsMap {
     [name: string]: string;
@@ -132,6 +133,12 @@ export interface Options {
      * @param column Current column in line
      */
     'output.field': FieldOutput;
+
+    /**
+     * A function for processing text chunk passed to `OutputStream`.
+     * May be used by editor for escaping characters, if necessary
+     */
+    'output.text': TextOutput;
 
     ////////////////////////////////
     // Element commenting options //
@@ -272,6 +279,7 @@ export const defaultOptions: Options = {
     'output.reverseAttributes': false,
     'output.selfClosingStyle': 'html',
     'output.field': (index, placeholder) => placeholder,
+    'output.text': text => text,
 
     'comment.enabled': false,
     'comment.trigger': ['id', 'class'],
