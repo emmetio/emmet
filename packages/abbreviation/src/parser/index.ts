@@ -148,7 +148,7 @@ function attributeSet(scanner: TokenScanner): TokenAttribute[] | undefined {
             }
         }
 
-        return attributes.length ? attributes : void 0;
+        return attributes;
     }
 }
 

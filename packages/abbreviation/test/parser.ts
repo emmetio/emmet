@@ -40,6 +40,7 @@ describe('Parser', () => {
     });
 
     it('attributes', () => {
+        equal(str('[].foo'), '<? class=foo></?>');
         equal(str('[a]'), '<? a></?>');
         equal(str('[a b c [d]]'), '<? a b c [d]></?>');
         equal(str('[a=b]'), '<? a=b></?>');
