@@ -1,5 +1,5 @@
-import { Abbreviation } from '@emmetio/abbreviation';
-import { CSSAbbreviation } from '@emmetio/css-abbreviation';
+import markupAbbreviation, { Abbreviation } from '@emmetio/abbreviation';
+import stylesheetAbbreviation, { CSSAbbreviation } from '@emmetio/css-abbreviation';
 import parseMarkup, { stringify as stringifyMarkup } from './markup';
 import parseStylesheet, {
     stringify as stringifyStylesheet,
@@ -33,6 +33,9 @@ export function stylesheet(abbr: string | CSSAbbreviation, config: Config, snipp
     return stringifyStylesheet(parseStylesheet(abbr, config, snippets), config);
 }
 
-export { parseMarkup, stringifyMarkup, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets };
+export {
+    markupAbbreviation, parseMarkup, stringifyMarkup,
+    stylesheetAbbreviation, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets
+};
 export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
 export { GlobalConfig, SyntaxType, Config, UserConfig, Options, default as resolveConfig } from './config';
