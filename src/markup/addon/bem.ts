@@ -1,8 +1,12 @@
 import { AbbreviationNode, Value } from '@emmetio/abbreviation';
 import { Container } from '../utils';
-import { Config } from '../../config';
+import { Config, AbbreviationContext } from '../../config';
 
 interface BEMAbbreviationNode extends AbbreviationNode {
+    _bem?: BEMData;
+}
+
+interface BEMAbbreviationContext extends AbbreviationContext {
     _bem?: BEMData;
 }
 
@@ -19,7 +23,6 @@ const blockCandidates2 = (className: string) => /^[a-z]/i.test(className);
 export default function bem(node: AbbreviationNode, ancestors: Container[], config: Config) {
     expandClassNames(node);
     expandShortNotation(node, ancestors, config);
-
 }
 
 /**
@@ -65,7 +68,7 @@ function expandShortNotation(node: BEMAbbreviationNode, ancestors: Container[], 
 
         // parse element definition (could be only one)
         if (m = cl.match(reElement)) {
-            prefix = getBlockName(path, m[1].length) + options['bem.element'] + m[2];
+            prefix = getBlockName(path, m[1].length, config.context) + options['bem.element'] + m[2];
             classNames.push(prefix);
             cl = cl.slice(m[0].length);
         }
@@ -109,21 +112,36 @@ function getBEMData(node: BEMAbbreviationNode): BEMData {
             }
         }
 
-        const classNames = classValue ? classValue.split(/\s+/) : [];
-        node._bem = {
-            classNames,
-            block: findBlockName(classNames)
-        };
+        node._bem = parseBEM(classValue);
     }
 
     return node._bem;
+}
+
+function getBEMDataFromContext(context: BEMAbbreviationContext) {
+    if (!context._bem) {
+        context._bem = parseBEM(context.attributes && context.attributes.class || '');
+    }
+
+    return context._bem;
+}
+
+/**
+ * Parses BEM data from given class name
+ */
+function parseBEM(classValue?: string): BEMData {
+    const classNames = classValue ? classValue.split(/\s+/) : [];
+    return {
+        classNames,
+        block: findBlockName(classNames)
+    };
 }
 
 /**
  * Returns block name for given `node` by `prefix`, which tells the depth of
  * of parent node lookup
  */
-function getBlockName(ancestors: BEMAbbreviationNode[], depth: number = 0): string {
+function getBlockName(ancestors: BEMAbbreviationNode[], depth: number = 0, context?: BEMAbbreviationContext): string {
     const maxParentIx = 0;
     let parentIx = Math.max(ancestors.length - depth, maxParentIx);
     do {
@@ -135,6 +153,13 @@ function getBlockName(ancestors: BEMAbbreviationNode[], depth: number = 0): stri
             }
         }
     } while (maxParentIx < parentIx--);
+
+    if (context) {
+        const data = getBEMDataFromContext(context);
+        if (data.block) {
+            return data.block;
+        }
+    }
 
     return '';
 }

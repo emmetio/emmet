@@ -79,5 +79,13 @@ describe('Markup abbreviations', () => {
             equal(expand('div.b>div._m.c', config), '<div class="b"><div class="b b_m c"></div></div>');
             equal(expand('div.b>div.-m.c', config), '<div class="b"><div class="b__m c"></div></div>');
         });
+
+        it('parent context', () => {
+            // Get block name from context
+            equal(expand('.-e_m', resolveConfig({
+                context: { name: 'div', attributes: { class: 'bl' } },
+                options: { 'bem.enabled': true }
+            })), '<div class="bl__e bl__e_m"></div>');
+        });
     });
 });
