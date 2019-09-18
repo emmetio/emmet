@@ -12,7 +12,7 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "newLine": "LF",
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
   "files": ["src/index.ts"]
 }

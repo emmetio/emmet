@@ -45,7 +45,8 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
         const score = config.options['stylesheet.fuzzySearchMinScore'];
         if (config.context) {
             // Resolve as value of given CSS property
-            const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === config.context) as CSSSnippetProperty | undefined;
+            const propName = config.context.name;
+            const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === propName) as CSSSnippetProperty | undefined;
             resolveValueKeywords(node, config, snippet, score);
         } else if (node.name) {
             const snippet = findBestMatch(node.name, snippets, score);

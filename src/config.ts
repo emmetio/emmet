@@ -11,6 +11,11 @@ export interface SnippetsMap {
     [name: string]: string;
 }
 
+export interface AbbreviationContext {
+    name: string;
+    attributes?: { [name: string]: string | null };
+}
+
 /**
  * Raw config which contains per-syntax options. `markup` and `syntax` keys are
  * reserved for global settings for all markup and stylesheet syntaxes
@@ -38,11 +43,11 @@ interface ResolvedConfig extends BaseConfig {
     syntax: string;
 
     /**
-     * Context of abbreviation. For markup abbreviation, it’s a parent tag name,
-     * for stylesheet abbreviation, it’s a property name if abbreviation is expanded
-     * as value
+     * Context of abbreviation. For markup abbreviation, it contains parent tag
+     * name with attributes, for stylesheet abbreviation it contains property name
+     * if abbreviation is expanded as value
      */
-    context?: string;
+    context?: AbbreviationContext;
 
     /** Text to wrap with abbreviation */
     text?: string | string[];
