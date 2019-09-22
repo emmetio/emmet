@@ -166,4 +166,13 @@ describe('Stylesheet abbreviations', () => {
 
         equal(expand('p10+mt10-20', config), 'padding: 10,\nmarginTop: \'10px 20px\',');
     });
+
+    it('resolve context value', () => {
+        const config = resolveConfig({
+            context: { name: 'align-content' }
+        });
+
+        equal(expand('s', config), 'start');
+        equal(expand('a', config), 'auto');
+    });
 });

@@ -12,7 +12,7 @@ type MatchInput = CSSSnippet | string;
  */
 export default function parse(abbr: string | CSSAbbreviation, config: Config, snippets = convertSnippets(config.snippets)): CSSAbbreviation {
     if (typeof abbr === 'string') {
-        abbr = abbreviation(abbr);
+        abbr = abbreviation(abbr, { value: !!config.context });
     }
 
     for (const node of abbr) {
