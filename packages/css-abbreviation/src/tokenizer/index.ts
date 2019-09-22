@@ -216,12 +216,8 @@ function colorValue(scanner: Scanner): ColorValue | undefined {
 
         // a hex color can be followed by `.num` alpha value
         scanner.start = scanner.pos;
-        if (scanner.eat(Chars.Dot)) {
-            if (scanner.eatWhile(isNumber)) {
-                alpha = scanner.current();
-            } else {
-                throw scanner.error('Unexpected character for alpha value of color');
-            }
+        if (scanner.eat(Chars.Dot) && scanner.eatWhile(isNumber)) {
+            alpha = scanner.current();
         }
 
         const { r, g, b, a } = parseColor(color, alpha);
