@@ -5,9 +5,10 @@ import color, { frac } from './color';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);
+    const format = config.options['output.format'];
 
     for (let i = 0; i < abbr.length; i++) {
-        if (i !== 0) {
+        if (format && i !== 0) {
             pushNewline(out, true);
         }
         property(abbr[i], out, config);
