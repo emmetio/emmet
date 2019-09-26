@@ -161,3 +161,33 @@ extract(source2, source2.length, { prefix: '<' }); // Finds `div` since it prece
 ```
 
 With `prefix` option, you can customize your experience with Emmet in any common syntax (HTML, CSS and so on) if user is distracted too much with Emmet completions for any typed word. A `prefix` may contain multiple character but the last one *must* be a character which is not part of Emmet abbreviation. Good candidates are `<`, `&`, `→` (emoji or Unicode symbol) and so on.
+
+## Contributors
+
+### Code Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/emmetio/emmet/graphs/contributors"><img src="https://opencollective.com/emmet/contributors.svg?width=890&button=false" /></a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/emmet/contribute)]
+
+#### Individuals
+
+<a href="https://opencollective.com/emmet"><img src="https://opencollective.com/emmet/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/emmet/contribute)]
+
+<a href="https://opencollective.com/emmet/organization/0/website"><img src="https://opencollective.com/emmet/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/1/website"><img src="https://opencollective.com/emmet/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/2/website"><img src="https://opencollective.com/emmet/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/3/website"><img src="https://opencollective.com/emmet/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/4/website"><img src="https://opencollective.com/emmet/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/5/website"><img src="https://opencollective.com/emmet/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/6/website"><img src="https://opencollective.com/emmet/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/7/website"><img src="https://opencollective.com/emmet/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/8/website"><img src="https://opencollective.com/emmet/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/emmet/organization/9/website"><img src="https://opencollective.com/emmet/organization/9/avatar.svg"></a>
