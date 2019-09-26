@@ -11,7 +11,8 @@
     "test": "mocha",
     "lint": "tslint ./src/*.ts",
     "clean": "rm -rf ./dist",
-    "prepare": "npm test && npm run lint && npm run clean && npm run build"
+    "prepare": "npm test && npm run lint && npm run clean && npm run build",
+    "postinstall": "opencollective-postinstall || true"
   },
   "repository": {
     "type": "git",
@@ -41,5 +42,12 @@
   "mocha": {
     "require": "ts-node/register",
     "spec": "./test/*.ts"
+  },
+  "dependencies": {
+    "opencollective-postinstall": "^2.0.2"
+  },
+  "collective": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/emmet"
   }
 }
