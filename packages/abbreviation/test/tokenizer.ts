@@ -25,9 +25,7 @@ describe('Tokenizer', () => {
             { type: 'Literal', value: 'bar', start: 31, end: 34 },
             { type: 'Bracket', open: false, context: 'attribute', start: 34, end: 35 },
             { type: 'Bracket', open: true, context: 'expression', start: 35, end: 36 },
-            { type: 'Bracket', open: true, context: 'group', start: 36, end: 37 },
-            { type: 'Literal', value: 'some > text', start: 37, end: 48 },
-            { type: 'Bracket', open: false, context: 'group', start: 48, end: 49 },
+            { type: 'Literal', value: '(some > text)', start: 36, end: 49 },
             { type: 'Bracket', open: false, context: 'expression', start: 49, end: 50 }
         ]);
 
@@ -38,6 +36,17 @@ describe('Tokenizer', () => {
             { type: 'Literal', value: 'some', start: 3, end: 7 },
             { type: 'Field', index: 1, name: 'field placeholder', start: 7, end: 29 },
             { type: 'Bracket', open: false, context: 'expression', start: 29, end: 30 }
+        ]);
+
+        deepStrictEqual(tokenize('div{[}+a{}'), [
+            { type: 'Literal', value: 'div', start: 0, end: 3 },
+            { type: 'Bracket', open: true, context: 'expression', start: 3, end: 4 },
+            { type: 'Literal', value: '[', start: 4, end: 5 },
+            { type: 'Bracket', open: false, context: 'expression', start: 5, end: 6 },
+            { type: 'Operator', operator: 'sibling', start: 6, end: 7  },
+            { type: 'Literal', value: 'a', start: 7, end: 8 },
+            { type: 'Bracket', open: true, context: 'expression', start: 8, end: 9 },
+            { type: 'Bracket', open: false, context: 'expression', start: 9, end: 10 }
         ]);
     });
 
