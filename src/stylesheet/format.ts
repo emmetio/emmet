@@ -42,8 +42,12 @@ function property(node: CSSProperty, out: OutputStream, config: Config) {
             push(out, config.options['stylesheet.after']);
         }
     } else {
-        // It’s a regular snippet
-        propertyValue(node, out, config);
+        // It’s a regular snippet, output plain tokens without any additional formatting
+        for (const cssVal of node.value) {
+            for (const v of cssVal.value) {
+                outputToken(v, out, config);
+            }
+        }
         outputImportant(node, out, node.value.length > 0);
     }
 }

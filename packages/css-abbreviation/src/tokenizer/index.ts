@@ -123,7 +123,9 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
 
     if (scanner.eat(isIdentPrefix)) {
         // SCSS or LESS variable
-        scanner.eatWhile(isKeyword);
+        // NB a bit dirty hack: if abbreviation starts with identifier prefix,
+        // consume alpha characters only to allow embedded variables
+        scanner.eatWhile(start ? isKeyword : isAlphaWord);
     } else if (scanner.eat(isAlphaWord)) {
         scanner.eatWhile(short ? isAlphaWord : isKeyword);
     }

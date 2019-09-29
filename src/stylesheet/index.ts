@@ -61,7 +61,10 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
         }
     }
 
-    resolveNumericValue(node, config);
+    if (node.name || config.context) {
+        // Resolve numeric values for CSS properties only
+        resolveNumericValue(node, config);
+    }
 
     return node;
 }
@@ -166,15 +169,34 @@ function resolveValueKeywords(node: CSSProperty, config: Config, snippet?: CSSSn
  * Resolves given parsed abbreviation node as a snippet: a plain code chunk
  */
 function resolveAsSnippet(node: CSSProperty, snippet: CSSSnippetRaw): CSSProperty {
-    return setNodeAsText(node, snippet.value);
-}
+    // When resolving snippets, we have to do the following:
+    // 1. Replace field placeholders with actual field tokens.
+    // 2. If input values given, put them instead of fields
+    let offset = 0;
+    let m: RegExpExecArray | null;
+    const reField = /\$\{(\d+)(:[^}]+)?\}/g;
+    const inputValue = node.value[0];
+    const outputValue: Value[] = [];
 
-/**
- * Sets given parsed abbreviation node as a text snippet
- */
-function setNodeAsText(node: CSSProperty, text: string): CSSProperty {
+    while (m = reField.exec(snippet.value)) {
+        if (offset !== m.index) {
+            outputValue.push(literal(snippet.value.slice(offset, m.index)));
+        }
+        offset = m.index + m[0].length;
+        if (inputValue && inputValue.value.length) {
+            outputValue.push(inputValue.value.shift()!);
+        } else {
+            outputValue.push(field(Number(m[1]), m[2] ? m[2].slice(1) : ''));
+        }
+    }
+
+    const tail = snippet.value.slice(offset);
+    if (tail) {
+        outputValue.push(literal(tail));
+    }
+
     node.name = void 0;
-    node.value = [cssValue(literal(text))];
+    node.value = [cssValue(...outputValue)];
     return node;
 }
 

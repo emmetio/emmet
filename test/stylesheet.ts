@@ -130,6 +130,9 @@ describe('Stylesheet abbreviations', () => {
 
     it('snippets', () => {
         equal(expand('@k'), '@keyframes ${1:identifier} {\n\t${2}\n}');
+        // Insert value into snippet fields
+        equal(expand('@k-name'), '@keyframes name {\n\t${2}\n}');
+        equal(expand('@k-name10'), '@keyframes name {\n\t10\n}');
     });
 
     it('multiple properties', () => {

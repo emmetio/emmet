@@ -283,5 +283,10 @@ describe('Tokenizer', () => {
             { type: 'Literal', value: '$bar', start: 3, end: 7 },
             { type: 'Literal', value: '@bam', start: 7, end: 11 }
         ]);
+
+        deepEqual(tokenize('@k10'), [
+            { type: 'Literal', value: '@k', start: 0, end: 2 },
+            { type: 'NumberValue', value: 10, unit: '', start: 2, end: 4 }
+        ]);
     });
 });
