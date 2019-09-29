@@ -138,6 +138,7 @@ describe('Parser', () => {
         equal(str('foo.bar', opt), '<foo class=bar></foo>');
         equal(str('Foo.bar', opt), '<Foo class=bar></Foo>');
         equal(str('Foo.Bar', opt), '<Foo.Bar></Foo.Bar>');
+        equal(str('Foo.', opt), '<Foo class></Foo>');
         equal(str('Foo.Bar.baz', opt), '<Foo.Bar class=baz></Foo.Bar>');
         equal(str('Foo.Bar.Baz', opt), '<Foo.Bar.Baz></Foo.Bar.Baz>');
 

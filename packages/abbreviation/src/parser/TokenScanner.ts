@@ -35,7 +35,8 @@ export function readable(scanner: TokenScanner): boolean {
 }
 
 export function consume(scanner: TokenScanner, test: TestFn): boolean {
-    if (test(peek(scanner))) {
+    const token = peek(scanner);
+    if (token && test(token)) {
         scanner.pos++;
         return true;
     }
