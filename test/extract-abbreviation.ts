@@ -71,9 +71,9 @@ describe('Extract abbreviation', () => {
     });
 
     it('brackets inside curly braces', () => {
-		deepStrictEqual(extract('foo div{[}+a{}'), result('div{[}+a{}', 4));
+        deepStrictEqual(extract('foo div{[}+a{}'), result('div{[}+a{}', 4));
         deepStrictEqual(extract('div{}}'), undefined);
-		deepStrictEqual(extract('div{{}'), result('{}', 4));
+        deepStrictEqual(extract('div{{}'), result('{}', 4));
 	})
 
     it('HTML test', () => {

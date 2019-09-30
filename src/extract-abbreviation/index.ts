@@ -97,17 +97,17 @@ export default function extractAbbreviation(line: string, pos: number = line.len
         ch = peek(scanner);
 
         if (stack.includes(Brackets.CurlyR)) {
-			if (ch === Brackets.CurlyR) {
-				stack.push(ch);
-				scanner.pos--;
-				continue;
-			}
+            if (ch === Brackets.CurlyR) {
+                stack.push(ch);
+                scanner.pos--;
+                continue;
+            }
 
-			if (ch !== Brackets.CurlyL) {
-				scanner.pos--;
-				continue;
-			}
-		}
+            if (ch !== Brackets.CurlyL) {
+                scanner.pos--;
+                continue;
+            }
+        }
 
         if (isCloseBrace(ch, opt.type)) {
             stack.push(ch);
