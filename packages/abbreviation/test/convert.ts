@@ -19,7 +19,7 @@ describe('Convert token abbreviations', () => {
         equal(parse('div>p+p{hi}', { text: ['hello'] }), '<div><p></p><p>hihello</p></div>');
 
         equal(parse('html[lang=${lang}]'), '<html lang="lang"></html>');
-        equal(parse("div{[}+a{}"), "<div>[</div><a></a>");
+        equal(parse('div{[}+a{}'), '<div>[</div><a></a>');
     });
 
     it('unroll', () => {

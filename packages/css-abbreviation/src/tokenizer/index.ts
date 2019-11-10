@@ -1,4 +1,4 @@
-import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace } from '@emmetio/scanner';
+import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
 import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field } from './tokens';
 import { Chars } from './utils';
 
@@ -150,7 +150,7 @@ function createLiteral(scanner: Scanner, start = scanner.start, end = scanner.po
  * if possible
  */
 function numberValue(scanner: Scanner): NumberValue | undefined {
-    const start = scanner.start = scanner.pos;
+    const start = scanner.pos;
     if (consumeNumber(scanner)) {
         scanner.start = start;
         const value = Number(scanner.current());
@@ -176,7 +176,7 @@ function stringValue(scanner: Scanner): StringValue | undefined {
     const start = scanner.pos;
     let finished = false;
 
-    if (ch === Chars.SingleQuote || ch === Chars.DoubleQuote) {
+    if (isQuote(ch)) {
         scanner.pos++;
         while (!scanner.eof()) {
             // Do not throw error on malformed string

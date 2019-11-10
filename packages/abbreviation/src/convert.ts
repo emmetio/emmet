@@ -130,6 +130,8 @@ function convertElement(node: TokenElement, state: ConvertState): AbbreviationNo
     // In case if current node is a text-only snippet without fields, we should
     // put all children as siblings
     if (!elem.name && !elem.attributes && elem.value && !elem.value.some(isField)) {
+        // XXX it’s unclear that `children` is not bound to `elem`
+        // due to concat operation
         result = result.concat(children);
     } else {
         elem.children = children;
@@ -220,7 +222,7 @@ function stringifyValue(tokens: ValueToken[], state: ConvertState): Value[] {
     let str = '';
     for (let i = 0, token: ValueToken; i < tokens.length; i++) {
         token = tokens[i];
-        if (token.type === 'Field' && token.index != null) {
+        if (isField(token)) {
             // We should keep original fields in output since some editors has their
             // own syntax for field or doesn’t support fields at all so we should
             // capture actual field location in output stream
@@ -245,7 +247,7 @@ export function isGroup(node: any): node is TokenGroup {
     return node.type === 'TokenGroup';
 }
 
-function isField(token: Value): token is Field {
+function isField(token: any): token is Field {
     return typeof token === 'object' && token.type === 'Field' && token.index != null;
 }
 
