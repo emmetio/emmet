@@ -14,7 +14,8 @@ export interface ExtractOptions {
      */
     lookAhead: boolean;
 
-    /** Type of context syntax of expanded abbreviation.
+    /**
+     * Type of context syntax of expanded abbreviation.
      * In 'stylesheet' syntax, brackets `[]` and `{}` are not supported thus
      * not extracted.
      */

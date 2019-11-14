@@ -30,7 +30,7 @@ const enum TemplateChars {
  * between `[` and `]`, for example: `[PLACEHOLDER]`.
  * Unlike other templates, a placeholder may contain extra characters before and
  * after name: `[%PLACEHOLDER.]`. If data for `PLACEHOLDER` is defined, it will
- * be outputted with with these extra character, otherwise will be completely omitted/
+ * be outputted with with these extra character, otherwise will be completely omitted.
  */
 export default function template(text: string): TemplateToken[] {
     const tokens: TemplateToken[] = [];

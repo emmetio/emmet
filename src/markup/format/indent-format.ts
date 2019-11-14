@@ -118,14 +118,17 @@ export function collectAttributes(node: AbbreviationNode): AttributesCollection 
  */
 export function pushPrimaryAttributes(attrs: AbbreviationAttribute[], state: WalkState) {
     for (const attr of attrs) {
-        const isClass = attr.name === 'class';
-        pushString(state.out, isClass ? '.' : '#');
         if (attr.value) {
-            const tokens = isClass
+            if (attr.name === 'class') {
+                pushString(state.out, '.');
                 // All whitespace characters must be replaced with dots in class names
-                ? attr.value.map(t => typeof t === 'string' ? t.replace(/\s+/g, '.') : t)
-                : attr.value;
-            pushTokens(tokens, state);
+                const tokens = attr.value.map(t => typeof t === 'string' ? t.replace(/\s+/g, '.') : t);
+                pushTokens(tokens, state);
+            } else {
+                // ID attribute
+                pushString(state.out, '#');
+                pushTokens(attr.value, state);
+            }
         }
     }
 }

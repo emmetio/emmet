@@ -82,7 +82,7 @@ function mergeDeclarations(dest: AbbreviationAttribute, src: AbbreviationAttribu
 }
 
 function append(tokens: Value[], value: Value) {
-    const lastIx = tokens.length;
+    const lastIx = tokens.length - 1;
     if (typeof tokens[lastIx] === 'string' && typeof value === 'string') {
         tokens[lastIx] += value;
     } else {
