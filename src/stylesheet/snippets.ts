@@ -68,7 +68,7 @@ export default function createSnippet(key: string, value: string): CSSSnippet {
  * `background-position-x` -> `background-position` -> `background`
  */
 export function nest(snippets: CSSSnippet[]): CSSSnippet[] {
-    snippets = snippets.sort(snippetsSort);
+    snippets = snippets.slice().sort(snippetsSort);
     const stack: CSSSnippetProperty[] = [];
     let prev: CSSSnippet;
 

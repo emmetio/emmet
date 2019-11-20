@@ -5,6 +5,7 @@ import calculateScore from './score';
 import color from './color';
 
 type MatchInput = CSSSnippet | string;
+const gradientName = 'lg';
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -70,7 +71,7 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
 }
 
 /**
- * Resolves CSS gradient shortcut from given propert, if possible
+ * Resolves CSS gradient shortcut from given property, if possible
  */
 function resolveGradient(node: CSSProperty, config: Config): boolean {
     let gradientFn: FunctionCall | null = null;
@@ -78,12 +79,12 @@ function resolveGradient(node: CSSProperty, config: Config): boolean {
 
     if (cssVal && cssVal.value.length === 1) {
         const v = cssVal.value[0]!;
-        if (v.type === 'FunctionCall' && v.name === 'lg') {
+        if (v.type === 'FunctionCall' && v.name === gradientName) {
             gradientFn = v;
         }
     }
 
-    if (gradientFn || node.name === 'lg') {
+    if (gradientFn || node.name === gradientName) {
         if (!gradientFn) {
             gradientFn = {
                 type: 'FunctionCall',
