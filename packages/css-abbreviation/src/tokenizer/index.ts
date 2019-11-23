@@ -128,6 +128,8 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
         scanner.eatWhile(start ? isKeyword : isAlphaWord);
     } else if (scanner.eat(isAlphaWord)) {
         scanner.eatWhile(short ? isAlphaWord : isKeyword);
+    } else if (scanner.eat(Chars.Percent)) {
+        scanner.eatWhile(Chars.Percent);
     }
 
     if (start !== scanner.pos) {

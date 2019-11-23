@@ -265,6 +265,11 @@ describe('Tokenizer', () => {
             { type: 'NumberValue', value: 0, unit: '', start: 5, end: 6 },
             { type: 'Operator', operator: '!', start: 6, end: 7 }
         ]);
+
+        deepEqual(tokenize("${2:0}%"), [
+            { type: 'Field', index: 2, name: '0', start: 0, end: 6 },
+            { type: 'Literal', value: '%', start: 6, end: 7 }
+        ]);
     });
 
     it('embedded variables', () => {
