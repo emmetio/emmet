@@ -19,7 +19,7 @@ export default function lorem(node: AbbreviationNode, ancestors: Container[], co
     if (node.name && (m = node.name.match(reLorem))) {
         const db: LoremVocabulary = vocabularies[m[1]] || vocabularies.latin;
         const minWordCount = m[2] ? Math.max(1, Number(m[2])) : 30;
-        const maxWordCount = m[3] ? Math.max(minWordCount, Number(m[2].slice(1))) : minWordCount;
+        const maxWordCount = m[3] ? Math.max(minWordCount, Number(m[3].slice(1))) : minWordCount;
         const wordCount = rand(minWordCount, maxWordCount);
         const repeat = node.repeat || findRepeater(ancestors);
 
