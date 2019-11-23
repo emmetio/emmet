@@ -401,11 +401,11 @@ function mergedData<K extends keyof BaseConfig>(type: SyntaxType, syntax: string
     const syntaxOverride = globals[syntax];
 
     return {
-        ...defaultConfig[key],
-        ...(typeDefaults && typeDefaults[key]),
-        ...(syntaxDefaults && syntaxDefaults[key]),
-        ...(typeOverride && typeOverride[key]),
-        ...(syntaxOverride && syntaxOverride[key]),
-        ...config[key]
-    };
+        ...(defaultConfig[key] as object),
+        ...(typeDefaults && typeDefaults[key] as object),
+        ...(syntaxDefaults && syntaxDefaults[key] as object),
+        ...(typeOverride && typeOverride[key] as object),
+        ...(syntaxOverride && syntaxOverride[key] as object),
+        ...(config[key] as object)
+    } as Config[K];
 }
