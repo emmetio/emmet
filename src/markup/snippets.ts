@@ -1,5 +1,5 @@
-import parse, { AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
-import { walk, findDeepest, isNode, Container } from './utils';
+import parse, { AbbreviationNode, AbbreviationAttribute, Abbreviation } from '@emmetio/abbreviation';
+import { findDeepest, isNode, Container } from './utils';
 import { Config } from '../config';
 
 /**
@@ -11,58 +11,64 @@ import { Config } from '../config';
  * abbreviation with multiple elements. So we have to get snippet, parse it
  * and recursively resolve it.
  */
-export default function resolveSnippets(node: AbbreviationNode, parentAncestors: Container[], parentConfig: Config) {
+export default function resolveSnippets(abbr: Abbreviation, config: Config): Abbreviation {
     const stack: string[] = [];
-    const resolve = (child: AbbreviationNode, ancestors: Container[], config: Config) => {
+    const reversed = config.options['output.reverseAttributes'];
+
+    const resolve = (child: AbbreviationNode): Abbreviation | null => {
         const snippet = child.name && config.snippets[child.name];
         // A snippet in stack means circular reference.
         // It can be either a user error or a perfectly valid snippet like
         // "img": "img[src alt]/", e.g. an element with predefined shape.
         // In any case, simply stop parsing and keep element as is
         if (!snippet || stack.includes(snippet)) {
-            return;
+            return null;
         }
 
-        const abbr = parse(snippet, config);
+        const snippetAbbr = parse(snippet, config);
         stack.push(snippet);
-        walk(abbr, resolve, config);
+        walkResolve(snippetAbbr, resolve);
         stack.pop();
 
-        // Move current node contents into new tree
-        const deepest = findDeepest(abbr);
-        if (isNode(deepest.node)) {
-            merge(deepest.node, child);
-            deepest.node.children = deepest.node.children.concat(child.children);
-        }
-
         // Add attributes from current node into every top-level node of parsed abbreviation
-        if (child.attributes) {
-            for (const topNode of abbr.children) {
-                const from: AbbreviationAttribute[] = topNode.attributes || [];
-                const to: AbbreviationAttribute[] = child.attributes || [];
-                topNode.attributes = config.options['output.reverseAttributes']
-                    ? to.concat(from)
-                    : from.concat(to);
-            }
+        for (const topNode of snippetAbbr.children) {
+            const from: AbbreviationAttribute[] = topNode.attributes || [];
+            const to: AbbreviationAttribute[] = child.attributes || [];
+            topNode.attributes = reversed ? to.concat(from) : from.concat(to);
+            mergeNodes(child, topNode);
         }
 
-        // Replace original child with contents of parsed snippet
-        const parent = ancestors[ancestors.length - 1]!;
-        const ix = parent.children.indexOf(child);
-        parent.children = parent.children.slice(0, ix)
-            .concat(abbr.children)
-            .concat(parent.children.slice(ix + 1));
+        return snippetAbbr;
     };
 
-    resolve(node, parentAncestors, parentConfig);
+    walkResolve(abbr, resolve);
+    return abbr;
+}
+
+function walkResolve(node: Container, resolve: (node: AbbreviationNode) => Abbreviation | null): AbbreviationNode[] {
+    let children: AbbreviationNode[] = [];
+    for (const child of node.children) {
+        const resolved = resolve(child);
+        if (resolved) {
+            children = children.concat(resolved.children);
+
+            const deepest = findDeepest(resolved);
+            if (isNode(deepest.node)) {
+                deepest.node.children = deepest.node.children.concat(walkResolve(child, resolve));
+            }
+        } else {
+            children.push(child);
+            child.children = walkResolve(child, resolve);
+        }
+    }
+
+    return node.children = children;
 }
 
 /**
  * Adds data from first node into second node
  */
-function merge(from: AbbreviationNode, to: AbbreviationNode) {
-    to.name = from.name;
-
+function mergeNodes(from: AbbreviationNode, to: AbbreviationNode) {
     if (from.selfClosing) {
         to.selfClosing = true;
     }

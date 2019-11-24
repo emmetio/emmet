@@ -38,7 +38,7 @@ export default function parse(abbr: string | Abbreviation, config: Config): Abbr
     // 1. Map each node to snippets, which are abbreviations as well. A single snippet
     // may produce multiple nodes
     // 2. Transform every resolved node
-    walk(abbr, snippets, config);
+    abbr = snippets(abbr, config);
     walk(abbr, transform, config);
     return abbr;
 }
