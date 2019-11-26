@@ -12,8 +12,8 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
 
     while (!scanner.eof()) {
         token = field(scanner)
-            || literal(scanner, brackets === 0 && !isValue)
             || numberValue(scanner)
+            || literal(scanner, brackets === 0 && !isValue)
             || colorValue(scanner)
             || stringValue(scanner)
             || bracket(scanner)
@@ -130,6 +130,8 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
         scanner.eatWhile(short ? isAlphaWord : isKeyword);
     } else if (scanner.eat(Chars.Percent)) {
         scanner.eatWhile(Chars.Percent);
+    } else if (scanner.eat(Chars.Dot)) {
+        scanner.eatWhile(Chars.Dot);
     }
 
     if (start !== scanner.pos) {

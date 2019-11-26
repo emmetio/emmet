@@ -1,4 +1,4 @@
-import { deepEqual, throws } from 'assert';
+import { deepEqual } from 'assert';
 import tokenize from '../src/tokenizer';
 
 describe('Tokenizer', () => {
@@ -101,7 +101,6 @@ describe('Tokenizer', () => {
             { type: 'NumberValue', value: 0.1, unit: '', start: 0, end: 2 },
         ]);
 
-        throws(() => tokenize('.foo'), /Unexpected character at 1/);
     });
 
     it('color values', () => {
@@ -266,9 +265,14 @@ describe('Tokenizer', () => {
             { type: 'Operator', operator: '!', start: 6, end: 7 }
         ]);
 
-        deepEqual(tokenize("${2:0}%"), [
+        deepEqual(tokenize('${2:0}%'), [
             { type: 'Field', index: 2, name: '0', start: 0, end: 6 },
             { type: 'Literal', value: '%', start: 6, end: 7 }
+        ]);
+
+        deepEqual(tokenize('.${1:5}'), [
+            { type: 'Literal', value: '.', start: 0, end: 1 },
+            { type: 'Field', index: 1, name: '5', start: 1, end: 7 },
         ]);
     });
 
