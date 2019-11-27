@@ -5,100 +5,100 @@ describe('Tokenizer', () => {
     it('numeric values', () => {
         deepEqual(tokenize('p10'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 10, unit: '', start: 1, end: 3 }
+            { type: 'NumberValue', value: 10, rawValue: '10', unit: '', start: 1, end: 3 }
         ]);
 
         deepEqual(tokenize('p-10'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '', start: 1, end: 4 }
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '', start: 1, end: 4 }
         ]);
 
         deepEqual(tokenize('p-10-'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '', start: 1, end: 4 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '', start: 1, end: 4 },
             { type: 'Operator', operator: '-', start: 4, end: 5 }
         ]);
 
         deepEqual(tokenize('p-10-20'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '', start: 1, end: 4 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '', start: 1, end: 4 },
             { type: 'Operator', operator: '-', start: 4, end: 5 },
-            { type: 'NumberValue', value: 20, unit: '', start: 5, end: 7 }
+            { type: 'NumberValue', value: 20, rawValue: '20', unit: '', start: 5, end: 7 }
         ]);
 
         deepEqual(tokenize('p-10--20'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '', start: 1, end: 4 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '', start: 1, end: 4 },
             { type: 'Operator', operator: '-', start: 4, end: 5 },
-            { type: 'NumberValue', value: -20, unit: '', start: 5, end: 8 }
+            { type: 'NumberValue', value: -20, rawValue: '-20', unit: '', start: 5, end: 8 }
         ]);
 
         deepEqual(tokenize('p-10-20--30'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '', start: 1, end: 4 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '', start: 1, end: 4 },
             { type: 'Operator', operator: '-', start: 4, end: 5 },
-            { type: 'NumberValue', value: 20, unit: '', start: 5, end: 7 },
+            { type: 'NumberValue', value: 20, rawValue: '20', unit: '', start: 5, end: 7 },
             { type: 'Operator', operator: '-', start: 7, end: 8 },
-            { type: 'NumberValue', value: -30, unit: '', start: 8, end: 11 }
+            { type: 'NumberValue', value: -30, rawValue: '-30', unit: '', start: 8, end: 11 }
         ]);
 
         deepEqual(tokenize('p-10p-20--30'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: 'p', start: 1, end: 5 },
-            { type: 'NumberValue', value: -20, unit: '', start: 5, end: 8 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: 'p', start: 1, end: 5 },
+            { type: 'NumberValue', value: -20, rawValue: '-20', unit: '', start: 5, end: 8 },
             { type: 'Operator', operator: '-', start: 8, end: 9 },
-            { type: 'NumberValue', value: -30, unit: '', start: 9, end: 12 }
+            { type: 'NumberValue', value: -30, rawValue: '-30', unit: '', start: 9, end: 12 }
         ]);
 
         deepEqual(tokenize('p-10%-20--30'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -10, unit: '%', start: 1, end: 5 },
-            { type: 'NumberValue', value: -20, unit: '', start: 5, end: 8 },
+            { type: 'NumberValue', value: -10, rawValue: '-10', unit: '%', start: 1, end: 5 },
+            { type: 'NumberValue', value: -20, rawValue: '-20', unit: '', start: 5, end: 8 },
             { type: 'Operator', operator: '-', start: 8, end: 9 },
-            { type: 'NumberValue', value: -30, unit: '', start: 9, end: 12 }
+            { type: 'NumberValue', value: -30, rawValue: '-30', unit: '', start: 9, end: 12 }
         ]);
     });
 
     it('float values', () => {
         deepEqual(tokenize('p.5'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0.5, unit: '', start: 1, end: 3 }
+            { type: 'NumberValue', value: 0.5, rawValue: '.5', unit: '', start: 1, end: 3 }
         ]);
 
         deepEqual(tokenize('p-.5'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: -0.5, unit: '', start: 1, end: 4 }
+            { type: 'NumberValue', value: -0.5, rawValue: '-.5', unit: '', start: 1, end: 4 }
         ]);
 
         deepEqual(tokenize('p.1.2.3'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0.1, unit: '', start: 1, end: 3 },
-            { type: 'NumberValue', value: 0.2, unit: '', start: 3, end: 5 },
-            { type: 'NumberValue', value: 0.3, unit: '', start: 5, end: 7 }
+            { type: 'NumberValue', value: 0.1, rawValue: '.1', unit: '', start: 1, end: 3 },
+            { type: 'NumberValue', value: 0.2, rawValue: '.2', unit: '', start: 3, end: 5 },
+            { type: 'NumberValue', value: 0.3, rawValue: '.3', unit: '', start: 5, end: 7 }
         ]);
 
         deepEqual(tokenize('p.1-.2.3'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0.1, unit: '', start: 1, end: 3 },
+            { type: 'NumberValue', value: 0.1, rawValue: '.1', unit: '', start: 1, end: 3 },
             { type: 'Operator', operator: '-', start: 3, end: 4 },
-            { type: 'NumberValue', value: 0.2, unit: '', start: 4, end: 6 },
-            { type: 'NumberValue', value: 0.3, unit: '', start: 6, end: 8 }
+            { type: 'NumberValue', value: 0.2, rawValue: '.2', unit: '', start: 4, end: 6 },
+            { type: 'NumberValue', value: 0.3, rawValue: '.3', unit: '', start: 6, end: 8 }
         ]);
 
         deepEqual(tokenize('p.1--.2.3'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0.1, unit: '', start: 1, end: 3 },
+            { type: 'NumberValue', value: 0.1, rawValue: '.1', unit: '', start: 1, end: 3 },
             { type: 'Operator', operator: '-', start: 3, end: 4 },
-            { type: 'NumberValue', value: -0.2, unit: '', start: 4, end: 7 },
-            { type: 'NumberValue', value: 0.3, unit: '', start: 7, end: 9 }
+            { type: 'NumberValue', value: -0.2, rawValue: '-.2', unit: '', start: 4, end: 7 },
+            { type: 'NumberValue', value: 0.3, rawValue: '.3', unit: '', start: 7, end: 9 }
         ]);
 
         deepEqual(tokenize('10'), [
-            { type: 'NumberValue', value: 10, unit: '', start: 0, end: 2 },
+            { type: 'NumberValue', value: 10, rawValue: '10', unit: '', start: 0, end: 2 },
         ]);
 
         deepEqual(tokenize('.1'), [
-            { type: 'NumberValue', value: 0.1, unit: '', start: 0, end: 2 },
+            { type: 'NumberValue', value: 0.1, rawValue: '.1', unit: '', start: 0, end: 2 },
         ]);
 
         throws(() => tokenize('.foo'), /Unexpected character at 1/);
@@ -176,14 +176,14 @@ describe('Tokenizer', () => {
             { type: 'Literal', value: 'm', start: 0, end: 1 },
             { type: 'Operator', operator: '-', start: 1, end: 2 },
             { type: 'Literal', value: 'a', start: 2, end: 3 },
-            { type: 'NumberValue', value: 0, unit: '', start: 3, end: 4 }
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 3, end: 4 }
         ]);
 
         deepEqual(tokenize('m-a0-a'), [
             { type: 'Literal', value: 'm', start: 0, end: 1 },
             { type: 'Operator', operator: '-', start: 1, end: 2 },
             { type: 'Literal', value: 'a', start: 2, end: 3 },
-            { type: 'NumberValue', value: 0, unit: '', start: 3, end: 4 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 3, end: 4 },
             { type: 'Operator', operator: '-', start: 4, end: 5 },
             { type: 'Literal', value: 'a', start: 5, end: 6 }
         ]);
@@ -201,16 +201,16 @@ describe('Tokenizer', () => {
             { type: 'WhiteSpace', start: 21, end: 22 },
             { type: 'Literal', value: 'rgb', start: 22, end: 25 },
             { type: 'Bracket', open: true, start: 25, end: 26 },
-            { type: 'NumberValue', value: 0, unit: '', start: 26, end: 27 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 26, end: 27 },
             { type: 'Operator', operator: ',', start: 27, end: 28 },
             { type: 'WhiteSpace', start: 28, end: 29 },
-            { type: 'NumberValue', value: 0, unit: '', start: 29, end: 30 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 29, end: 30 },
             { type: 'Operator', operator: ',', start: 30, end: 31 },
             { type: 'WhiteSpace', start: 31, end: 32 },
-            { type: 'NumberValue', value: 0, unit: '', start: 32, end: 33 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 32, end: 33 },
             { type: 'Bracket', open: false, start: 33, end: 34 },
             { type: 'WhiteSpace', start: 34, end: 35 },
-            { type: 'NumberValue', value: 10, unit: '%', start: 35, end: 38 },
+            { type: 'NumberValue', value: 10, rawValue: '10', unit: '%', start: 35, end: 38 },
             { type: 'Bracket', open: false, start: 38, end: 39 }
         ]);
     });
@@ -227,7 +227,7 @@ describe('Tokenizer', () => {
 
         deepEqual(tokenize('p10!'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 10, unit: '', start: 1, end: 3 },
+            { type: 'NumberValue', value: 10, rawValue: '10', unit: '', start: 1, end: 3 },
             { type: 'Operator', operator: '!', start: 3, end: 4 }
         ]);
     });
@@ -235,7 +235,7 @@ describe('Tokenizer', () => {
     it('mixed', () => {
         deepEqual(tokenize('bd1-s#fc0'), [
             { type: 'Literal', value: 'bd', start: 0, end: 2 },
-            { type: 'NumberValue', value: 1, unit: '', start: 2, end: 3 },
+            { type: 'NumberValue', value: 1, rawValue: '1', unit: '', start: 2, end: 3 },
             { type: 'Operator', operator: '-', start: 3, end: 4 },
             { type: 'Literal', value: 's', start: 4, end: 5 },
             { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 5, end: 9 }
@@ -245,24 +245,24 @@ describe('Tokenizer', () => {
             { type: 'Literal', value: 'bd', start: 0, end: 2 },
             { type: 'ColorValue', r: 255, g: 204, b: 0, a: 1, raw: 'fc0', start: 2, end: 6 },
             { type: 'Operator', operator: '-', start: 6, end: 7 },
-            { type: 'NumberValue', value: 1, unit: '', start: 7, end: 8 }
+            { type: 'NumberValue', value: 1, rawValue: '1', unit: '', start: 7, end: 8 }
         ]);
 
         deepEqual(tokenize('p0+m0'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0, unit: '', start: 1, end: 2 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 1, end: 2 },
             { type: 'Operator', operator: '+', start: 2, end: 3 },
             { type: 'Literal', value: 'm', start: 3, end: 4 },
-            { type: 'NumberValue', value: 0, unit: '', start: 4, end: 5 }
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 4, end: 5 }
         ]);
 
         deepEqual(tokenize('p0!+m0!'), [
             { type: 'Literal', value: 'p', start: 0, end: 1 },
-            { type: 'NumberValue', value: 0, unit: '', start: 1, end: 2 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 1, end: 2 },
             { type: 'Operator', operator: '!', start: 2, end: 3 },
             { type: 'Operator', operator: '+', start: 3, end: 4 },
             { type: 'Literal', value: 'm', start: 4, end: 5 },
-            { type: 'NumberValue', value: 0, unit: '', start: 5, end: 6 },
+            { type: 'NumberValue', value: 0, rawValue: '0', unit: '', start: 5, end: 6 },
             { type: 'Operator', operator: '!', start: 6, end: 7 }
         ]);
 
@@ -291,7 +291,7 @@ describe('Tokenizer', () => {
 
         deepEqual(tokenize('@k10'), [
             { type: 'Literal', value: '@k', start: 0, end: 2 },
-            { type: 'NumberValue', value: 10, unit: '', start: 2, end: 4 }
+            { type: 'NumberValue', value: 10, rawValue: '10', unit: '', start: 2, end: 4 }
         ]);
     });
 });

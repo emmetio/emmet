@@ -37,6 +37,7 @@ export interface NumberValue extends Token {
     type: 'NumberValue';
     value: number;
     unit: string;
+    rawValue: string;
 }
 
 export interface ColorValue extends Token {

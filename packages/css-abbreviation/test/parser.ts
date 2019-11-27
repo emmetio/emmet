@@ -17,6 +17,7 @@ describe('CSS Abbreviation parser', () => {
         equal(expand('p.1-.2.3'), 'p: 0.1 0.2 0.3;');
         equal(expand('10'), '?: 10;');
         equal(expand('.1'), '?: 0.1;');
+        equal(expand('lh1.'), 'lh: 1;');
     });
 
     it('color', () => {

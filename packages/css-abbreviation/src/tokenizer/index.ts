@@ -155,14 +155,15 @@ function numberValue(scanner: Scanner): NumberValue | undefined {
     const start = scanner.pos;
     if (consumeNumber(scanner)) {
         scanner.start = start;
-        const value = Number(scanner.current());
+        const rawValue = scanner.current();
 
         // eat unit, which can be a % or alpha word
         scanner.start = scanner.pos;
         scanner.eat(Chars.Percent) || scanner.eatWhile(isAlphaWord);
         return {
             type: 'NumberValue',
-            value,
+            value: Number(rawValue),
+            rawValue,
             unit: scanner.current(),
             start,
             end: scanner.pos
@@ -288,12 +289,17 @@ function consumeNumber(stream: Scanner): boolean {
     stream.eat(Chars.Dash);
     const afterNegative = stream.pos;
 
-    stream.eatWhile(isNumber);
+    const hasDecimal = stream.eatWhile(isNumber);
 
     const prevPos = stream.pos;
-    if (stream.eat(Chars.Dot) && !stream.eatWhile(isNumber)) {
-        // Number followed by a dot, but then no number
-        stream.pos = prevPos;
+    if (stream.eat(Chars.Dot)) {
+        // It’s perfectly valid to have numbers like `1.`, which enforces
+        // value to float unit type
+        const hasFloat = stream.eatWhile(isNumber);
+        if (!hasDecimal && !hasFloat) {
+            // Lone dot
+            stream.pos = prevPos;
+        }
     }
 
     // Edge case: consumed dash only: not a number, bail-out
