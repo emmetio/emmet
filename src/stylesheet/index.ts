@@ -288,11 +288,9 @@ function resolveNumericValue(node: CSSProperty, config: Config) {
                 if (t.unit) {
                     t.unit = aliases[t.unit] || t.unit;
                 } else if (t.value !== 0 && !unitless.includes(node.name!)) {
-                    // use `px` for integers, `em` for floats
-                    // NB: num|0 is a quick alternative to Math.round(0)
-                    t.unit = t.value === (t.value | 0)
-                        ? config.options['stylesheet.intUnit']
-                        : config.options['stylesheet.floatUnit'];
+                    t.unit = t.rawValue.includes('.')
+                        ? config.options['stylesheet.floatUnit']
+                        : config.options['stylesheet.intUnit'];
                 }
             }
         }

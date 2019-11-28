@@ -85,6 +85,8 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('p0'), 'padding: 0;', 'No unit for 0');
         equal(expand('p10'), 'padding: 10px;', '`px` unit for integers');
         equal(expand('p.4'), 'padding: 0.4em;', '`em` for floats');
+        equal(expand('fz10'), 'font-size: 10px;', '`px` for integers');
+        equal(expand('fz1.'), 'font-size: 1em;', '`em` for explicit float');
         equal(expand('p10p'), 'padding: 10%;', 'unit alias');
         equal(expand('z10'), 'z-index: 10;', 'Unitless property');
         equal(expand('p10r'), 'padding: 10rem;', 'unit alias');
