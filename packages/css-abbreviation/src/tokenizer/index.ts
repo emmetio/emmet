@@ -12,13 +12,13 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
 
     while (!scanner.eof()) {
         token = field(scanner)
-            || literal(scanner, brackets === 0 && !isValue)
             || numberValue(scanner)
             || colorValue(scanner)
             || stringValue(scanner)
             || bracket(scanner)
             || operator(scanner)
             || whiteSpace(scanner)
+            || literal(scanner, brackets === 0 && !isValue)
             || void 0;
 
         if (!token) {
@@ -125,11 +125,13 @@ function literal(scanner: Scanner, short?: boolean): Literal | undefined {
         // SCSS or LESS variable
         // NB a bit dirty hack: if abbreviation starts with identifier prefix,
         // consume alpha characters only to allow embedded variables
-        scanner.eatWhile(start ? isKeyword : isAlphaWord);
+        scanner.eatWhile(start ? isKeyword : isLiteral);
     } else if (scanner.eat(isAlphaWord)) {
-        scanner.eatWhile(short ? isAlphaWord : isKeyword);
-    } else if (scanner.eat(Chars.Percent)) {
-        scanner.eatWhile(Chars.Percent);
+        scanner.eatWhile(short ? isLiteral : isKeyword);
+    } else {
+        // Allow dots only at the beginning of literal
+        scanner.eat(Chars.Dot);
+        scanner.eatWhile(isLiteral);
     }
 
     if (start !== scanner.pos) {
@@ -255,7 +257,7 @@ function whiteSpace(scanner: Scanner): WhiteSpace | undefined {
  */
 function bracket(scanner: Scanner): Bracket | undefined {
     const ch = scanner.peek();
-    if (ch === Chars.RoundBracketOpen || ch === Chars.RoundBracketClose) {
+    if (isBracket(ch)) {
         return {
             type: 'Bracket',
             open: ch === Chars.RoundBracketOpen,
@@ -335,6 +337,14 @@ function isHex(code: number): boolean {
 
 function isKeyword(code: number): boolean {
     return isAlphaNumericWord(code) || code === Chars.Dash;
+}
+
+function isBracket(code: number) {
+    return code === Chars.RoundBracketOpen || code === Chars.RoundBracketClose;
+}
+
+function isLiteral(code: number) {
+    return isAlphaWord(code) || code === Chars.Percent;
 }
 
 /**
