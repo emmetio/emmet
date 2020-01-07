@@ -2,6 +2,7 @@ import { SyntaxType } from '../config';
 import backwardScanner, { sol, peek, BackwardScanner, consume } from './reader';
 import isAtHTMLTag from './is-html';
 import { isQuote } from './quotes';
+import { Brackets, bracePairs } from './brackets';
 
 export interface ExtractOptions {
     /**
@@ -43,22 +44,8 @@ export interface ExtractedAbbreviation {
     end: number;
 }
 
-const enum Brackets {
-    SquareL = 91,
-    SquareR = 93,
-    RoundL = 40,
-    RoundR = 41,
-    CurlyL = 123,
-    CurlyR = 125,
-}
-
 const code = (ch: string) => ch.charCodeAt(0);
 const specialChars = '#.*:$-_!@%^+>/'.split('').map(code);
-const bracePairs = {
-    [Brackets.SquareL]: Brackets.SquareR,
-    [Brackets.RoundL]: Brackets.RoundR,
-    [Brackets.CurlyL]: Brackets.CurlyR,
-};
 
 const defaultOptions: ExtractOptions = {
     type: 'markup',

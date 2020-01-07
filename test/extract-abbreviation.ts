@@ -32,6 +32,11 @@ describe('Extract abbreviation', () => {
         deepStrictEqual(extract('.foo img/'), result('img/', 5));
         deepStrictEqual(extract('текстdiv'), result('div', 5));
         deepStrictEqual(extract('foo div[foo="текст" bar=текст2]'), result('div[foo="текст" bar=текст2]', 4));
+
+        // https://github.com/emmetio/emmet/issues/577
+        deepStrictEqual(
+            extract('table>(tr.prefix-intro>td*1)+(tr.prefix-pro-con>th*1+td*3)+(tr.prefix-key-specs>th[colspan=2]*1+td[colspan=2]*3)+(tr.prefix-key-find-online>th[colspan=2]*1+td*2)'),
+            result('table>(tr.prefix-intro>td*1)+(tr.prefix-pro-con>th*1+td*3)+(tr.prefix-key-specs>th[colspan=2]*1+td[colspan=2]*3)+(tr.prefix-key-find-online>th[colspan=2]*1+td*2)', 0));
     });
 
     it('abbreviation with operators', () => {

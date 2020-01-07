@@ -1,5 +1,6 @@
 import { isQuote, consumeQuoted } from './quotes';
-import { BackwardScanner, consume, sol, consumeWhile } from './reader';
+import { BackwardScanner, consume, sol, consumeWhile, peek } from './reader';
+import { Brackets, bracePairs } from './brackets';
 
 const enum Chars {
     Tab = 9,
@@ -95,7 +96,23 @@ function consumeAttributeWithQuotedValue(scanner: BackwardScanner): boolean {
 
 function consumeAttributeWithUnquotedValue(scanner: BackwardScanner): boolean {
     const start = scanner.pos;
-    if (consumeWhile(scanner, isUnquotedValue) && consume(scanner, Chars.Equals) && consumeIdent(scanner)) {
+    const stack: Brackets[] = [];
+    while (!sol(scanner)) {
+        const ch = peek(scanner);
+        if (isCloseBracket(ch)) {
+            stack.push(ch);
+        } else if (isOpenBracket(ch)) {
+            if (stack.pop() !== bracePairs[ch]) {
+                // Unexpected open bracket
+                break;
+            }
+        } else if (!isUnquotedValue(ch)) {
+            break;
+        }
+        scanner.pos--;
+    }
+
+    if (start !== scanner.pos && consume(scanner, Chars.Equals) && consumeIdent(scanner)) {
         return true;
     }
 
@@ -144,4 +161,12 @@ function isWhiteSpace(ch: number): boolean {
  */
 function isUnquotedValue(ch: number): boolean {
     return !isNaN(ch) && ch !== Chars.Equals && !isWhiteSpace(ch) && !isQuote(ch);
+}
+
+function isOpenBracket(ch: number): boolean {
+    return ch === Brackets.CurlyL || ch === Brackets.RoundL || ch === Brackets.SquareL;
+}
+
+function isCloseBracket(ch: number): boolean {
+    return ch === Brackets.CurlyR || ch === Brackets.RoundR || ch === Brackets.SquareR;
 }
