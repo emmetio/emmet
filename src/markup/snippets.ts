@@ -32,9 +32,11 @@ export default function resolveSnippets(abbr: Abbreviation, config: Config): Abb
 
         // Add attributes from current node into every top-level node of parsed abbreviation
         for (const topNode of snippetAbbr.children) {
-            const from: AbbreviationAttribute[] = topNode.attributes || [];
-            const to: AbbreviationAttribute[] = child.attributes || [];
-            topNode.attributes = reversed ? to.concat(from) : from.concat(to);
+            if (child.attributes) {
+                const from: AbbreviationAttribute[] = topNode.attributes || [];
+                const to: AbbreviationAttribute[] = child.attributes || [];
+                topNode.attributes = reversed ? to.concat(from) : from.concat(to);
+            }
             mergeNodes(child, topNode);
         }
 

@@ -45,6 +45,9 @@ export interface FormatOptions {
 
     /** String to put after content line (if value is multiline) */
     afterTextLine?: string;
+
+    /** String to put after self-closing elements like `br`. Mostly a `/` character */
+    selfClose?: string;
 }
 
 export default function indentFormat(abbr: Abbreviation, config: Config, options?: Partial<FormatOptions>): string {
@@ -82,7 +85,9 @@ export function element(node: AbbreviationNode, index: number, items: Abbreviati
     pushSecondaryAttributes(secondary.filter(shouldOutputAttribute), state);
 
     if (node.selfClosing && !node.value && !node.children.length) {
-        pushString(out, '/');
+        if (state.options.selfClose) {
+            pushString(out, state.options.selfClose);
+        }
     } else {
         pushValue(node, state);
         node.children.forEach(next);

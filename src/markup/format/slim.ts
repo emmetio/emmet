@@ -6,6 +6,7 @@ export default function slim(abbr: Abbreviation, config: Config): string {
     return indentFormat(abbr, config, {
         beforeAttribute: ' ',
         glueAttribute: ' ',
-        beforeTextLine: '| '
+        beforeTextLine: '| ',
+        selfClose: '/'
     });
 }

@@ -190,7 +190,9 @@ describe('Format', () => {
             equal(format('div#foo[data-n1=v1 title=test data-n2=v2].bar'),
                 '#foo.bar(data-n1="v1", title="test", data-n2="v2") ');
 
-            equal(format('input[disabled. foo title=test]'), 'input(type="text", disabled, foo="", title="test")/');
+            equal(format('input[disabled. foo title=test]'), 'input(type="text", disabled, foo="", title="test")');
+            // Use closing slash for XML output format
+            equal(format('input[disabled. foo title=test]', createProfile({ 'output.selfClosingStyle': 'xml' })), 'input(type="text", disabled, foo="", title="test")/');
         });
 
         it('nodes with text', () => {
@@ -207,7 +209,7 @@ describe('Format', () => {
             equal(format('{${0} ${1:foo} ${2:bar}}*2', field), '${1} ${2:foo} ${3:bar}${4} ${5:foo} ${6:bar}');
             equal(format('{${0} ${1:foo} ${2:bar}}*2'), ' foo bar foo bar');
             equal(format('ul>li*2', field), 'ul\n\tli ${1}\n\tli ${2}');
-            equal(format('div>img[src]/', field), 'div\n\timg(src="${1}", alt="${2}")/');
+            equal(format('div>img[src]/', field), 'div\n\timg(src="${1}", alt="${2}")');
         });
     });
 

@@ -7,6 +7,7 @@ export default function pug(abbr: Abbreviation, config: Config): string {
         beforeAttribute: '(',
         afterAttribute: ')',
         glueAttribute: ', ',
-        beforeTextLine: '| '
+        beforeTextLine: '| ',
+        selfClose: config.options['output.selfClosingStyle'] === 'xml' ? '/' : ''
     });
 }

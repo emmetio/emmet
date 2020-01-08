@@ -1,6 +1,7 @@
 import markupSnippets from '../snippets/html.json';
 import stylesheetSnippets from '../snippets/css.json';
 import xslSnippets from '../snippets/xsl.json';
+import pugSnippets from '../snippets/pug.json';
 import variables from '../snippets/variables.json';
 
 export type SyntaxType = 'markup' | 'stylesheet';
@@ -345,6 +346,9 @@ export const syntaxConfig: GlobalConfig = {
         options: {
             'jsx.enabled': true
         }
+    },
+    pug: {
+        snippets: parseSnippets(pugSnippets)
     },
 
     stylesheet: {

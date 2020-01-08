@@ -9,6 +9,7 @@ export default function haml(abbr: Abbreviation, config: Config): string {
         afterAttribute: ')',
         glueAttribute: ' ',
         afterTextLine: ' |',
-        booleanValue: 'true'
+        booleanValue: 'true',
+        selfClose: '/'
     });
 }
