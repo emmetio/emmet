@@ -65,7 +65,7 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
         const repeater = state.repeaters[lastIx];
         if (repeater) {
             value = token.reverse
-                ? token.base + repeater.count - repeater.value!
+                ? token.base + repeater.count - repeater.value! - 1
                 : token.base + repeater.value!;
 
             if (token.parent) {

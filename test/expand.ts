@@ -40,6 +40,10 @@ describe('Expand Abbreviation', () => {
             equal(expand('test[baz=a foo=1]', reverse), '<test baz={a} foo="1" bar="bar"></test>');
         });
 
+        it('numbering', () => {
+            equal(expand('ul>li.item$@-*5'), '<ul>\n\t<li class="item5"></li>\n\t<li class="item4"></li>\n\t<li class="item3"></li>\n\t<li class="item2"></li>\n\t<li class="item1"></li>\n</ul>');
+        });
+
         it('syntax', () => {
             equal(expand('ul>.item$*2', { syntax: 'html' }), '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>');
             equal(expand('ul>.item$*2', { syntax: 'slim' }), 'ul\n\tli.item1 \n\tli.item2 ');
