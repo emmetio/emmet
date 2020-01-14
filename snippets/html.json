@@ -135,6 +135,7 @@
 	"kg": "keygen",
 	"out": "output",
 	"det": "details",
+	"sum": "summary",
 	"cmd": "command",
 
 	"ri:d|ri:dpr": "img:s",
