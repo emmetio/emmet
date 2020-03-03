@@ -38,4 +38,4 @@ export {
     stylesheetAbbreviation, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets
 };
 export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
-export { GlobalConfig, SyntaxType, Config, UserConfig, Options, default as resolveConfig } from './config';
+export { GlobalConfig, SyntaxType, Config, UserConfig, Options, AbbreviationContext, default as resolveConfig } from './config';
