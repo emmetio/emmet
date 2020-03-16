@@ -6,7 +6,6 @@ import parseStylesheet, {
     convertSnippets as parseStylesheetSnippets
 } from './stylesheet';
 import resolveConfig, { UserConfig, Config } from './config';
-import { CSSSnippet } from './stylesheet/snippets';
 
 export default function expandAbbreviation(abbr: string, config?: UserConfig): string {
     const resolvedConfig = resolveConfig(config);
@@ -29,8 +28,8 @@ export function markup(abbr: string | Abbreviation, config: Config) {
  * stylesheet languages like CSS, SASS etc.) and outputs it according to options
  * provided in config
  */
-export function stylesheet(abbr: string | CSSAbbreviation, config: Config, snippets?: CSSSnippet[]) {
-    return stringifyStylesheet(parseStylesheet(abbr, config, snippets), config);
+export function stylesheet(abbr: string | CSSAbbreviation, config: Config) {
+    return stringifyStylesheet(parseStylesheet(abbr, config), config);
 }
 
 export {

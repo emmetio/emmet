@@ -1,5 +1,5 @@
 import { strictEqual as equal, ok } from 'assert';
-import { stylesheet as expandAbbreviation, parseStylesheetSnippets, resolveConfig } from '../src';
+import { stylesheet as expandAbbreviation, resolveConfig } from '../src';
 import score from '../src/stylesheet/score';
 
 const defaultConfig = resolveConfig({
@@ -10,12 +10,12 @@ const defaultConfig = resolveConfig({
     snippets: {
         mten: 'margin: 10px;',
         fsz: 'font-size'
-    }
+    },
+    cache: {}
 });
-const snippets = parseStylesheetSnippets(defaultConfig.snippets);
 
 function expand(abbr: string, config = defaultConfig) {
-    return expandAbbreviation(abbr, config, snippets);
+    return expandAbbreviation(abbr, config);
 }
 
 describe('Stylesheet abbreviations', () => {
@@ -105,6 +105,7 @@ describe('Stylesheet abbreviations', () => {
 
     it('numeric with format options', () => {
         const config = resolveConfig({
+            type: 'stylesheet',
             options: {
                 'stylesheet.intUnit': 'pt',
                 'stylesheet.floatUnit': 'vh',
@@ -157,12 +158,19 @@ describe('Stylesheet abbreviations', () => {
     });
 
     it('use min score when finding best match for snippets', () => {
-        equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0 } })), 'align-self: unset;');
-        equal(expand('auto', resolveConfig({ options: { 'stylesheet.fuzzySearchMinScore': 0.3 } })), 'auto: ;');
+        equal(expand('auto', resolveConfig({
+            type: 'stylesheet',
+            options: { 'stylesheet.fuzzySearchMinScore': 0 }
+        })), 'align-self: unset;');
+        equal(expand('auto', resolveConfig({
+            type: 'stylesheet',
+            options: { 'stylesheet.fuzzySearchMinScore': 0.3 }
+        })), 'auto: ;');
     });
 
     it('CSS-in-JS', () => {
         const config = resolveConfig({
+            type: 'stylesheet',
             options: {
                 'stylesheet.json': true,
                 'stylesheet.between': ': '
@@ -174,6 +182,7 @@ describe('Stylesheet abbreviations', () => {
 
     it('resolve context value', () => {
         const config = resolveConfig({
+            type: 'stylesheet',
             context: { name: 'align-content' }
         });
 

@@ -1,8 +1,10 @@
+import { Abbreviation } from '@emmetio/abbreviation';
 import markupSnippets from '../snippets/html.json';
 import stylesheetSnippets from '../snippets/css.json';
 import xslSnippets from '../snippets/xsl.json';
 import pugSnippets from '../snippets/pug.json';
 import variables from '../snippets/variables.json';
+import { CSSSnippet } from './stylesheet/snippets';
 
 export type SyntaxType = 'markup' | 'stylesheet';
 export type FieldOutput = (index: number, placeholder: string, offset: number, line: number, column: number) => string;
@@ -55,10 +57,24 @@ interface ResolvedConfig extends BaseConfig {
 
     /** Max amount of repeated elements (fool proof) */
     maxRepeat?: number;
+
+    /**
+     * Object for storing internal cache data to be shared across Emmet methods
+     * invocation. If provided, Emmet will store compute-intensive data in this
+     * object and will re-use it during editor session.
+     * Every time user settings are changed, you should empty cache by passing
+     * new object.
+     */
+    cache?: Cache;
 }
 
 export type Config = ResolvedConfig & { options: Options };
 export type UserConfig = Partial<ResolvedConfig>;
+
+export interface Cache {
+    stylesheetSnippets?: CSSSnippet[];
+    markupSnippets?: { [name: string]: Abbreviation | null };
+}
 
 export interface Options {
     /////////////////////

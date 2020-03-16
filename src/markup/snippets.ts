@@ -27,7 +27,7 @@ export default function resolveSnippets(abbr: Abbreviation, config: Config): Abb
 
         const snippetAbbr = parse(snippet, config);
         stack.push(snippet);
-        walkResolve(snippetAbbr, resolve);
+        walkResolve(snippetAbbr, resolve, config);
         stack.pop();
 
         // Add attributes from current node into every top-level node of parsed abbreviation
@@ -43,24 +43,32 @@ export default function resolveSnippets(abbr: Abbreviation, config: Config): Abb
         return snippetAbbr;
     };
 
-    walkResolve(abbr, resolve);
+    walkResolve(abbr, resolve, config);
     return abbr;
 }
 
-function walkResolve(node: Container, resolve: (node: AbbreviationNode) => Abbreviation | null): AbbreviationNode[] {
+function walkResolve(node: Container, resolve: (node: AbbreviationNode) => Abbreviation | null, config: Config): AbbreviationNode[] {
     let children: AbbreviationNode[] = [];
+    const lookup: { [name: string]: Abbreviation | null } = config.cache?.markupSnippets || {};
+
     for (const child of node.children) {
-        const resolved = resolve(child);
+        const resolved = child.name && child.name in lookup
+            ? lookup[child.name]
+            : resolve(child);
         if (resolved) {
             children = children.concat(resolved.children);
 
             const deepest = findDeepest(resolved);
             if (isNode(deepest.node)) {
-                deepest.node.children = deepest.node.children.concat(walkResolve(child, resolve));
+                deepest.node.children = deepest.node.children.concat(walkResolve(child, resolve, config));
             }
         } else {
             children.push(child);
-            child.children = walkResolve(child, resolve);
+            child.children = walkResolve(child, resolve, config);
+        }
+
+        if (child.name) {
+            lookup[child.name] = resolved;
         }
     }
 

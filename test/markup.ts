@@ -3,7 +3,7 @@ import parse from '../src/markup';
 import resolveConfig from '../src/config';
 import stringify from './assets/stringify';
 
-const defaultConfig = resolveConfig();
+const defaultConfig = resolveConfig({ cache: {} });
 
 function expand(abbr: string, config = defaultConfig): string {
     return stringify(parse(abbr, config));

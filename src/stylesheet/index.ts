@@ -11,7 +11,13 @@ const gradientName = 'lg';
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
  */
-export default function parse(abbr: string | CSSAbbreviation, config: Config, snippets = convertSnippets(config.snippets)): CSSAbbreviation {
+export default function parse(abbr: string | CSSAbbreviation, config: Config): CSSAbbreviation {
+    const snippets = config.cache?.stylesheetSnippets || convertSnippets(config.snippets);
+
+    if (config.cache) {
+        config.cache.stylesheetSnippets = snippets;
+    }
+
     if (typeof abbr === 'string') {
         abbr = abbreviation(abbr, { value: !!config.context });
     }
