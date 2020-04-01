@@ -49,12 +49,9 @@ export default function resolveSnippets(abbr: Abbreviation, config: Config): Abb
 
 function walkResolve(node: Container, resolve: (node: AbbreviationNode) => Abbreviation | null, config: Config): AbbreviationNode[] {
     let children: AbbreviationNode[] = [];
-    const lookup: { [name: string]: Abbreviation | null } = config.cache?.markupSnippets || {};
 
     for (const child of node.children) {
-        const resolved = child.name && child.name in lookup
-            ? lookup[child.name]
-            : resolve(child);
+        const resolved = resolve(child);
         if (resolved) {
             children = children.concat(resolved.children);
 
@@ -65,10 +62,6 @@ function walkResolve(node: Container, resolve: (node: AbbreviationNode) => Abbre
         } else {
             children.push(child);
             child.children = walkResolve(child, resolve, config);
-        }
-
-        if (child.name) {
-            lookup[child.name] = resolved;
         }
     }
 

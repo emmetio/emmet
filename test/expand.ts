@@ -4,6 +4,7 @@ import expand, { resolveConfig } from '../src';
 describe('Expand Abbreviation', () => {
     describe('Markup', () => {
         it('basic', () => {
+            equal(expand('input[value="text$"]*2'), '<input type="text" value="text1"><input type="text" value="text2">');
             equal(expand('ul>.item$*2'), '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>');
 
             // insert text into abbreviation

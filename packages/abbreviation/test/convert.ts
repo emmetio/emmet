@@ -8,6 +8,8 @@ function parse(abbr: string, options?: ParserOptions) {
 
 describe('Convert token abbreviations', () => {
     it('basic', () => {
+        equal(parse('input[value="text$"]*2'), '<input*2@0 value="text1"></input><input*2@1 value="text2"></input>');
+
         equal(parse('ul>li.item$*3'), '<ul><li*3@0 class="item1"></li><li*3@1 class="item2"></li><li*3@2 class="item3"></li></ul>');
         equal(parse('ul>li.item$*', { text: ['foo$', 'bar$'] }), '<ul><li*2@0 class="item1">foo$</li><li*2@1 class="item2">bar$</li></ul>');
         equal(parse('ul>li[class=$#]{item $}*', { text: ['foo$', 'bar$'] }), '<ul><li*2@0 class="foo$">item 1</li><li*2@1 class="bar$">item 2</li></ul>');
