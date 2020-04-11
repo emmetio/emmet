@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "dependencies": {
-    "@emmetio/scanner": "^0.0.4"
+    "@emmetio/scanner": "^0.0.8"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
