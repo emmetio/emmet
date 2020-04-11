@@ -22,15 +22,15 @@
     "@emmetio/scanner": "^0.0.7"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.7",
+    "@types/mocha": "^7.0.2",
     "@types/node": "^12.7.2",
-    "mocha": "^6.2.0",
-    "rollup": "^1.17.0",
+    "mocha": "^7.1.1",
+    "rollup": "^2.6.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.22.0",
+    "rollup-plugin-typescript2": "^0.27.0",
     "ts-lint": "^4.5.1",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.5.3"
+    "ts-node": "^8.8.2",
+    "typescript": "^3.8.3"
   },
   "directories": {
     "test": "test"

@@ -24,19 +24,21 @@
     "url": "https://github.com/emmetio/emmet/issues"
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
-  "devDependencies": {
+  "dependencies": {
     "@emmetio/abbreviation": "^2.0.0-rc.8",
-    "@emmetio/css-abbreviation": "^2.0.0-rc.6",
-    "@types/mocha": "^5.2.7",
+    "@emmetio/css-abbreviation": "^2.0.0-rc.6"
+  },
+  "devDependencies": {
+    "@types/mocha": "^7.0.2",
     "@types/node": "^12.0.8",
-    "lerna": "^3.16.4",
-    "mocha": "^6.2.2",
-    "rollup": "^1.27.4",
+    "lerna": "^3.20.2",
+    "mocha": "^7.1.1",
+    "rollup": "^2.6.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.25.2",
-    "ts-node": "^8.5.2",
-    "tslint": "^5.20.1",
-    "typescript": "^3.7.2"
+    "rollup-plugin-typescript2": "^0.27.0",
+    "ts-node": "^8.6.2",
+    "tslint": "^6.1.1",
+    "typescript": "^3.8.3"
   },
   "mocha": {
     "require": "ts-node/register",

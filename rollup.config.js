@@ -4,6 +4,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 
 export default {
     input: './src/index.ts',
+    external: id => /@emmetio\//.test(id),
     plugins: [nodeResolve(), json(), typescript({
         tsconfigOverride: {
             compilerOptions: { module: 'esnext' }
