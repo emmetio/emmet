@@ -18,8 +18,7 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
             || bracket(scanner)
             || operator(scanner)
             || whiteSpace(scanner)
-            || literal(scanner, brackets === 0 && !isValue)
-            || void 0;
+            || literal(scanner, brackets === 0 && !isValue);
 
         if (!token) {
             throw scanner.error('Unexpected character');
@@ -46,6 +45,20 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
     }
 
     return tokens;
+}
+
+/**
+ * Returns next token from given scanner, if possible
+ */
+export function getToken(scanner: Scanner, short?: boolean) {
+    return field(scanner)
+        || numberValue(scanner)
+        || colorValue(scanner)
+        || stringValue(scanner)
+        || bracket(scanner)
+        || operator(scanner)
+        || whiteSpace(scanner)
+        || literal(scanner, short);
 }
 
 function field(scanner: Scanner): Field | undefined {

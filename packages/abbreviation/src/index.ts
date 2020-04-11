@@ -1,10 +1,10 @@
 import { ScannerError } from '@emmetio/scanner';
 import parse from './parser';
-import tokenize, { AllTokens } from './tokenizer';
+import tokenize, { getToken, AllTokens } from './tokenizer';
 import convert from './convert';
 import { ParserOptions } from './types';
 
-export { parse, tokenize, convert };
+export { parse, tokenize, getToken, convert };
 export * from './tokenizer/tokens';
 export * from './types';
 

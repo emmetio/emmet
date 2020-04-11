@@ -34,7 +34,8 @@ export function stylesheet(abbr: string | CSSAbbreviation, config: Config) {
 
 export {
     markupAbbreviation, parseMarkup, stringifyMarkup,
-    stylesheetAbbreviation, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets
+    stylesheetAbbreviation, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets,
+    Abbreviation as MarkupAbbreviation, CSSAbbreviation as StylesheetAbbreviation
 };
 export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
 export { GlobalConfig, SyntaxType, Config, UserConfig, Options, AbbreviationContext, default as resolveConfig } from './config';

@@ -21,15 +21,7 @@ export default function tokenize(source: string): AllTokens[] {
 
     while (!scanner.eof()) {
         ch = scanner.peek();
-        token = field(scanner, ctx)
-            || repeaterPlaceholder(scanner)
-            || repeaterNumber(scanner)
-            || repeater(scanner)
-            || whiteSpace(scanner)
-            || literal(scanner, ctx)
-            || operator(scanner)
-            || quote(scanner)
-            || bracket(scanner);
+        token = getToken(scanner, ctx);
 
         if (token) {
             result.push(token);
@@ -44,6 +36,21 @@ export default function tokenize(source: string): AllTokens[] {
     }
 
     return result;
+}
+
+/**
+ * Returns next token from given scanner, if possible
+ */
+export function getToken(scanner: Scanner, ctx: Context): AllTokens | undefined {
+    return field(scanner, ctx)
+        || repeaterPlaceholder(scanner)
+        || repeaterNumber(scanner)
+        || repeater(scanner)
+        || whiteSpace(scanner)
+        || literal(scanner, ctx)
+        || operator(scanner)
+        || quote(scanner)
+        || bracket(scanner);
 }
 
 /**
