@@ -37,10 +37,8 @@ This is a *monorepo*: top-level project contains all the code required for conve
 You can install Emmet as a regular npm module:
 
 ```bash
-npm i emmet@rc
+npm i emmet
 ```
-
-Note that current version is still in *release candidate* version so it should be installed with `@rc` tag. After release, it will be available as version 2.x.
 
 ## Usage
 
