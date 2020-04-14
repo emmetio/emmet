@@ -1,6 +1,6 @@
 {
   "name": "emmet",
-  "version": "2.0.0-rc.15",
+  "version": "2.0.0",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs.js",
   "module": "./dist/emmet.es.js",
@@ -17,7 +17,13 @@
     "type": "git",
     "url": "git+https://github.com/emmetio/emmet.git"
   },
-  "keywords": ["emmet", "html", "css", "snippets", "coding"],
+  "keywords": [
+    "emmet",
+    "html",
+    "css",
+    "snippets",
+    "coding"
+  ],
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -25,8 +31,8 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "dependencies": {
-    "@emmetio/abbreviation": "^2.0.0-rc.9",
-    "@emmetio/css-abbreviation": "^2.0.0-rc.8"
+    "@emmetio/abbreviation": "^2.0.0",
+    "@emmetio/css-abbreviation": "^2.0.0"
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",
