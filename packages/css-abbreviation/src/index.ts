@@ -2,7 +2,7 @@ import { ScannerError } from '@emmetio/scanner';
 import tokenize, { getToken, AllTokens } from './tokenizer';
 import parser, { CSSProperty, ParseOptions } from './parser';
 
-export { tokenize, getToken };
+export { tokenize, getToken, parser };
 export * from './tokenizer/tokens';
 export { CSSProperty, CSSValue, ParseOptions, FunctionCall, Value } from './parser';
 export type CSSAbbreviation = CSSProperty[];

@@ -1,5 +1,5 @@
 import { ScannerError } from '@emmetio/scanner';
-import parse from './parser';
+import parse, { TokenGroup } from './parser';
 import tokenize, { getToken, AllTokens } from './tokenizer';
 import convert from './convert';
 import { ParserOptions } from './types';
@@ -7,6 +7,7 @@ import { ParserOptions } from './types';
 export { parse, tokenize, getToken, convert };
 export * from './tokenizer/tokens';
 export * from './types';
+export type MarkupAbbreviation = TokenGroup;
 
 /**
  * Parses given abbreviation into node tree

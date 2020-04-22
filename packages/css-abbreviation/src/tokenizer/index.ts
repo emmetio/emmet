@@ -11,14 +11,7 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
     const tokens: AllTokens[] = [];
 
     while (!scanner.eof()) {
-        token = field(scanner)
-            || numberValue(scanner)
-            || colorValue(scanner)
-            || stringValue(scanner)
-            || bracket(scanner)
-            || operator(scanner)
-            || whiteSpace(scanner)
-            || literal(scanner, brackets === 0 && !isValue);
+        token = getToken(scanner, brackets === 0 && !isValue);
 
         if (!token) {
             throw scanner.error('Unexpected character');
