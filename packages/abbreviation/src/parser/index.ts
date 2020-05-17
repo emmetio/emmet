@@ -78,10 +78,8 @@ function group(scanner: TokenScanner, options: ParserOptions): TokenGroup | unde
         const token = next(scanner);
         if (isBracket(token, 'group', false)) {
             result.repeat = repeater(scanner);
-            return result;
         }
-
-        throw error(scanner, 'Expecting )', token);
+        return result;
     }
 }
 

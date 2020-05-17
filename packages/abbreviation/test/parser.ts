@@ -153,4 +153,11 @@ describe('Parser', () => {
         throws(() => parse('foo,bar'), /Unexpected character at 4/);
         equal(str('foo\\,bar'), '<foo,bar></foo,bar>');
     });
+
+    it('missing braces', () => {
+        // Do not throw errors on missing closing braces
+        equal(str('div[title="test"'), '<div title="test"></div>');
+        equal(str('div(foo'), '<div></div>(<foo></foo>)');
+        equal(str('div{foo'), '<div>foo</div>');
+    });
 });
