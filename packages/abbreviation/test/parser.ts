@@ -152,6 +152,7 @@ describe('Parser', () => {
         throws(() => parse('str?'), /Unexpected character at 4/);
         throws(() => parse('foo,bar'), /Unexpected character at 4/);
         equal(str('foo\\,bar'), '<foo,bar></foo,bar>');
+        equal(str('foo\\'), '<foo></foo>');
     });
 
     it('missing braces', () => {

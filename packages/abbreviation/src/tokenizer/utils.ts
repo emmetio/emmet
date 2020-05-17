@@ -76,12 +76,10 @@ export const enum Chars {
  */
 export function escaped(scanner: Scanner): boolean {
     if (scanner.eat(Chars.Escape)) {
-        if (scanner.eof()) {
-            scanner.start = scanner.pos - 1;
-        } else {
-            scanner.start = scanner.pos++;
+        scanner.start = scanner.pos;
+        if (!scanner.eof()) {
+            scanner.pos++;
         }
-
         return true;
     }
 
