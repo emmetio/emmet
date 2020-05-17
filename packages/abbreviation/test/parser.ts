@@ -25,6 +25,7 @@ describe('Parser', () => {
         equal(str('a>b>c+e'), '<a><b><c></c><e></e></b></a>');
         equal(str('a>b>c^d'), '<a><b><c></c></b><d></d></a>');
         equal(str('a>b>c^^^^d'), '<a><b><c></c></b></a><d></d>');
+        equal(str('a:b>c'), '<a:b><c></c></a:b>');
 
         equal(str('ul.nav[title="foo"]'), '<ul class=nav title="foo"></ul>');
     });
@@ -145,5 +146,11 @@ describe('Parser', () => {
         equal(str('.{theme.class}', opt), '<? class=theme.class></?>');
         equal(str('#{id}', opt), '<? id=id></?>');
         equal(str('Foo.{theme.class}', opt), '<Foo class=theme.class></Foo>');
+    });
+
+    it('errors', () => {
+        throws(() => parse('str?'), /Unexpected character at 4/);
+        throws(() => parse('foo,bar'), /Unexpected character at 4/);
+        equal(str('foo\\,bar'), '<foo,bar></foo,bar>');
     });
 });

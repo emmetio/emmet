@@ -1,4 +1,4 @@
-import Scanner, { isSpace, isQuote, isNumber, isAlpha } from '@emmetio/scanner';
+import Scanner, { isSpace, isQuote, isNumber, isAlpha, isAlphaNumericWord } from '@emmetio/scanner';
 import { Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber, AllTokens } from './tokens';
 import { Chars, escaped } from './utils';
 
@@ -61,6 +61,12 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
     let value = '';
 
     while (!scanner.eof()) {
+        // Consume escaped sequence no matter of context
+        if (escaped(scanner)) {
+            value += scanner.current();
+            continue;
+        }
+
         const ch = scanner.peek();
 
         if (ch === ctx.quote || ch === Chars.Dollar || isAllowedOperator(ch, ctx)) {
@@ -74,14 +80,20 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
             break;
         }
 
-        if (!ctx.quote && !ctx.expression && (isAllowedSpace(ch, ctx) || isAllowedRepeater(ch, ctx) || isQuote(ch) || bracketType(ch))) {
-            // Stop for characters not allowed in unquoted literal
-            break;
+        if (!ctx.quote && !ctx.expression) {
+            // Consuming element name
+            if (!ctx.attribute && !isElementName(ch)) {
+                break;
+            }
+
+            if (isAllowedSpace(ch, ctx) || isAllowedRepeater(ch, ctx) || isQuote(ch) || bracketType(ch)) {
+                // Stop for characters not allowed in unquoted literal
+                break;
+            }
         }
 
-        value += escaped(scanner)
-            ? scanner.current()
-            : scanner.string[scanner.pos++];
+
+        value += scanner.string[scanner.pos++];
     }
 
     if (start !== scanner.pos) {
@@ -370,4 +382,14 @@ function isOpenBracket(ch: number): boolean {
     return ch === Chars.CurlyBracketOpen
         || ch === Chars.SquareBracketOpen
         || ch === Chars.RoundBracketOpen;
+}
+
+/**
+ * Check if given character is allowed in element name
+ */
+function isElementName(ch: number) {
+    return isAlphaNumericWord(ch)
+        || ch === Chars.Dash
+        || ch === Chars.Colon
+        || ch === Chars.Excl;
 }
