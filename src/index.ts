@@ -3,7 +3,8 @@ import stylesheetAbbreviation, { CSSAbbreviation } from '@emmetio/css-abbreviati
 import parseMarkup, { stringify as stringifyMarkup } from './markup';
 import parseStylesheet, {
     stringify as stringifyStylesheet,
-    convertSnippets as parseStylesheetSnippets
+    convertSnippets as parseStylesheetSnippets,
+    CSSAbbreviationScope
 } from './stylesheet';
 import resolveConfig, { UserConfig, Config } from './config';
 
@@ -35,7 +36,8 @@ export function stylesheet(abbr: string | CSSAbbreviation, config: Config) {
 export {
     markupAbbreviation, parseMarkup, stringifyMarkup,
     stylesheetAbbreviation, parseStylesheet, stringifyStylesheet, parseStylesheetSnippets,
-    Abbreviation as MarkupAbbreviation, CSSAbbreviation as StylesheetAbbreviation
+    Abbreviation as MarkupAbbreviation, CSSAbbreviation as StylesheetAbbreviation,
+    CSSAbbreviationScope
 };
 export { default as extract, ExtractOptions, ExtractedAbbreviation } from './extract-abbreviation';
 export { GlobalConfig, SyntaxType, Config, UserConfig, Options, AbbreviationContext, default as resolveConfig } from './config';

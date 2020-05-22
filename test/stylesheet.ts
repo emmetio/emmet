@@ -1,17 +1,18 @@
 import { strictEqual as equal, ok } from 'assert';
-import { stylesheet as expandAbbreviation, resolveConfig } from '../src';
+import { stylesheet as expandAbbreviation, resolveConfig, CSSAbbreviationScope } from '../src';
 import score from '../src/stylesheet/score';
 
 const defaultConfig = resolveConfig({
     type: 'stylesheet',
     options: {
-        'output.field': (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
+        'output.field': (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`,
+        'stylesheet.fuzzySearchMinScore': 0
     },
     snippets: {
         mten: 'margin: 10px;',
         fsz: 'font-size'
     },
-    cache: {}
+    cache: {},
 });
 
 function expand(abbr: string, config = defaultConfig) {
@@ -21,7 +22,7 @@ function expand(abbr: string, config = defaultConfig) {
 describe('Stylesheet abbreviations', () => {
     describe('Scoring', () => {
         const pick = (abbr: string, items: string[]) => items
-            .map(item => ({ item, score: score(abbr, item) }))
+            .map(item => ({ item, score: score(abbr, item, true) }))
             .filter(obj => obj.score)
             .sort((a, b) => b.score - a.score)
             .map(obj => obj.item)[0];
@@ -132,7 +133,8 @@ describe('Stylesheet abbreviations', () => {
     });
 
     it('snippets', () => {
-        equal(expand('@k'), '@keyframes ${1:identifier} {\n\t${2}\n}');
+        equal(expand('@'), '@media ${1:screen} {\n\t${0}\n}');
+
         // Insert value into snippet fields
         equal(expand('@k-name'), '@keyframes name {\n\t${2}\n}');
         equal(expand('@k-name10'), '@keyframes name {\n\t10\n}');
@@ -157,15 +159,14 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('lg(to right, #0, #f00.5)'), 'background-image: linear-gradient(to right, #000, rgba(255, 0, 0, 0.5));');
     });
 
-    it('use min score when finding best match for snippets', () => {
-        equal(expand('auto', resolveConfig({
-            type: 'stylesheet',
-            options: { 'stylesheet.fuzzySearchMinScore': 0 }
-        })), 'align-self: unset;');
-        equal(expand('auto', resolveConfig({
-            type: 'stylesheet',
-            options: { 'stylesheet.fuzzySearchMinScore': 0.3 }
-        })), 'auto: ;');
+    it('unmatched abbreviation', () => {
+        // This example is useless: it’s unexpected to receive `align-self: unset`
+        // for `auto` snippet
+        // equal(expand('auto', resolveConfig({
+        //     type: 'stylesheet',
+        //     options: { 'stylesheet.fuzzySearchMinScore': 0 }
+        // })), 'align-self: unset;');
+        equal(expand('auto'), 'auto: ${0};');
     });
 
     it('CSS-in-JS', () => {
@@ -188,5 +189,29 @@ describe('Stylesheet abbreviations', () => {
 
         equal(expand('s', config), 'start');
         equal(expand('a', config), 'auto');
+    });
+
+    it('limit snippets by scope', () => {
+        const sectionScope = resolveConfig({
+            type: 'stylesheet',
+            context: { name: CSSAbbreviationScope.Section },
+            snippets: {
+                mten: 'margin: 10px;',
+                fsz: 'font-size',
+                myCenterAwesome: 'body {\n\tdisplay: grid;\n}'
+            }
+        });
+        const propertyScope = resolveConfig({
+            type: 'stylesheet',
+            context: { name: CSSAbbreviationScope.Property },
+            snippets: {
+                mten: 'margin: 10px;',
+                fsz: 'font-size',
+                myCenterAwesome: 'body {\n\tdisplay: grid;\n}'
+            }
+        });
+
+        equal(expand('m', sectionScope), 'body {\n\tdisplay: grid;\n}');
+        equal(expand('m', propertyScope), 'margin: ;');
     });
 });

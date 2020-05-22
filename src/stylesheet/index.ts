@@ -7,6 +7,17 @@ import color from './color';
 type MatchInput = CSSSnippet | string;
 const gradientName = 'lg';
 
+export const enum CSSAbbreviationScope {
+    /** Include all possible snippets in match */
+    Global = '@@global',
+    /** Include raw snippets only (e.g. no properties) in abbreviation match */
+    Section = '@@section',
+    /** Include properties only in abbreviation match */
+    Property = '@@property',
+    /** Resolve abbreviation in context of CSS property value */
+    Value = '@@value',
+}
+
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
@@ -19,11 +30,13 @@ export default function parse(abbr: string | CSSAbbreviation, config: Config): C
     }
 
     if (typeof abbr === 'string') {
-        abbr = abbreviation(abbr, { value: !!config.context });
+        abbr = abbreviation(abbr, { value: isValueScope(config) });
     }
 
+    const filteredSnippets = getSnippetsForScope(snippets, config);
+
     for (const node of abbr) {
-        resolveNode(node, snippets, config);
+        resolveNode(node, filteredSnippets, config);
     }
 
     return abbr;
@@ -50,13 +63,13 @@ export function convertSnippets(snippets: SnippetsMap): CSSSnippet[] {
 function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty {
     if (!resolveGradient(node, config)) {
         const score = config.options['stylesheet.fuzzySearchMinScore'];
-        if (config.context) {
+        if (isValueScope(config)) {
             // Resolve as value of given CSS property
-            const propName = config.context.name;
+            const propName = config.context!.name;
             const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === propName) as CSSSnippetProperty | undefined;
             resolveValueKeywords(node, config, snippet, score);
         } else if (node.name) {
-            const snippet = findBestMatch(node.name, snippets, score);
+            const snippet = findBestMatch(node.name, snippets, score, true);
 
             if (snippet) {
                 if (snippet.type === CSSSnippetType.Property) {
@@ -119,28 +132,40 @@ function resolveGradient(node: CSSProperty, config: Config): boolean {
  */
 function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, config: Config): CSSProperty {
     const abbr = node.name!;
+
+    // Check for unmatched part of abbreviation
+    // For example, in `dib` abbreviation the matched part is `d` and `ib` should
+    // be considered as inline value. If unmatched fragment exists, we should check
+    // if it matches actual value of snippet. If either explicit value is specified
+    // or unmatched fragment did not resolve to to a keyword, we should consider
+    // matched snippet as invalid
+    const inlineValue = getUnmatchedPart(abbr, snippet.key);
+    if (inlineValue) {
+        if (node.value.length) {
+            // Already have value: unmatched part indicates matched snippet is invalid
+            return node;
+        }
+        const kw = resolveKeyword(inlineValue, config, snippet);
+        if (!kw) {
+            return node;
+        }
+        node.value.push(cssValue(kw));
+    }
+
     node.name = snippet.property;
 
-    if (!node.value.length) {
-        // No value defined in abbreviation node, try to resolve unmatched part
-        // as a keyword alias
-        const inlineValue = getUnmatchedPart(abbr, snippet.key);
-        const kw = inlineValue ? resolveKeyword(inlineValue, config, snippet) : null;
-        if (kw) {
-            node.value.push(cssValue(kw));
-        } else if (snippet.value.length) {
-            const defaultValue = snippet.value[0]!;
-
-            // https://github.com/emmetio/emmet/issues/558
-            // We should auto-select inserted value only if there’s multiple value
-            // choice
-            node.value = snippet.value.length === 1 || defaultValue.some(hasField)
-                ? defaultValue
-                : defaultValue.map(n => wrapWithField(n, config));
-        }
-    } else {
+    if (node.value.length) {
         // Replace keyword alias from current abbreviation node with matched keyword
         resolveValueKeywords(node, config, snippet);
+    } else if (snippet.value.length) {
+        const defaultValue = snippet.value[0]!;
+
+        // https://github.com/emmetio/emmet/issues/558
+        // We should auto-select inserted value only if there’s multiple value
+        // choice
+        node.value = snippet.value.length === 1 || defaultValue.some(hasField)
+            ? defaultValue
+            : defaultValue.map(n => wrapWithField(n, config));
     }
 
     return node;
@@ -213,12 +238,12 @@ function resolveAsSnippet(node: CSSProperty, snippet: CSSSnippetRaw): CSSPropert
  * @param items List of items for match
  * @param minScore The minimum score the best matched item should have to be a valid match.
  */
-export function findBestMatch<T extends MatchInput>(abbr: string, items: T[], minScore = 0): T | null {
+export function findBestMatch<T extends MatchInput>(abbr: string, items: T[], minScore = 0, partialMatch = false): T | null {
     let matchedItem: T | null = null;
     let maxScore = 0;
 
     for (const item of items) {
-        const score = calculateScore(abbr, getScoringPart(item));
+        const score = calculateScore(abbr, getScoringPart(item), partialMatch);
 
         if (score === 1) {
             // direct hit, no need to look further
@@ -380,4 +405,32 @@ function wrapWithField(node: CSSValue, config: Config, state: WrapState = { inde
     }
 
     return {...node, value };
+}
+
+/**
+ * Check if abbreviation should be expanded in CSS value context
+ */
+function isValueScope(config: Config): boolean {
+    if (config.context) {
+        return config.context.name === CSSAbbreviationScope.Value || !config.context.name.startsWith('@@');
+    }
+
+    return false;
+}
+
+/**
+ * Returns snippets for given scope
+ */
+function getSnippetsForScope(snippets: CSSSnippet[], config: Config): CSSSnippet[] {
+    if (config.context) {
+        if (config.context.name === CSSAbbreviationScope.Section) {
+            return snippets.filter(s => s.type === CSSSnippetType.Raw);
+        }
+
+        if (config.context.name === CSSAbbreviationScope.Property) {
+            return snippets.filter(s => s.type === CSSSnippetType.Property);
+        }
+    }
+
+    return snippets;
 }

@@ -324,7 +324,7 @@ export const defaultOptions: Options = {
     'stylesheet.unitAliases': { e: 'em', p: '%', x: 'ex', r: 'rem' },
     'stylesheet.json': false,
     'stylesheet.jsonDoubleQuotes': false,
-    'stylesheet.fuzzySearchMinScore': 0.3
+    'stylesheet.fuzzySearchMinScore': 0
 };
 
 export const defaultConfig: Config = {
