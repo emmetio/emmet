@@ -132,6 +132,13 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('p0!'), 'padding: 0 !important;');
     });
 
+    it('color', () => {
+        equal(expand('c'), 'color: ${1:#000};');
+        equal(expand('c#'), 'color: #000;');
+        equal(expand('c#f.5'), 'color: rgba(255, 255, 255, 0.5);');
+        equal(expand('c#f.5!'), 'color: rgba(255, 255, 255, 0.5) !important;');
+    });
+
     it('snippets', () => {
         equal(expand('@'), '@media ${1:screen} {\n\t${0}\n}');
 
