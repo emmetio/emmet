@@ -1,4 +1,4 @@
-import { strictEqual as equal } from 'assert';
+import { strictEqual as equal, throws } from 'assert';
 import parser, { ParseOptions, FunctionCall } from '../src/parser';
 import tokenizer from '../src/tokenizer';
 import stringify from './assets/stringify';
@@ -72,5 +72,9 @@ describe('CSS Abbreviation parser', () => {
         equal(prop.value[0].value.length, 1);
         equal(fn.type, 'FunctionCall');
         equal(fn.name, 'scale3d');
+    });
+
+    it('errors', () => {
+        throws(() => expand('p10 '), /Unexpected token/);
     });
 });

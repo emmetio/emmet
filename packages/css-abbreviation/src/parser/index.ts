@@ -50,8 +50,9 @@ function consumeProperty(scanner: TokenScanner, options: ParseOptions): CSSPrope
     let valueFragment: CSSValue | undefined;
     const value: CSSValue[] = [];
     const token = peek(scanner)!;
+    const valueMode = !!options.value;
 
-    if (!options.value && isLiteral(token) && !isFunctionStart(scanner)) {
+    if (!valueMode && isLiteral(token) && !isFunctionStart(scanner)) {
         scanner.pos++;
         name = token.value;
         // Consume any following value delimiter after property name
@@ -59,12 +60,14 @@ function consumeProperty(scanner: TokenScanner, options: ParseOptions): CSSPrope
     }
 
     // Skip whitespace right after property name, if any
-    consume(scanner, isWhiteSpace);
+    if (valueMode) {
+        consume(scanner, isWhiteSpace);
+    }
 
     while (readable(scanner)) {
         if (consume(scanner, isImportant)) {
             important = true;
-        } else if (valueFragment = consumeValue(scanner)) {
+        } else if (valueFragment = consumeValue(scanner, valueMode)) {
             value.push(valueFragment);
         } else if (!consume(scanner, isFragmentDelimiter)) {
             break;
@@ -79,7 +82,7 @@ function consumeProperty(scanner: TokenScanner, options: ParseOptions): CSSPrope
 /**
  * Consumes single value fragment, e.g. all value tokens before comma
  */
-function consumeValue(scanner: TokenScanner): CSSValue | undefined {
+function consumeValue(scanner: TokenScanner, inArgument: boolean): CSSValue | undefined {
     const result: Value[] = [];
     let token: AllTokens | undefined;
     let args: CSSValue[] | undefined;
@@ -98,7 +101,7 @@ function consumeValue(scanner: TokenScanner): CSSValue | undefined {
             } else {
                 result.push(token);
             }
-        } else if (isValueDelimiter(token)) {
+        } else if (isValueDelimiter(token) || (inArgument && isWhiteSpace(token))) {
             scanner.pos++;
         } else {
             break;
@@ -117,7 +120,7 @@ function consumeArguments(scanner: TokenScanner): CSSValue[] | undefined {
         let value: CSSValue | undefined;
 
         while (readable(scanner) && !consume(scanner, isCloseBracket)) {
-            if (value = consumeValue(scanner)) {
+            if (value = consumeValue(scanner, true)) {
                 args.push(value);
             } else if (!consume(scanner, isWhiteSpace) && !consume(scanner, isArgumentDelimiter)) {
                 throw error(scanner, 'Unexpected token');
@@ -162,7 +165,7 @@ function isArgumentDelimiter(token: AllTokens) {
 }
 
 function isFragmentDelimiter(token: AllTokens) {
-    return isArgumentDelimiter(token) || isWhiteSpace(token);
+    return isArgumentDelimiter(token);
 }
 
 function isImportant(token: AllTokens) {
@@ -178,8 +181,7 @@ function isValue(token: AllTokens): token is StringValue | NumberValue | ColorVa
 }
 
 function isValueDelimiter(token: AllTokens): boolean {
-    return isWhiteSpace(token)
-        || isOperator(token, OperatorType.PropertyDelimiter)
+    return isOperator(token, OperatorType.PropertyDelimiter)
         || isOperator(token, OperatorType.ValueDelimiter);
 }
 
