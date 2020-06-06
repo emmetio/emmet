@@ -83,13 +83,16 @@ function outputImportant(node: CSSProperty, out: OutputStream, separator?: boole
 }
 
 function outputValue(value: CSSValue, out: OutputStream, config: Config) {
-    for (let i = 0; i < value.value.length; i++) {
+    for (let i = 0, prevEnd = -1; i < value.value.length; i++) {
         const token = value.value[i];
-        if (i !== 0) {
+        // Handle edge case: a field is written close to previous token like this: `foo${bar}`.
+        // We should not add delimiter here
+        if (i !== 0 && (token.type !== 'Field' || token.start !== prevEnd)) {
             push(out, ' ');
         }
 
         outputToken(token, out, config);
+        prevEnd = token['end'];
     }
 }
 

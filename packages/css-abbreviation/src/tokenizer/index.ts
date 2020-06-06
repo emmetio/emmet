@@ -213,7 +213,7 @@ function stringValue(scanner: Scanner): StringValue | undefined {
 /**
  * Consumes a color token from given string
  */
-function colorValue(scanner: Scanner): ColorValue | undefined {
+function colorValue(scanner: Scanner): ColorValue | Literal | undefined {
     // supported color variations:
     // #abc   → #aabbccc
     // #0     → #000000
@@ -221,27 +221,50 @@ function colorValue(scanner: Scanner): ColorValue | undefined {
     // #t     → transparent
     const start = scanner.pos;
     if (scanner.eat(Chars.Hash)) {
-        scanner.start = scanner.pos;
-
-        scanner.eat(Chars.Transparent) || scanner.eatWhile(isHex);
-        const color = scanner.current();
-        let alpha: string | undefined;
-
-        // a hex color can be followed by `.num` alpha value
-        scanner.start = scanner.pos;
-        if (scanner.eat(Chars.Dot) && scanner.eatWhile(isNumber)) {
-            alpha = scanner.current();
+        const valueStart = scanner.pos;
+        let color = '';
+        let alpha = '';
+        if (scanner.eatWhile(isHex)) {
+            color = scanner.substring(valueStart, scanner.pos);
+            alpha = colorAlpha(scanner);
+        } else if (scanner.eat(Chars.Transparent)) {
+            color = '0';
+            alpha = colorAlpha(scanner) || '0';
+        } else {
+            alpha = colorAlpha(scanner);
         }
 
-        const { r, g, b, a } = parseColor(color, alpha);
-        return {
-            type: 'ColorValue',
-            r, g, b, a,
-            raw: scanner.substring(start + 1, scanner.pos),
-            start,
-            end: scanner.pos
-        };
+        if (color || alpha || scanner.eof()) {
+            const { r, g, b, a } = parseColor(color, alpha);
+            return {
+                type: 'ColorValue',
+                r, g, b, a,
+                raw: scanner.substring(start + 1, scanner.pos),
+                start,
+                end: scanner.pos
+            };
+        } else {
+            // Consumed # but no actual value: invalid color value, treat it as literal
+            return createLiteral(scanner, start);
+        }
     }
+    scanner.pos = start;
+}
+
+/**
+ * Consumes alpha value of color: `.1`
+ */
+function colorAlpha(scanner: Scanner): string {
+    const start = scanner.pos;
+    if (scanner.eat(Chars.Dot)) {
+        scanner.start = start;
+        if (scanner.eatWhile(isNumber)) {
+            return scanner.current();
+        }
+        return '1';
+    }
+
+    return '';
 }
 
 /**

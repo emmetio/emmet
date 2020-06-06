@@ -116,6 +116,11 @@ describe('Tokenizer', () => {
             { type: 'ColorValue', r: 17, g: 17, b: 17, a: 1, raw: '1', start: 1, end: 3 }
         ]);
 
+        deepEqual(tokenize('c#.'), [
+            { type: 'Literal', value: 'c', start: 0, end: 1 },
+            { type: 'ColorValue', r: 0, g: 0, b: 0, a: 1, raw: '.', start: 1, end: 3 }
+        ]);
+
         deepEqual(tokenize('c#f'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
             { type: 'ColorValue', r: 255, g: 255, b: 255, a: 1, raw: 'f', start: 1, end: 3 }
@@ -151,6 +156,12 @@ describe('Tokenizer', () => {
         deepEqual(tokenize('c#t'), [
             { type: 'Literal', value: 'c', start: 0, end: 1 },
             { type: 'ColorValue', r: 0, g: 0, b: 0, a: 0, raw: 't', start: 1, end: 3 }
+        ]);
+
+        deepEqual(tokenize('c#${fff}'), [
+            { type: 'Literal', value: 'c', start: 0, end: 1 },
+            { type: 'Literal', value: '#', start: 1, end: 2 },
+            { type: 'Field', index: undefined, name: 'fff', start: 2, end: 8 }
         ]);
     });
 

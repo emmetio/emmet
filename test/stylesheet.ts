@@ -137,6 +137,7 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('c#'), 'color: #000;');
         equal(expand('c#f.5'), 'color: rgba(255, 255, 255, 0.5);');
         equal(expand('c#f.5!'), 'color: rgba(255, 255, 255, 0.5) !important;');
+        equal(expand('bgc'), 'background-color: #${1:fff};');
     });
 
     it('snippets', () => {
@@ -186,6 +187,7 @@ describe('Stylesheet abbreviations', () => {
         });
 
         equal(expand('p10+mt10-20', config), 'padding: 10,\nmarginTop: \'10px 20px\',');
+        equal(expand('bgc', config), 'backgroundColor: \'#fff\',');
     });
 
     it('resolve context value', () => {
