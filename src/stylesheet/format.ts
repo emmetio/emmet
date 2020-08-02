@@ -2,10 +2,16 @@ import { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emm
 import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream';
 import { Config } from '../config';
 import color, { frac } from './color';
+import { CSSAbbreviationScope } from './scope';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);
     const format = config.options['output.format'];
+
+    if (config.context?.name === CSSAbbreviationScope.Section) {
+        // For section context, filter out unmatched snippets
+        abbr = abbr.filter(node => node.snippet);
+    }
 
     for (let i = 0; i < abbr.length; i++) {
         if (format && i !== 0) {

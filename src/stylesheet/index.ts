@@ -3,20 +3,11 @@ import { Config, SnippetsMap } from '../config';
 import createSnippet, { CSSSnippet, nest, CSSSnippetType, CSSSnippetRaw, CSSSnippetProperty } from './snippets';
 import calculateScore from './score';
 import color from './color';
+import { CSSAbbreviationScope } from './scope';
 
 type MatchInput = CSSSnippet | string;
 const gradientName = 'lg';
 
-export const enum CSSAbbreviationScope {
-    /** Include all possible snippets in match */
-    Global = '@@global',
-    /** Include raw snippets only (e.g. no properties) in abbreviation match */
-    Section = '@@section',
-    /** Include properties only in abbreviation match */
-    Property = '@@property',
-    /** Resolve abbreviation in context of CSS property value */
-    Value = '@@value',
-}
 
 /**
  * Parses given Emmet abbreviation into a final abbreviation tree with all
@@ -43,6 +34,7 @@ export default function parse(abbr: string | CSSAbbreviation, config: Config): C
 }
 
 export { default as stringify } from './format';
+export { CSSAbbreviationScope };
 
 /**
  * Converts given raw snippets into internal snippets representation
@@ -68,8 +60,10 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
             const propName = config.context!.name;
             const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === propName) as CSSSnippetProperty | undefined;
             resolveValueKeywords(node, config, snippet, score);
+            node.snippet = snippet;
         } else if (node.name) {
             const snippet = findBestMatch(node.name, snippets, score, true);
+            node.snippet = snippet;
 
             if (snippet) {
                 if (snippet.type === CSSSnippetType.Property) {

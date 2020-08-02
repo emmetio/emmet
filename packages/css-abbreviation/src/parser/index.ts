@@ -18,6 +18,8 @@ export interface CSSProperty {
     name?: string;
     value: CSSValue[];
     important: boolean;
+    /** Snippet matched with current property */
+    snippet?: any;
 }
 
 export interface ParseOptions {

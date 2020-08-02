@@ -221,6 +221,7 @@ describe('Stylesheet abbreviations', () => {
         });
 
         equal(expand('m', sectionScope), 'body {\n\tdisplay: grid;\n}');
+        equal(expand('b', sectionScope), '');
         equal(expand('m', propertyScope), 'margin: ;');
     });
 });
