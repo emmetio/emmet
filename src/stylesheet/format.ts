@@ -2,7 +2,7 @@ import { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emm
 import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream';
 import { Config } from '../config';
 import color, { frac } from './color';
-import { CSSAbbreviationScope } from './scope';
+import { CSSAbbreviationScope } from './';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);
