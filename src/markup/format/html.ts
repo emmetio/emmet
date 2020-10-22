@@ -5,6 +5,7 @@ import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAtt
 import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
 import { Config } from '../../config';
 
+const htmlTagRegex = /<([\w\-:]+)[\s>]/g;
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
 export interface HTMLWalkState extends WalkState {
@@ -55,7 +56,7 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
 
             if (!pushSnippet(node, state, next)) {
                 if (node.value) {
-                    const innerFormat = node.value.some(hasNewline);
+                    const innerFormat = node.value.some(hasNewline) || startsWithBlockTag(node.value, config);
                     innerFormat && pushNewline(state.out, ++out.level);
                     pushTokens(node.value, state);
                     innerFormat && pushNewline(state.out, --out.level);
@@ -249,4 +250,17 @@ function getIndent(state: WalkState): number {
  */
 function hasNewline(value: Value): boolean {
     return typeof value === 'string' && /\r|\n/.test(value);
+}
+
+/**
+ * Check if given node value starts with block-level tag
+ */
+function startsWithBlockTag(value: Value[], config: Config): boolean {
+    if (value.length && typeof value[0] === 'string') {
+        const matches = value[0].match(htmlTagRegex);
+        if (matches?.length && !config.options['inlineElements'].includes(matches[0].toLowerCase())) {
+            return true;
+        }
+    }
+    return false;
 }
