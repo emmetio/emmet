@@ -84,7 +84,7 @@ console.log(expand('p10', {
 })); // padding__10px
 ```
 
-You can pass `options` property as well to shape-up final output or enable/disable various features. See [`src/config`](src/config) for more info and available options.
+You can pass `options` property as well to shape-up final output or enable/disable various features. See [`src/config.ts`](src/config.ts) for more info and available options.
 
 ## Extracting abbreviations from text
 
