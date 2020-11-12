@@ -3,6 +3,9 @@ import { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, Value, Abb
 import { Repeater, ValueToken, Quote, Field } from './tokenizer';
 import stringify from './stringify';
 
+const urlRegex = /^((https?:|ftp:|file:)?\/\/|(www|ftp)\.)[^ ]*$/;
+const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$/;
+
 /**
  * Converts given token-based abbreviation into simplified and unrolled node-based
  * abbreviation
@@ -39,6 +42,11 @@ export default function convert(abbr: TokenGroup, options: ParserOptions = {}): 
         if (deepest) {
             const text = Array.isArray(options.text) ? options.text.join('\n') : options.text;
             insertText(deepest, text);
+
+            if (deepest.name === 'a' && options.href) {
+                // Automatically update value of `<a>` element if inserting URL or email
+                insertHref(deepest, text);
+            }
         }
     }
 
@@ -232,7 +240,7 @@ function stringifyValue(tokens: ValueToken[], state: ConvertState): Value[] {
             }
             result.push(token);
         } else {
-             str += stringify(token, state);
+            str += stringify(token, state);
         }
     }
 
@@ -269,6 +277,25 @@ function insertText(node: AbbreviationNode, text: string) {
         }
     } else {
         node.value = [text];
+    }
+}
+
+function insertHref(node: AbbreviationNode, text: string) {
+    let href = '';
+    if (urlRegex.test(text)) {
+        href = text;
+        if (!/\w+:/.test(href) && !href.startsWith('//')) {
+            href = `http://${href}`;
+        }
+    } else if (emailRegex.test(text)) {
+        href = `mailto:${text}`;
+    }
+
+    const hrefAttribute = node.attributes?.find(attr => attr.name === 'href');
+    if (!hrefAttribute) {
+        node.attributes = [{ name: 'href', value: [href], valueType: 'doubleQuote' }];
+    } else if (!hrefAttribute.value) {
+        hrefAttribute.value = [href];
     }
 }
 
