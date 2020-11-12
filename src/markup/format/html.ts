@@ -5,7 +5,7 @@ import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAtt
 import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
 import { Config } from '../../config';
 
-const htmlTagRegex = /<([\w\-:]+)[\s>]/g;
+const htmlTagRegex = /<([\w\-:]+)[\s>]/;
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
 export interface HTMLWalkState extends WalkState {
@@ -257,8 +257,8 @@ function hasNewline(value: Value): boolean {
  */
 function startsWithBlockTag(value: Value[], config: Config): boolean {
     if (value.length && typeof value[0] === 'string') {
-        const matches = value[0].match(htmlTagRegex);
-        if (matches?.length && !config.options['inlineElements'].includes(matches[0].toLowerCase())) {
+        const matches = htmlTagRegex.exec(value[0]);
+        if (matches?.length && !config.options['inlineElements'].includes(matches[1].toLowerCase())) {
             return true;
         }
     }
