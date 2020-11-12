@@ -103,6 +103,7 @@ describe('Expand Abbreviation', () => {
                 '<div>\n\t<ul>\n\t\t<div>line1</div>\n\t\t<div>line2</div>\n\t</ul>\n</div>');
             equal(expand('p', { text: 'foo\nbar'}), '<p>\n\tfoo\n\tbar\n</p>');
             equal(expand('p', { text: '<div>foo</div>'}), '<p>\n\t<div>foo</div>\n</p>');
+            equal(expand('p', { text: '<span>foo</span>'}), '<p><span>foo</span></p>');
         });
 
         // it.only('debug', () => {
