@@ -12,6 +12,9 @@ export interface ParserOptions {
 
     /** Enabled JSX parsing mode */
     jsx?: boolean;
+
+    /** Enable inserting text into href attribute of links */
+    href?: boolean;
 }
 
 export interface ConvertState {

@@ -162,6 +162,16 @@ export interface Options {
      */
     'output.text': TextOutput;
 
+    ////////////////////
+    // Markup options //
+    ////////////////////
+
+    /**
+     * Automatically update value of <a> element's href attribute
+     * if inserting URL or email
+     */
+    'markup.href': boolean;
+
     ////////////////////////////////
     // Element commenting options //
     ////////////////////////////////
@@ -302,6 +312,8 @@ export const defaultOptions: Options = {
     'output.selfClosingStyle': 'html',
     'output.field': (index, placeholder) => placeholder,
     'output.text': text => text,
+
+    'markup.href': true,
 
     'comment.enabled': false,
     'comment.trigger': ['id', 'class'],
