@@ -80,6 +80,11 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('bd0-h#fc0'), 'border: 0 hidden #fc0;');
 
         equal(expand('trf-trs'), 'transform: translate(${1:x}, ${2:y});');
+
+        // https://github.com/emmetio/emmet/issues/610
+        equal(expand('c'), 'color: ${1:#000};');
+        equal(expand('cr'), 'color: rgb(${1:0}, ${2:0}, ${3:0});');
+        equal(expand('cra'), 'color: rgba(${1:0}, ${2:0}, ${3:0}, ${4:.5});');
     });
 
     it('numeric', () => {

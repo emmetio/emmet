@@ -74,6 +74,8 @@
 	"bxsh": "box-shadow:${1:inset }${2:hoff} ${3:voff} ${4:blur} ${5:#000}|none",
 	"bxsz": "box-sizing:border-box|content-box|border-box",
 	"c": "color:${1:#000}",
+	"cr": "color:rgb(${1:0}, ${2:0}, ${3:0})",
+	"cra": "color:rgba(${1:0}, ${2:0}, ${3:0}, ${4:.5})",
 	"cl": "clear:both|left|right|none",
 	"cm": "/* ${0} */",
 	"cnt": "content:'${0}'|normal|open-quote|no-open-quote|close-quote|no-close-quote|attr(${0})|counter(${0})|counters(${0})",
