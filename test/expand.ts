@@ -104,6 +104,8 @@ describe('Expand Abbreviation', () => {
             equal(expand('p', { text: 'foo\nbar'}), '<p>\n\tfoo\n\tbar\n</p>');
             equal(expand('p', { text: '<div>foo</div>'}), '<p>\n\t<div>foo</div>\n</p>');
             equal(expand('p', { text: '<span>foo</span>'}), '<p><span>foo</span></p>');
+            equal(expand('p', { text: 'foo<span>foo</span>'}), '<p>foo<span>foo</span></p>');
+            equal(expand('p', { text: 'foo<div>foo</div>'}), '<p>foo<div>foo</div></p>');
         });
 
         // it.only('debug', () => {

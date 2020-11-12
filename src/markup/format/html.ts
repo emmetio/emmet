@@ -5,7 +5,7 @@ import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAtt
 import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
 import { Config } from '../../config';
 
-const htmlTagRegex = /<([\w\-:]+)[\s>]/;
+const htmlTagRegex = /^<([\w\-:]+)[\s>]/;
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
 export interface HTMLWalkState extends WalkState {
