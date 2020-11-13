@@ -20,6 +20,7 @@ export interface ParserOptions {
 export interface ConvertState {
     inserted: boolean;
     text?: string | string[];
+    cleanText?: string | string[];
     repeatGuard: number;
 
     /** Context repeaters, e.g. all actual repeaters from parent */

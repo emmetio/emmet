@@ -13,20 +13,36 @@ const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$/;
 export default function convert(abbr: TokenGroup, options: ParserOptions = {}): Abbreviation {
     let textInserted = false;
 
+    let cleanText: string | string[] | undefined;
+    if (options.text) {
+        if (Array.isArray(options.text)) {
+            cleanText = options.text.filter(s => s.trim());
+        } else {
+            cleanText = options.text;
+        }
+    }
+
     const result: Abbreviation = {
         type: 'Abbreviation',
         children: convertGroup(abbr, {
             inserted: false,
             repeaters: [],
             text: options.text,
+            cleanText,
             repeatGuard: options.maxRepeat || Number.POSITIVE_INFINITY,
             getText(pos) {
                 textInserted = true;
-                const value = Array.isArray(options.text)
-                    ? (pos != null ? options.text[pos] : options.text.join('\n'))
-                    : options.text;
 
-                return value != null ? value : '';
+                let value: string;
+                if (Array.isArray(options.text)) {
+                    if (cleanText && pos !== undefined && pos >= 0 && pos < cleanText.length) {
+                        return cleanText[pos];
+                    }
+                    value = pos !== undefined ? options.text[pos] : options.text.join('\n');
+                } else {
+                    value = options.text ?? '';
+                }
+                return value;
             },
             getVariable(name) {
                 const varValue = options.variables && options.variables[name];
@@ -65,7 +81,7 @@ function convertStatement(node: TokenStatement, state: ConvertState): Abbreviati
         const original = node.repeat;
         const repeat = { ...original } as Repeater;
         repeat.count = repeat.implicit && Array.isArray(state.text)
-            ? state.text.length
+            ? state.cleanText!.length
             : (repeat.count || 1);
         let items: AbbreviationNode[];
 
