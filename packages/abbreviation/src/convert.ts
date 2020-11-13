@@ -35,8 +35,8 @@ export default function convert(abbr: TokenGroup, options: ParserOptions = {}): 
 
                 let value: string;
                 if (Array.isArray(options.text)) {
-                    if (cleanText && pos !== undefined && pos >= 0 && pos < cleanText.length) {
-                        return cleanText[pos];
+                    if (pos !== undefined && pos >= 0 && pos < cleanText!.length) {
+                        return cleanText![pos];
                     }
                     value = pos !== undefined ? options.text[pos] : options.text.join('\n');
                 } else {
