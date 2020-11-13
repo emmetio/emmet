@@ -116,7 +116,7 @@ describe('Expand Abbreviation', () => {
     describe('Pug templates', () => {
         const config = resolveConfig({ syntax: 'pug' });
         it('basic', () => {
-            equal(expand('!', config), 'doctype html\nhtml(lang="en")\n\thead\n\t\tmeta(charset="UTF-8")\n\t\tmeta(name="viewport", content="width=device-width, initial-scale=1.0")\n\t\ttitle Document\n\tbody ');
+            equal(expand('!', config), 'doctype html\nhtml(lang="en")\n\thead\n\t\tmeta(charset="UTF-8")\n\t\tmeta(http-equiv="X-UA-Compatible", content="IE=edge")\n\t\tmeta(name="viewport", content="width=device-width, initial-scale=1.0")\n\t\ttitle Document\n\tbody ');
         });
     });
 });
