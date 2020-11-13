@@ -30,6 +30,12 @@ export default function parse(abbr: string | Abbreviation, config: Config): Abbr
                 jsx: true
             };
         }
+        if (config.options['markup.href']) {
+            parseOpt = {
+                ...parseOpt,
+                href: true
+            };
+        }
 
         abbr = abbreviation(abbr, parseOpt);
     }
