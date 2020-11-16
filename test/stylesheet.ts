@@ -107,6 +107,11 @@ describe('Stylesheet abbreviations', () => {
 
         // https://github.com/emmetio/emmet/issues/558
         equal(expand('us'), 'user-select: none;');
+
+        // https://github.com/microsoft/vscode/issues/105697
+        equal(expand('opa1'), 'opacity: 1;', 'Unitless property');
+        equal(expand('opa.1'), 'opacity: 0.1;', 'Unitless property');
+        equal(expand('opa.a'), 'opacity: .a;', 'Unitless property');
     });
 
     it('numeric with format options', () => {
