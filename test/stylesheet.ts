@@ -107,6 +107,13 @@ describe('Stylesheet abbreviations', () => {
 
         // https://github.com/emmetio/emmet/issues/558
         equal(expand('us'), 'user-select: none;');
+
+        // https://github.com/emmetio/emmet/issues/628
+        equal(expand('lis:n'), 'list-style: none;');
+        equal(expand('list:n'), 'list-style-type: none;');
+        equal(expand('bdt:n'), 'border-top: none;');
+        equal(expand('bgi:n'), 'background-image: none;');
+        equal(expand('q:n'), 'quotes: none;');
     });
 
     it('numeric with format options', () => {
