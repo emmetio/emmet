@@ -85,7 +85,7 @@
 	"input:f|input:file": "inp[type=file]",
 	"input:s|input:submit": "input[type=submit value]",
 	"input:i|input:image": "input[type=image src alt]",
-	"input:b|input:button": "input[type=button value]",
+	"input:b|input:btn|input:button": "input[type=button value]",
 	"input:reset": "input:button[type=reset]",
 	"isindex": "isindex/",
 	"select": "select[name=${1} id=${1}]",
