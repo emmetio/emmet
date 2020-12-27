@@ -326,7 +326,7 @@ export const defaultOptions: Options = {
 
     'jsx.enabled': false,
 
-    'stylesheet.keywords': ['auto', 'inherit', 'unset'],
+    'stylesheet.keywords': ['auto', 'inherit', 'unset', 'none'],
     'stylesheet.unitless': ['z-index', 'line-height', 'opacity', 'font-weight', 'zoom', 'flex', 'flex-grow', 'flex-shrink'],
     'stylesheet.shortHex': true,
     'stylesheet.between': ': ',
