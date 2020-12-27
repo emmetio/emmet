@@ -70,4 +70,13 @@ describe('Convert token abbreviations', () => {
         equal(parse('a[href=]', { href: true, text: 'test here test@domain.com' }), '<a href="">test here test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here www.domain.com' }), '<a href="">test here www.domain.com</a>');
     });
+
+    it('wrap basic', () => {
+        equal(parse('p', { text: 'test' }), '<p>test</p>');
+        equal(parse('p', { text: ['test'] }), '<p>test</p>');
+        equal(parse('p', { text: ['test1', 'test2'] }), '<p>test1\ntest2</p>');
+        equal(parse('p', { text: ['test1', '', 'test2'] }), '<p>test1\n\ntest2</p>');
+        equal(parse('p*', { text: ['test1', 'test2'] }), '<p*2@0>test1</p><p*2@1>test2</p>');
+        equal(parse('p*', { text: ['test1', '', 'test2'] }), '<p*2@0>test1</p><p*2@1>test2</p>');
+    })
 });
