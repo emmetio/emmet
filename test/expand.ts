@@ -108,6 +108,12 @@ describe('Expand Abbreviation', () => {
             equal(expand('p', { text: 'foo<div>foo</div>'}), '<p>foo<div>foo</div></p>');
         });
 
+        it('wrap with abbreviation href', () => {
+            equal(expand('a', { text: ['www.google.it'] }), '<a href="http://www.google.it">www.google.it</a>');
+            equal(expand('a', { text: ['then www.google.it'] }), '<a href="">then www.google.it</a>');
+            equal(expand('a', { text: ['www.google.it'], options: { 'markup.href': false } }), '<a href="">www.google.it</a>');
+        });
+
         // it.only('debug', () => {
         //     equal(expand('link:css'), '<link rel="stylesheet" href="style.css">');
         // });
