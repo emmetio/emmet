@@ -69,6 +69,9 @@ describe('Convert token abbreviations', () => {
         equal(parse('a[href=]', { href: true, text: 'test@domain.com' }), '<a href="mailto:test@domain.com">test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here test@domain.com' }), '<a href="">test here test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here www.domain.com' }), '<a href="">test here www.domain.com</a>');
+
+        equal(parse('a[href="www.google.it"]', { href: false, text: 'test' }), '<a href="www.google.it">test</a>');
+        equal(parse('a[href="www.example.com"]', { href: true, text: 'www.google.it' }), '<a href="www.example.com">www.google.it</a>');
     });
 
     it('wrap basic', () => {
