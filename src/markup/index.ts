@@ -22,6 +22,7 @@ const formatters: { [syntax: string]: Formatter } = { html, haml, slim, pug };
  * required transformations applied
  */
 export default function parse(abbr: string | Abbreviation, config: Config): Abbreviation {
+    let oldTextValue: string | string[] | undefined;
     if (typeof abbr === 'string') {
         let parseOpt: ParserOptions = config;
         if (config.options['jsx.enabled']) {
@@ -38,6 +39,11 @@ export default function parse(abbr: string | Abbreviation, config: Config): Abbr
         }
 
         abbr = abbreviation(abbr, parseOpt);
+
+        // remove text field before snippets(abbr, config) call
+        // as abbreviation(abbr, parseOpt) already handled it
+        oldTextValue = config.text;
+        config.text = undefined;
     }
 
     // Run abbreviation resolve in two passes:
@@ -46,6 +52,7 @@ export default function parse(abbr: string | Abbreviation, config: Config): Abbr
     // 2. Transform every resolved node
     abbr = snippets(abbr, config);
     walk(abbr, transform, config);
+    config.text = oldTextValue ?? config.text;
     return abbr;
 }
 

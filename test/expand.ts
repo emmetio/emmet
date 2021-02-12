@@ -35,6 +35,11 @@ describe('Expand Abbreviation', () => {
             equal(expand('test[foo]', opt), '<test bar="bar" baz={}></test>');
             equal(expand('test[baz=a foo=1]', opt), '<test foo="1" bar="bar" baz={a}></test>');
 
+            equal(expand('map'), '<map name=""></map>');
+            equal(expand('map[]'), '<map name=""></map>');
+            equal(expand('map[name="valid"]'), '<map name="valid"></map>');
+            equal(expand('map[href="invalid"]'), '<map name="" href="invalid"></map>');
+
             // Apply attributes in reverse order
             equal(expand('test', reverse), '<test bar="bar" baz={}></test>');
             equal(expand('test[foo]', reverse), '<test bar="bar" baz={}></test>');
@@ -101,17 +106,33 @@ describe('Expand Abbreviation', () => {
         it('wrap with abbreviation', () => {
             equal(expand('div>ul', { text: ['<div>line1</div>\n<div>line2</div>'] }),
                 '<div>\n\t<ul>\n\t\t<div>line1</div>\n\t\t<div>line2</div>\n\t</ul>\n</div>');
-            equal(expand('p', { text: 'foo\nbar'}), '<p>\n\tfoo\n\tbar\n</p>');
-            equal(expand('p', { text: '<div>foo</div>'}), '<p>\n\t<div>foo</div>\n</p>');
-            equal(expand('p', { text: '<span>foo</span>'}), '<p><span>foo</span></p>');
-            equal(expand('p', { text: 'foo<span>foo</span>'}), '<p>foo<span>foo</span></p>');
-            equal(expand('p', { text: 'foo<div>foo</div>'}), '<p>foo<div>foo</div></p>');
+            equal(expand('p', { text: 'foo\nbar' }), '<p>\n\tfoo\n\tbar\n</p>');
+            equal(expand('p', { text: '<div>foo</div>' }), '<p>\n\t<div>foo</div>\n</p>');
+            equal(expand('p', { text: '<span>foo</span>' }), '<p><span>foo</span></p>');
+            equal(expand('p', { text: 'foo<span>foo</span>' }), '<p>foo<span>foo</span></p>');
+            equal(expand('p', { text: 'foo<div>foo</div>' }), '<p>foo<div>foo</div></p>');
         });
 
         it('wrap with abbreviation href', () => {
             equal(expand('a', { text: ['www.google.it'] }), '<a href="http://www.google.it">www.google.it</a>');
             equal(expand('a', { text: ['then www.google.it'] }), '<a href="">then www.google.it</a>');
             equal(expand('a', { text: ['www.google.it'], options: { 'markup.href': false } }), '<a href="">www.google.it</a>');
+
+            equal(expand('map[name="https://example.com"]', { text: ['some text'] }),
+                '<map name="https://example.com">some text</map>');
+            equal(expand('map[href="https://example.com"]', { text: ['some text'] }),
+                '<map name="" href="https://example.com">some text</map>');
+            equal(expand('map[name="https://example.com"]>b', { text: ['some text'] }),
+                '<map name="https://example.com"><b>some text</b></map>');
+
+            equal(expand('a[href="https://example.com"]>b', { text: ['<u>some text false</u>'], options: { 'markup.href': false } }),
+                '<a href="https://example.com"><b><u>some text false</u></b></a>');
+            equal(expand('a[href="https://example.com"]>b', { text: ['<u>some text true</u>'], options: { 'markup.href': true } }),
+                '<a href="https://example.com"><b><u>some text true</u></b></a>');
+            equal(expand('a[href="https://example.com"]>div', { text: ['<p>some text false</p>'], options: { 'markup.href': false } }),
+                '<a href="https://example.com">\n\t<div>\n\t\t<p>some text false</p>\n\t</div>\n</a>');
+            equal(expand('a[href="https://example.com"]>div', { text: ['<p>some text true</p>'], options: { 'markup.href': true } }),
+                '<a href="https://example.com">\n\t<div>\n\t\t<p>some text true</p>\n\t</div>\n</a>');
         });
 
         // it.only('debug', () => {
