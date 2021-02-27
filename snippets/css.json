@@ -1,5 +1,5 @@
 {
-	"@f": "@font-face {\n\tfont-family: ${1};\n\tsrc: url(${1});\n}",
+	"@f": "@font-face {\n\tfont-family: ${1};\n\tsrc: url(${2});\n}",
 	"@ff": "@font-face {\n\tfont-family: '${1:FontName}';\n\tsrc: url('${2:FileName}.eot');\n\tsrc: url('${2:FileName}.eot?#iefix') format('embedded-opentype'),\n\t\t url('${2:FileName}.woff') format('woff'),\n\t\t url('${2:FileName}.ttf') format('truetype'),\n\t\t url('${2:FileName}.svg#${1:FontName}') format('svg');\n\tfont-style: ${3:normal};\n\tfont-weight: ${4:normal};\n}",
 	"@i|@import": "@import url(${0});",
 	"@kf": "@keyframes ${1:identifier} {\n\t${2}\n}",
