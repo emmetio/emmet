@@ -83,4 +83,5 @@ export interface Literal extends Token {
 
 export interface WhiteSpace extends Token {
     type: 'WhiteSpace';
+    value: string;
 }

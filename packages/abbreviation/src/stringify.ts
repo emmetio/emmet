@@ -1,4 +1,4 @@
-import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote, Operator, OperatorType } from './tokenizer/tokens';
+import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote, Operator, OperatorType, WhiteSpace } from './tokenizer/tokens';
 import { ConvertState } from './types';
 
 type TokenVisitor = (token: Token, state: ConvertState) => string;
@@ -84,8 +84,8 @@ const tokenVisitor: { [name: string]: TokenVisitor } = {
 
         return result;
     },
-    WhiteSpace() {
-        return ' ';
+    WhiteSpace(token: WhiteSpace) {
+        return token.value;
     }
 };
 

@@ -116,7 +116,8 @@ function whiteSpace(scanner: Scanner): WhiteSpace | undefined {
         return {
             type: 'WhiteSpace',
             start,
-            end: scanner.pos
+            end: scanner.pos,
+            value: scanner.substring(start, scanner.pos)
         };
     }
 }
