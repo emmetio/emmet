@@ -10,7 +10,8 @@ const defaultConfig = resolveConfig({
     },
     snippets: {
         mten: 'margin: 10px;',
-        fsz: 'font-size'
+        fsz: 'font-size',
+        gt: 'grid-template: repeat(2,auto) / repeat(auto-fit, minmax(250px, 1fr))'
     },
     cache: {},
 });
@@ -162,6 +163,7 @@ describe('Stylesheet abbreviations', () => {
         // Insert value into snippet fields
         equal(expand('@k-name'), '@keyframes name {\n\t${2}\n}');
         equal(expand('@k-name10'), '@keyframes name {\n\t10\n}');
+        equal(expand('gt'), 'grid-template: repeat(2, auto) / repeat(auto-fit, minmax(250px, 1fr));');
     });
 
     it('multiple properties', () => {

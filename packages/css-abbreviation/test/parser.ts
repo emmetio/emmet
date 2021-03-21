@@ -74,7 +74,7 @@ describe('CSS Abbreviation parser', () => {
         equal(fn.name, 'scale3d');
 
         prop = parse('repeat(2,auto) / repeat(auto-fit, minmax(250px, 1fr))', opt)[0];
-        equal(prop.value.length, 2);
+        equal(prop.value.length, 1);
     });
 
     it('errors', () => {
