@@ -352,6 +352,7 @@ function operatorType(ch: number): OperatorType | undefined {
     return (ch === Chars.Sibling && OperatorType.Sibling)
         || (ch === Chars.Excl && OperatorType.Important)
         || (ch === Chars.Comma && OperatorType.ArgumentDelimiter)
+        || (ch === Chars.Slash && OperatorType.ArgumentDelimiter)
         || (ch === Chars.Colon && OperatorType.PropertyDelimiter)
         || (ch === Chars.Dash && OperatorType.ValueDelimiter)
         || void 0;

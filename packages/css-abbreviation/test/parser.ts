@@ -72,6 +72,9 @@ describe('CSS Abbreviation parser', () => {
         equal(prop.value[0].value.length, 1);
         equal(fn.type, 'FunctionCall');
         equal(fn.name, 'scale3d');
+
+        prop = parse('repeat(2,auto) / repeat(auto-fit, minmax(250px, 1fr))', opt)[0];
+        equal(prop.value.length, 2);
     });
 
     it('errors', () => {

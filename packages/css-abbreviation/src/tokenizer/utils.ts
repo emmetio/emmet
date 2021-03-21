@@ -52,4 +52,7 @@ export const enum Chars {
 
     /** `t` character */
     Transparent = 116,
+
+    /** `/` character */
+    Slash = 47,
 }
