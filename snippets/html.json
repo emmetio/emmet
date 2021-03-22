@@ -30,6 +30,7 @@
 	"meta:compat": "meta[http-equiv=X-UA-Compatible content='${1:IE=7}']",
 	"meta:edge": "meta:compat[content='${1:ie=edge}']",
 	"meta:redirect": "meta[http-equiv=refresh content='0; url=${1:http://example.com}']",
+	"meta:refresh": "meta[http-equiv=refresh content='${1:5}']",
 	"meta:kw": "meta[name=keywords content]",
 	"meta:desc": "meta[name=description content]",
 	"style": "style",
