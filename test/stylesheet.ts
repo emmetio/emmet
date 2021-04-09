@@ -86,6 +86,10 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('c'), 'color: ${1:#000};');
         equal(expand('cr'), 'color: rgb(${1:0}, ${2:0}, ${3:0});');
         equal(expand('cra'), 'color: rgba(${1:0}, ${2:0}, ${3:0}, ${4:.5});');
+
+        // https://github.com/emmetio/emmet/issues/647
+        equal(expand('gtc'), 'grid-template-columns: repeat(${0});');
+        equal(expand('gtr'), 'grid-template-rows: repeat(${0});');
     });
 
     it('numeric', () => {
