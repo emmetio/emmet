@@ -21,6 +21,8 @@ describe('Convert token abbreviations', () => {
         equal(parse('div>p+p{hi}', { text: ['hello'] }), '<div><p></p><p>hihello</p></div>');
 
         equal(parse('html[lang=${lang}]'), '<html lang="lang"></html>');
+        equal(parse('html.one.two'), '<html class="one", class="two"></html>');
+        equal(parse('html.one[two=three]'), '<html class="one", two="three"></html>');
         equal(parse('div{[}+a{}'), '<div>[</div><a></a>');
     });
 
@@ -69,6 +71,10 @@ describe('Convert token abbreviations', () => {
         equal(parse('a[href=]', { href: true, text: 'test@domain.com' }), '<a href="mailto:test@domain.com">test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here test@domain.com' }), '<a href="">test here test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here www.domain.com' }), '<a href="">test here www.domain.com</a>');
+        equal(parse('a[class=here]', { href: true, text: 'test@domain.com' }), '<a class="here", href="mailto:test@domain.com">test@domain.com</a>');
+        equal(parse('a.here', { href: true, text: 'www.domain.com' }), '<a class="here", href="http://www.domain.com">www.domain.com</a>');
+        equal(parse('a[class=here]', { href: true, text: 'test here test@domain.com' }), '<a class="here", href="">test here test@domain.com</a>');
+        equal(parse('a.here', { href: true, text: 'test here www.domain.com' }), '<a class="here", href="">test here www.domain.com</a>');
 
         equal(parse('a[href="www.google.it"]', { href: false, text: 'test' }), '<a href="www.google.it">test</a>');
         equal(parse('a[href="www.example.com"]', { href: true, text: 'www.google.it' }), '<a href="www.example.com">www.google.it</a>');
