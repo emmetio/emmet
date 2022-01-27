@@ -62,7 +62,7 @@
 	"bg": "background:${1:#000}",
 	"bga": "background-attachment:fixed|scroll",
 	"bgbk": "background-break:bounding-box|each-box|continuous",
-	"bgc": "background-color:#${1:fff}",
+	"bgc": "background-color:${1:#fff}",
 	"bgcp": "background-clip:padding-box|border-box|content-box|no-clip",
 	"bgi": "background-image:url(${0})",
 	"bgo": "background-origin:padding-box|border-box|content-box",
