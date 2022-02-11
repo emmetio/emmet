@@ -309,7 +309,10 @@ function insertHref(node: AbbreviationNode, text: string) {
 
     const hrefAttribute = node.attributes?.find(attr => attr.name === 'href');
     if (!hrefAttribute) {
-        node.attributes = [{ name: 'href', value: [href], valueType: 'doubleQuote' }];
+        if (!node.attributes) {
+            node.attributes = [];
+        }
+        node.attributes.push({ name: 'href', value: [href], valueType: 'doubleQuote' });
     } else if (!hrefAttribute.value) {
         hrefAttribute.value = [href];
     }
