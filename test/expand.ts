@@ -103,6 +103,16 @@ describe('Expand Abbreviation', () => {
             equal(expand('div.{theme.style}', config), '<div className={theme.style}></div>');
         });
 
+        it('override attributes', () => {
+            const config = { syntax: 'jsx' };
+            equal(expand('.bar', config), '<div className="bar"></div>');
+            equal(expand('..bar', config), '<div styleName={styles.bar}></div>');
+            equal(expand('..foo-bar', config), '<div styleName={styles[\'foo-bar\']}></div>');
+
+            equal(expand('.foo', { syntax: 'vue' }), '<div class="foo"></div>');
+            equal(expand('..foo', { syntax: 'vue' }), '<div :class="foo"></div>');
+        });
+
         it('wrap with abbreviation', () => {
             equal(expand('div>ul', { text: ['<div>line1</div>\n<div>line2</div>'] }),
                 '<div>\n\t<ul>\n\t\t<div>line1</div>\n\t\t<div>line2</div>\n\t</ul>\n</div>');

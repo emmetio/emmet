@@ -10,6 +10,9 @@ export interface OutputStream {
     column: number;
 }
 
+export const expressionStart = '{';
+export const expressionEnd = '}';
+
 export default function createOutputStream(options: Options, level = 0): OutputStream {
     return {
         options,
@@ -95,7 +98,7 @@ export function attrName(name: string, config: Config) {
  */
 export function attrQuote(attr: AbbreviationAttribute, config: Config, isOpen?: boolean): string {
     if (attr.valueType === 'expression') {
-        return isOpen ? '{' : '}';
+        return isOpen ? expressionStart : expressionEnd;
     }
 
     return config.options['output.attributeQuotes'] === 'single' ? '\'' : '"';

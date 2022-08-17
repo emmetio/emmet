@@ -1,16 +1,22 @@
 import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
-import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline } from '../../output-stream';
+import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline, expressionStart, expressionEnd } from '../../output-stream';
 import walk, { WalkState, createWalkState } from './walk';
 import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAttribute } from './utils';
 import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
 import { Config } from '../../config';
 
-const htmlTagRegex = /^<([\w\-:]+)[\s>]/;
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 
 export interface HTMLWalkState extends WalkState {
     comment: CommentWalkState;
 }
+
+const htmlTagRegex = /^<([\w\-:]+)[\s>]/;
+const reservedKeywords = new Set([
+    'for', 'while', 'of', 'async', 'await', 'const', 'let', 'var', 'continue',
+    'break', 'debugger', 'do', 'export', 'import', 'in', 'instanceof', 'new', 'return',
+    'switch', 'this', 'throw', 'try', 'catch', 'typeof', 'void', 'with', 'yield'
+]);
 
 export default function html(abbr: Abbreviation, config: Config): string {
     const state = createWalkState(config) as HTMLWalkState;
@@ -97,10 +103,33 @@ function pushAttribute(attr: AbbreviationAttribute, state: WalkState) {
     const { out, config } = state;
 
     if (attr.name) {
-        const name = attrName(attr.name, config);
-        const lQuote = attrQuote(attr, config, true);
-        const rQuote = attrQuote(attr, config);
-        let value = attr.value;
+        const attributes = config.options['markup.attributes'];
+        const valuePrefix = config.options['markup.valuePrefix'];
+
+        let { name, value } = attr;
+        let lQuote = attrQuote(attr, config, true);
+        let rQuote = attrQuote(attr, config);
+
+        if (attributes) {
+            name = getMultiValue(name, attributes, attr.multiple) || name;
+        }
+
+        name = attrName(name, config);
+
+        const prefix = valuePrefix
+            ? getMultiValue(attr.name, valuePrefix, attr.multiple)
+            : null;
+
+        if (prefix && value?.length === 1 && typeof value[0] === 'string') {
+            // Add given prefix in object notation
+            const val = value[0] as string;
+            value = [isPropKey(val) ? `${prefix}.${val}` : `${prefix}['${val}']`];
+
+            if (config.options['jsx.enabled']) {
+                lQuote = expressionStart;
+                rQuote = expressionEnd;
+            }
+        }
 
         if (isBooleanAttribute(attr, config) && !value) {
             // If attribute value is omitted and it’s a boolean value, check for
@@ -263,4 +292,12 @@ function startsWithBlockTag(value: Value[], config: Config): boolean {
         }
     }
     return false;
+}
+
+function getMultiValue(key: string, data: Record<string, string>, multiple?: boolean): string | undefined {
+    return (multiple && data[`${key}*`]) || data[key];
+}
+
+function isPropKey(name: string): boolean {
+    return !reservedKeywords.has(name) && /^[a-zA-Z_$][\w_$]*$/.test(name);
 }

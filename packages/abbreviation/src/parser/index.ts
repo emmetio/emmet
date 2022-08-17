@@ -1,6 +1,6 @@
 import { NameToken, ValueToken, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
 import tokenScanner, { TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner';
-import { ParserOptions } from '../types';
+import type { ParserOptions } from '../types';
 
 export type TokenStatement = TokenElement | TokenGroup;
 
@@ -8,6 +8,11 @@ export interface TokenAttribute {
     name?: ValueToken[];
     value?: ValueToken[];
     expression?: boolean;
+    /**
+     * Indicates that current attribute was repeated multiple times in a row.
+     * Used to alter output of multiple shorthand attributes like `..` (double class)
+     */
+    multiple?: boolean;
 }
 
 export interface TokenElement {
@@ -156,9 +161,21 @@ function attributeSet(scanner: TokenScanner): TokenAttribute[] | undefined {
 function shortAttribute(scanner: TokenScanner, type: 'class' | 'id', options: ParserOptions): TokenAttribute | undefined {
     if (isOperator(peek(scanner), type)) {
         scanner.pos++;
+
+        // Consume multiple operators
+        let count = 1;
+        while (isOperator(peek(scanner), type)) {
+            scanner.pos++;
+            count++;
+        }
+
         const attr: TokenAttribute = {
             name: [createLiteral(type)]
         };
+
+        if (count > 1) {
+            attr.multiple = true;
+        }
 
         // Consume expression after shorthand start for React-like components
         if (options.jsx && text(scanner)) {

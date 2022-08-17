@@ -222,7 +222,8 @@ function convertAttribute(node: TokenAttribute, state: ConvertState): Abbreviati
         value,
         boolean: isBoolean,
         implied,
-        valueType
+        valueType,
+        multiple: node.multiple
     };
 }
 

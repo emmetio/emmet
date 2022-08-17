@@ -172,6 +172,23 @@ export interface Options {
      */
     'markup.href': boolean;
 
+    /**
+     * Attribute name mapping. Can be used to change attribute names for output.
+     * For example, `class` -> `className` in JSX. If a key ends with `*`, this
+     * value will be used for multi-attributes: currentry, it’s a `class` and `id`
+     * since `multiple` marker is added for shorthand attributes only.
+     * Example: `{ "class*": "styleName" }`
+     */
+    'markup.attributes'?: Record<string, string>;
+
+    /**
+     * Prefixes for attribute values.
+     * If specified, a value is treated as prefix for object notation and
+     * automatically converts attribute value into expression if `jsx` is enabled.
+     * Same as in `markup.attributes` option, a `*` can be used.
+     */
+    'markup.valuePrefix'?: Record<string, string>;
+
     ////////////////////////////////
     // Element commenting options //
     ////////////////////////////////
@@ -278,7 +295,7 @@ export const defaultSyntaxes: { [name in SyntaxType]: string } = {
  * List of all known syntaxes
  */
 export const syntaxes = {
-    markup: ['html', 'xml', 'xsl', 'jsx', 'js', 'pug', 'slim', 'haml'],
+    markup: ['html', 'xml', 'xsl', 'jsx', 'js', 'pug', 'slim', 'haml', 'vue', 'svelte'],
     stylesheet: ['css', 'sass', 'scss', 'less', 'sss', 'stylus']
 };
 
@@ -371,6 +388,26 @@ export const syntaxConfig: GlobalConfig = {
         }
     },
     jsx: {
+        options: {
+            'jsx.enabled': true,
+            'markup.attributes': {
+                'class': 'className',
+                'class*': 'styleName',
+                'for': 'htmlFor'
+            },
+            'markup.valuePrefix': {
+                'class*': 'styles'
+            }
+        }
+    },
+    vue: {
+        options: {
+            'markup.attributes': {
+                'class*': ':class',
+            }
+        }
+    },
+    svelte: {
         options: {
             'jsx.enabled': true
         }

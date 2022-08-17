@@ -62,4 +62,10 @@ export interface AbbreviationAttribute {
 
     /** Attribute is implied (e.g.must be outputted only if contains non-null value) */
     implied?: boolean;
+
+    /**
+     * Internal property that indicates that given attribute was specified
+     * more than once as a shorthand. E.g. `..` is a multiple `class` attribute
+     */
+    multiple?: boolean;
 }

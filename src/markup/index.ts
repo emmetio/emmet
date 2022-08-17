@@ -3,7 +3,6 @@ import attributes from './attributes';
 import snippets from './snippets';
 import implicitTag from './implicit-tag';
 import lorem from './lorem';
-import jsx from './addon/jsx';
 import xsl from './addon/xsl';
 import bem from './addon/bem';
 import html from './format/html';
@@ -24,18 +23,14 @@ const formatters: { [syntax: string]: Formatter } = { html, haml, slim, pug };
 export default function parse(abbr: string | Abbreviation, config: Config): Abbreviation {
     let oldTextValue: string | string[] | undefined;
     if (typeof abbr === 'string') {
-        let parseOpt: ParserOptions = config;
+        let parseOpt: ParserOptions = { ...config };
+
         if (config.options['jsx.enabled']) {
-            parseOpt = {
-                ...parseOpt,
-                jsx: true
-            };
+            parseOpt.jsx = true;
         }
+
         if (config.options['markup.href']) {
-            parseOpt = {
-                ...parseOpt,
-                href: true
-            };
+            parseOpt.href = true;
         }
 
         abbr = abbreviation(abbr, parseOpt);
@@ -74,10 +69,6 @@ function transform(node: AbbreviationNode, ancestors: Container[], config: Confi
 
     if (config.syntax === 'xsl') {
         xsl(node);
-    }
-
-    if (config.options['jsx.enabled']) {
-        jsx(node);
     }
 
     if (config.options['bem.enabled']) {

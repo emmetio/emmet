@@ -1,4 +1,4 @@
-import { equal, throws } from 'assert';
+import { strictEqual as equal, throws } from 'assert';
 import parser from '../src/parser';
 import tokenizer from '../src/tokenizer';
 import stringify from './assets/stringify';
@@ -96,7 +96,7 @@ describe('Parser', () => {
         equal(str('#'), '<? id></?>');
         equal(str('#.'), '<? id class></?>');
         equal(str('.#.'), '<? class id class></?>');
-        equal(str('.a..'), '<? class=a class class></?>');
+        equal(str('.a..'), '<? class=a class></?>');
 
         // Elements with attributes
         equal(str('div[foo=bar]'), '<div foo=bar></div>');
