@@ -90,6 +90,12 @@ describe('Stylesheet abbreviations', () => {
         // https://github.com/emmetio/emmet/issues/647
         equal(expand('gtc'), 'grid-template-columns: repeat(${0});');
         equal(expand('gtr'), 'grid-template-rows: repeat(${0});');
+
+        equal(expand('lis:n'), 'list-style: none;');
+        equal(expand('list:n'), 'list-style-type: none;');
+        equal(expand('bdt:n'), 'border-top: none;');
+        equal(expand('bgi:n'), 'background-image: none;');
+        equal(expand('q:n'), 'quotes: none;');
     });
 
     it('numeric', () => {
@@ -117,12 +123,6 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('opa1'), 'opacity: 1;', 'Unitless property');
         equal(expand('opa.1'), 'opacity: 0.1;', 'Unitless property');
         equal(expand('opa.a'), 'opacity: .a;', 'Unitless property');
-
-        equal(expand('lis:n'), 'list-style: none;');
-        equal(expand('list:n'), 'list-style-type: none;');
-        equal(expand('bdt:n'), 'border-top: none;');
-        equal(expand('bgi:n'), 'background-image: none;');
-        equal(expand('q:n'), 'quotes: none;');
     });
 
     it('numeric with format options', () => {

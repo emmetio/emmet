@@ -23,7 +23,7 @@ const formatters: { [syntax: string]: Formatter } = { html, haml, slim, pug };
 export default function parse(abbr: string | Abbreviation, config: Config): Abbreviation {
     let oldTextValue: string | string[] | undefined;
     if (typeof abbr === 'string') {
-        let parseOpt: ParserOptions = { ...config };
+        const parseOpt: ParserOptions = { ...config };
 
         if (config.options['jsx.enabled']) {
             parseOpt.jsx = true;
