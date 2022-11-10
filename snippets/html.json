@@ -145,7 +145,7 @@
 	"ri:t|ri:type": "pic>src:t+img",
 
 	"!!!": "{<!DOCTYPE html>}",
-	"doc": "html[lang=${lang}]>(head>meta[charset=${charset}]+meta[http-equiv='X-UA-Compatible'][content='IE=edge']+meta:vp+title{${1:Document}})+body",
+	"doc": "html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}})+body",
 	"!|html:5": "!!!+doc",
 
 	"c": "{<!-- ${0} -->}",
