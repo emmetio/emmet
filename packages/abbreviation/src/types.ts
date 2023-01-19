@@ -1,4 +1,4 @@
-import { Field, Repeater } from './tokenizer';
+import { Field, Repeater } from './tokenizer/index.js';
 
 export interface ParserOptions {
     /** Text strings to insert into implicitly repeated elements */

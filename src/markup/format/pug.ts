@@ -1,6 +1,6 @@
-import { Abbreviation } from '@emmetio/abbreviation';
-import indentFormat from './indent-format';
-import { Config } from '../../config';
+import type { Abbreviation } from '@emmetio/abbreviation';
+import indentFormat from './indent-format.js';
+import type { Config } from '../../config.js';
 
 export default function pug(abbr: Abbreviation, config: Config): string {
     return indentFormat(abbr, config, {

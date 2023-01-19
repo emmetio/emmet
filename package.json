@@ -5,10 +5,17 @@
   "main": "./dist/emmet.cjs.js",
   "module": "./dist/emmet.es.js",
   "types": "./dist/src/index.d.ts",
+  "type": "module",
+  "exports": {
+    "import": "./dist/emmet.es.js",
+    "require": "./dist/emmet.cjs.js"
+  },
   "scripts": {
     "build": "rollup -c",
+    "build-all": "npm run ",
     "watch": "rollup -wc",
     "test": "mocha",
+    "test-all": "npm test --workspaces --include-workspace-root",
     "lint": "tslint ./src/*.ts",
     "clean": "rm -rf ./dist",
     "prepare": "npm test && npm run lint && npm run clean && npm run build"
@@ -35,19 +42,19 @@
     "@emmetio/css-abbreviation": "^2.1.4"
   },
   "devDependencies": {
-    "@types/mocha": "^7.0.2",
-    "@types/node": "^12.0.8",
-    "lerna": "^3.20.2",
-    "mocha": "^7.1.1",
-    "rollup": "^2.6.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.27.0",
-    "ts-node": "^8.6.2",
-    "tslint": "^6.1.1",
-    "typescript": "^3.8.3"
+    "@rollup/plugin-typescript": "^10.0.1",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.11.18",
+    "mocha": "^10.2.0",
+    "rollup": "^3.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   },
+  "workspaces": [
+    "./packages/*"
+  ],
   "mocha": {
-    "require": "ts-node/register",
+    "loader": "ts-node/esm",
     "spec": "./test/*.ts"
   }
 }

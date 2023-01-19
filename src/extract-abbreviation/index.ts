@@ -1,8 +1,8 @@
-import { SyntaxType } from '../config';
-import backwardScanner, { sol, peek, BackwardScanner, consume } from './reader';
-import isAtHTMLTag from './is-html';
-import { isQuote } from './quotes';
-import { Brackets, bracePairs } from './brackets';
+import type { SyntaxType } from '../config.js';
+import backwardScanner, { sol, peek, consume, type BackwardScanner } from './reader.js';
+import isAtHTMLTag from './is-html.js';
+import { isQuote } from './quotes.js';
+import { Brackets, bracePairs } from './brackets.js';
 
 export interface ExtractOptions {
     /**

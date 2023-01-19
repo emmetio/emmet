@@ -1,7 +1,7 @@
-import { AllTokens, Repeater, RepeaterNumber, Field, OperatorType, Operator, Bracket, Quote, Literal } from '../../src/tokenizer';
-import { TokenElement, TokenAttribute, TokenGroup, TokenStatement } from '../../src/parser';
+import type { AllTokens, Repeater, RepeaterNumber, Field, OperatorType, Operator, Bracket, Quote, Literal } from '../../src/tokenizer/index.js';
+import type { TokenElement, TokenAttribute, TokenGroup, TokenStatement } from '../../src/parser/index.js';
 
-type TokenVisitor = (token: AllTokens) => string;
+type TokenVisitor = <T extends AllTokens>(token: T) => string;
 interface TokenVisitorMap {
     [nodeType: string]: TokenVisitor;
 }
@@ -16,7 +16,7 @@ const operatorMap: { [name in OperatorType]: string } = {
     close: '/'
 };
 
-const tokenVisitors: TokenVisitorMap = {
+const tokenVisitors = {
     Repeater(token: Repeater) {
         return `*${token.implicit ? '' : token.count}`;
     },
@@ -58,7 +58,7 @@ const tokenVisitors: TokenVisitorMap = {
     WhiteSpace() {
         return ' ';
     }
-};
+} as TokenVisitorMap;
 
 function statement(node: TokenElement | TokenGroup): string {
     if (node.type === 'TokenGroup') {

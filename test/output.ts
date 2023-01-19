@@ -1,6 +1,6 @@
 import { strictEqual as equal } from 'assert';
-import createStream, { push, pushString, pushNewline, tagName, attrName, selfClose, isInline } from '../src/output-stream';
-import createConfig, { defaultOptions } from '../src/config';
+import createStream, { push, pushString, pushNewline, tagName, attrName, selfClose, isInline } from '../src/output-stream.js';
+import createConfig, { defaultOptions } from '../src/config.js';
 
 describe('Output', () => {
     it('stream', () => {

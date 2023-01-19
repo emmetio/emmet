@@ -1,7 +1,7 @@
 import { strictEqual as equal } from 'assert';
-import parse from '../src/markup';
-import resolveConfig from '../src/config';
-import stringify from './assets/stringify';
+import parse from '../src/markup/index.js';
+import resolveConfig from '../src/config.js';
+import stringify from './assets/stringify.js';
 
 const defaultConfig = resolveConfig({ cache: {} });
 

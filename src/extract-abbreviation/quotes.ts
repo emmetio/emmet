@@ -1,4 +1,4 @@
-import { BackwardScanner, previous, sol, peek } from './reader';
+import { BackwardScanner, previous, sol, peek } from './reader.js';
 
 const enum Chars {
     SingleQuote = 39,

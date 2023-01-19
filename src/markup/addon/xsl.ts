@@ -1,4 +1,4 @@
-import { AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
+import type { AbbreviationNode, AbbreviationAttribute } from '@emmetio/abbreviation';
 
 /**
  * XSL transformer: removes `select` attributes from certain nodes that contain

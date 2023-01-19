@@ -1,21 +1,25 @@
-import abbreviation, { CSSAbbreviation, CSSProperty, CSSValue, Literal, Value, Field, FunctionCall } from '@emmetio/css-abbreviation';
-import { Config, SnippetsMap } from '../config';
-import createSnippet, { CSSSnippet, nest, CSSSnippetType, CSSSnippetRaw, CSSSnippetProperty } from './snippets';
-import calculateScore from './score';
-import color from './color';
+import abbreviation from '@emmetio/css-abbreviation';
+import type { CSSAbbreviation, CSSProperty, CSSValue, Literal, Value, Field, FunctionCall } from '@emmetio/css-abbreviation';
+import { Config, SnippetsMap } from '../config.js';
+import createSnippet, { nest, CSSSnippetType } from './snippets.js';
+import type { CSSSnippet, CSSSnippetRaw, CSSSnippetProperty } from './snippets.js';
+import calculateScore from './score.js';
+import color from './color.js';
+
+export { default as stringify } from './format.js';
 
 type MatchInput = CSSSnippet | string;
 
-export const enum CSSAbbreviationScope {
+export const CSSAbbreviationScope = {
     /** Include all possible snippets in match */
-    Global = '@@global',
+    Global: '@@global',
     /** Include raw snippets only (e.g. no properties) in abbreviation match */
-    Section = '@@section',
+    Section: '@@section',
     /** Include properties only in abbreviation match */
-    Property = '@@property',
+    Property: '@@property',
     /** Resolve abbreviation in context of CSS property value */
-    Value = '@@value',
-}
+    Value: '@@value',
+} as const;
 
 
 const gradientName = 'lg';
@@ -43,8 +47,6 @@ export default function parse(abbr: string | CSSAbbreviation, config: Config): C
 
     return abbr;
 }
-
-export { default as stringify } from './format';
 
 /**
  * Converts given raw snippets into internal snippets representation

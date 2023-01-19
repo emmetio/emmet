@@ -1,5 +1,5 @@
 import { ok, strictEqual as equal } from 'assert';
-import expand from '../src';
+import expand from '../src/index.js';
 
 function wordCount(str: string): number {
     return str.split(' ').length;

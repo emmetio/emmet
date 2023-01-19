@@ -1,21 +1,18 @@
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 
+/** @type {import('rollup').RollupOptions} */
 export default {
     input: './src/index.ts',
-    external: [
-        '@emmetio/scanner',
-    ],
-    plugins: [typescript({
-        tsconfigOverride: {
-            compilerOptions: { module: 'esnext' }
-        }
-    })],
+    external: ['@emmetio/scanner'],
+    plugins: [typescript()],
     output: [{
         format: 'cjs',
-        file: 'dist/css-abbreviation.cjs.js',
-        exports: 'named'
+        file: 'dist/index.cjs.js',
+        sourcemap: true,
+        exports: 'named',
     }, {
         format: 'es',
-        file: 'dist/css-abbreviation.es.js'
+        file: 'dist/index.js',
+        sourcemap: true,
     }]
 };

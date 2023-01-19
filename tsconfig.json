@@ -6,13 +6,14 @@
     "alwaysStrict": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
+    "isolatedModules": true,
     "declaration": true,
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "newLine": "LF",
     "outDir": "./dist"
   },
-  "files": ["src/index.ts"]
+  "include": ["src"]
 }

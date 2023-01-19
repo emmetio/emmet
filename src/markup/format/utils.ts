@@ -1,7 +1,7 @@
-import { AbbreviationNode, Field, Value, AbbreviationAttribute } from '@emmetio/abbreviation';
-import { WalkState } from './walk';
-import { pushString, pushField, isInline } from '../../output-stream';
-import { Config } from '../../config';
+import type { AbbreviationNode, Field, Value, AbbreviationAttribute } from '@emmetio/abbreviation';
+import type { WalkState } from './walk.js';
+import { pushString, pushField, isInline } from '../../output-stream.js';
+import type { Config } from '../../config.js';
 
 export const caret = [{ type: 'Field', index: 0, name: '' } as Field];
 

@@ -1,6 +1,7 @@
 import { equal } from 'assert';
-import parser, { ParserOptions } from '../src';
-import stringify from './assets/stringify-node';
+import parser from '../src/index.js';
+import type { ParserOptions } from '../src/index.js';
+import stringify from './assets/stringify-node.js';
 
 function parse(abbr: string, options?: ParserOptions) {
     return stringify(parser(abbr, options));

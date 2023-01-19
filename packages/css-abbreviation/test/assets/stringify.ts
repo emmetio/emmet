@@ -1,4 +1,4 @@
-import { CSSProperty, CSSValue, Value } from '../../src/parser';
+import { CSSProperty, CSSValue, Value } from '../../src/parser/index.js';
 
 export default function stringify(prop: CSSProperty): string {
     return `${prop.name || '?'}: ${prop.value.map(stringifyValue).join(', ')}${prop.important ? ' !important' : ''};`;

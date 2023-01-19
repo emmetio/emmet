@@ -1,8 +1,8 @@
 import { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emmetio/css-abbreviation';
-import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream';
-import { Config } from '../config';
-import color, { frac } from './color';
-import { CSSAbbreviationScope } from './';
+import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream.js';
+import { Config } from '../config.js';
+import color, { frac } from './color.js';
+import { CSSAbbreviationScope } from './index.js';
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);

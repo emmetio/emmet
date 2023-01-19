@@ -1,5 +1,5 @@
-import { AbbreviationAttribute, AbbreviationNode, Value } from '@emmetio/abbreviation';
-import { Config } from '../config';
+import type { AbbreviationAttribute, AbbreviationNode, Value } from '@emmetio/abbreviation';
+import type { Config } from '../config.js';
 
 /**
  * Merges attributes in current node: de-duplicates attributes with the same name

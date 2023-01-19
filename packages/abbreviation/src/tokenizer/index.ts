@@ -1,8 +1,8 @@
 import Scanner, { isSpace, isQuote, isNumber, isAlpha, isAlphaNumericWord } from '@emmetio/scanner';
-import { Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber, AllTokens } from './tokens';
-import { Chars, escaped } from './utils';
+import type { Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber, AllTokens } from './tokens.js';
+import { Chars, escaped } from './utils.js';
 
-export * from './tokens';
+export * from './tokens.js';
 
 type Context =  { [ctx in BracketType]: number } & { quote: number };
 

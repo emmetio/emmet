@@ -1,9 +1,9 @@
-import { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
-import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline, expressionStart, expressionEnd } from '../../output-stream';
-import walk, { WalkState, createWalkState } from './walk';
-import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAttribute } from './utils';
-import { commentNodeBefore, commentNodeAfter, CommentWalkState, createCommentState } from './comment';
-import { Config } from '../../config';
+import type { Abbreviation, AbbreviationNode, AbbreviationAttribute, Value } from '@emmetio/abbreviation';
+import { pushNewline, pushString, tagName, selfClose, attrName, isBooleanAttribute, attrQuote, isInline, expressionStart, expressionEnd } from '../../output-stream.js';
+import walk, { type WalkState, createWalkState } from './walk.js';
+import { caret, isInlineElement, isSnippet, isField, pushTokens, shouldOutputAttribute } from './utils.js';
+import { commentNodeBefore, commentNodeAfter, type CommentWalkState, createCommentState } from './comment.js';
+import type { Config } from '../../config.js';
 
 type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 

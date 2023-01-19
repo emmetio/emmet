@@ -1,7 +1,7 @@
 import { strictEqual as equal, throws } from 'assert';
-import parser, { ParseOptions, FunctionCall } from '../src/parser';
-import tokenizer from '../src/tokenizer';
-import stringify from './assets/stringify';
+import parser, { ParseOptions, FunctionCall } from '../src/parser/index.js';
+import tokenizer from '../src/tokenizer/index.js';
+import stringify from './assets/stringify.js';
 
 const parse = (abbr: string, opt?: ParseOptions) => parser(tokenizer(abbr), opt);
 const expand = (abbr: string) => parse(abbr).map(stringify).join('');

@@ -1,4 +1,4 @@
-import { Abbreviation, AbbreviationNode, Value, AbbreviationAttribute } from '../../src';
+import { Abbreviation, AbbreviationNode, Value, AbbreviationAttribute } from '../../src/index.js';
 
 export default function stringify(abbr: Abbreviation): string {
     return abbr.children.map(elem).join('');

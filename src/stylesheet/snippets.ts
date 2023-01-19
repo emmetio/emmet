@@ -1,4 +1,5 @@
-import parse, { CSSValue, ParseOptions, FunctionCall, Literal } from '@emmetio/css-abbreviation';
+import parse from '@emmetio/css-abbreviation';
+import type { CSSValue, ParseOptions, FunctionCall, Literal } from '@emmetio/css-abbreviation';
 
 export type CSSSnippet = CSSSnippetRaw | CSSSnippetProperty;
 

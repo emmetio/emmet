@@ -1,6 +1,6 @@
-import { AbbreviationNode, Abbreviation } from '@emmetio/abbreviation';
-import createOutputStream, { OutputStream } from '../../output-stream';
-import { Config } from '../../config';
+import type { AbbreviationNode, Abbreviation } from '@emmetio/abbreviation';
+import createOutputStream, { type OutputStream } from '../../output-stream.js';
+import type { Config } from '../../config.js';
 
 export type WalkNext = (node: AbbreviationNode, index: number, items: AbbreviationNode[]) => void;
 export type Visitor<S extends WalkState> = (node: AbbreviationNode, index: number, items: AbbreviationNode[], state: S, next: WalkNext) => void;

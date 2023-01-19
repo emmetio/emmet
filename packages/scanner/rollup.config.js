@@ -1,20 +1,16 @@
-import typescript from 'rollup-plugin-typescript2';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
-    input: './src/index.ts',
-    plugins: [typescript({
-        tsconfigOverride: {
-            compilerOptions: { module: 'esnext' }
-        }
-    })],
+    input: './src/scanner.ts',
+    plugins: [typescript()],
     output: [{
         format: 'cjs',
         exports: 'named',
         sourcemap: true,
-        file: './scanner.js'
+        file: './scanner.cjs.js'
     }, {
         format: 'es',
         sourcemap: true,
-        file: './scanner.es.js'
+        file: './scanner.js'
     }]
 };

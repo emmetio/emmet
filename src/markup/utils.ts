@@ -1,4 +1,4 @@
-import { Abbreviation, AbbreviationNode } from '@emmetio/abbreviation';
+import type { Abbreviation, AbbreviationNode } from '@emmetio/abbreviation';
 
 export type Container = Abbreviation | AbbreviationNode;
 export type WalkVisitor<S> = (node: AbbreviationNode, ancestors: Container[], state?: S) => void;

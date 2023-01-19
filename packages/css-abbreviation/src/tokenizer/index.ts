@@ -1,8 +1,8 @@
 import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
-import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field } from './tokens';
-import { Chars } from './utils';
+import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field } from './tokens.js';
+import { Chars } from './utils.js';
 
-export * from './tokens';
+export * from './tokens.js';
 
 export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
     let brackets = 0;

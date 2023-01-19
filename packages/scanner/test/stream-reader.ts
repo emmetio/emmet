@@ -1,5 +1,5 @@
-import { equal, ok } from 'assert';
-import StreamReader from '../src/index';
+import { strictEqual as equal, ok } from 'assert';
+import StreamReader from '../src/scanner.js';
 
 describe('Stream Reader', () => {
     it('basic', () => {

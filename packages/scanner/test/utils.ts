@@ -1,6 +1,6 @@
-import { equal, ok, throws } from 'assert';
-import StreamReader from '../src/index';
-import { eatPair, eatQuoted } from '../src/utils';
+import { strictEqual as equal, ok, throws } from 'assert';
+import StreamReader from '../src/scanner.js';
+import { eatPair, eatQuoted } from '../src/utils.js';
 
 describe('Pairs', () => {
     const code = (ch: string) => ch.charCodeAt(0);

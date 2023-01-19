@@ -1,8 +1,8 @@
 import { strictEqual as equal, throws } from 'assert';
-import parser from '../src/parser';
-import tokenizer from '../src/tokenizer';
-import stringify from './assets/stringify';
-import { ParserOptions } from '../src';
+import parser from '../src/parser/index.js';
+import tokenizer from '../src/tokenizer/index.js';
+import stringify from './assets/stringify.js';
+import { ParserOptions } from '../src/index.js';
 
 const parse = (abbr: string, options?: ParserOptions) => parser(tokenizer(abbr), options);
 const str = (abbr: string, options?: ParserOptions) => stringify(parse(abbr, options));

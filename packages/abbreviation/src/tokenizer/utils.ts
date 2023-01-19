@@ -1,4 +1,4 @@
-import Scanner from '@emmetio/scanner';
+import type Scanner from '@emmetio/scanner';
 
 export const enum Chars {
     /** `{` character */

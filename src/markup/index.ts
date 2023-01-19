@@ -1,16 +1,17 @@
-import abbreviation, { Abbreviation, AbbreviationNode, ParserOptions } from '@emmetio/abbreviation';
-import attributes from './attributes';
-import snippets from './snippets';
-import implicitTag from './implicit-tag';
-import lorem from './lorem';
-import xsl from './addon/xsl';
-import bem from './addon/bem';
-import html from './format/html';
-import haml from './format/haml';
-import slim from './format/slim';
-import pug from './format/pug';
-import { Config } from '../config';
-import { walk, Container } from './utils';
+import abbreviation from '@emmetio/abbreviation';
+import type { Abbreviation, AbbreviationNode, ParserOptions } from '@emmetio/abbreviation';
+import attributes from './attributes.js';
+import snippets from './snippets.js';
+import implicitTag from './implicit-tag.js';
+import lorem from './lorem/index.js';
+import xsl from './addon/xsl.js';
+import bem from './addon/bem.js';
+import html from './format/html.js';
+import haml from './format/haml.js';
+import slim from './format/slim.js';
+import pug from './format/pug.js';
+import type { Config } from '../config.js';
+import { walk, type Container } from './utils.js';
 
 type Formatter = (abbr: Abbreviation, config: Config) => string;
 

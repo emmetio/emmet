@@ -1,4 +1,4 @@
-import { AllTokens } from '../tokenizer';
+import { AllTokens } from '../tokenizer/index.js';
 
 export interface TokenScanner {
     tokens: AllTokens[];

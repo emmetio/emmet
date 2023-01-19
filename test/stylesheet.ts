@@ -1,6 +1,6 @@
 import { strictEqual as equal, ok } from 'assert';
-import { stylesheet as expandAbbreviation, resolveConfig, CSSAbbreviationScope } from '../src';
-import score from '../src/stylesheet/score';
+import { stylesheet as expandAbbreviation, resolveConfig, CSSAbbreviationScope } from '../src/index.js';
+import score from '../src/stylesheet/score.js';
 
 const defaultConfig = resolveConfig({
     type: 'stylesheet',

@@ -1,5 +1,6 @@
-import { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, OperatorType, Field } from '../tokenizer/tokens';
-import tokenScanner, { TokenScanner, readable, peek, consume, error } from './TokenScanner';
+import { OperatorType } from '../tokenizer/tokens.js';
+import type { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, Field } from '../tokenizer/tokens.js';
+import tokenScanner, { type TokenScanner, readable, peek, consume, error } from './TokenScanner.js';
 
 export type Value = StringValue | NumberValue | ColorValue | Literal | FunctionCall | Field;
 

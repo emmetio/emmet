@@ -1,6 +1,7 @@
-import parse, { AbbreviationNode, AbbreviationAttribute, Abbreviation } from '@emmetio/abbreviation';
-import { findDeepest, isNode, Container } from './utils';
-import { Config } from '../config';
+import parse from '@emmetio/abbreviation';
+import type { AbbreviationNode, AbbreviationAttribute, Abbreviation } from '@emmetio/abbreviation';
+import { findDeepest, isNode, type Container } from './utils.js';
+import type { Config } from '../config.js';
 
 /**
  * Finds matching snippet from `registry` and resolves it into a parsed abbreviation.

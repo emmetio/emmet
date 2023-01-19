@@ -1,5 +1,13 @@
 {
   "extends": "../../tsconfig",
-  "files": ["src/index.ts"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "Node16"
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true
+  },
   "include": ["src/**/*.ts"]
 }

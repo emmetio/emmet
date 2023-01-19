@@ -1,5 +1,5 @@
-import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote, Operator, OperatorType, WhiteSpace } from './tokenizer/tokens';
-import { ConvertState } from './types';
+import { Token, Literal, Bracket, Field, RepeaterPlaceholder, Repeater, RepeaterNumber, ValueToken, Quote, Operator, OperatorType, WhiteSpace } from './tokenizer/tokens.js';
+import { ConvertState } from './types.js';
 
 type TokenVisitor = (token: Token, state: ConvertState) => string;
 

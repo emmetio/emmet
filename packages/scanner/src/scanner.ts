@@ -1,3 +1,5 @@
+export * from './utils.js';
+
 type MatchFn = (ch: number) => boolean;
 
 /**
@@ -127,5 +129,3 @@ export class ScannerError extends Error {
         this.string = str;
     }
 }
-
-export * from './utils';

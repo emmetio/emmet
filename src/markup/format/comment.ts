@@ -1,10 +1,10 @@
-import { AbbreviationNode, Value } from '@emmetio/abbreviation';
-import { pushString } from '../../output-stream';
-import { WalkState } from './walk';
-import { pushTokens } from './utils';
-import template, { TemplateToken } from './template';
-import { Config } from '../../config';
-import { HTMLWalkState } from './html';
+import type { AbbreviationNode, Value } from '@emmetio/abbreviation';
+import { pushString } from '../../output-stream.js';
+import type { WalkState } from './walk.js';
+import { pushTokens } from './utils.js';
+import template, { type TemplateToken } from './template.js';
+import { Config } from '../../config.js';
+import { HTMLWalkState } from './html.js';
 
 export interface CommentWalkState {
     enabled: boolean;

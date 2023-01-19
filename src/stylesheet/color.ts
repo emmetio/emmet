@@ -1,4 +1,4 @@
-import { ColorValue } from '@emmetio/css-abbreviation';
+import type { ColorValue } from '@emmetio/css-abbreviation';
 
 export default function color(token: ColorValue, shortHex?: boolean): string {
     if (!token.r && !token.g && !token.b && !token.a) {

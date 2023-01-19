@@ -1,10 +1,10 @@
-import { AbbreviationNode, Repeater } from '@emmetio/abbreviation';
-import { Container } from '../utils';
-import { Config } from '../../config';
-import { resolveImplicitTag } from '../implicit-tag';
-import latin from './latin.json';
-import ru from './russian.json';
-import sp from './spanish.json';
+import type { AbbreviationNode, Repeater } from '@emmetio/abbreviation';
+import type { Container } from '../utils.js';
+import type { Config } from '../../config.js';
+import { resolveImplicitTag } from '../implicit-tag.js';
+import latin from './latin.json' assert { type: 'json' };
+import ru from './russian.json' assert { type: 'json' };
+import sp from './spanish.json' assert { type: 'json' };
 
 interface LoremVocabulary {
     common: string[];

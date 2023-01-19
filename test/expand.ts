@@ -1,5 +1,5 @@
 import { strictEqual as equal } from 'assert';
-import expand, { resolveConfig } from '../src';
+import expand, { resolveConfig } from '../src/index.js';
 
 describe('Expand Abbreviation', () => {
     describe('Markup', () => {
