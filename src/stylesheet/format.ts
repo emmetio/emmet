@@ -105,7 +105,7 @@ function outputValue(value: CSSValue, out: OutputStream, config: Config) {
 function outputToken(token: Value, out: OutputStream, config: Config) {
     if (token.type === 'ColorValue') {
         push(out, color(token, config.options['stylesheet.shortHex']));
-    } else if (token.type === 'Literal') {
+    } else if (token.type === 'Literal' || token.type === 'CustomProperty') {
         pushString(out, token.value);
     } else if (token.type === 'NumberValue') {
         pushString(out, frac(token.value, 4) + token.unit);

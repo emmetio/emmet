@@ -1,5 +1,6 @@
-import Scanner, { isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
-import { AllTokens, Literal, OperatorType, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field } from './tokens.js';
+import { default as Scanner, isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
+import { OperatorType } from './tokens.js';
+import type { AllTokens, Literal, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field, CustomProperty } from './tokens.js';
 import { Chars } from './utils.js';
 
 export * from './tokens.js';
@@ -45,6 +46,7 @@ export default function tokenize(abbr: string, isValue?: boolean): AllTokens[] {
  */
 export function getToken(scanner: Scanner, short?: boolean) {
     return field(scanner)
+        || customProperty(scanner)
         || numberValue(scanner)
         || colorValue(scanner)
         || stringValue(scanner)
@@ -279,6 +281,26 @@ function whiteSpace(scanner: Scanner): WhiteSpace | undefined {
             end: scanner.pos
         };
     }
+}
+
+/**
+ * Consumes custom CSS property: --foo-bar
+ */
+function customProperty(scanner: Scanner): CustomProperty | undefined {
+    const start = scanner.pos;
+    if (scanner.eat(Chars.Dash) && scanner.eat(Chars.Dash)) {
+        scanner.start = start;
+        scanner.eatWhile(isKeyword);
+
+        return {
+            type: 'CustomProperty',
+            value: scanner.current(),
+            start,
+            end: scanner.pos
+        };
+    }
+
+    scanner.pos = start;
 }
 
 /**

@@ -11,7 +11,8 @@ const defaultConfig = resolveConfig({
     snippets: {
         mten: 'margin: 10px;',
         fsz: 'font-size',
-        gt: 'grid-template: repeat(2,auto) / repeat(auto-fit, minmax(250px, 1fr))'
+        gt: 'grid-template: repeat(2,auto) / repeat(auto-fit, minmax(250px, 1fr))',
+        bxsh: 'box-shadow: var(--bxsh-${1})'
     },
     cache: {},
 });
@@ -96,6 +97,10 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('bdt:n'), 'border-top: none;');
         equal(expand('bgi:n'), 'background-image: none;');
         equal(expand('q:n'), 'quotes: none;');
+
+        // Custom properties
+        // https://github.com/emmetio/emmet/issues/692
+        equal(expand('bxsh'), 'box-shadow: var(--bxsh-${1});');
     });
 
     it('numeric', () => {

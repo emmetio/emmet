@@ -1,4 +1,5 @@
-export type AllTokens = Bracket | Literal | Operator | WhiteSpace | ColorValue | NumberValue | StringValue | Field;
+export type AllTokens = Bracket | Literal | Operator | WhiteSpace | ColorValue
+    | NumberValue | StringValue | CustomProperty | Field;
 
 export const enum OperatorType {
     Sibling = '+',
@@ -30,6 +31,11 @@ export interface Bracket extends Token {
 
 export interface Literal extends Token {
     type: 'Literal';
+    value: string;
+}
+
+export interface CustomProperty extends Token {
+    type: 'CustomProperty';
     value: string;
 }
 

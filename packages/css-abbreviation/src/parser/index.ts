@@ -1,8 +1,8 @@
 import { OperatorType } from '../tokenizer/tokens.js';
-import type { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, Field } from '../tokenizer/tokens.js';
+import type { StringValue, NumberValue, ColorValue, Literal, AllTokens, Bracket, WhiteSpace, Operator, Field, CustomProperty } from '../tokenizer/tokens.js';
 import tokenScanner, { type TokenScanner, readable, peek, consume, error } from './TokenScanner.js';
 
-export type Value = StringValue | NumberValue | ColorValue | Literal | FunctionCall | Field;
+export type Value = StringValue | NumberValue | ColorValue | Literal | FunctionCall | Field | CustomProperty;
 
 export interface FunctionCall {
     type: 'FunctionCall';
@@ -180,7 +180,8 @@ function isValue(token: AllTokens): token is StringValue | NumberValue | ColorVa
         || token.type === 'ColorValue'
         || token.type === 'NumberValue'
         || token.type === 'Literal'
-        || token.type === 'Field';
+        || token.type === 'Field'
+        || token.type === 'CustomProperty';
 }
 
 function isValueDelimiter(token: AllTokens): boolean {

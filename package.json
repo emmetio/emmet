@@ -12,13 +12,12 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "build-all": "npm run ",
+    "build-all": "npm run build --workspaces",
     "watch": "rollup -wc",
     "test": "mocha",
     "test-all": "npm test --workspaces --include-workspace-root",
-    "lint": "tslint ./src/*.ts",
     "clean": "rm -rf ./dist",
-    "prepare": "npm test && npm run lint && npm run clean && npm run build"
+    "prepare": "npm test-all && npm run clean && npm run build-all && npm run build"
   },
   "repository": {
     "type": "git",
