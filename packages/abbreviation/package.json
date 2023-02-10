@@ -11,11 +11,10 @@
     "require": "./dist/index.cjs.js"
   },
   "scripts": {
-    "lint": "tslint ./src/*.ts",
     "test": "mocha",
     "build": "rollup -c",
     "clean": "rm -rf ./dist",
-    "prepare": "npm run lint && npm test && npm run clean && npm run build"
+    "prepare": "npm test && npm run clean && npm run build"
   },
   "keywords": [
     "emmet",
