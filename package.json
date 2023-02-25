@@ -17,7 +17,7 @@
     "test": "mocha",
     "test-all": "npm test --workspaces --include-workspace-root",
     "clean": "rm -rf ./dist",
-    "prepare": "npm test-all && npm run clean && npm run build-all && npm run build"
+    "prepare": "npm run test-all && npm run clean && npm run build-all && npm run build"
   },
   "repository": {
     "type": "git",
