@@ -98,6 +98,9 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('bgi:n'), 'background-image: none;');
         equal(expand('q:n'), 'quotes: none;');
 
+        // https://github.com/emmetio/emmet/issues/628
+        equal(expand('bg:n'), 'background: none;');
+
         // Custom properties
         // https://github.com/emmetio/emmet/issues/692
         equal(expand('bxsh'), 'box-shadow: var(--bxsh-${1});');
@@ -163,7 +166,7 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('c#'), 'color: #000;');
         equal(expand('c#f.5'), 'color: rgba(255, 255, 255, 0.5);');
         equal(expand('c#f.5!'), 'color: rgba(255, 255, 255, 0.5) !important;');
-        equal(expand('bgc'), 'background-color: #${1:fff};');
+        equal(expand('bgc'), 'background-color: ${1:#fff};');
     });
 
     it('snippets', () => {

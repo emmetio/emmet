@@ -60,6 +60,7 @@
 	"bdw": "border-width",
 	"bfv": "backface-visibility:hidden|visible",
 	"bg": "background:${1:#000}",
+	"bg:n": "background: none",
 	"bga": "background-attachment:fixed|scroll",
 	"bgbk": "background-break:bounding-box|each-box|continuous",
 	"bgc": "background-color:${1:#fff}",
