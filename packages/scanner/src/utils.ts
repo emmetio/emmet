@@ -47,6 +47,18 @@ export function isAlphaWord(code: number): boolean {
 }
 
 /**
+ * Check for Umlauts i.e. ä, Ä, ö, Ö, ü and Ü
+ */
+export function isUmlaut(code: number): boolean {
+    return code === 196
+        || code == 214
+        || code === 220
+        || code === 228
+        || code === 246
+        || code === 252;
+}
+
+/**
  * Check if given character code is a white-space character: a space character
  * or line breaks
  */
