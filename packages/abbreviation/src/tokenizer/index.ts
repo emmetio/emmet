@@ -1,4 +1,4 @@
-import Scanner, { isSpace, isQuote, isNumber, isAlpha, isAlphaNumericWord } from '@emmetio/scanner';
+import Scanner, { isSpace, isQuote, isNumber, isAlpha, isAlphaNumericWord, isUmlaut } from '@emmetio/scanner';
 import type { Literal, WhiteSpace, Quote, Bracket, BracketType, OperatorType, Operator, RepeaterPlaceholder, Repeater, Field, RepeaterNumber, AllTokens } from './tokens.js';
 import { Chars, escaped } from './utils.js';
 
@@ -390,6 +390,7 @@ function isOpenBracket(ch: number): boolean {
  */
 function isElementName(ch: number) {
     return isAlphaNumericWord(ch)
+        || isUmlaut(ch)
         || ch === Chars.Dash
         || ch === Chars.Colon
         || ch === Chars.Excl;
