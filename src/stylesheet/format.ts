@@ -2,7 +2,17 @@ import { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emm
 import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream.js';
 import { Config } from '../config.js';
 import color, { frac } from './color.js';
-import { CSSAbbreviationScope } from './index.js';
+
+export const CSSAbbreviationScope = {
+    /** Include all possible snippets in match */
+    Global: '@@global',
+    /** Include raw snippets only (e.g. no properties) in abbreviation match */
+    Section: '@@section',
+    /** Include properties only in abbreviation match */
+    Property: '@@property',
+    /** Resolve abbreviation in context of CSS property value */
+    Value: '@@value',
+} as const;
 
 export default function css(abbr: CSSAbbreviation, config: Config): string {
     const out = createOutputStream(config.options);

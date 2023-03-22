@@ -39,6 +39,7 @@
     "@emmetio/css-abbreviation": "^2.1.4"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "@rollup/plugin-typescript": "^10.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.11.18",

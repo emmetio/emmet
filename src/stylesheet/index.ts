@@ -5,22 +5,11 @@ import createSnippet, { nest, CSSSnippetType } from './snippets.js';
 import type { CSSSnippet, CSSSnippetRaw, CSSSnippetProperty } from './snippets.js';
 import calculateScore from './score.js';
 import color from './color.js';
+import { CSSAbbreviationScope } from './format.js';
 
-export { default as stringify } from './format.js';
+export { default as stringify, CSSAbbreviationScope } from './format.js';
 
 type MatchInput = CSSSnippet | string;
-
-export const CSSAbbreviationScope = {
-    /** Include all possible snippets in match */
-    Global: '@@global',
-    /** Include raw snippets only (e.g. no properties) in abbreviation match */
-    Section: '@@section',
-    /** Include properties only in abbreviation match */
-    Property: '@@property',
-    /** Resolve abbreviation in context of CSS property value */
-    Value: '@@value',
-} as const;
-
 
 const gradientName = 'lg';
 

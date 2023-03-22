@@ -1,10 +1,10 @@
 import { extname } from 'path';
 import typescript from '@rollup/plugin-typescript';
+import nodeResolve from '@rollup/plugin-node-resolve';
 
 export default {
     input: './src/index.ts',
-    external: id => /@emmetio\//.test(id),
-    plugins: [json(), typescript()],
+    plugins: [nodeResolve(), json(), typescript()],
     output: [{
         file: './dist/emmet.es.js',
         format: 'es',

@@ -1,9 +1,9 @@
 import type { Abbreviation } from '@emmetio/abbreviation';
-import markupSnippets from '../snippets/html.json' assert { type: 'json' };
-import stylesheetSnippets from '../snippets/css.json' assert { type: 'json' };
-import xslSnippets from '../snippets/xsl.json' assert { type: 'json' };
-import pugSnippets from '../snippets/pug.json' assert { type: 'json' };
-import variables from '../snippets/variables.json' assert { type: 'json' };
+import markupSnippets from './snippets/html.json' assert { type: 'json' };
+import stylesheetSnippets from './snippets/css.json' assert { type: 'json' };
+import xslSnippets from './snippets/xsl.json' assert { type: 'json' };
+import pugSnippets from './snippets/pug.json' assert { type: 'json' };
+import variables from './snippets/variables.json' assert { type: 'json' };
 import type { CSSSnippet } from './stylesheet/snippets.js';
 
 export type SyntaxType = 'markup' | 'stylesheet';

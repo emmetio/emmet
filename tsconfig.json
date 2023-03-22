@@ -15,5 +15,5 @@
     "newLine": "LF",
     "outDir": "./dist"
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"]
 }
