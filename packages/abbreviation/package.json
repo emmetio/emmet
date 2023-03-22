@@ -14,7 +14,7 @@
     "test": "mocha",
     "build": "rollup -c",
     "clean": "rm -rf ./dist",
-    "prepare": "npm test && npm run clean && npm run build"
+    "prepublishOnly": "npm test && npm run clean && npm run build"
   },
   "keywords": [
     "emmet",

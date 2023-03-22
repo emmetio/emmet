@@ -15,7 +15,7 @@
     "build": "rollup -c",
     "watch": "rollup -wc",
     "clean": "rm -rf ./dist",
-    "prepare": "npm test && npm run clean && npm run build"
+    "prepublishOnly": "npm test && npm run clean && npm run build"
   },
   "repository": {
     "type": "git",

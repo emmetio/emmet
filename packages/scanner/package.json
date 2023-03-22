@@ -14,7 +14,7 @@
     "test": "mocha",
     "build": "rollup -c",
     "clean": "rm -f ./scanner.* ./*.d.ts",
-    "prepare": "npm test && npm run clean && npm run build"
+    "prepublishOnly": "npm test && npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
