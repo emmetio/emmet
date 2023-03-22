@@ -1,8 +1,8 @@
 import { ok, strictEqual as equal } from 'assert';
 import markup from '@emmetio/abbreviation';
 import expand from '../src/index.js';
-import html from '../snippets/html.json' assert { type: 'json' };
-import xsl from '../snippets/xsl.json' assert { type: 'json' };
+import html from '../src/snippets/html.json' assert { type: 'json' };
+import xsl from '../src/snippets/xsl.json' assert { type: 'json' };
 
 describe('Snippets', () => {
     it('HTML', () => {
