@@ -201,12 +201,15 @@ function attribute(scanner: TokenScanner): TokenAttribute | undefined {
     }
 
     if (literal(scanner, true)) {
-        return {
-            name: slice(scanner) as NameToken[],
-            value: consume(scanner, isEquals) && (quoted(scanner) || literal(scanner, true))
-                ? slice(scanner) as ValueToken[]
-                : void 0
-        };
+        const name = slice(scanner) as NameToken[];
+        let value: ValueToken[] | undefined;
+        if (consume(scanner, isEquals)) {
+            if (quoted(scanner) || literal(scanner, true)) {
+                value = slice(scanner) as ValueToken[];
+            }
+        }
+
+        return { name, value };
     }
 }
 

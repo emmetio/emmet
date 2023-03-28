@@ -46,6 +46,13 @@ describe('Expand Abbreviation', () => {
             equal(expand('test[baz=a foo=1]', reverse), '<test baz={a} foo="1" bar="bar"></test>');
         });
 
+        it('expressions', () => {
+            equal(expand('span{{foo}}'), '<span>{foo}</span>');
+            equal(expand('span{foo}'), '<span>foo</span>');
+            equal(expand('span[foo={bar}]'), '<span foo={bar}></span>');
+            equal(expand('span[foo={{bar}}]'), '<span foo={{bar}}></span>');
+        });
+
         it('numbering', () => {
             equal(expand('ul>li.item$@-*5'), '<ul>\n\t<li class="item5"></li>\n\t<li class="item4"></li>\n\t<li class="item3"></li>\n\t<li class="item2"></li>\n\t<li class="item1"></li>\n</ul>');
         });
@@ -144,6 +151,12 @@ describe('Expand Abbreviation', () => {
             equal(expand('a[href="https://example.com"]>div', { text: ['<p>some text true</p>'], options: { 'markup.href': true } }),
                 '<a href="https://example.com">\n\t<div>\n\t\t<p>some text true</p>\n\t</div>\n</a>');
         });
+
+        it('class names', () => {
+            equal(expand('div.foo/'), '<div class="foo">');
+            equal(expand('div.foo1/2'), '<div class="foo1/2"></div>');
+            equal(expand('div.foo.1/2'), '<div class="foo 1/2"></div>');
+        })
 
         // it.only('debug', () => {
         //     equal(expand('link:css'), '<link rel="stylesheet" href="style.css">');

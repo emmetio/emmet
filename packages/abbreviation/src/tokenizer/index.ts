@@ -58,6 +58,7 @@ export function getToken(scanner: Scanner, ctx: Context): AllTokens | undefined 
  */
 function literal(scanner: Scanner, ctx: Context): Literal | undefined {
     const start = scanner.pos;
+    const expressionStart = ctx.expression;
     let value = '';
 
     while (!scanner.eof()) {
@@ -69,6 +70,16 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
 
         const ch = scanner.peek();
 
+        if (ch === Chars.Slash && !ctx.quote && !ctx.expression && !ctx.attribute) {
+            // Special case for `/` character between numbers in class names
+            const prev = scanner.string.charCodeAt(scanner.pos - 1);
+            const next = scanner.string.charCodeAt(scanner.pos + 1);
+            if (isNumber(prev) && isNumber(next)) {
+                value += scanner.string[scanner.pos++];
+                continue;
+            }
+        }
+
         if (ch === ctx.quote || ch === Chars.Dollar || isAllowedOperator(ch, ctx)) {
             // 1. Found matching quote
             // 2. The `$` character has special meaning in every context
@@ -76,11 +87,18 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
             break;
         }
 
-        if (ctx.expression && ch === Chars.CurlyBracketClose) {
-            break;
-        }
-
-        if (!ctx.quote && !ctx.expression) {
+        if (expressionStart) {
+            // Consume nested expressions, e.g. span{{foo}}
+            if (ch === Chars.CurlyBracketOpen) {
+                ctx.expression++;
+            } else if (ch === Chars.CurlyBracketClose) {
+                if (ctx.expression > expressionStart) {
+                    ctx.expression--;
+                } else {
+                    break;
+                }
+            }
+        } else if (!ctx.quote) {
             // Consuming element name
             if (!ctx.attribute && !isElementName(ch)) {
                 break;
@@ -91,7 +109,6 @@ function literal(scanner: Scanner, ctx: Context): Literal | undefined {
                 break;
             }
         }
-
 
         value += scanner.string[scanner.pos++];
     }
