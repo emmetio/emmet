@@ -2,13 +2,13 @@
   "name": "@emmetio/abbreviation",
   "version": "2.3.0",
   "description": "Emmet standalone abbreviation parser",
-  "main": "./dist/index.cjs.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
     "import": "./dist/index.js",
-    "require": "./dist/index.cjs.js"
+    "require": "./dist/index.cjs"
   },
   "scripts": {
     "test": "mocha",

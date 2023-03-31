@@ -7,7 +7,7 @@ export default {
         format: 'cjs',
         exports: 'named',
         sourcemap: true,
-        file: './scanner.cjs.js'
+        file: './scanner.cjs'
     }, {
         format: 'es',
         sourcemap: true,
