@@ -2,13 +2,13 @@
   "name": "@emmetio/scanner",
   "version": "1.0.1",
   "description": "Scans given text character-by-character",
-  "main": "./scanner.cjs.cjs",
+  "main": "./scanner.cjs",
   "module": "./scanner.js",
   "types": "./scanner.d.ts",
   "type": "module",
   "exports": {
     "import": "./scanner.js",
-    "require": "./scanner.cjs.cjs"
+    "require": "./scanner.cjs"
   },
   "scripts": {
     "test": "mocha",

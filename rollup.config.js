@@ -10,7 +10,7 @@ export default {
         format: 'es',
         sourcemap: true
     }, {
-        file: './dist/emmet.cjs.cjs',
+        file: './dist/emmet.cjs',
         format: 'cjs',
         exports: 'named',
         sourcemap: true
