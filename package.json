@@ -2,13 +2,13 @@
   "name": "emmet",
   "version": "2.4.0",
   "description": "Emmet — the essential toolkit for web-developers",
-  "main": "./dist/emmet.cjs.js",
+  "main": "./dist/emmet.cjs.cjs",
   "module": "./dist/emmet.es.js",
   "types": "./dist/src/index.d.ts",
   "type": "module",
   "exports": {
     "import": "./dist/emmet.es.js",
-    "require": "./dist/emmet.cjs.js"
+    "require": "./dist/emmet.cjs.cjs"
   },
   "scripts": {
     "build": "rollup -c",

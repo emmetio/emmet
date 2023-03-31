@@ -8,7 +8,7 @@ export default {
         format: 'cjs',
         sourcemap: true,
         exports: 'named',
-        file: './dist/index.cjs.js'
+        file: './dist/index.cjs.cjs'
     }, {
         format: 'es',
         sourcemap: true,

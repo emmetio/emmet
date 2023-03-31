@@ -7,7 +7,7 @@ export default {
     plugins: [typescript()],
     output: [{
         format: 'cjs',
-        file: 'dist/index.cjs.js',
+        file: 'dist/index.cjs.cjs',
         sourcemap: true,
         exports: 'named',
     }, {
