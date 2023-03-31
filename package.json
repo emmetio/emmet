@@ -1,6 +1,6 @@
 {
   "name": "emmet",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs",
   "module": "./dist/emmet.es.js",
@@ -35,8 +35,8 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "dependencies": {
-    "@emmetio/abbreviation": "^2.3.0",
-    "@emmetio/css-abbreviation": "^2.1.5"
+    "@emmetio/abbreviation": "^2.3.1",
+    "@emmetio/css-abbreviation": "^2.1.6"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.0.1",

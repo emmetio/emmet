@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/abbreviation",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Emmet standalone abbreviation parser",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -23,7 +23,7 @@
   "author": "Sergey Chikuyonok <serge.che@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@emmetio/scanner": "^1.0.1"
+    "@emmetio/scanner": "^1.0.2"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^10.0.1",
