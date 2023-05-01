@@ -104,6 +104,7 @@
 	"command": "command/",
 	"btn:s|button:s|button:submit" : "button[type=submit]",
 	"btn:r|button:r|button:reset" : "button[type=reset]",
+	"btn:b|button:b|button:button" : "button[type=button]",
 	"btn:d|button:d|button:disabled" : "button[disabled.]",
 	"fst:d|fset:d|fieldset:d|fieldset:disabled" : "fieldset[disabled.]",
 
