@@ -107,6 +107,7 @@
 	"btn:b|button:b|button:button" : "button[type=button]",
 	"btn:d|button:d|button:disabled" : "button[disabled.]",
 	"fst:d|fset:d|fieldset:d|fieldset:disabled" : "fieldset[disabled.]",
+  "data": "data[value]",
 
 	"bq": "blockquote",
 	"fig": "figure",
