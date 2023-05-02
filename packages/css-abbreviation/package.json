@@ -1,6 +1,6 @@
 {
   "name": "@emmetio/css-abbreviation",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "Parses Emmet CSS abbreviation into AST tree",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "dependencies": {
-    "@emmetio/scanner": "^1.0.2"
+    "@emmetio/scanner": "^1.0.3"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^10.0.1",
