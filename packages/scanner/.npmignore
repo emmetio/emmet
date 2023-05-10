@@ -5,8 +5,8 @@ jspm_packages
 /.*
 /*.*
 !/scanner.js
-!/scanner.es.js
+!/scanner.cjs
 !/*.d.ts
-!/*.js.map
+!/*.map
 /test
 /src
