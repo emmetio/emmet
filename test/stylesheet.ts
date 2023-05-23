@@ -277,4 +277,4 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('spie'),'scroll-padding-inline-end: ${0};');
 
     });
-      });
+});
