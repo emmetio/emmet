@@ -179,7 +179,7 @@
 	"olc": "outline-color:${1:#000}|invert",
 	"olo": "outline-offset",
 	"ols": "outline-style:none|dotted|dashed|solid|double|groove|ridge|inset|outset",
-	"olw": "outline-width|thin|medium|thick",
+	"olw": "outline-width:thin|medium|thick",
 	"op|opa": "opacity",
 	"ord": "order",
 	"ori": "orientation:landscape|portrait",
