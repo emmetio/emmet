@@ -254,4 +254,27 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('b', sectionScope), '');
         equal(expand('m', propertyScope), 'margin: ;');
     });
+
+    it('Logical Properties', () => {
+        
+        equal(expand('bbs'),'border-block-start: ${0};');
+        equal(expand('bbe"'),'border-block-end: "";');
+        equal(expand('bis'),'border-inline-start: ${0};');
+        equal(expand('bie'),'border-inline-end: ${0};');
+        equal(expand('bs'),'block-size: ${0};');
+        equal(expand('is'),'inline-size: ${0};');
+        equal(expand('mbs'),'margin-block-start: ${0};');
+        equal(expand('mbe'),'margin-block-end: ${0};');
+        equal(expand('mis'),'margin-inline-start: ${0};');
+        equal(expand('mie'),'margin-inline-end: ${0};');
+        equal(expand('pbs'),'padding-block-start: ${0};');
+        equal(expand('pbe'),'padding-block-end: ${0};');
+        equal(expand('pis'),'padding-inline-start: ${0};');
+        equal(expand('pie'),'padding-inline-end: ${0};');
+        equal(expand('spbs'),'scroll-padding-block-start: ${0};');
+        equal(expand('spbe'),'scroll-padding-block-end: ${0};');
+        equal(expand('spis'),'scroll-padding-inline-start: ${0};');
+        equal(expand('spie'),'scroll-padding-inline-end: ${0};');
+
+    });
 });
