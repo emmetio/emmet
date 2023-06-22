@@ -120,6 +120,29 @@ describe('Expand Abbreviation', () => {
             equal(expand('..foo', { syntax: 'vue' }), '<div :class="foo"></div>');
         });
 
+        it('overrides attributes with custom config', () => {
+            const attrConfig = {
+                syntax: 'jsx',
+                options: {
+                    'markup.attributes': {
+                        'class': 'className',
+                        'class*': 'classStarName',
+                    }
+                }
+            };
+            equal(expand('.foo', attrConfig), '<div className="foo"></div>');
+            equal(expand('..foo', attrConfig), '<div classStarName={styles.foo}></div>');
+            const prefixConfig = {
+                syntax: 'jsx',
+                options: {
+                    'markup.valuePrefix': {
+                        'class*': 'class'
+                    }
+                }
+            };
+            equal(expand('..foo', prefixConfig), '<div styleName={class.foo}></div>');
+        });
+
         it('wrap with abbreviation', () => {
             equal(expand('div>ul', { text: ['<div>line1</div>\n<div>line2</div>'] }),
                 '<div>\n\t<ul>\n\t\t<div>line1</div>\n\t\t<div>line2</div>\n\t</ul>\n</div>');
