@@ -101,6 +101,9 @@ describe('Stylesheet abbreviations', () => {
         // https://github.com/emmetio/emmet/issues/628
         equal(expand('bg:n'), 'background: none;');
 
+        // https://github.com/emmetio/emmet/issues/691
+        equal(expand('d:c'), 'display: contents;');
+
         // Custom properties
         // https://github.com/emmetio/emmet/issues/692
         equal(expand('bxsh'), 'box-shadow: var(--bxsh-${1});');
