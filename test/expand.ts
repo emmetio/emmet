@@ -40,6 +40,13 @@ describe('Expand Abbreviation', () => {
             equal(expand('map[name="valid"]'), '<map name="valid"></map>');
             equal(expand('map[href="invalid"]'), '<map name="" href="invalid"></map>');
 
+            equal(expand('data'), '<data value=""></data>');
+            equal(expand('data[value=5]'), '<data value="5"></data>');
+            equal(expand('meter'), '<meter value=""></meter>');
+            equal(expand('meter[min=4 max=6]'), '<meter value="" min="4" max="6"></meter>');
+            equal(expand('time'), '<time datetime=""></time>');
+            equal(expand('time[datetime=2023-07-01]'), '<time datetime="2023-07-01"></time>');
+
             // Apply attributes in reverse order
             equal(expand('test', reverse), '<test bar="bar" baz={}></test>');
             equal(expand('test[foo]', reverse), '<test bar="bar" baz={}></test>');
