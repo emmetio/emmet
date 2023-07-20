@@ -140,6 +140,34 @@ describe('Format', () => {
             opt.options['comment.after'] = ' { [%ID] }';
             equal(format('div>ul>li.item#foo', opt), '<div>\n\t<ul>\n\t\t<li class="item" id="foo"></li> { %foo }\n\t</ul>\n</div>');
         });
+
+        it('jsx', () => {
+            const config = createConfig({
+                syntax: 'jsx',
+                options: {
+                    'markup.attributes': {
+                        'class': 'className',
+                        'class*': 'className',
+                    },
+                    'markup.valuePrefix': {
+                        'class*': 'styles',
+                    },
+                    'output.field': (index) => `\${${index}}`,
+                },
+            });
+
+            equal(format('.', config), '<div className="${1}">${2}</div>');
+            equal(format('..', config), '<div className={${1}}>${2}</div>');
+
+            equal(format('div.', config), '<div className="${1}">${2}</div>');
+            equal(format('div..', config), '<div className={${1}}>${2}</div>');
+
+            equal(format('div.a', config), '<div className="a">${1}</div>');
+            equal(format('div..a', config), '<div className={styles.a}>${1}</div>');
+
+            equal(format('div.a.b', config), '<div className="a b">${1}</div>');
+            equal(format('div.a..b', config), '<div className="a b">${1}</div>');
+        });
     });
 
     describe('HAML', () => {
