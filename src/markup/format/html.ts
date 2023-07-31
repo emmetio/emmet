@@ -116,6 +116,11 @@ function pushAttribute(attr: AbbreviationAttribute, state: WalkState) {
 
         name = attrName(name, config);
 
+        if (config.options['jsx.enabled'] && attr.multiple) {
+            lQuote = expressionStart;
+            rQuote = expressionEnd;
+        }
+
         const prefix = valuePrefix
             ? getMultiValue(attr.name, valuePrefix, attr.multiple)
             : null;
