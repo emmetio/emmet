@@ -16,6 +16,9 @@ describe('Expand Abbreviation', () => {
                     'output.field': (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`
                 }
             }), '<ul>\n\t<li class="item1">${1}</li>\n\t<li class="item2">${2}</li>\n</ul>');
+
+            // https://github.com/emmetio/emmet/issues/725
+            equal(expand('textarea'), '<textarea name="" id=""></textarea>');
         });
 
         it('attributes', () => {
@@ -98,6 +101,12 @@ describe('Expand Abbreviation', () => {
 
             // https://github.com/emmetio/emmet/issues/468
             equal(expand('repeat', { snippets }), '<div>\n\t<ul>\n\t\t<li>Hello World</li>\n\t\t<li>Hello World</li>\n\t\t<li>Hello World</li>\n\t</ul>\n</div>');
+
+            // https://github.com/emmetio/emmet/issues/725
+            equal(expand('tarea'), '<textarea name="" id=""></textarea>');
+            equal(expand('tarea:c'), '<textarea name="" id="" cols="30"></textarea>')
+            equal(expand('tarea:r'), '<textarea name="" id="" rows="10"></textarea>')
+            equal(expand('tarea:cr'), '<textarea name="" id="" cols="30" rows="10"></textarea>')
         });
 
         it('formatter options', () => {
