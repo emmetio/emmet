@@ -1,6 +1,6 @@
 {
   "name": "emmet",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs",
   "module": "./dist/emmet.es.js",
