@@ -29,6 +29,13 @@ describe('Markup abbreviations', () => {
         equal(expand('xsl:with-param[select]{foo}', config), '<xsl:with-param>foo</xsl:with-param>');
     });
 
+    it('<label> preprocessor', () => {
+        equal(expand('label>input'), '<label><input type="${1:text}" /></label>');
+        equal(expand('label>inp'), '<label><input type="${1:text}" name="${1}" /></label>');
+        equal(expand('label>span>input'), '<label><span><input type="${1:text}" /></span></label>');
+        equal(expand('label+inp'), '<label for=""></label><input type="${1:text}" name="${1}" id="${1}" />');
+    });
+
     describe('BEM transform', () => {
         const config = resolveConfig({
             options: { 'bem.enabled': true }

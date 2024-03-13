@@ -22,6 +22,23 @@ export function walk<S>(node: Container, fn: WalkVisitor<S>, state?: S) {
 }
 
 /**
+ * Finds first child node that matches given `callback`
+ */
+export function find(node: Container, callback: (node: AbbreviationNode) => boolean | undefined): AbbreviationNode | undefined {
+    for (let i = 0; i < node.children.length; i++) {
+        const child = node.children[i];
+        if (callback(child)) {
+            return child;
+        }
+
+        const result = find(child, callback);
+        if (result) {
+            return result;
+        }
+    }
+}
+
+/**
  * Finds node which is the deepest for in current node or node itself.
  */
 export function findDeepest(node: Container): { node: Container, parent?: Container } {

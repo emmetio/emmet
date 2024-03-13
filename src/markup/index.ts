@@ -6,6 +6,7 @@ import implicitTag from './implicit-tag.js';
 import lorem from './lorem/index.js';
 import xsl from './addon/xsl.js';
 import bem from './addon/bem.js';
+import label from './addon/label.js';
 import html from './format/html.js';
 import haml from './format/haml.js';
 import slim from './format/slim.js';
@@ -70,6 +71,10 @@ function transform(node: AbbreviationNode, ancestors: Container[], config: Confi
 
     if (config.syntax === 'xsl') {
         xsl(node);
+    }
+
+    if (config.type === 'markup') {
+        label(node);
     }
 
     if (config.options['bem.enabled']) {
