@@ -1,4 +1,4 @@
-import { default as Scanner, isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
+import { Scanner, isAlphaWord, isAlpha, isNumber, isAlphaNumericWord, isSpace, isQuote } from '@emmetio/scanner';
 import { OperatorType } from './tokens.js';
 import type { AllTokens, Literal, NumberValue, ColorValue, WhiteSpace, Operator, Bracket, StringValue, Field, CustomProperty } from './tokens.js';
 import { Chars } from './utils.js';

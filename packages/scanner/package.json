@@ -2,18 +2,18 @@
   "name": "@emmetio/scanner",
   "version": "1.0.4",
   "description": "Scans given text character-by-character",
-  "main": "./scanner.cjs",
-  "module": "./scanner.js",
-  "types": "./scanner.d.ts",
+  "main": "./dist/scanner.cjs",
+  "module": "./dist/scanner.js",
+  "types": "./dist/scanner.d.ts",
   "type": "module",
   "exports": {
-    "import": "./scanner.js",
-    "require": "./scanner.cjs"
+    "import": "./dist/scanner.js",
+    "require": "./dist/scanner.cjs"
   },
   "scripts": {
     "test": "mocha",
     "build": "rollup -c",
-    "clean": "rimraf ./scanner.* ./*.d.ts",
+    "clean": "rimraf ./dist",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "repository": {

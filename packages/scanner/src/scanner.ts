@@ -5,7 +5,7 @@ type MatchFn = (ch: number) => boolean;
 /**
  * A streaming, character code-based string reader
  */
-export default class Scanner {
+export class Scanner {
     /** Current string */
     string: string;
 
@@ -129,3 +129,5 @@ export class ScannerError extends Error {
         this.string = str;
     }
 }
+
+export default Scanner;
