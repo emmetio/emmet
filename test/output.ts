@@ -1,6 +1,7 @@
-import { strictEqual as equal } from 'assert';
-import createStream, { push, pushString, pushNewline, tagName, attrName, selfClose, isInline } from '../src/output-stream.js';
-import createConfig, { defaultOptions } from '../src/config.js';
+import { describe, it } from 'node:test';
+import { strictEqual as equal } from 'node:assert';
+import createStream, { push, pushString, pushNewline, tagName, attrName, selfClose, isInline } from '../src/output-stream';
+import createConfig, { defaultOptions } from '../src/config';
 
 describe('Output', () => {
     it('stream', () => {

@@ -13,7 +13,7 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -wc",
-    "test": "mocha",
+    "test": "tsx --test ./test/*.ts",
     "clean": "rimraf ./dist",
     "prepare": "npm run clean && lerna run build && lerna run test"
   },
@@ -39,25 +39,19 @@
     "@emmetio/css-abbreviation": "^2.1.8"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-typescript": "^10.0.1",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^18.11.18",
-    "lerna": "^6.5.1",
-    "mocha": "^10.2.0",
-    "rimraf": "^5.0.0",
-    "rollup": "^3.9.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^22.1.0",
+    "lerna": "^8.1.7",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.20.0",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4"
   },
   "workspaces": [
     "./packages/scanner",
     "./packages/abbreviation",
     "./packages/css-abbreviation",
     "./"
-  ],
-  "mocha": {
-    "loader": "ts-node/esm",
-    "spec": "./test/*.ts"
-  }
+  ]
 }

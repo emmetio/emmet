@@ -1,10 +1,11 @@
-import { equal } from 'assert';
-import html from '../src/markup/format/html.js';
-import haml from '../src/markup/format/haml.js';
-import pug from '../src/markup/format/pug.js';
-import slim from '../src/markup/format/slim.js';
-import parse from '../src/markup/index.js';
-import createConfig, { Options } from '../src/config.js';
+import { describe, it } from 'node:test';
+import { equal } from 'node:assert';
+import html from '../src/markup/format/html';
+import haml from '../src/markup/format/haml';
+import pug from '../src/markup/format/pug';
+import slim from '../src/markup/format/slim';
+import parse from '../src/markup/index';
+import createConfig, { Options } from '../src/config';
 
 describe('Format', () => {
     const defaultConfig = createConfig();

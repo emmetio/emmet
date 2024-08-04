@@ -1,6 +1,7 @@
-import { strictEqual as equal, ok } from 'assert';
-import { stylesheet as expandAbbreviation, resolveConfig, CSSAbbreviationScope } from '../src/index.js';
-import score from '../src/stylesheet/score.js';
+import { describe, it } from 'node:test';
+import { strictEqual as equal, ok } from 'node:assert';
+import { stylesheet as expandAbbreviation, resolveConfig, CSSAbbreviationScope } from '../src';
+import score from '../src/stylesheet/score';
 
 const defaultConfig = resolveConfig({
     type: 'stylesheet',
@@ -259,7 +260,7 @@ describe('Stylesheet abbreviations', () => {
     });
 
     it('Logical Properties', () => {
-        
+
         equal(expand('bbs'),'border-block-start: ${0};');
         equal(expand('bbe"'),'border-block-end: "";');
         equal(expand('bis'),'border-inline-start: ${0};');

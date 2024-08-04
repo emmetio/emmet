@@ -1,6 +1,7 @@
-import { ok, strictEqual as equal } from 'assert';
+import { describe, it } from 'node:test';
+import { ok, strictEqual as equal } from 'node:assert';
 import markup from '@emmetio/abbreviation';
-import expand from '../src/index.js';
+import expand from '../src';
 import html from '../src/snippets/html.json' assert { type: 'json' };
 import xsl from '../src/snippets/xsl.json' assert { type: 'json' };
 

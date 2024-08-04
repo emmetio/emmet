@@ -8,12 +8,12 @@
     "strictNullChecks": true,
     "isolatedModules": true,
     "declaration": true,
-    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "module": "ESNext",
+    "moduleResolution": "Bundler",
     "newLine": "LF",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src"]
 }

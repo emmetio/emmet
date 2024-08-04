@@ -4,5 +4,5 @@
     "transpileOnly": true,
     "files": true
   },
-  "include": ["src/*.ts"]
+  "include": ["src"]
 }

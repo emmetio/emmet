@@ -1,8 +1,9 @@
-import { deepStrictEqual, strictEqual, ok } from 'assert';
-import extractAbbreviation, { type ExtractOptions, type ExtractedAbbreviation } from '../src/extract-abbreviation/index.js';
-import isAtHTMLTag from '../src/extract-abbreviation/is-html.js';
-import scanner from '../src/extract-abbreviation/reader.js';
-import { consumeQuoted } from '../src/extract-abbreviation/quotes.js';
+import { describe, it } from 'node:test';
+import { deepStrictEqual, strictEqual, ok } from 'node:assert';
+import extractAbbreviation, { type ExtractOptions, type ExtractedAbbreviation } from '../src/extract-abbreviation';
+import isAtHTMLTag from '../src/extract-abbreviation/is-html';
+import scanner from '../src/extract-abbreviation/reader';
+import { consumeQuoted } from '../src/extract-abbreviation/quotes';
 
 function extract(abbr: string, options?: Partial<ExtractOptions>) {
     let caretPos: number | undefined = abbr.indexOf('|');

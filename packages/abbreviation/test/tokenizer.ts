@@ -1,5 +1,6 @@
-import { deepStrictEqual } from 'assert';
-import tokenize from '../src/tokenizer/index.js';
+import { describe, it } from 'node:test';
+import { deepStrictEqual } from 'node:assert';
+import tokenize from '../src/tokenizer';
 
 describe('Tokenizer', () => {
     it('basic abbreviations', () => {
