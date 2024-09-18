@@ -19,6 +19,7 @@ const gradientName = 'lg';
  */
 export default function parse(abbr: string | CSSAbbreviation, config: Config): CSSAbbreviation {
     const snippets = config.cache?.stylesheetSnippets || convertSnippets(config.snippets);
+    const result: CSSAbbreviation = []
 
     if (config.cache) {
         config.cache.stylesheetSnippets = snippets;
@@ -31,10 +32,13 @@ export default function parse(abbr: string | CSSAbbreviation, config: Config): C
     const filteredSnippets = getSnippetsForScope(snippets, config);
 
     for (const node of abbr) {
-        resolveNode(node, filteredSnippets, config);
+        const resolved = resolveNode(node, filteredSnippets, config);
+        if (resolved) {
+            result.push(resolved)
+        }
     }
 
-    return abbr;
+    return result;
 }
 
 /**
@@ -53,7 +57,7 @@ export function convertSnippets(snippets: SnippetsMap): CSSSnippet[] {
  * Resolves given node: finds matched CSS snippets using fuzzy match and resolves
  * keyword aliases from node value
  */
-function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty {
+function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config): CSSProperty | null {
     if (!resolveGradient(node, config)) {
         const score = config.options['stylesheet.fuzzySearchMinScore'];
         if (isValueScope(config)) {
@@ -67,11 +71,15 @@ function resolveNode(node: CSSProperty, snippets: CSSSnippet[], config: Config):
             node.snippet = snippet;
 
             if (snippet) {
-                if (snippet.type === CSSSnippetType.Property) {
-                    resolveAsProperty(node, snippet, config);
-                } else {
-                    resolveAsSnippet(node, snippet);
+                const resolved = snippet.type === CSSSnippetType.Property
+                    ? resolveAsProperty(node, snippet, config)
+                    : resolveAsSnippet(node, snippet)
+                if (resolved) {
+                    node = resolved
+                } else if (config.options['stylesheet.strictMatch']) {
+                    return null
                 }
+
             }
         }
     }
@@ -125,7 +133,7 @@ function resolveGradient(node: CSSProperty, config: Config): boolean {
 /**
  * Resolves given parsed abbreviation node as CSS property
  */
-function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, config: Config): CSSProperty {
+function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, config: Config): CSSProperty | null {
     const abbr = node.name!;
 
     // Check for unmatched part of abbreviation
@@ -138,11 +146,11 @@ function resolveAsProperty(node: CSSProperty, snippet: CSSSnippetProperty, confi
     if (inlineValue) {
         if (node.value.length) {
             // Already have value: unmatched part indicates matched snippet is invalid
-            return node;
+            return null;
         }
         const kw = resolveKeyword(inlineValue, config, snippet);
         if (!kw) {
-            return node;
+            return null;
         }
         node.value.push(cssValue(kw));
     }

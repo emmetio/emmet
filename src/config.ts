@@ -281,6 +281,14 @@ export interface Options {
      * Lower value will pick more abbreviations (and less accurate)
      */
     'stylesheet.fuzzySearchMinScore': number;
+
+    /**
+     * Force strict abbreviation match. If Emmet is unable to match abbreviation
+     * with existing snippets, it will convert it to CSS property (`false`)
+     * or skip it (`true`). E.g. `foo-bar` will expand to `foo: bar` if this option
+     * is disabled or empty string if enabled
+     */
+    'stylesheet.strictMatch': boolean;
 }
 
 /**
@@ -353,7 +361,8 @@ export const defaultOptions: Options = {
     'stylesheet.unitAliases': { e: 'em', p: '%', x: 'ex', r: 'rem' },
     'stylesheet.json': false,
     'stylesheet.jsonDoubleQuotes': false,
-    'stylesheet.fuzzySearchMinScore': 0
+    'stylesheet.fuzzySearchMinScore': 0,
+    'stylesheet.strictMatch': false
 };
 
 export const defaultConfig: Config = {

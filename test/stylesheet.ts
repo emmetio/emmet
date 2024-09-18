@@ -281,4 +281,15 @@ describe('Stylesheet abbreviations', () => {
         equal(expand('spie'),'scroll-padding-inline-end: ${0};');
 
     });
+
+    it('strict match', () => {
+        const config = resolveConfig({
+            type: 'stylesheet',
+            options: {
+                'stylesheet.strictMatch': true
+            }
+        });
+        equal(expand('max-inline-size:'), 'max: inline size;')
+        equal(expand('max-inline-size:', config), '')
+    })
 });
