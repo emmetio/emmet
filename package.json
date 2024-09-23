@@ -15,7 +15,7 @@
     "watch": "rollup -wc",
     "test": "tsx --test ./test/*.ts",
     "clean": "rimraf ./dist",
-    "prepare": "npm run clean && lerna run build && lerna run test"
+    "prepare": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
