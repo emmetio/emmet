@@ -66,6 +66,11 @@ interface ResolvedConfig extends BaseConfig {
      * new object.
      */
     cache?: Cache;
+
+    /**
+     * A callback for internal warnings or errors (for example, when parsing invalid abbreviation)
+     */
+    warn?: (message: string, err?: Error) => void
 }
 
 export type Config = ResolvedConfig & { options: Options };

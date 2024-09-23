@@ -14,4 +14,14 @@ describe('Snippets', () => {
     it('XSL', () => {
         Object.keys(xsl).forEach(k => ok(markup(xsl[k]), k));
     });
+
+    it('Invalid snippets', () => {
+        const snippets = {
+            invalid: 'invalid snippet',
+            valid: 'button'
+        }
+
+        const result = expand('invalid+valid', { snippets })
+        equal(result, '<invalid></invalid>\n<button></button>')
+    });
 });

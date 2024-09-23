@@ -15,6 +15,7 @@ import type { Config } from '../config.js';
 export default function resolveSnippets(abbr: Abbreviation, config: Config): Abbreviation {
     const stack: string[] = [];
     const reversed = config.options['output.reverseAttributes'];
+    const { warn } = config;
 
     const resolve = (child: AbbreviationNode): Abbreviation | null => {
         const snippet = child.name && config.snippets[child.name];
@@ -26,7 +27,15 @@ export default function resolveSnippets(abbr: Abbreviation, config: Config): Abb
             return null;
         }
 
-        const snippetAbbr = parse(snippet, config);
+        let snippetAbbr: Abbreviation;
+        try {
+            // User may add invlid snippet. In this case, silently bail out
+            snippetAbbr = parse(snippet, config);
+        } catch (err) {
+            warn?.(`Unable to parse "${snippet}" snippet`, err);
+            return null;
+        }
+
         stack.push(snippet);
         walkResolve(snippetAbbr, resolve, config);
         stack.pop();
