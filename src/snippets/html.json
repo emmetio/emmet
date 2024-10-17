@@ -18,7 +18,7 @@
 	"link": "link[rel=stylesheet href]/",
 	"link:css": "link[href='${1:style}.css']",
 	"link:print": "link[href='${1:print}.css' media=print]",
-	"link:favicon": "link[rel='shortcut icon' type=image/x-icon href='${1:favicon.ico}']",
+	"link:favicon": "link[rel='icon' type=image/x-icon href='${1:favicon.ico}']",
 	"link:mf|link:manifest": "link[rel='manifest' href='${1:manifest.json}']",
 	"link:touch": "link[rel=apple-touch-icon href='${1:favicon.png}']",
 	"link:rss": "link[rel=alternate type=application/rss+xml title=RSS href='${1:rss.xml}']",
