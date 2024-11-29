@@ -15,6 +15,7 @@
     "build": "rollup -c",
     "watch": "rollup -wc",
     "clean": "rimraf ./dist",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "keywords": [
@@ -27,12 +28,12 @@
     "@emmetio/scanner": "^1.0.4"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.1",
     "@types/node": "^22.1.0",
     "rimraf": "^6.0.1",
-    "rollup": "^4.20.0",
-    "tsx": "^4.16.5",
-    "typescript": "^5.5.4"
+    "rollup": "^4.27.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   },
   "directories": {
     "test": "test"

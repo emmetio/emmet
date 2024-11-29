@@ -2,19 +2,20 @@
   "name": "@emmetio/scanner",
   "version": "1.0.4",
   "description": "Scans given text character-by-character",
-  "main": "./scanner.cjs",
-  "module": "./scanner.js",
-  "types": "./scanner.d.ts",
+  "main": "./dist/scanner.cjs",
+  "module": "./dist/scanner.js",
+  "types": "./dist/scanner.d.ts",
   "type": "module",
   "exports": {
-    "import": "./scanner.js",
-    "require": "./scanner.cjs"
+    "import": "./dist/scanner.js",
+    "require": "./dist/scanner.cjs"
   },
   "scripts": {
     "test": "tsx --test ./test/*.ts",
     "build": "rollup -c",
     "watch": "rollup -wc",
     "clean": "rimraf ./scanner.* ./*.d.ts",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "repository": {
@@ -33,11 +34,11 @@
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@types/node": "^22.1.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.1",
     "rimraf": "^6.0.1",
-    "rollup": "^4.20.0",
-    "tsx": "^4.16.5",
-    "typescript": "^5.5.4"
+    "rollup": "^4.27.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

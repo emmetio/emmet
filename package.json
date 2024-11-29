@@ -15,7 +15,8 @@
     "watch": "rollup -wc",
     "test": "tsx --test ./test/*.ts",
     "clean": "rimraf ./dist",
-    "prepare": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -39,14 +40,14 @@
     "@emmetio/css-abbreviation": "^2.1.8"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "@types/node": "^22.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^22.10.1",
     "lerna": "^8.1.7",
     "rimraf": "^6.0.1",
-    "rollup": "^4.20.0",
-    "tsx": "^4.16.5",
-    "typescript": "^5.5.4"
+    "rollup": "^4.27.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   },
   "workspaces": [
     "./packages/scanner",

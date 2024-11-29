@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig",
-  "ts-node": {
-    "transpileOnly": true,
-    "files": true
+  "compilerOptions": {
+    "outDir": "./dist"
   },
   "include": ["src"]
 }
