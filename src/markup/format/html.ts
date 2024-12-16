@@ -82,6 +82,14 @@ function element(node: AbbreviationNode, index: number, items: AbbreviationNode[
             pushString(out, `</${name}>`);
             commentNodeAfter(node, state);
         }
+    } else if (config.options['jsx.enabled'] && !node.name) {
+        // Handle JSX fragment
+        pushString(out, '<>');
+        if (!pushSnippet(node, state, next) && node.value) {
+            pushTokens(node.value, state);
+            node.children.forEach(next);
+        }
+        pushString(out, '</>');
     } else if (!pushSnippet(node, state, next) && node.value) {
         // A text-only node (snippet)
         pushTokens(node.value, state);
