@@ -105,9 +105,14 @@ describe('Parser', () => {
         // Elements with attributes
         equal(str('div[foo=bar]'), '<div foo=bar></div>');
         equal(str('div.a[b=c]'), '<div class=a b=c></div>');
+        equal(str('div.mr-\\[500\\][a=b]'), '<div class=mr-[500] a=b></div>');
         equal(str('div[b=c].a'), '<div b=c class=a></div>');
         equal(str('div[a=b][c="d"]'), '<div a=b c="d"></div>');
         equal(str('[b=c]'), '<? b=c></?>');
+        equal(str('.a\\[b-c\\]'), '<? class=a[b-c]></?>');
+        equal(str('."a:[b-c]"'), '<? class=a:[b-c]></?>');
+        equal(str('."peer-[.is-dirty]:peer-required:block"'), '<? class=peer-[.is-dirty]:peer-required:block></?>');
+        equal(str('."mr-50"."peer-[:nth-of-type(3)_&]:block"'), '<? class=mr-50 class=peer-[:nth-of-type(3)_&]:block></?>');
         equal(str('.a[b=c]'), '<? class=a b=c></?>');
         equal(str('[b=c].a#d'), '<? b=c class=a id=d></?>');
         equal(str('[b=c]a'), '<? b=c></?><a></a>', 'Do not consume node name after attribute set');

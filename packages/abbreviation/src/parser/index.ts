@@ -181,6 +181,8 @@ function shortAttribute(scanner: TokenScanner, type: 'class' | 'id', options: Pa
         if (options.jsx && text(scanner)) {
             attr.value = getText(scanner);
             attr.expression = true;
+        } else if (quoted(scanner)) {
+            attr.value = slice(scanner, scanner.start + 1, scanner.pos - 1) as ValueToken[];
         } else {
             attr.value = literal(scanner) ? slice(scanner) as ValueToken[] : void 0;
         }
