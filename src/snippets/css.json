@@ -202,6 +202,7 @@
   "pbe": "padding-block-end",
   "pis": "padding-inline-start",
   "pie": "padding-inline-end",
+  "sb": "scroll-behavior",
   "spbs": "scroll-padding-block-start",
   "spbe": "scroll-padding-block-end",
   "spis": "scroll-padding-inline-start",
