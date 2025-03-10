@@ -16,6 +16,7 @@
 	"animps": "animation-play-state:running|paused",
 	"animtf": "animation-timing-function:linear|ease|ease-in|ease-out|ease-in-out|cubic-bezier(${1:0.1}, ${2:0.7}, ${3:1.0}, ${3:0.1})",
 	"ap": "appearance:none",
+	"ar": "aspect-ratio",
 	"as": "align-self:start|end|auto|flex-start|flex-end|center|baseline|stretch",
 	"b": "bottom",
 	"bd": "border:${1:1px} ${2:solid} ${3:#000}",
