@@ -196,7 +196,7 @@
 	"pgbb": "page-break-before:auto|always|left|right",
 	"pgbi": "page-break-inside:auto|avoid",
 	"pl": "padding-left",
-	"pos": "position:relative|absolute|relative|fixed|static",
+	"pos": "position:relative|absolute|relative|fixed|static|sticky",
 	"pr": "padding-right",
 	"pt": "padding-top",
   "pbs": "padding-block-start",
