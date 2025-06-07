@@ -15,8 +15,7 @@
     "watch": "rollup -wc",
     "test": "tsx --test ./test/*.ts",
     "clean": "rimraf ./dist",
-    "prepublishOnly": "npm run clean && npm run build",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
