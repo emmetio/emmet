@@ -26,5 +26,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm run build --workspaces
+    - run: npm run build --workspace=scanner
+    - run: npm run build --workspace=abbreviation
+    - run: npm run build --workspace=css-abbreviation
+    - run: npm run build
     - run: npm test
