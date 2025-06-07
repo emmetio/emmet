@@ -14,9 +14,8 @@
     "test": "tsx --test ./test/*.ts",
     "build": "rollup -c",
     "watch": "rollup -wc",
-    "clean": "rimraf ./scanner.* ./*.d.ts",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "clean": "rm ./scanner.* ./*.d.ts",
+    "prepublishOnly": "npm test && npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -32,13 +31,5 @@
   "bugs": {
     "url": "https://github.com/emmetio/emmet/issues"
   },
-  "homepage": "https://github.com/emmetio/emmet#readme",
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@types/node": "^22.10.1",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.27.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
-  }
+  "homepage": "https://github.com/emmetio/emmet#readme"
 }

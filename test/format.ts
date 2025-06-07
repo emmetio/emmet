@@ -129,7 +129,7 @@ describe('Format', () => {
 
         it('format specific nodes', () => {
             equal(format('{<!DOCTYPE html>}+html>(head>meta[charset=${charset}]/+title{${1:Document}})+body', field),
-                '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="UTF-8">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
+                '<!DOCTYPE html>\n<html>\n<head>\n\t<meta charset="utf-8">\n\t<title>${2:Document}</title>\n</head>\n<body>\n\t${3}\n</body>\n</html>');
         });
 
         it('comment', () => {

@@ -82,7 +82,7 @@ describe('Expand Abbreviation', () => {
         it('custom variables', () => {
             const variables = { charset: 'ru-RU' };
 
-            equal(expand('[charset=${charset}]{${charset}}'), '<div charset="UTF-8">UTF-8</div>');
+            equal(expand('[charset=${charset}]{${charset}}'), '<div charset="utf-8">utf-8</div>');
             equal(expand('[charset=${charset}]{${charset}}', { variables }), '<div charset="ru-RU">ru-RU</div>');
         });
 
@@ -206,7 +206,7 @@ describe('Expand Abbreviation', () => {
     describe('Pug templates', () => {
         const config = resolveConfig({ syntax: 'pug' });
         it('basic', () => {
-            equal(expand('!', config), 'doctype html\nhtml(lang="en")\n\thead\n\t\tmeta(charset="UTF-8")\n\t\tmeta(name="viewport", content="width=device-width, initial-scale=1.0")\n\t\ttitle Document\n\tbody ');
+            equal(expand('!', config), 'doctype html\nhtml(lang="en")\n\thead\n\t\tmeta(charset="utf-8")\n\t\tmeta(name="viewport", content="width=device-width, initial-scale=1.0")\n\t\ttitle Document\n\tbody ');
         });
     });
 });
