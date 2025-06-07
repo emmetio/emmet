@@ -302,7 +302,7 @@ function insertHref(node: AbbreviationNode, text: string) {
     if (urlRegex.test(text)) {
         href = text;
         if (!/\w+:/.test(href) && !href.startsWith('//')) {
-            href = `http://${href}`;
+            href = `https://${href}`;
         }
     } else if (emailRegex.test(text)) {
         href = `mailto:${text}`;
