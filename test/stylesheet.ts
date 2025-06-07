@@ -262,7 +262,7 @@ describe('Stylesheet abbreviations', () => {
     it('Logical Properties', () => {
 
         equal(expand('bbs'),'border-block-start: ${0};');
-        equal(expand('bbe"'),'border-block-end: "";');
+        equal(expand('bbe'),'border-block-end: ${0};');
         equal(expand('bis'),'border-inline-start: ${0};');
         equal(expand('bie'),'border-inline-end: ${0};');
         equal(expand('bs'),'block-size: ${0};');
