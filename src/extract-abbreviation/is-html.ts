@@ -1,6 +1,6 @@
-import { isQuote, consumeQuoted } from './quotes.js';
-import { BackwardScanner, consume, sol, consumeWhile, peek } from './reader.js';
-import { Brackets, bracePairs } from './brackets.js';
+import { isQuote, consumeQuoted } from './quotes';
+import { type BackwardScanner, consume, sol, consumeWhile, peek } from './reader';
+import { Brackets, bracePairs } from './brackets';
 
 const enum Chars {
     Tab = 9,

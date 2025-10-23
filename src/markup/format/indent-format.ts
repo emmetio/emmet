@@ -1,8 +1,8 @@
 import type { AbbreviationNode, AbbreviationAttribute, Value, Abbreviation } from '@emmetio/abbreviation';
-import { pushString, pushNewline, push, attrName, isBooleanAttribute, attrQuote } from '../../output-stream.js';
-import { pushTokens, caret, splitByLines, isSnippet, shouldOutputAttribute } from './utils.js';
-import walk, { WalkState, createWalkState, type WalkNext } from './walk.js';
-import type { Config } from '../../config.js';
+import { pushString, pushNewline, push, attrName, isBooleanAttribute, attrQuote } from '../../output-stream';
+import { pushTokens, caret, splitByLines, isSnippet, shouldOutputAttribute } from './utils';
+import walk, { type WalkState, createWalkState, type WalkNext } from './walk';
+import type { Config } from '../../config';
 
 /**
  * @description Utility methods for working with indent-based markup languages

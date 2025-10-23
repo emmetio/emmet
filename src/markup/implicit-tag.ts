@@ -1,7 +1,7 @@
 import type { AbbreviationNode } from '@emmetio/abbreviation';
-import { isNode, type Container } from './utils.js';
-import type { Config } from '../config.js';
-import { isInline } from '../output-stream.js';
+import { isNode, type Container } from './utils';
+import type { Config } from '../config';
+import { isInline } from '../output-stream';
 
 const elementMap: { [name: string]: string } = {
     p: 'span',

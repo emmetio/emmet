@@ -1,4 +1,4 @@
-export * from './utils.js';
+export * from './utils';
 
 type MatchFn = (ch: number) => boolean;
 

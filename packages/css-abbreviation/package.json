@@ -31,14 +31,6 @@
   "dependencies": {
     "@emmetio/scanner": "^1.0.4"
   },
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^12.1.1",
-    "@types/node": "^22.10.1",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.27.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
-  },
   "directories": {
     "test": "test"
   }

@@ -1,12 +1,12 @@
 import markupAbbreviation, { type Abbreviation } from '@emmetio/abbreviation';
 import stylesheetAbbreviation, { type CSSAbbreviation } from '@emmetio/css-abbreviation';
-import parseMarkup, { stringify as stringifyMarkup } from './markup/index.js';
+import parseMarkup, { stringify as stringifyMarkup } from './markup';
 import parseStylesheet, {
     stringify as stringifyStylesheet,
     convertSnippets as parseStylesheetSnippets,
     CSSAbbreviationScope
-} from './stylesheet/index.js';
-import resolveConfig, { type UserConfig, type Config } from './config.js';
+} from './stylesheet';
+import resolveConfig, { type UserConfig, type Config } from './config';
 
 export default function expandAbbreviation(abbr: string, config?: UserConfig): string {
     const resolvedConfig = resolveConfig(config);
@@ -41,6 +41,6 @@ export {
 export type {
     Abbreviation as MarkupAbbreviation, CSSAbbreviation as StylesheetAbbreviation,
 };
-export { default as extract, type ExtractOptions, type ExtractedAbbreviation } from './extract-abbreviation/index.js';
-export { default as resolveConfig } from './config.js';
-export type { GlobalConfig, SyntaxType, Config, UserConfig, Options, AbbreviationContext} from './config.js';
+export { default as extract, type ExtractOptions, type ExtractedAbbreviation } from './extract-abbreviation';
+export { default as resolveConfig } from './config';
+export type { GlobalConfig, SyntaxType, Config, UserConfig, Options, AbbreviationContext} from './config';

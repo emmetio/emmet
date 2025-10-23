@@ -1,5 +1,5 @@
 import type { AbbreviationAttribute, AbbreviationNode } from '@emmetio/abbreviation';
-import type { Config, Options, StringCase } from './config.js';
+import type { Config, Options, StringCase } from './config';
 
 export interface OutputStream {
     options: Options;

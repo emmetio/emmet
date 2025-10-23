@@ -1,6 +1,6 @@
 import type { AbbreviationNode, Value } from '@emmetio/abbreviation';
-import type { Container } from '../utils.js';
-import type { Config, AbbreviationContext } from '../../config.js';
+import type { Container } from '../utils';
+import type { Config, AbbreviationContext } from '../../config';
 
 interface BEMAbbreviationNode extends AbbreviationNode {
     _bem?: BEMData;

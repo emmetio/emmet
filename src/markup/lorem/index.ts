@@ -1,7 +1,7 @@
 import type { AbbreviationNode, Repeater } from '@emmetio/abbreviation';
-import type { Container } from '../utils.js';
-import type { Config } from '../../config.js';
-import { resolveImplicitTag } from '../implicit-tag.js';
+import type { Container } from '../utils';
+import type { Config } from '../../config';
+import { resolveImplicitTag } from '../implicit-tag';
 import latin from './latin.json' assert { type: 'json' };
 import ru from './russian.json' assert { type: 'json' };
 import sp from './spanish.json' assert { type: 'json' };

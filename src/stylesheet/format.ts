@@ -1,7 +1,7 @@
-import { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emmetio/css-abbreviation';
-import createOutputStream, { OutputStream, push, pushString, pushField, pushNewline } from '../output-stream.js';
-import { Config } from '../config.js';
-import color, { frac } from './color.js';
+import type { CSSAbbreviation, CSSProperty, Value, CSSValue, NumberValue } from '@emmetio/css-abbreviation';
+import createOutputStream, { type OutputStream, push, pushString, pushField, pushNewline } from '../output-stream';
+import type { Config } from '../config';
+import color, { frac } from './color';
 
 export const CSSAbbreviationScope = {
     /** Include all possible snippets in match */

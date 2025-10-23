@@ -1,12 +1,12 @@
 import { ScannerError } from '@emmetio/scanner';
-import parse, { type TokenGroup } from './parser/index.js';
-import tokenize, { getToken, type AllTokens } from './tokenizer/index.js';
-import convert from './convert.js';
-import type { ParserOptions } from './types.js';
+import parse, { type TokenGroup } from './parser';
+import tokenize, { getToken, type AllTokens } from './tokenizer';
+import convert from './convert';
+import type { ParserOptions } from './types';
 
 export { parse, tokenize, getToken, convert };
-export * from './tokenizer/tokens.js';
-export * from './types.js';
+export * from './tokenizer/tokens';
+export * from './types';
 export type MarkupAbbreviation = TokenGroup;
 
 /**

@@ -1,7 +1,8 @@
-import { TokenGroup, TokenStatement, TokenElement, TokenAttribute, isQuote, isBracket } from './parser/index.js';
-import { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, Value, AbbreviationAttribute, AttributeType } from './types.js';
-import { Repeater, ValueToken, Quote, Field } from './tokenizer/index.js';
-import stringify from './stringify.js';
+import { isQuote, isBracket } from './parser';
+import type { TokenGroup, TokenStatement, TokenElement, TokenAttribute } from './parser';
+import type { Abbreviation, ParserOptions, AbbreviationNode, ConvertState, Value, AbbreviationAttribute, AttributeType } from './types';
+import type { Repeater, ValueToken, Quote, Field } from './tokenizer';
+import stringify from './stringify';
 
 const urlRegex = /^((https?:|ftp:|file:)?\/\/|(www|ftp)\.)[^ ]*$/;
 const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,5}$/;

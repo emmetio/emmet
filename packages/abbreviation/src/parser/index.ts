@@ -1,6 +1,6 @@
-import type { NameToken, ValueToken, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer/index.js';
-import tokenScanner, { TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner.js';
-import type { ParserOptions } from '../types.js';
+import type { NameToken, ValueToken, Repeater, AllTokens, BracketType, Bracket, Operator, OperatorType, Quote, WhiteSpace, Literal } from '../tokenizer';
+import tokenScanner, { type TokenScanner, peek, consume, readable, next, error, slice } from './TokenScanner';
+import type { ParserOptions } from '../types';
 
 export type TokenStatement = TokenElement | TokenGroup;
 
