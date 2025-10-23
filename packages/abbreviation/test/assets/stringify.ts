@@ -1,5 +1,5 @@
-import type { AllTokens, Repeater, RepeaterNumber, Field, OperatorType, Operator, Bracket, Quote, Literal } from '../../src/tokenizer/index.js';
-import type { TokenElement, TokenAttribute, TokenGroup, TokenStatement } from '../../src/parser/index.js';
+import type { AllTokens, Repeater, RepeaterNumber, Field, OperatorType, Operator, Bracket, Quote, Literal } from '../../src/tokenizer';
+import type { TokenElement, TokenAttribute, TokenGroup, TokenStatement } from '../../src/parser';
 
 type TokenVisitor = <T extends AllTokens>(token: T) => string;
 interface TokenVisitorMap {

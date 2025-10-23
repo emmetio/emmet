@@ -1,4 +1,4 @@
-import type Scanner from './scanner.js';
+import type Scanner from './scanner';
 
 interface QuotedOptions {
     /** A character code of quote-escape symbol */

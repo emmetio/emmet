@@ -10,8 +10,9 @@
     "declaration": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "newLine": "LF",
     "outDir": "./dist"
   },

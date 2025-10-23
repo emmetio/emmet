@@ -1,5 +1,5 @@
 import type { AbbreviationAttribute, AbbreviationNode } from '@emmetio/abbreviation';
-import { find } from '../utils.js';
+import { find } from '../utils';
 
 /**
  * Preprocessor of `<label>` element: if it contains `<input>`, remove `for` attribute

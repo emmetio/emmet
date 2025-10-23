@@ -3,19 +3,22 @@
   "version": "2.4.11",
   "description": "Emmet — the essential toolkit for web-developers",
   "main": "./dist/emmet.cjs",
-  "module": "./dist/emmet.es.js",
+  "module": "./dist/emmet.js",
   "types": "./dist/index.d.ts",
   "type": "module",
   "exports": {
-    "import": "./dist/emmet.es.js",
+    "import": "./dist/emmet.js",
     "require": "./dist/emmet.cjs"
   },
   "scripts": {
     "build": "rollup -c",
+    "build:packages": "npm run build --if-present --workspaces",
+    "build:full": "npm run build:packages && npm run build",
     "watch": "rollup -wc",
     "test": "tsx --test ./test/*.ts",
+    "test:all": "npm run test --workspaces && npm run test",
     "clean": "rimraf ./dist",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build:full"
   },
   "repository": {
     "type": "git",
@@ -34,24 +37,21 @@
     "url": "https://github.com/emmetio/emmet/issues"
   },
   "homepage": "https://github.com/emmetio/emmet#readme",
-  "dependencies": {
-    "@emmetio/abbreviation": "^2.3.3",
-    "@emmetio/css-abbreviation": "^2.1.8"
-  },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
-    "@types/node": "^22.10.1",
-    "lerna": "^8.2.2",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.42.0",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "@emmetio/abbreviation": "workspace:",
+    "@emmetio/css-abbreviation": "workspace:",
+    "@rollup/plugin-node-resolve": "16.0.3",
+    "@rollup/plugin-typescript": "12.2.0",
+    "@types/node": "22.10.1",
+    "lerna": "9.0.0",
+    "rimraf": "6.0.1",
+    "rollup": "4.52.5",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
   },
   "workspaces": [
     "./packages/scanner",
     "./packages/abbreviation",
-    "./packages/css-abbreviation",
-    "./"
+    "./packages/css-abbreviation"
   ]
 }

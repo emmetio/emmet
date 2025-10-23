@@ -1,13 +1,13 @@
 import abbreviation from '@emmetio/css-abbreviation';
 import type { CSSAbbreviation, CSSProperty, CSSValue, Literal, Value, Field, FunctionCall } from '@emmetio/css-abbreviation';
-import { Config, SnippetsMap } from '../config.js';
-import createSnippet, { nest, CSSSnippetType } from './snippets.js';
-import type { CSSSnippet, CSSSnippetRaw, CSSSnippetProperty } from './snippets.js';
-import calculateScore from './score.js';
-import color from './color.js';
-import { CSSAbbreviationScope } from './format.js';
+import type { Config, SnippetsMap } from '../config';
+import createSnippet, { nest, CSSSnippetType } from './snippets';
+import type { CSSSnippet, CSSSnippetRaw, CSSSnippetProperty } from './snippets';
+import calculateScore from './score';
+import color from './color';
+import { CSSAbbreviationScope } from './format';
 
-export { default as stringify, CSSAbbreviationScope } from './format.js';
+export { default as stringify, CSSAbbreviationScope } from './format';
 
 type MatchInput = CSSSnippet | string;
 

@@ -6,7 +6,7 @@ export default {
     input: './src/index.ts',
     plugins: [nodeResolve(), json(), typescript()],
     output: [{
-        file: './dist/emmet.es.js',
+        file: './dist/emmet.js',
         format: 'es',
         sourcemap: true
     }, {

@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [20.x, 22.x, 24.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -26,8 +26,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: npm run build --workspace=scanner
-    - run: npm run build --workspace=abbreviation
-    - run: npm run build --workspace=css-abbreviation
-    - run: npm run build
-    - run: npm test
+    - run: npm run build:full
+    - run: npm test:all
