@@ -58,7 +58,7 @@ describe('Convert token abbreviations', () => {
 
     it('href', () => {
         equal(parse('a', { href: true, text: 'https://www.google.it' }), '<a href="https://www.google.it">https://www.google.it</a>');
-        equal(parse('a', { href: true, text: 'www.google.it' }), '<a href="http://www.google.it">www.google.it</a>');
+        equal(parse('a', { href: true, text: 'www.google.it' }), '<a href="https://www.google.it">www.google.it</a>');
         equal(parse('a', { href: true, text: 'google.it' }), '<a href="">google.it</a>');
         equal(parse('a', { href: true, text: 'test here' }), '<a href="">test here</a>');
         equal(parse('a', { href: true, text: 'test@domain.com' }), '<a href="mailto:test@domain.com">test@domain.com</a>');
@@ -66,14 +66,14 @@ describe('Convert token abbreviations', () => {
         equal(parse('a', { href: true, text: 'test here www.domain.com' }), '<a href="">test here www.domain.com</a>');
 
         equal(parse('a[href=]', { href: true, text: 'https://www.google.it' }), '<a href="https://www.google.it">https://www.google.it</a>');
-        equal(parse('a[href=]', { href: true, text: 'www.google.it' }), '<a href="http://www.google.it">www.google.it</a>');
+        equal(parse('a[href=]', { href: true, text: 'www.google.it' }), '<a href="https://www.google.it">www.google.it</a>');
         equal(parse('a[href=]', { href: true, text: 'google.it' }), '<a href="">google.it</a>');
         equal(parse('a[href=]', { href: true, text: 'test here' }), '<a href="">test here</a>');
         equal(parse('a[href=]', { href: true, text: 'test@domain.com' }), '<a href="mailto:test@domain.com">test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here test@domain.com' }), '<a href="">test here test@domain.com</a>');
         equal(parse('a[href=]', { href: true, text: 'test here www.domain.com' }), '<a href="">test here www.domain.com</a>');
         equal(parse('a[class=here]', { href: true, text: 'test@domain.com' }), '<a class="here", href="mailto:test@domain.com">test@domain.com</a>');
-        equal(parse('a.here', { href: true, text: 'www.domain.com' }), '<a class="here", href="http://www.domain.com">www.domain.com</a>');
+        equal(parse('a.here', { href: true, text: 'www.domain.com' }), '<a class="here", href="https://www.domain.com">www.domain.com</a>');
         equal(parse('a[class=here]', { href: true, text: 'test here test@domain.com' }), '<a class="here", href="">test here test@domain.com</a>');
         equal(parse('a.here', { href: true, text: 'test here www.domain.com' }), '<a class="here", href="">test here www.domain.com</a>');
 
