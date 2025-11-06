@@ -1,0 +1,228 @@
+/* Emmet LSP CSS Abbreviations Demo */
+/* Try typing these abbreviations and watch the real-time tracking */
+
+/* Basic Properties */
+/* Try: m10 → margin: 10px; */
+/* Try: p5 → padding: 5px; */
+/* Try: w100p → width: 100%; */
+/* Try: h50vh → height: 50vh; */
+
+.container {
+    /* Try: m0+p20+w100p+h100vh */
+    margin: 0;
+    padding: 20px;
+    width: 100%;
+    height: 100vh;
+}
+
+/* Flexbox Properties */
+/* Try: df+aic+jcc → display: flex; align-items: center; justify-content: center; */
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Try: fdc+g10 → flex-direction: column; gap: 10px; */
+.flex-column {
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Background and Colors */
+/* Try: bg#ff0000 → background: #ff0000; */
+/* Try: c#333+bgc#f5f5f5 → color: #333; background-color: #f5f5f5; */
+.colored-box {
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+/* Try: bg:url(image.jpg)+bgr:nr+bgs:cover+bgp:center */
+.hero-section {
+    background: url(hero-image.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Typography */
+/* Try: fz16+fw700+lh1.5+ta:center */
+.heading {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Try: ff:arial+fz14+c#666 */
+.body-text {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #666;
+}
+
+/* Positioning */
+/* Try: pos:rel+t10+l20+z100 */
+.positioned-element {
+    position: relative;
+    top: 10px;
+    left: 20px;
+    z-index: 100;
+}
+
+/* Try: pos:abs+t0+r0+b0+l0 */
+.overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+/* Border and Border Radius */
+/* Try: bd1px:solid:#ccc+bdrs5 */
+.card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Try: bdt2px:dashed:#red+bdb2px:solid:#blue */
+.mixed-borders {
+    border-top: 2px dashed red;
+    border-bottom: 2px solid blue;
+}
+
+/* Box Shadow and Transitions */
+/* Try: bxsh:0:2px:4px:rgba(0,0,0,0.1) */
+.shadow-box {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Try: trs:all:0.3s:ease+op0.8 */
+.fade-element {
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+/* Try: trs:transform:0.2s:cubic-bezier(0.4,0,0.2,1) */
+.smooth-transform {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Grid Layout */
+/* Try: d:grid+gtc:repeat(3,1fr)+g20 */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Try: gcs2+gce4+grs1+gre3 */
+.grid-item-span {
+    grid-column-start: 2;
+    grid-column-end: 4;
+    grid-row-start: 1;
+    grid-row-end: 3;
+}
+
+/* Media Queries */
+/* Try: @media(max-width:768px) */
+@media (max-width: 768px) {
+    .responsive-element {
+        /* Try: fz12+p10+mb20 */
+        font-size: 12px;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+}
+
+/* Animation */
+/* Try: @keyframes+fadeIn */
+@keyframes fadeIn {
+    /* Try: 0%{op0}+100%{op1} */
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Try: anim:fadeIn:1s:ease-in-out */
+.animated-element {
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Transform Properties */
+/* Try: tf:rotate(45deg)+scale(1.2)+translate(10px,20px) */
+.transformed-element {
+    transform: rotate(45deg) scale(1.2) translate(10px, 20px);
+}
+
+/* Try: tf:translateX(100%)+rotateY(180deg) */
+.complex-transform {
+    transform: translateX(100%) rotateY(180deg);
+}
+
+/* CSS Custom Properties (Variables) */
+:root {
+    /* Try: --primary-color:#007acc */
+    --primary-color: #007acc;
+    /* Try: --spacing-unit:8px */
+    --spacing-unit: 8px;
+    /* Try: --font-size-base:16px */
+    --font-size-base: 16px;
+}
+
+/* Try: c:var(--primary-color)+p:calc(var(--spacing-unit)*2) */
+.using-variables {
+    color: var(--primary-color);
+    padding: calc(var(--spacing-unit) * 2);
+}
+
+/* Advanced Selectors */
+/* Try: >li:nth-child(odd) */
+.list > li:nth-child(odd) {
+    /* Try: bgc#f9f9f9 */
+    background-color: #f9f9f9;
+}
+
+/* Try: +.sibling::before */
+.element + .sibling::before {
+    /* Try: cnt:""+d:block+w20+h20+bg#ccc */
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+}
+
+/* CSS Grid Advanced */
+/* Try: d:grid+gta:"header header header"+"sidebar main aside"+"footer footer footer"+gtc:200px:1fr:150px+gtr:auto:1fr:auto */
+.layout-grid {
+    display: grid;
+    grid-template-areas: 
+        "header header header"
+        "sidebar main aside"
+        "footer footer footer";
+    grid-template-columns: 200px 1fr 150px;
+    grid-template-rows: auto 1fr auto;
+}
+
+/* Try: ga:header */
+.header { grid-area: header; }
+/* Try: ga:sidebar */
+.sidebar { grid-area: sidebar; }
+/* Try: ga:main */
+.main { grid-area: main; }
+/* Try: ga:aside */
+.aside { grid-area: aside; }
+/* Try: ga:footer */
+.footer { grid-area: footer; }
+
+/* CSS Filter Effects */
+/* Try: filter:blur(5px)+brightness(1.2)+contrast(1.1) */
+.filtered-image {
+    filter: blur(5px) brightness(1.2) contrast(1.1);
+}
+
+/* Try: filter:drop-shadow(2px:2px:4px:rgba(0,0,0,0.3)) */
+.drop-shadow-element {
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}

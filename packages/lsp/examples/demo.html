@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmet LSP Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .demo-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+        .abbreviation { font-family: monospace; color: #007acc; font-weight: bold; }
+        .preview { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Emmet LSP Real-time Tracking Demo</h1>
+    
+    <div class="demo-section">
+        <h2>Basic HTML Structures</h2>
+        <p>Try typing these abbreviations and watch them get tracked in real-time:</p>
+        
+        <ul>
+            <li><span class="abbreviation">div.container</span> → Creates a div with class "container"</li>
+            <li><span class="abbreviation">nav>ul>li*5>a</span> → Navigation with 5 list items</li>
+            <li><span class="abbreviation">header+main+footer</span> → Basic page structure</li>
+            <li><span class="abbreviation">form>input:text+input:email+button</span> → Contact form</li>
+        </ul>
+        
+        <!-- Try typing: nav>ul>li*5>a -->
+        <!-- The LSP should track this as you type -->
+        
+        <!-- Expected expansion: -->
+        <div class="preview">
+            <nav>
+                <ul>
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                    <li><a href=""></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>Advanced Patterns</h2>
+        
+        <!-- Try typing: section.hero>div.container>h1.title+p.subtitle+button.cta -->
+        
+        <!-- Try typing: article>header>h2+time+author^^main>p*3^footer -->
+        
+        <!-- Try typing: table>thead>tr>th*4^^tbody>tr*3>td*4 -->
+    </div>
+    
+    <div class="demo-section">
+        <h2>CSS Classes and IDs</h2>
+        
+        <!-- Try typing: #header.main-header -->
+        <!-- Try typing: .card.shadow-lg.rounded -->
+        <!-- Try typing: div#app.container.mx-auto -->
+    </div>
+    
+    <div class="demo-section">
+        <h2>Form Elements</h2>
+        
+        <!-- Try typing: form.contact-form>fieldset>legend+input:text[name=fullname]+input:email[name=email]+textarea[name=message]+button:submit -->
+    </div>
+    
+    <script>
+        // Try typing JavaScript with Emmet-style abbreviations
+        // div.dynamic-content
+        
+        console.log('Emmet LSP Demo loaded');
+        
+        // The LSP should track abbreviations even in JavaScript contexts
+        // when appropriate language mapping is configured
+    </script>
+</body>
+</html>

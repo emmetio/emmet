@@ -1,0 +1,76 @@
+{
+  "name": "@emmetio/lsp-server",
+  "version": "1.0.0",
+  "description": "Language Server Protocol implementation for Emmet abbreviations with real-time tracking",
+  "main": "./dist/server.js",
+  "types": "./dist/server.d.ts",
+  "bin": {
+    "emmet-lsp": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "build:watch": "tsc -w -p .",
+    "start": "node ./dist/server.js",
+    "dev": "npm run build && npm run start",
+    "test": "node ./scripts/test-server.js",
+    "test:build": "npm run build && npm run test",
+    "clean": "rimraf ./dist",
+    "prepare": "npm run clean && npm run build",
+    "prepublishOnly": "npm run prepare",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "keywords": [
+    "emmet",
+    "lsp",
+    "language-server",
+    "language-server-protocol",
+    "abbreviation",
+    "html",
+    "css",
+    "jsx",
+    "typescript",
+    "zed",
+    "real-time",
+    "tracking"
+  ],
+  "author": "Emmet Team <hello@emmet.io>",
+  "license": "MIT",
+  "homepage": "https://emmet.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emmetio/emmet.git",
+    "directory": "packages/lsp"
+  },
+  "bugs": {
+    "url": "https://github.com/emmetio/emmet/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "vscode-uri": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "eslint": "^9.39.1",
+    "rimraf": "^6.1.0",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "emmet": "^2.4.11"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "extension.toml"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,93 @@
+id = "emmet"
+name = "Emmet"
+description = "Emmet support for HTML, CSS, and other web languages with real-time abbreviation tracking"
+version = "1.0.0"
+schema_version = 1
+authors = ["Emmet Team <hello@emmet.io>"]
+repository = "https://github.com/emmetio/emmet"
+
+[extension]
+version = "0.1.0"
+authors = ["Emmet Team"]
+description = "Emmet abbreviation expansion with real-time tracking"
+
+[language_servers.emmet-lsp]
+name = "emmet-lsp"
+language = "Emmet"
+
+[language_servers.emmet-lsp.binary]
+command = "emmet-lsp"
+args = ["--stdio"]
+
+[language_servers.emmet-lsp.initialization_options]
+showExpandedPreview = true
+showSuggestionsAsSnippets = true
+triggerExpansionOnTab = true
+showAbbreviationSuggestions = true
+
+[languages.html]
+language_servers = ["emmet-lsp", "..."]
+auto_indent_using_last_non_empty_line = true
+
+[languages.xml]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.css]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.scss]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.sass]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.less]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.stylus]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.javascript]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.typescript]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.jsx]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.tsx]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.vue]
+language_servers = ["emmet-lsp", "..."]
+
+[languages.svelte]
+language_servers = ["emmet-lsp", "..."]
+
+[settings]
+emmet.enabled = true
+emmet.showExpandedPreview = true
+emmet.showSuggestionsAsSnippets = true
+emmet.showAbbreviationSuggestions = true
+emmet.triggerExpansionOnTab = true
+emmet.useNewEmmet = true
+emmet.optimizeStylesheetParsing = true
+emmet.variables = {}
+emmet.syntaxProfiles = {}
+emmet.preferences = {
+  "css.intUnit" = "px",
+  "css.floatUnit" = "em",
+  "output.selfClosingStyle" = "html"
+}
+emmet.excludeLanguages = ["markdown"]
+emmet.extensionsPath = []
+
+[keymaps]
+"ctrl-e" = "emmet:expandAbbreviation"
+"tab" = "emmet:expandAbbreviation"
+"ctrl-shift-;" = "emmet:balanceOutward"
+"ctrl-shift-'" = "emmet:balanceInward"
+"ctrl-shift-/" = "emmet:toggleComment"
+"ctrl-shift-y" = "emmet:evaluateMath"
+"ctrl-shift-w" = "emmet:wrapWithAbbreviation"
