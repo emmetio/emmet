@@ -24,6 +24,7 @@
 	"link:rss": "link[rel=alternate type=application/rss+xml title=RSS href='${1:rss.xml}']",
 	"link:atom": "link[rel=alternate type=application/atom+xml title=Atom href='${1:atom.xml}']",
 	"link:im|link:import": "link[rel=import href='${1:component}.html']",
+  "link:preload": "link[rel=preload href='${1}' as='${2}']/",
 	"meta": "meta/",
 	"meta:utf": "meta[http-equiv=Content-Type content='text/html;charset=UTF-8']",
 	"meta:vp": "meta[name=viewport content='width=${1:device-width}, initial-scale=${2:1.0}']",
