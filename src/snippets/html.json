@@ -1,7 +1,7 @@
 {
 	"a": "a[href]",
-	"a:blank": "a[href='http://${0}' target='_blank' rel='noopener noreferrer']",
-	"a:link": "a[href='http://${0}']",
+	"a:blank": "a[href='https://${0}' target='_blank' rel='noopener noreferrer']",
+	"a:link": "a[href='https://${0}']",
 	"a:mail": "a[href='mailto:${0}']",
 	"a:tel": "a[href='tel:+${0}']",
 	"abbr": "abbr[title]",
