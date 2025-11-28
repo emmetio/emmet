@@ -65,6 +65,8 @@
   "bbe|bdble": "border-block-end",
   "bdis": "border-inline-start",
   "bdie": "border-inline-end",
+  "bbs": "border-block-start",
+  "bbe": "border-block-end",
 	"bfv": "backface-visibility:hidden|visible",
 	"bg": "background:${1:#000}",
 	"bg:n": "background: none",
