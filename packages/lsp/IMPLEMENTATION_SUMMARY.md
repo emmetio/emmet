@@ -138,11 +138,10 @@ Each supported language has:
 
 ## Testing and Quality Assurance
 
-### Test Suite (`scripts/test-server.js`)
-- Automated LSP client simulation
-- Tests all major abbreviation types
-- Validates real-time tracking behavior
-- Performance and memory leak testing
+### Test Suite (`test/*.ts`, run with `npm test`)
+- Unit tests for abbreviation tracking: extraction, debouncing, per-document state, comment/string guards
+- Unit tests for completions: markup and stylesheet expansion, settings, trigger-character suggestions
+- Protocol tests that spawn the server over stdio and check capabilities, completions and custom requests
 
 ### Code Quality
 - ESLint configuration with TypeScript rules

@@ -12,8 +12,8 @@
   },
   "scripts": {
     "build": "rollup -c",
-    "build:packages": "npm run build --if-present --workspaces",
-    "build:full": "npm run build:packages && npm run build",
+    "build:packages": "npm run build --if-present --workspace=@emmetio/scanner --workspace=@emmetio/abbreviation --workspace=@emmetio/css-abbreviation",
+    "build:full": "npm run build:packages && npm run build && npm run build --workspace=@emmetio/lsp-server",
     "watch": "rollup -wc",
     "test": "tsx --test ./test/*.ts",
     "test:all": "npm run test --workspaces && npm run test",
@@ -52,6 +52,7 @@
   "workspaces": [
     "./packages/scanner",
     "./packages/abbreviation",
-    "./packages/css-abbreviation"
+    "./packages/css-abbreviation",
+    "./packages/lsp"
   ]
 }

@@ -12,11 +12,9 @@
     "build:watch": "tsc -w -p .",
     "start": "node ./dist/server.js",
     "dev": "npm run build && npm run start",
-    "test": "node ./scripts/test-server.js",
-    "test:build": "npm run build && npm run test",
+    "test": "tsx --test ./test/*.ts",
     "clean": "rimraf ./dist",
-    "prepare": "npm run clean && npm run build",
-    "prepublishOnly": "npm run prepare",
+    "prepublishOnly": "npm run clean && npm run build",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix"
   },
@@ -59,6 +57,7 @@
     "@typescript-eslint/parser": "^8.46.3",
     "eslint": "^9.39.1",
     "rimraf": "^6.1.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {

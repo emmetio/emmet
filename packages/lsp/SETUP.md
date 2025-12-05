@@ -316,16 +316,21 @@ If you want to contribute or modify the server:
 ### 1. Clone and Setup
 ```bash
 git clone https://github.com/emmetio/emmet.git
-cd emmet/packages/lsp
+cd emmet
 npm install
+
+# The server imports the root `emmet` package, so build the monorepo once
+npm run build:full
 ```
 
 ### 2. Development Workflow
 ```bash
+cd packages/lsp
+
 # Build and watch for changes
 npm run build:watch
 
-# In another terminal, test changes
+# Run the test suite (unit + protocol tests, straight from TypeScript sources)
 npm run test
 
 # Lint code
