@@ -10,7 +10,7 @@ import {
     MarkupKind
 } from 'vscode-languageserver/node';
 
-import expandAbbreviation, { extract, type UserConfig } from '../../..';
+import expandAbbreviation, { extract, resolveConfig, type UserConfig } from '../../..';
 import { EmmetSettings, EmmetCompletionData, LANGUAGE_CONFIG_MAP, SupportedLanguage, EmmetSyntax } from './types';
 import { abbreviationTracker } from './abbreviation-tracker';
 
@@ -22,14 +22,30 @@ const LANGUAGE_NAMES: Record<string, string> = {
 
 const COMMON_CLASSES = ['container', 'wrapper', 'content', 'header', 'footer', 'main', 'sidebar'];
 const COMMON_IDS = ['app', 'main', 'content', 'header', 'footer', 'nav', 'sidebar'];
-const CSS_ABBREVIATIONS = [
-    { abbr: 'm', prop: 'margin' }, { abbr: 'p', prop: 'padding' },
-    { abbr: 'w', prop: 'width' }, { abbr: 'h', prop: 'height' },
-    { abbr: 'bg', prop: 'background' }, { abbr: 'c', prop: 'color' },
-    { abbr: 'd', prop: 'display' }, { abbr: 'pos', prop: 'position' },
-    { abbr: 'f', prop: 'font' }, { abbr: 'ta', prop: 'text-align' }
-];
 const COMMON_ELEMENTS = ['div', 'span', 'p', 'a', 'img', 'ul', 'li', 'h1', 'h2', 'h3'];
+
+/**
+ * Property name of a stylesheet snippet, if it defines one: snippets are either
+ * `property`, `property:value1|value2` or a raw CSS fragment (a comment, an
+ * at-rule) which has no property name
+ */
+function cssPropertyName(snippet: string): string | undefined {
+    const name = snippet.split(':', 1)[0]!;
+    return /^[a-z][a-z-]*$/.test(name) ? name : undefined;
+}
+
+/**
+ * Known CSS property abbreviations, derived from Emmet’s own stylesheet snippets
+ */
+const CSS_ABBREVIATIONS = Object.entries(resolveConfig({ type: 'stylesheet' }).snippets)
+    .reduce<{ abbr: string, prop: string }[]>((result, [abbr, snippet]) => {
+        const prop = cssPropertyName(snippet);
+        if (prop) {
+            result.push({ abbr, prop });
+        }
+        return result;
+    }, [])
+    .sort((a, b) => a.abbr.localeCompare(b.abbr));
 
 export class EmmetCompletionProvider {
     private readonly maxCompletions = 10;
@@ -93,7 +109,7 @@ export class EmmetCompletionProvider {
     ): CompletionItem[] {
         const basicCompletions = this.provideCompletions(document, position, settings);
         const contextCompletions = triggerCharacter
-            ? this.getContextCompletions(document, triggerCharacter)
+            ? this.getContextCompletions(document, position, triggerCharacter)
             : [];
         return this.sortAndLimitCompletions([...basicCompletions, ...contextCompletions]);
     }
@@ -149,6 +165,7 @@ export class EmmetCompletionProvider {
 
     private getContextCompletions(
         document: TextDocument,
+        position: Position,
         triggerCharacter: string
     ): CompletionItem[] {
         const syntax = this.getEmmetSyntax(document.languageId);
@@ -161,7 +178,9 @@ export class EmmetCompletionProvider {
                 if (syntax === 'markup') return this.getIdCompletions();
                 break;
             case ':':
-                if (syntax === 'stylesheet') return this.getCssPropertyCompletions();
+                if (syntax === 'stylesheet') {
+                    return this.getCssPropertyCompletions(this.getPropertyPrefix(document, position));
+                }
                 break;
             case '*':
                 return this.getMultiplierCompletions();
@@ -194,14 +213,29 @@ export class EmmetCompletionProvider {
         }));
     }
 
-    private getCssPropertyCompletions(): CompletionItem[] {
-        return CSS_ABBREVIATIONS.map((item, index) => ({
-            label: `${item.abbr}:`,
-            kind: CompletionItemKind.Property,
-            detail: `CSS: ${item.prop}`,
-            insertText: `${item.prop}: `,
-            sortText: this.getSortText(item.abbr, index + 300)
-        }));
+    /**
+     * Abbreviation typed right before the `:` trigger character, used to narrow
+     * down the full list of CSS property snippets
+     */
+    private getPropertyPrefix(document: TextDocument, position: Position): string {
+        const line = this.getLineText(document, position.line).slice(0, position.character);
+        return /([a-zA-Z-]+):$/.exec(line)?.[1]?.toLowerCase() ?? '';
+    }
+
+    private getCssPropertyCompletions(prefix: string): CompletionItem[] {
+        if (!prefix) {
+            return [];
+        }
+
+        return CSS_ABBREVIATIONS
+            .filter(item => item.abbr.startsWith(prefix))
+            .map((item, index) => ({
+                label: `${item.abbr}:`,
+                kind: CompletionItemKind.Property,
+                detail: `CSS: ${item.prop}`,
+                insertText: `${item.prop}: `,
+                sortText: this.getSortText(item.abbr, index + 300)
+            }));
     }
 
     private getMultiplierCompletions(): CompletionItem[] {

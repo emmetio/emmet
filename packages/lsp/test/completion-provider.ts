@@ -166,13 +166,41 @@ describe('Completion Provider', () => {
 
         it('adds property suggestions on colon in stylesheet', () => {
             const provider = new EmmetCompletionProvider();
-            const document = doc(':', 'css', 'file:///test.css');
-            const items = provider.provideEnhancedCompletions(document, { line: 0, character: 1 }, settings(), ':');
-            const margin = items.find(item => item.label === 'm:');
+            const document = doc('ma:', 'css', 'file:///test.css');
+            const items = provider.provideEnhancedCompletions(document, { line: 0, character: 3 }, settings(), ':');
+            const maxWidth = items.find(item => item.label === 'maw:');
 
-            ok(margin);
-            equal(margin.kind, CompletionItemKind.Property);
-            equal(margin.insertText, 'margin: ');
+            ok(maxWidth);
+            equal(maxWidth.kind, CompletionItemKind.Property);
+            equal(maxWidth.detail, 'CSS: max-width');
+            equal(maxWidth.insertText, 'max-width: ');
+        });
+
+        it('suggests properties from Emmet stylesheet snippets', () => {
+            const provider = new EmmetCompletionProvider();
+            const properties = (prefix: string) => {
+                const document = doc(`${prefix}:`, 'css', 'file:///test.css');
+                const position = { line: 0, character: prefix.length + 1 };
+                return provider.provideEnhancedCompletions(document, position, settings(), ':')
+                    .filter(item => item.kind === CompletionItemKind.Property)
+                    .map(item => `${item.label} ${item.insertText}`);
+            };
+
+            // Beyond the handful of properties the provider used to hardcode
+            ok(properties('bdrs').includes('bdrs: border-radius: '));
+            ok(properties('gtc').includes('gtc: grid-template-columns: '));
+
+            // Aliases are expanded, both halves of `op|opa` are suggested
+            deepEqual(properties('op'), ['op: opacity: ', 'opa: opacity: ']);
+
+            // Snippets that are not property declarations (a comment here) are not suggested
+            deepEqual(properties('cm'), []);
+        });
+
+        it('needs an abbreviation prefix for property suggestions', () => {
+            const provider = new EmmetCompletionProvider();
+            const document = doc(':', 'css', 'file:///test.css');
+            deepEqual(provider.provideEnhancedCompletions(document, { line: 0, character: 1 }, settings(), ':'), []);
         });
 
         it('does not mix markup and stylesheet suggestions', () => {
