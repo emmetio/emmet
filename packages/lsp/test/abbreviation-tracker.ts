@@ -24,17 +24,14 @@ describe('Abbreviation Tracker', () => {
             const document = doc('ul>li*3');
             const tracker = await track(service, document, { line: 0, character: 7 });
 
-            ok(tracker);
-            equal(tracker.abbreviation, 'ul>li*3');
-            equal(tracker.documentUri, document.uri);
-            deepEqual(tracker.range, {
-                start: { line: 0, character: 0 },
-                end: { line: 0, character: 7 }
+            deepEqual(tracker, {
+                abbreviation: 'ul>li*3',
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 7 }
+                },
+                documentUri: document.uri
             });
-
-            // Expansion is filled in later, by the server’s validation pass
-            equal(tracker.expanded, '');
-            equal(tracker.isValid, false);
         });
 
         it('tracks abbreviation in the middle of a line', async () => {
@@ -59,6 +56,14 @@ describe('Abbreviation Tracker', () => {
             equal(tracker.range.end.line, 1);
         });
 
+        it('ignores the line ending of CRLF documents', async () => {
+            const service = new AbbreviationTrackerService(0);
+            const tracker = await track(service, doc('ul>li*3\r\nsecond'), { line: 0, character: 7 });
+
+            ok(tracker);
+            equal(tracker.abbreviation, 'ul>li*3');
+        });
+
         it('tracks stylesheet abbreviation', async () => {
             const service = new AbbreviationTrackerService(0);
             const tracker = await track(service, doc('m10', 'css', 'file:///test.css'), { line: 0, character: 3 });
@@ -78,12 +83,13 @@ describe('Abbreviation Tracker', () => {
             equal(await track(service, doc('a'), { line: 0, character: 1 }), null);
             equal(await track(service, doc(''), { line: 0, character: 0 }), null);
         });
+    });
 
-        it('falls back to stored cursor position', async () => {
+    describe('Cursor position', () => {
+        it('uses the cursor position reported by the client', async () => {
             const service = new AbbreviationTrackerService(0);
             const document = doc('ul>li*3\nsecond');
 
-            service.initializeDocument(document.uri);
             service.updateCursorPosition(document.uri, { line: 0, character: 7 });
 
             const tracker = await track(service, document);
@@ -92,40 +98,67 @@ describe('Abbreviation Tracker', () => {
             equal(tracker.range.start.line, 0);
         });
 
-        it('falls back to end of document without cursor position', async () => {
+        it('does not track without a known cursor position', async () => {
             const service = new AbbreviationTrackerService(0);
-            const tracker = await track(service, doc('first\nul>li*3'));
 
-            ok(tracker);
-            equal(tracker.abbreviation, 'ul>li*3');
-            equal(tracker.range.end.line, 1);
+            // Would otherwise pick up plain text at the end of a freshly opened
+            // document and report it as an abbreviation
+            equal(await track(service, doc('<p>Hello world')), null);
+            equal(await track(service, doc('first\nul>li*3')), null);
+        });
+
+        it('drops a cursor position the document no longer has', async () => {
+            const service = new AbbreviationTrackerService(0);
+            const document = doc('ul>li*3');
+
+            service.updateCursorPosition(document.uri, { line: 0, character: 20 });
+            equal(await track(service, document), null);
+
+            service.updateCursorPosition(document.uri, { line: 5, character: 0 });
+            equal(await track(service, document), null);
+        });
+    });
+
+    describe('Comments and strings', () => {
+        it('does not track inside comments', async () => {
+            const service = new AbbreviationTrackerService(0);
+
+            equal(await track(service, doc('<!-- ul>li*3'), { line: 0, character: 12 }), null);
+            ok(await track(service, doc('<!-- x --> ul>li*3'), { line: 0, character: 18 }));
+
+            const css = doc('/* m10', 'css', 'file:///test.css');
+            equal(await track(service, css, { line: 0, character: 6 }), null);
+
+            const js = doc('// ul>li*3', 'javascript', 'file:///test.js');
+            equal(await track(service, js, { line: 0, character: 10 }), null);
+        });
+
+        it('does not track inside strings', async () => {
+            const service = new AbbreviationTrackerService(0);
+
+            equal(await track(service, doc('<div class="ul>li*3'), { line: 0, character: 19 }), null);
+            ok(await track(service, doc('<div class="a">ul>li*3'), { line: 0, character: 22 }));
         });
     });
 
     describe('Document state', () => {
-        it('collects abbreviations per document', async () => {
+        it('keeps the abbreviation at the current cursor position', async () => {
             const service = new AbbreviationTrackerService(0);
             const document = doc('ul>li*3');
 
             equal(service.getCurrentTracker(document.uri), null);
-            deepEqual(service.getDocumentAbbreviations(document.uri), []);
 
             await track(service, document, { line: 0, character: 7 });
-
-            equal(service.getDocumentAbbreviations(document.uri).length, 1);
             equal(service.getCurrentTracker(document.uri)?.abbreviation, 'ul>li*3');
-        });
 
-        it('keeps no more than 10 abbreviations', async () => {
-            const service = new AbbreviationTrackerService(0);
-            const line = 'div'.repeat(20);
-            const document = doc(line);
+            // Tracking elsewhere replaces it instead of piling up
+            await track(service, document, { line: 0, character: 2 });
+            equal(service.getCurrentTracker(document.uri)?.abbreviation, 'ul');
+            equal(service.getStats().activeTrackers, 1);
 
-            for (let i = 3; i <= 20; i++) {
-                await track(service, document, { line: 0, character: i });
-            }
-
-            equal(service.getDocumentAbbreviations(document.uri).length, 10);
+            await track(service, document, { line: 0, character: 1 });
+            equal(service.getCurrentTracker(document.uri), null);
+            equal(service.getStats().activeTrackers, 0);
         });
 
         it('cleans up on close', async () => {
@@ -135,7 +168,7 @@ describe('Abbreviation Tracker', () => {
             await track(service, document, { line: 0, character: 7 });
             deepEqual(service.getStats(), {
                 documentsTracked: 1,
-                totalAbbreviations: 1,
+                activeTrackers: 1,
                 activeTimers: 0
             });
 
@@ -143,7 +176,7 @@ describe('Abbreviation Tracker', () => {
             equal(service.getCurrentTracker(document.uri), null);
             deepEqual(service.getStats(), {
                 documentsTracked: 0,
-                totalAbbreviations: 0,
+                activeTrackers: 0,
                 activeTimers: 0
             });
         });
@@ -160,7 +193,7 @@ describe('Abbreviation Tracker', () => {
             await sleep(80);
 
             equal(called, false);
-            equal(service.getStats().totalAbbreviations, 0);
+            equal(service.getStats().activeTrackers, 0);
         });
 
         it('debounces rapid updates', async () => {
@@ -177,36 +210,6 @@ describe('Abbreviation Tracker', () => {
 
             deepEqual(seen, ['ul>li*3']);
             equal(service.getStats().activeTimers, 0);
-        });
-    });
-
-    describe('Tracking guards', () => {
-        const service = new AbbreviationTrackerService(0);
-
-        it('enabled in plain markup', () => {
-            equal(service.isTrackingEnabled(doc('ul>li*3'), { line: 0, character: 7 }), true);
-        });
-
-        it('disabled for unsupported language', () => {
-            const document = doc('ul>li*3', 'markdown', 'file:///test.md');
-            equal(service.isTrackingEnabled(document, { line: 0, character: 7 }), false);
-        });
-
-        it('disabled inside comments', () => {
-            const html = doc('<!-- ul>li*3');
-            equal(service.isTrackingEnabled(html, { line: 0, character: 12 }), false);
-            equal(service.isTrackingEnabled(doc('<!-- x --> ul>li*3'), { line: 0, character: 18 }), true);
-
-            const css = doc('/* m10', 'css', 'file:///test.css');
-            equal(service.isTrackingEnabled(css, { line: 0, character: 6 }), false);
-
-            const js = doc('// ul>li*3', 'javascript', 'file:///test.js');
-            equal(service.isTrackingEnabled(js, { line: 0, character: 10 }), false);
-        });
-
-        it('disabled inside strings', () => {
-            equal(service.isTrackingEnabled(doc('<div class="ul>li*3'), { line: 0, character: 19 }), false);
-            equal(service.isTrackingEnabled(doc('<div class="a">ul>li*3'), { line: 0, character: 22 }), true);
         });
     });
 });

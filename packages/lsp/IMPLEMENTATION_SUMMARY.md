@@ -28,6 +28,11 @@ This document provides a comprehensive summary of the Emmet Language Server Prot
    - Language configuration mappings
    - Settings and state management types
 
+5. **Shared helpers (`src/language.ts`, `src/config.ts`, `src/syntax-context.ts`)**
+   - Language, syntax and document line helpers
+   - Emmet config built from user settings
+   - Comment and string detection used to suppress tracking
+
 ## Key Features Implemented
 
 ### 1. Real-time Abbreviation Tracking

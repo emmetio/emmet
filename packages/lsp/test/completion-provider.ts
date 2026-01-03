@@ -1,9 +1,8 @@
-import { after, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { strictEqual as equal, deepStrictEqual as deepEqual, ok } from 'node:assert';
 import { CompletionItemKind, InsertTextFormat } from 'vscode-languageserver/node';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { EmmetCompletionProvider } from '../src/completion-provider';
-import { abbreviationTracker } from '../src/abbreviation-tracker';
 import type { EmmetCompletionData, EmmetSettings } from '../src/types';
 
 function doc(content: string, languageId = 'html', uri = 'file:///test.html'): TextDocument {
@@ -28,12 +27,6 @@ function settings(overrides: Partial<EmmetSettings> = {}): EmmetSettings {
         ...overrides
     };
 }
-
-// The provider notifies the shared tracker, which schedules debounced timers
-after(() => {
-    abbreviationTracker.closeDocument('file:///test.html');
-    abbreviationTracker.closeDocument('file:///test.css');
-});
 
 describe('Completion Provider', () => {
     describe('Abbreviation completions', () => {

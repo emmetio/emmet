@@ -10,9 +10,10 @@ import {
     MarkupKind
 } from 'vscode-languageserver/node';
 
-import expandAbbreviation, { extract, resolveConfig, type UserConfig } from '../../..';
-import { EmmetSettings, EmmetCompletionData, LANGUAGE_CONFIG_MAP, SupportedLanguage, EmmetSyntax } from './types';
-import { abbreviationTracker } from './abbreviation-tracker';
+import expandAbbreviation, { extract, resolveConfig } from '../../..';
+import { EmmetSettings, EmmetCompletionData } from './types';
+import { MIN_ABBREVIATION_LENGTH, getEmmetSyntax, getLineText, isEmmetLanguage } from './language';
+import { getEmmetConfig } from './config';
 
 const LANGUAGE_NAMES: Record<string, string> = {
     html: 'HTML', xml: 'XML', jsx: 'JSX', tsx: 'TSX', vue: 'Vue', svelte: 'Svelte',
@@ -49,14 +50,13 @@ const CSS_ABBREVIATIONS = Object.entries(resolveConfig({ type: 'stylesheet' }).s
 
 export class EmmetCompletionProvider {
     private readonly maxCompletions = 10;
-    private readonly minAbbreviationLength = 2;
 
     provideCompletions(
         document: TextDocument,
         position: Position,
         settings: EmmetSettings
     ): CompletionItem[] {
-        if (!settings.enabled || !this.isEmmetLanguage(document.languageId)) {
+        if (!settings.enabled || !isEmmetLanguage(document.languageId)) {
             return [];
         }
 
@@ -64,8 +64,8 @@ export class EmmetCompletionProvider {
             return [];
         }
 
-        const line = this.getLineText(document, position.line);
-        const syntax = this.getEmmetSyntax(document.languageId);
+        const line = getLineText(document, position.line);
+        const syntax = getEmmetSyntax(document.languageId);
 
         const extracted = extract(line, position.character, {
             type: syntax,
@@ -73,19 +73,17 @@ export class EmmetCompletionProvider {
             prefix: ''
         });
 
-        if (!extracted || extracted.abbreviation.length < this.minAbbreviationLength) {
+        if (!extracted || extracted.abbreviation.length < MIN_ABBREVIATION_LENGTH) {
             return [];
         }
 
         try {
-            const config = this.getEmmetConfig(document.languageId, settings);
+            const config = getEmmetConfig(document.languageId, settings);
             const expanded = expandAbbreviation(extracted.abbreviation, config);
 
             if (!expanded || expanded === extracted.abbreviation) {
                 return [];
             }
-
-            abbreviationTracker.trackAbbreviations(document, position);
 
             return [this.createCompletionItem(
                 extracted.abbreviation,
@@ -136,7 +134,7 @@ export class EmmetCompletionProvider {
             abbreviation,
             expanded,
             range,
-            syntax: this.getEmmetSyntax(document.languageId),
+            syntax: getEmmetSyntax(document.languageId),
             language: document.languageId
         };
 
@@ -168,7 +166,7 @@ export class EmmetCompletionProvider {
         position: Position,
         triggerCharacter: string
     ): CompletionItem[] {
-        const syntax = this.getEmmetSyntax(document.languageId);
+        const syntax = getEmmetSyntax(document.languageId);
 
         switch (triggerCharacter) {
             case '.':
@@ -218,7 +216,7 @@ export class EmmetCompletionProvider {
      * down the full list of CSS property snippets
      */
     private getPropertyPrefix(document: TextDocument, position: Position): string {
-        const line = this.getLineText(document, position.line).slice(0, position.character);
+        const line = getLineText(document, position.line).slice(0, position.character);
         return /([a-zA-Z-]+):$/.exec(line)?.[1]?.toLowerCase() ?? '';
     }
 
@@ -296,41 +294,4 @@ export class EmmetCompletionProvider {
             : singleLine;
     }
 
-    private getLineText(document: TextDocument, lineNumber: number): string {
-        return document.getText({
-            start: { line: lineNumber, character: 0 },
-            end: { line: lineNumber + 1, character: 0 }
-        }).replace(/\n$/, '');
-    }
-
-    private isEmmetLanguage(languageId: string): languageId is SupportedLanguage {
-        return languageId in LANGUAGE_CONFIG_MAP;
-    }
-
-    private getEmmetSyntax(languageId: string): EmmetSyntax {
-        const config = LANGUAGE_CONFIG_MAP[languageId as SupportedLanguage];
-        return config ? config.syntax : 'markup';
-    }
-
-    private getEmmetConfig(languageId: string, settings: EmmetSettings): UserConfig {
-        return {
-            type: this.getEmmetSyntax(languageId),
-            options: {
-                'output.tagCase': '',
-                'output.attributeCase': '',
-                'output.selfClosingStyle': 'html',
-                'output.compactBoolean': false,
-                'output.booleanAttributes': [],
-                'output.reverseAttributes': false,
-                'markup.href': true,
-                'comment.enabled': false,
-                'comment.trigger': ['id', 'class'],
-                ...settings.preferences
-            },
-            variables: settings.variables || {},
-            snippets: {}
-        };
-    }
 }
-
-export const completionProvider = new EmmetCompletionProvider();

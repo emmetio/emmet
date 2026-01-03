@@ -297,11 +297,13 @@ npm run dev
 
 ```
 src/
-├── server.ts              # Main LSP server
-├── types.ts               # Type definitions
+├── server.ts               # Main LSP server
+├── types.ts                # Type definitions
 ├── abbreviation-tracker.ts # Real-time tracking logic
 ├── completion-provider.ts  # Completion item provider
-└── utils/                 # Utility functions
+├── syntax-context.ts       # Comment and string detection
+├── language.ts             # Language, syntax and line helpers
+└── config.ts               # Emmet config from user settings
 ```
 
 ### Contributing

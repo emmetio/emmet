@@ -5,15 +5,18 @@ import { join } from 'node:path';
 import {
     createProtocolConnection,
     CompletionRequest,
+    DidCloseTextDocumentNotification,
     DidOpenTextDocumentNotification,
     ExitNotification,
     InitializedNotification,
     InitializeRequest,
+    PublishDiagnosticsNotification,
     ShutdownRequest,
     StreamMessageReader,
     StreamMessageWriter,
     TextDocumentSyncKind,
     type CompletionItem,
+    type Diagnostic,
     type InitializeResult,
     type ProtocolConnection
 } from 'vscode-languageserver-protocol/node';
@@ -27,6 +30,7 @@ describe('LSP Server', () => {
     let child: ChildProcessWithoutNullStreams;
     let connection: ProtocolConnection;
     let initializeResult: InitializeResult;
+    const diagnostics = new Map<string, Diagnostic[]>();
 
     before(async () => {
         // Run the server straight from TypeScript sources, no build step required
@@ -40,6 +44,9 @@ describe('LSP Server', () => {
             new StreamMessageReader(child.stdout),
             new StreamMessageWriter(child.stdin)
         );
+        connection.onNotification(PublishDiagnosticsNotification.type, params => {
+            diagnostics.set(params.uri, params.diagnostics);
+        });
         connection.listen();
 
         initializeResult = await connection.sendRequest(InitializeRequest.type, {
@@ -111,6 +118,24 @@ describe('LSP Server', () => {
         equal(item.insertText, '<ul>\n\t<li></li>\n\t<li></li>\n\t<li></li>\n</ul>');
     });
 
+    it('reports no abbreviations in a freshly opened document', async () => {
+        // Plain text at the end of the document used to be reported as an
+        // abbreviation the user never typed
+        const plainUri = 'file:///plain-text.html';
+
+        connection.sendNotification(DidOpenTextDocumentNotification.type, {
+            textDocument: { uri: plainUri, languageId: 'html', version: 1, text: '<p>Hello world' }
+        });
+
+        await new Promise<void>(resolve => { setTimeout(resolve, 500).unref(); });
+
+        deepEqual(diagnostics.get(plainUri), []);
+
+        connection.sendNotification(DidCloseTextDocumentNotification.type, {
+            textDocument: { uri: plainUri }
+        });
+    });
+
     it('returns no completions for unknown documents', async () => {
         const result = await connection.sendRequest(CompletionRequest.type, {
             textDocument: { uri: 'file:///never-opened.html' },
@@ -138,11 +163,11 @@ describe('LSP Server', () => {
     it('reports tracking stats', async () => {
         const stats = await connection.sendRequest('emmet/getTrackingStats', undefined) as {
             documentsTracked: number,
-            totalAbbreviations: number,
+            activeTrackers: number,
             activeTimers: number
         };
 
         equal(stats.documentsTracked, 1);
-        ok(stats.totalAbbreviations >= 0);
+        ok(stats.activeTrackers >= 0);
     });
 });

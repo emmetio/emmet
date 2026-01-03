@@ -22,13 +22,17 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import expandAbbreviation, { extract, type UserConfig } from '../../..';
-import { EmmetSettings, LANGUAGE_CONFIG_MAP, SupportedLanguage } from './types';
-import { abbreviationTracker } from './abbreviation-tracker';
-import { completionProvider } from './completion-provider';
+import expandAbbreviation, { extract } from '../../..';
+import { AbbreviationTracker, EmmetSettings, LANGUAGE_CONFIG_MAP } from './types';
+import { AbbreviationTrackerService } from './abbreviation-tracker';
+import { EmmetCompletionProvider } from './completion-provider';
+import { getEmmetSyntax, getLineText, isEmmetLanguage } from './language';
+import { getEmmetConfig } from './config';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const abbreviationTracker = new AbbreviationTrackerService();
+const completionProvider = new EmmetCompletionProvider();
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -152,33 +156,24 @@ documents.onDidChangeContent(change => {
     validateTextDocument(change.document);
 });
 
-function isEmmetLanguage(languageId: string): languageId is SupportedLanguage {
-    return languageId in LANGUAGE_CONFIG_MAP;
-}
-
-function getEmmetSyntax(languageId: string): 'markup' | 'stylesheet' {
-    const config = LANGUAGE_CONFIG_MAP[languageId as SupportedLanguage];
-    return config ? config.syntax : 'markup';
-}
-
-function getEmmetConfig(languageId: string, settings: EmmetSettings): UserConfig {
-    return {
-        type: getEmmetSyntax(languageId),
-        options: {
-            'output.tagCase': '',
-            'output.attributeCase': '',
-            'output.selfClosingStyle': 'html',
-            'output.compactBoolean': false,
-            'output.booleanAttributes': [],
-            'output.reverseAttributes': false,
-            'markup.href': true,
-            'comment.enabled': false,
-            'comment.trigger': ['id', 'class'],
-            ...settings.preferences
-        },
-        variables: settings.variables,
-        snippets: {}
-    };
+/**
+ * Expand a tracked abbreviation, or nothing if it doesn’t expand into anything
+ * meaningful
+ */
+function expandTracked(
+    tracker: AbbreviationTracker,
+    languageId: string,
+    settings: EmmetSettings
+): string | undefined {
+    try {
+        const expanded = expandAbbreviation(
+            tracker.abbreviation,
+            getEmmetConfig(languageId, settings)
+        );
+        return expanded && expanded !== tracker.abbreviation ? expanded : undefined;
+    } catch {
+        return undefined;
+    }
 }
 
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
@@ -191,51 +186,41 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
     const diagnostics: Diagnostic[] = [];
     const tracker = abbreviationTracker.getCurrentTracker(textDocument.uri);
+    const expanded = tracker && settings.showExpandedPreview
+        ? expandTracked(tracker, textDocument.languageId, settings)
+        : undefined;
 
-    if (tracker && settings.showExpandedPreview) {
-        try {
-            const config = getEmmetConfig(textDocument.languageId, settings);
-            const expanded = expandAbbreviation(tracker.abbreviation, config);
-
-            if (expanded && expanded !== tracker.abbreviation) {
-                tracker.expanded = expanded;
-                tracker.isValid = true;
-
-                const diagnostic: Diagnostic = {
-                    severity: DiagnosticSeverity.Information,
-                    range: {
-                        start: {
-                            line: tracker.range.start.line,
-                            character: tracker.range.start.character
-                        },
-                        end: {
-                            line: tracker.range.end.line,
-                            character: tracker.range.end.character
-                        }
-                    },
-                    message: `Emmet: ${tracker.abbreviation} → Press Tab or Ctrl+Space to expand`,
-                    source: 'emmet',
-                    tags: []
-                };
-
-                if (hasDiagnosticRelatedInformationCapability) {
-                    diagnostic.relatedInformation = [
-                        {
-                            location: {
-                                uri: textDocument.uri,
-                                range: diagnostic.range
-                            },
-                            message: `Expands to:\n${expanded}`
-                        }
-                    ];
+    if (tracker && expanded) {
+        const diagnostic: Diagnostic = {
+            severity: DiagnosticSeverity.Information,
+            range: {
+                start: {
+                    line: tracker.range.start.line,
+                    character: tracker.range.start.character
+                },
+                end: {
+                    line: tracker.range.end.line,
+                    character: tracker.range.end.character
                 }
+            },
+            message: `Emmet: ${tracker.abbreviation} → Press Tab or Ctrl+Space to expand`,
+            source: 'emmet',
+            tags: []
+        };
 
-                diagnostics.push(diagnostic);
-            }
-        } catch {
-            tracker.isValid = false;
-            tracker.expanded = '';
+        if (hasDiagnosticRelatedInformationCapability) {
+            diagnostic.relatedInformation = [
+                {
+                    location: {
+                        uri: textDocument.uri,
+                        range: diagnostic.range
+                    },
+                    message: `Expands to:\n${expanded}`
+                }
+            ];
         }
+
+        diagnostics.push(diagnostic);
     }
 
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
@@ -251,7 +236,11 @@ connection.onCompletion(
         }
 
         const settings = await getDocumentSettings(params.textDocument.uri);
+
+        // A completion request is the only place the client tells us where the
+        // cursor is, so keep tracking in sync with it
         abbreviationTracker.updateCursorPosition(params.textDocument.uri, params.position);
+        abbreviationTracker.trackAbbreviations(document, params.position);
 
         const triggerCharacter = (params.context && params.context.triggerKind === 2)
             ? params.context.triggerCharacter
@@ -283,14 +272,20 @@ connection.onCompletionResolve(
     }
 );
 
-connection.onCodeAction((params) => {
+connection.onCodeAction(async (params) => {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
         return [];
     }
 
     const tracker = abbreviationTracker.getCurrentTracker(params.textDocument.uri);
-    if (!tracker || !tracker.isValid || !tracker.expanded) {
+    if (!tracker) {
+        return [];
+    }
+
+    const settings = await getDocumentSettings(params.textDocument.uri);
+    const expanded = expandTracked(tracker, document.languageId, settings);
+    if (!expanded) {
         return [];
     }
 
@@ -310,7 +305,7 @@ connection.onCodeAction((params) => {
                             line: tracker.range.end.line,
                             character: tracker.range.end.character
                         }
-                    }, tracker.expanded)
+                    }, expanded)
                 ]
             }
         },
@@ -319,7 +314,7 @@ connection.onCodeAction((params) => {
             'emmet.expandAbbreviation',
             params.textDocument.uri,
             tracker.range,
-            tracker.expanded
+            expanded
         )
     };
 
@@ -362,10 +357,7 @@ connection.onRequest('emmet/expandAbbreviation', async (params: { textDocument: 
     }
 
     const settings = await getDocumentSettings(textDocument.uri);
-    const line = document.getText({
-        start: Position.create(position.line, 0),
-        end: Position.create(position.line + 1, 0)
-    }).replace(/\n$/, '');
+    const line = getLineText(document, position.line);
 
     const extracted = extract(line, position.character, {
         type: getEmmetSyntax(document.languageId),

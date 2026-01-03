@@ -14,12 +14,12 @@ export interface EmmetSettings {
     optimizeStylesheetParsing: boolean;
 }
 
+/**
+ * Abbreviation found at the cursor. Holds the extraction result only: expanding
+ * it is up to the consumer, since expansion depends on user settings
+ */
 export interface AbbreviationTracker {
     abbreviation: string;
-    position: {
-        line: number;
-        character: number;
-    };
     range: {
         start: {
             line: number;
@@ -30,9 +30,6 @@ export interface AbbreviationTracker {
             character: number;
         };
     };
-    expanded: string;
-    isValid: boolean;
-    lastUpdated: number;
     documentUri: string;
 }
 
@@ -54,8 +51,9 @@ export interface EmmetCompletionData {
 }
 
 export interface DocumentTrackingState {
-    abbreviations: Map<string, AbbreviationTracker>;
-    lastChangeTime: number;
+    /** Abbreviation at the last known cursor position, if any */
+    tracker: AbbreviationTracker | null;
+    /** Last cursor position reported by the client */
     cursorPosition?: {
         line: number;
         character: number;
@@ -82,23 +80,12 @@ export type SupportedLanguage =
 
 export type EmmetSyntax = 'markup' | 'stylesheet';
 
-export interface EmmetExpansionResult {
-    success: boolean;
-    expanded?: string;
-    error?: string;
-    abbreviation: string;
-    syntax: EmmetSyntax;
-}
-
-export interface CursorTrackingOptions {
-    enableRealTimeParsing: boolean;
-    debounceDelay: number;
-    maxAbbreviationLength: number;
-    minAbbreviationLength: number;
-}
+/** Comment and string syntax a language follows */
+export type SyntaxFamily = 'html' | 'css' | 'js';
 
 export interface EmmetLanguageConfig {
     syntax: EmmetSyntax;
+    family: SyntaxFamily;
     triggerCharacters: string[];
     fileExtensions: string[];
     completionItemKind: 'snippet' | 'property' | 'text';
@@ -107,96 +94,112 @@ export interface EmmetLanguageConfig {
 export const LANGUAGE_CONFIG_MAP: Record<SupportedLanguage, EmmetLanguageConfig> = {
     html: {
         syntax: 'markup',
+        family: 'html',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.html', '.htm'],
         completionItemKind: 'snippet'
     },
     xml: {
         syntax: 'markup', 
+        family: 'html',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.xml'],
         completionItemKind: 'snippet'
     },
     xsl: {
         syntax: 'markup',
+        family: 'html',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.xsl', '.xslt'],
         completionItemKind: 'snippet'
     },
     jsx: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.jsx'],
         completionItemKind: 'snippet'
     },
     tsx: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.tsx'],
         completionItemKind: 'snippet'
     },
     vue: {
         syntax: 'markup',
+        family: 'html',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.vue'],
         completionItemKind: 'snippet'
     },
     svelte: {
         syntax: 'markup',
+        family: 'html',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.svelte'],
         completionItemKind: 'snippet'
     },
     css: {
         syntax: 'stylesheet',
+        family: 'css',
         triggerCharacters: [':', '-', '!', '@', '%', '^', '+', '*'],
         fileExtensions: ['.css'],
         completionItemKind: 'property'
     },
     scss: {
         syntax: 'stylesheet',
+        family: 'css',
         triggerCharacters: [':', '-', '!', '@', '%', '^', '+', '*', '&', '$'],
         fileExtensions: ['.scss'],
         completionItemKind: 'property'
     },
     sass: {
         syntax: 'stylesheet', 
+        family: 'css',
         triggerCharacters: [':', '-', '!', '@', '%', '^', '+', '*', '&', '$'],
         fileExtensions: ['.sass'],
         completionItemKind: 'property'
     },
     less: {
         syntax: 'stylesheet',
+        family: 'css',
         triggerCharacters: [':', '-', '!', '@', '%', '^', '+', '*', '&', '.', '#'],
         fileExtensions: ['.less'],
         completionItemKind: 'property'
     },
     stylus: {
         syntax: 'stylesheet',
+        family: 'css',
         triggerCharacters: [':', '-', '!', '@', '%', '^', '+', '*', '&'],
         fileExtensions: ['.styl', '.stylus'],
         completionItemKind: 'property'
     },
     javascript: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.js', '.mjs'],
         completionItemKind: 'snippet'
     },
     typescript: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.ts'],
         completionItemKind: 'snippet'
     },
     javascriptreact: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.jsx'],
         completionItemKind: 'snippet'
     },
     typescriptreact: {
         syntax: 'markup',
+        family: 'js',
         triggerCharacters: ['.', '#', '*', '+', '>', '^', '[', '{', ':', '$', '-', '_'],
         fileExtensions: ['.tsx'],
         completionItemKind: 'snippet'

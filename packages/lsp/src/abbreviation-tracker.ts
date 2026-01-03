@@ -1,16 +1,26 @@
 import { Position, TextDocument } from 'vscode-languageserver-textdocument';
-import { extract, type ExtractedAbbreviation, type ExtractOptions } from '../../..';
-import { AbbreviationTracker, DocumentTrackingState, EmmetSyntax, SupportedLanguage, LANGUAGE_CONFIG_MAP } from './types';
+import { extract } from '../../..';
+import { AbbreviationTracker, DocumentTrackingState } from './types';
+import {
+    MIN_ABBREVIATION_LENGTH,
+    getEmmetSyntax,
+    getLineText,
+    getSyntaxFamily,
+    isEmmetLanguage
+} from './language';
+import { isInsideCommentOrString } from './syntax-context';
+
+const DEFAULT_DEBOUNCE_DELAY = 150;
 
 /**
- * Utility class for tracking Emmet abbreviations in real-time
+ * Tracks the abbreviation under the cursor of every open document
  */
 export class AbbreviationTrackerService {
     private documentStates = new Map<string, DocumentTrackingState>();
-    private debounceTimers = new Map<string, NodeJS.Timeout>();
+    private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
     private readonly debounceDelay: number;
 
-    constructor(debounceDelay: number = 150) {
+    constructor(debounceDelay: number = DEFAULT_DEBOUNCE_DELAY) {
         this.debounceDelay = debounceDelay;
     }
 
@@ -19,10 +29,7 @@ export class AbbreviationTrackerService {
      */
     initializeDocument(documentUri: string): void {
         if (!this.documentStates.has(documentUri)) {
-            this.documentStates.set(documentUri, {
-                abbreviations: new Map(),
-                lastChangeTime: Date.now()
-            });
+            this.documentStates.set(documentUri, { tracker: null });
         }
     }
 
@@ -42,14 +49,13 @@ export class AbbreviationTrackerService {
      * Update cursor position for a document
      */
     updateCursorPosition(documentUri: string, position: Position): void {
-        const state = this.documentStates.get(documentUri);
-        if (state) {
-            state.cursorPosition = position;
-        }
+        this.initializeDocument(documentUri);
+        this.documentStates.get(documentUri)!.cursorPosition = position;
     }
 
     /**
-     * Track abbreviations in a document with debounced updates
+     * Track the abbreviation under the cursor with debounced updates. Without an
+     * explicit position the last cursor position reported by the client is used
      */
     trackAbbreviations(
         document: TextDocument,
@@ -59,24 +65,27 @@ export class AbbreviationTrackerService {
         const uri = document.uri;
         this.initializeDocument(uri);
 
-        // Clear existing timer
         const existingTimer = this.debounceTimers.get(uri);
         if (existingTimer) {
             clearTimeout(existingTimer);
         }
 
-        // Set new debounced timer
         const timer = setTimeout(() => {
-            const tracker = this.extractAbbreviationAtPosition(document, position);
-            this.updateDocumentState(uri, tracker);
+            this.debounceTimers.delete(uri);
+
+            const tracker = this.extractAbbreviation(document, position);
+            const state = this.documentStates.get(uri);
+            if (state) {
+                state.tracker = tracker;
+            }
 
             if (callback) {
                 callback(tracker);
             }
-
-            this.debounceTimers.delete(uri);
         }, this.debounceDelay);
 
+        // Debounced tracking should never keep the process alive on its own
+        timer.unref();
         this.debounceTimers.set(uri, timer);
     }
 
@@ -84,238 +93,67 @@ export class AbbreviationTrackerService {
      * Get the current abbreviation tracker for a document
      */
     getCurrentTracker(documentUri: string): AbbreviationTracker | null {
-        const state = this.documentStates.get(documentUri);
-        if (!state || state.abbreviations.size === 0) {
-            return null;
-        }
-
-        // Return the most recent abbreviation
-        let latestTracker: AbbreviationTracker | null = null;
-        let latestTime = 0;
-
-        for (const tracker of state.abbreviations.values()) {
-            if (tracker.lastUpdated > latestTime) {
-                latestTime = tracker.lastUpdated;
-                latestTracker = tracker;
-            }
-        }
-
-        return latestTracker;
+        return this.documentStates.get(documentUri)?.tracker ?? null;
     }
 
     /**
-     * Get all abbreviations for a document
+     * Extract the abbreviation at the cursor position
      */
-    getDocumentAbbreviations(documentUri: string): AbbreviationTracker[] {
-        const state = this.documentStates.get(documentUri);
-        return state ? Array.from(state.abbreviations.values()) : [];
-    }
-
-    /**
-     * Extract abbreviation at a specific position in the document
-     */
-    private extractAbbreviationAtPosition(
+    private extractAbbreviation(
         document: TextDocument,
         position?: Position
     ): AbbreviationTracker | null {
-        if (!this.isEmmetLanguage(document.languageId)) {
+        if (!isEmmetLanguage(document.languageId)) {
             return null;
         }
 
-        const currentPosition = position || this.getCursorPosition(document);
-        const line = this.getLineText(document, currentPosition.line);
-        const syntax = this.getEmmetSyntax(document.languageId);
-
-        const extracted = this.extractFromLine(line, currentPosition.character, syntax);
-
-        if (!extracted || extracted.abbreviation.length < 2) {
+        const cursor = this.resolveCursorPosition(document, position);
+        if (!cursor) {
             return null;
         }
 
-        const tracker: AbbreviationTracker = {
-            abbreviation: extracted.abbreviation,
-            position: currentPosition,
-            range: {
-                start: {
-                    line: currentPosition.line,
-                    character: extracted.start
-                },
-                end: {
-                    line: currentPosition.line,
-                    character: extracted.end
-                }
-            },
-            expanded: '',
-            isValid: false,
-            lastUpdated: Date.now(),
-            documentUri: document.uri
-        };
+        const line = getLineText(document, cursor.line);
 
-        return tracker;
-    }
+        if (isInsideCommentOrString(line, cursor.character, getSyntaxFamily(document.languageId))) {
+            return null;
+        }
 
-    /**
-     * Extract abbreviation from a line of text
-     */
-    private extractFromLine(
-        line: string,
-        position: number,
-        syntax: EmmetSyntax
-    ): ExtractedAbbreviation | undefined {
-        const options: ExtractOptions = {
-            type: syntax,
+        const extracted = extract(line, cursor.character, {
+            type: getEmmetSyntax(document.languageId),
             lookAhead: true,
             prefix: ''
-        };
+        });
 
-        return extract(line, position, options);
-    }
-
-    /**
-     * Update document state with new tracker
-     */
-    private updateDocumentState(documentUri: string, tracker: AbbreviationTracker | null): void {
-        const state = this.documentStates.get(documentUri);
-        if (!state) {
-            return;
+        if (!extracted || extracted.abbreviation.length < MIN_ABBREVIATION_LENGTH) {
+            return null;
         }
-
-        state.lastChangeTime = Date.now();
-
-        if (tracker) {
-            const key = `${tracker.position.line}:${tracker.position.character}`;
-            state.abbreviations.set(key, tracker);
-
-            // Clean up old abbreviations (keep only the last 10)
-            if (state.abbreviations.size > 10) {
-                const entries = Array.from(state.abbreviations.entries());
-                entries.sort((a, b) => a[1].lastUpdated - b[1].lastUpdated);
-
-                // Remove the oldest entries
-                for (let i = 0; i < entries.length - 10; i++) {
-                    state.abbreviations.delete(entries[i]![0]);
-                }
-            }
-        }
-    }
-
-    /**
-     * Get current cursor position (fallback to end of document)
-     */
-    private getCursorPosition(document: TextDocument): Position {
-        const state = this.documentStates.get(document.uri);
-        if (state?.cursorPosition) {
-            return state.cursorPosition;
-        }
-
-        // Fallback: return end of last line
-        const lineCount = document.lineCount;
-        const lastLine = document.getText({
-            start: { line: lineCount - 1, character: 0 },
-            end: { line: lineCount, character: 0 }
-        }).replace(/\n$/, '');
 
         return {
-            line: lineCount - 1,
-            character: lastLine.length
+            abbreviation: extracted.abbreviation,
+            range: {
+                start: { line: cursor.line, character: extracted.start },
+                end: { line: cursor.line, character: extracted.end }
+            },
+            documentUri: document.uri
         };
     }
 
     /**
-     * Get text content of a specific line
+     * Position to extract at: the requested one or the last cursor position
+     * reported by the client. A position the document no longer has is dropped
+     * rather than guessed — there’s nothing to track until the client tells us
+     * where the cursor is
      */
-    private getLineText(document: TextDocument, lineNumber: number): string {
-        return document.getText({
-            start: { line: lineNumber, character: 0 },
-            end: { line: lineNumber + 1, character: 0 }
-        }).replace(/\n$/, '');
-    }
+    private resolveCursorPosition(document: TextDocument, position?: Position): Position | null {
+        const cursor = position ?? this.documentStates.get(document.uri)?.cursorPosition;
 
-    /**
-     * Check if language is supported by Emmet
-     */
-    private isEmmetLanguage(languageId: string): languageId is SupportedLanguage {
-        return languageId in LANGUAGE_CONFIG_MAP;
-    }
-
-    /**
-     * Get Emmet syntax type for language
-     */
-    private getEmmetSyntax(languageId: string): EmmetSyntax {
-        const config = LANGUAGE_CONFIG_MAP[languageId as SupportedLanguage];
-        return config ? config.syntax : 'markup';
-    }
-
-    /**
-     * Check if abbreviation tracking is enabled for a position
-     */
-    isTrackingEnabled(document: TextDocument, position: Position): boolean {
-        if (!this.isEmmetLanguage(document.languageId)) {
-            return false;
+        if (!cursor || cursor.line >= document.lineCount) {
+            return null;
         }
 
-        const line = this.getLineText(document, position.line);
-
-        // Don't track inside comments
-        if (this.isInsideComment(line, position.character, document.languageId)) {
-            return false;
-        }
-
-        // Don't track inside strings (basic detection)
-        if (this.isInsideString(line, position.character)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Basic comment detection
-     */
-    private isInsideComment(line: string, position: number, languageId: string): boolean {
-        const beforeCursor = line.substring(0, position);
-
-        // HTML/XML style comments
-        if (['html', 'xml', 'vue', 'svelte'].includes(languageId)) {
-            const commentStart = beforeCursor.lastIndexOf('<!--');
-            const commentEnd = beforeCursor.lastIndexOf('-->');
-            return commentStart > commentEnd;
-        }
-
-        // CSS style comments
-        if (['css', 'scss', 'sass', 'less', 'stylus'].includes(languageId)) {
-            const commentStart = beforeCursor.lastIndexOf('/*');
-            const commentEnd = beforeCursor.lastIndexOf('*/');
-            return commentStart > commentEnd;
-        }
-
-        // JavaScript style comments
-        if (['javascript', 'typescript', 'jsx', 'tsx', 'javascriptreact', 'typescriptreact'].includes(languageId)) {
-            // Single line comment
-            if (beforeCursor.includes('//')) {
-                return true;
-            }
-            // Multi line comment
-            const commentStart = beforeCursor.lastIndexOf('/*');
-            const commentEnd = beforeCursor.lastIndexOf('*/');
-            return commentStart > commentEnd;
-        }
-
-        return false;
-    }
-
-    /**
-     * Basic string detection
-     */
-    private isInsideString(line: string, position: number): boolean {
-        const beforeCursor = line.substring(0, position);
-
-        // Count quotes to determine if we're inside a string
-        const singleQuotes = (beforeCursor.match(/'/g) || []).length;
-        const doubleQuotes = (beforeCursor.match(/"/g) || []).length;
-        const backticks = (beforeCursor.match(/`/g) || []).length;
-
-        return (singleQuotes % 2 === 1) || (doubleQuotes % 2 === 1) || (backticks % 2 === 1);
+        return cursor.character <= getLineText(document, cursor.line).length
+            ? cursor
+            : null;
     }
 
     /**
@@ -323,23 +161,20 @@ export class AbbreviationTrackerService {
      */
     getStats(): {
         documentsTracked: number;
-        totalAbbreviations: number;
+        activeTrackers: number;
         activeTimers: number;
     } {
-        let totalAbbreviations = 0;
+        let activeTrackers = 0;
         for (const state of this.documentStates.values()) {
-            totalAbbreviations += state.abbreviations.size;
+            if (state.tracker) {
+                activeTrackers++;
+            }
         }
 
         return {
             documentsTracked: this.documentStates.size,
-            totalAbbreviations,
+            activeTrackers,
             activeTimers: this.debounceTimers.size
         };
     }
 }
-
-/**
- * Singleton instance for global use
- */
-export const abbreviationTracker = new AbbreviationTrackerService();
