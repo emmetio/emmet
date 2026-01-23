@@ -107,12 +107,12 @@ export class AbbreviationTrackerService {
             return null;
         }
 
-        const cursor = this.resolveCursorPosition(document, position);
-        if (!cursor) {
+        const resolved = this.resolveCursorPosition(document, position);
+        if (!resolved) {
             return null;
         }
 
-        const line = getLineText(document, cursor.line);
+        const { cursor, line } = resolved;
 
         if (isInsideCommentOrString(line, cursor.character, getSyntaxFamily(document.languageId))) {
             return null;
@@ -139,21 +139,24 @@ export class AbbreviationTrackerService {
     }
 
     /**
-     * Position to extract at: the requested one or the last cursor position
-     * reported by the client. A position the document no longer has is dropped
-     * rather than guessed — there’s nothing to track until the client tells us
-     * where the cursor is
+     * Position to extract at, along with its line text: the requested position
+     * or the last cursor position reported by the client. A position the
+     * document no longer has is dropped rather than guessed — there’s nothing to
+     * track until the client tells us where the cursor is
      */
-    private resolveCursorPosition(document: TextDocument, position?: Position): Position | null {
+    private resolveCursorPosition(
+        document: TextDocument,
+        position?: Position
+    ): { cursor: Position, line: string } | null {
         const cursor = position ?? this.documentStates.get(document.uri)?.cursorPosition;
 
         if (!cursor || cursor.line >= document.lineCount) {
             return null;
         }
 
-        return cursor.character <= getLineText(document, cursor.line).length
-            ? cursor
-            : null;
+        const line = getLineText(document, cursor.line);
+
+        return cursor.character <= line.length ? { cursor, line } : null;
     }
 
     /**

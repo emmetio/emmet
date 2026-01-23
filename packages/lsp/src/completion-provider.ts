@@ -10,10 +10,10 @@ import {
     MarkupKind
 } from 'vscode-languageserver/node';
 
-import expandAbbreviation, { extract, resolveConfig } from '../../..';
+import { extract, resolveConfig } from '../../..';
 import { EmmetSettings, EmmetCompletionData } from './types';
 import { MIN_ABBREVIATION_LENGTH, getEmmetSyntax, getLineText, isEmmetLanguage } from './language';
-import { getEmmetConfig } from './config';
+import { EmmetConfigCache, expand } from './config';
 
 const LANGUAGE_NAMES: Record<string, string> = {
     html: 'HTML', xml: 'XML', jsx: 'JSX', tsx: 'TSX', vue: 'Vue', svelte: 'Svelte',
@@ -51,6 +51,8 @@ const CSS_ABBREVIATIONS = Object.entries(resolveConfig({ type: 'stylesheet' }).s
 export class EmmetCompletionProvider {
     private readonly maxCompletions = 10;
 
+    constructor(private readonly configCache: EmmetConfigCache = new EmmetConfigCache()) {}
+
     provideCompletions(
         document: TextDocument,
         position: Position,
@@ -78,8 +80,8 @@ export class EmmetCompletionProvider {
         }
 
         try {
-            const config = getEmmetConfig(document.languageId, settings);
-            const expanded = expandAbbreviation(extracted.abbreviation, config);
+            const config = this.configCache.resolve(document.languageId, settings);
+            const expanded = expand(extracted.abbreviation, config);
 
             if (!expanded || expanded === extracted.abbreviation) {
                 return [];

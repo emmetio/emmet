@@ -22,17 +22,18 @@ import {
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import expandAbbreviation, { extract } from '../../..';
+import { extract } from '../../..';
 import { AbbreviationTracker, EmmetSettings, LANGUAGE_CONFIG_MAP } from './types';
 import { AbbreviationTrackerService } from './abbreviation-tracker';
 import { EmmetCompletionProvider } from './completion-provider';
 import { getEmmetSyntax, getLineText, isEmmetLanguage } from './language';
-import { getEmmetConfig } from './config';
+import { EmmetConfigCache, expand } from './config';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 const abbreviationTracker = new AbbreviationTrackerService();
-const completionProvider = new EmmetCompletionProvider();
+const configCache = new EmmetConfigCache();
+const completionProvider = new EmmetCompletionProvider(configCache);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -122,6 +123,7 @@ connection.onDidChangeConfiguration(change => {
     } else {
         Object.assign(globalSettings, change.settings.emmet || {});
     }
+    configCache.clear();
     documents.all().forEach(validateTextDocument);
 });
 
@@ -166,10 +168,7 @@ function expandTracked(
     settings: EmmetSettings
 ): string | undefined {
     try {
-        const expanded = expandAbbreviation(
-            tracker.abbreviation,
-            getEmmetConfig(languageId, settings)
-        );
+        const expanded = expand(tracker.abbreviation, configCache.resolve(languageId, settings));
         return expanded && expanded !== tracker.abbreviation ? expanded : undefined;
     } catch {
         return undefined;
@@ -370,8 +369,8 @@ connection.onRequest('emmet/expandAbbreviation', async (params: { textDocument: 
     }
 
     try {
-        const config = getEmmetConfig(document.languageId, settings);
-        const expanded = expandAbbreviation(extracted.abbreviation, config);
+        const config = configCache.resolve(document.languageId, settings);
+        const expanded = expand(extracted.abbreviation, config);
 
         return {
             abbreviation: extracted.abbreviation,
