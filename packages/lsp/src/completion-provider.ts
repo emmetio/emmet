@@ -1,7 +1,6 @@
 import {
     CompletionItem,
     CompletionItemKind,
-    TextDocument,
     Position,
     Range,
     TextEdit,
@@ -9,6 +8,7 @@ import {
     MarkupContent,
     MarkupKind
 } from 'vscode-languageserver/node';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { extract, resolveConfig } from '../../..';
 import { EmmetSettings, EmmetCompletionData } from './types';
