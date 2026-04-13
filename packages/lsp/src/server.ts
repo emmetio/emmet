@@ -9,40 +9,31 @@ import {
     InitializeParams,
     DidChangeConfigurationNotification,
     CompletionItem,
-    CompletionItemKind,
-    TextDocumentPositionParams,
     TextDocumentSyncKind,
     InitializeResult,
     DocumentDiagnosticReportKind,
     type DocumentDiagnosticReport,
-    Range,
     Position,
     TextEdit,
     CodeAction,
     CodeActionKind,
     Command,
-    WorkspaceEdit,
-    DidChangeTextDocumentParams,
     CompletionParams
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
-import expandAbbreviation, { extract, type ExtractedAbbreviation, type UserConfig } from '../../..';
+import expandAbbreviation, { extract, type UserConfig } from '../../..';
 import { EmmetSettings, LANGUAGE_CONFIG_MAP, SupportedLanguage } from './types';
 import { abbreviationTracker } from './abbreviation-tracker';
 import { completionProvider } from './completion-provider';
 
-// Create a connection for the server, using Node's IPC as a transport.
 const connection = createConnection(ProposedFeatures.all);
-
-// Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
-// Global settings, used when the `workspace/configuration` request is not supported
 const globalSettings: EmmetSettings = {
     enabled: true,
     showExpandedPreview: true,
@@ -59,12 +50,11 @@ const globalSettings: EmmetSettings = {
     optimizeStylesheetParsing: true
 };
 
-let documentSettings: Map<string, Thenable<EmmetSettings>> = new Map();
+const documentSettings: Map<string, Thenable<EmmetSettings>> = new Map();
 
 connection.onInitialize((params: InitializeParams) => {
     const capabilities = params.capabilities;
 
-    // Does the client support the `workspace/configuration` request?
     hasConfigurationCapability = !!(
         capabilities.workspace && !!capabilities.workspace.configuration
     );
@@ -106,41 +96,29 @@ connection.onInitialize((params: InitializeParams) => {
 
     if (hasWorkspaceFolderCapability) {
         result.capabilities.workspace = {
-            workspaceFolders: {
-                supported: true
-            }
+            workspaceFolders: { supported: true }
         };
     }
 
-    connection.console.log('Emmet LSP Server initialized');
     return result;
 });
 
 connection.onInitialized(() => {
     if (hasConfigurationCapability) {
-        // Register for all configuration changes.
         connection.client.register(DidChangeConfigurationNotification.type, undefined);
     }
     if (hasWorkspaceFolderCapability) {
-        connection.workspace.onDidChangeWorkspaceFolders(_event => {
-            connection.console.log('Workspace folder change event received.');
-        });
+        connection.workspace.onDidChangeWorkspaceFolders(_event => {});
     }
-
-    connection.console.log('Emmet LSP Server ready for tracking abbreviations');
 });
 
 connection.onDidChangeConfiguration(change => {
     if (hasConfigurationCapability) {
-        // Reset all cached document settings
         documentSettings.clear();
     } else {
         Object.assign(globalSettings, change.settings.emmet || {});
     }
-
-    // Revalidate all open text documents
     documents.all().forEach(validateTextDocument);
-    connection.console.log('Configuration updated');
 });
 
 function getDocumentSettings(resource: string): Thenable<EmmetSettings> {
@@ -158,65 +136,44 @@ function getDocumentSettings(resource: string): Thenable<EmmetSettings> {
     return result;
 }
 
-// Only keep settings for open documents
 documents.onDidClose(e => {
     documentSettings.delete(e.document.uri);
     abbreviationTracker.closeDocument(e.document.uri);
-    connection.console.log(`Closed document: ${e.document.uri}`);
 });
 
-// Initialize document tracking when opened
 documents.onDidOpen(e => {
     abbreviationTracker.initializeDocument(e.document.uri);
-    validateTextDocument(e.document);
-    connection.console.log(`Opened document: ${e.document.uri} (${e.document.languageId})`);
+    // validateTextDocument is intentionally omitted here: TextDocuments also fires
+    // onDidChangeContent on open, so validation happens there to avoid double-running.
 });
 
-// Track changes on every keystroke
-documents.onDidChangeContent((change: DidChangeTextDocumentParams) => {
-    const document = change.document;
-
-    // Update abbreviation tracking immediately for real-time feedback
-    abbreviationTracker.trackAbbreviations(document, undefined, (tracker) => {
-        if (tracker) {
-            connection.console.log(`Tracked abbreviation: "${tracker.abbreviation}" at line ${tracker.position.line}`);
-        }
-    });
-
-    // Validate document with debounced logic
-    validateTextDocument(document);
+documents.onDidChangeContent(change => {
+    abbreviationTracker.trackAbbreviations(change.document);
+    validateTextDocument(change.document);
 });
 
-// Helper function to determine if a language supports Emmet
 function isEmmetLanguage(languageId: string): languageId is SupportedLanguage {
     return languageId in LANGUAGE_CONFIG_MAP;
 }
 
-// Helper function to get Emmet syntax for language
 function getEmmetSyntax(languageId: string): 'markup' | 'stylesheet' {
     const config = LANGUAGE_CONFIG_MAP[languageId as SupportedLanguage];
     return config ? config.syntax : 'markup';
 }
 
-// Helper function to get Emmet configuration for expansion
 function getEmmetConfig(languageId: string, settings: EmmetSettings): UserConfig {
-    const syntax = getEmmetSyntax(languageId);
-
     return {
-        type: syntax,
+        type: getEmmetSyntax(languageId),
         options: {
-            'output.tagCase': settings.preferences?.['output.tagCase'] || '',
-            'output.attributeCase': settings.preferences?.['output.attributeCase'] || '',
-            'output.selfClosingStyle': settings.preferences?.['output.selfClosingStyle'] || 'html',
-            'output.compactBoolean': settings.preferences?.['output.compactBoolean'] || false,
-            'output.booleanAttributes': settings.preferences?.['output.booleanAttributes'] || [],
-            'output.reverseAttributes': settings.preferences?.['output.reverseAttributes'] || false,
-            'markup.href': settings.preferences?.['markup.href'] || true,
-            'comment.enabled': settings.preferences?.['comment.enabled'] || false,
-            'comment.trigger': settings.preferences?.['comment.trigger'] || ['id', 'class'],
-            'css.unitAliases': settings.preferences?.['css.unitAliases'] || {},
-            'css.intUnit': settings.preferences?.['css.intUnit'] || 'px',
-            'css.floatUnit': settings.preferences?.['css.floatUnit'] || 'em',
+            'output.tagCase': '',
+            'output.attributeCase': '',
+            'output.selfClosingStyle': 'html',
+            'output.compactBoolean': false,
+            'output.booleanAttributes': [],
+            'output.reverseAttributes': false,
+            'markup.href': true,
+            'comment.enabled': false,
+            'comment.trigger': ['id', 'class'],
             ...settings.preferences
         },
         variables: settings.variables,
@@ -228,14 +185,11 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     const settings = await getDocumentSettings(textDocument.uri);
 
     if (!settings.enabled || !isEmmetLanguage(textDocument.languageId)) {
-        // Clear diagnostics for unsupported languages
         connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
         return;
     }
 
     const diagnostics: Diagnostic[] = [];
-
-    // Get current abbreviation tracker
     const tracker = abbreviationTracker.getCurrentTracker(textDocument.uri);
 
     if (tracker && settings.showExpandedPreview) {
@@ -244,11 +198,9 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
             const expanded = expandAbbreviation(tracker.abbreviation, config);
 
             if (expanded && expanded !== tracker.abbreviation) {
-                // Update tracker with expanded content
                 tracker.expanded = expanded;
                 tracker.isValid = true;
 
-                // Create diagnostic with preview
                 const diagnostic: Diagnostic = {
                     severity: DiagnosticSeverity.Information,
                     range: {
@@ -280,22 +232,17 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
                 diagnostics.push(diagnostic);
             }
-        } catch (error) {
-            // Mark as invalid abbreviation
+        } catch {
             tracker.isValid = false;
             tracker.expanded = '';
         }
     }
 
-    // Send the computed diagnostics to the client.
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
 
-connection.onDidChangeWatchedFiles(_change => {
-    connection.console.log('We received a file change event');
-});
+connection.onDidChangeWatchedFiles(_change => {});
 
-// Enhanced completion handler with real-time abbreviation tracking
 connection.onCompletion(
     async (params: CompletionParams): Promise<CompletionItem[]> => {
         const document = documents.get(params.textDocument.uri);
@@ -304,16 +251,13 @@ connection.onCompletion(
         }
 
         const settings = await getDocumentSettings(params.textDocument.uri);
-
-        // Update cursor position for tracking
         abbreviationTracker.updateCursorPosition(params.textDocument.uri, params.position);
 
-        // Get completions from the provider
         const triggerCharacter = (params.context && params.context.triggerKind === 2)
             ? params.context.triggerCharacter
             : undefined;
 
-        return await completionProvider.provideEnhancedCompletions(
+        return completionProvider.provideEnhancedCompletions(
             document,
             params.position,
             settings,
@@ -322,7 +266,6 @@ connection.onCompletion(
     }
 );
 
-// Resolve completion items with additional details
 connection.onCompletionResolve(
     (item: CompletionItem): CompletionItem => {
         if (item.data?.expanded) {
@@ -330,8 +273,6 @@ connection.onCompletionResolve(
                 kind: 'markdown',
                 value: `**Emmet expansion:**\n\n\`\`\`${item.data.language || 'html'}\n${item.data.expanded}\n\`\`\``
             };
-
-            // Add command to trigger expansion
             item.command = Command.create(
                 'Expand Emmet Abbreviation',
                 'emmet.expandAbbreviation',
@@ -342,7 +283,6 @@ connection.onCompletionResolve(
     }
 );
 
-// Code actions for expanding abbreviations
 connection.onCodeAction((params) => {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
@@ -354,9 +294,6 @@ connection.onCodeAction((params) => {
         return [];
     }
 
-    const actions: CodeAction[] = [];
-
-    // Quick fix to expand abbreviation
     const expandAction: CodeAction = {
         title: `Expand Emmet abbreviation: ${tracker.abbreviation}`,
         kind: CodeActionKind.QuickFix,
@@ -386,9 +323,6 @@ connection.onCodeAction((params) => {
         )
     };
 
-    actions.push(expandAction);
-
-    // Refactor action to wrap with abbreviation
     const wrapAction: CodeAction = {
         title: 'Wrap with Emmet abbreviation...',
         kind: CodeActionKind.Refactor,
@@ -400,12 +334,11 @@ connection.onCodeAction((params) => {
         )
     };
 
-    actions.push(wrapAction);
-
-    return actions;
+    return [expandAction, wrapAction];
 });
 
-// Diagnostic provider for real-time feedback
+// Pull-diagnostics endpoint: diagnostics are pushed via connection.sendDiagnostics
+// in validateTextDocument, so this always returns empty for pull-model clients.
 connection.languages.diagnostics.on(async (params) => {
     const document = documents.get(params.textDocument.uri);
     if (!document) {
@@ -415,19 +348,15 @@ connection.languages.diagnostics.on(async (params) => {
         } satisfies DocumentDiagnosticReport;
     }
 
-    await validateTextDocument(document);
-
     return {
         kind: DocumentDiagnosticReportKind.Full,
-        items: [] // Diagnostics are sent via connection.sendDiagnostics
+        items: []
     } satisfies DocumentDiagnosticReport;
 });
 
-// Custom commands for Emmet operations
-connection.onRequest('emmet/expandAbbreviation', async (params: any) => {
+connection.onRequest('emmet/expandAbbreviation', async (params: { textDocument: { uri: string }, position: { line: number, character: number } }) => {
     const { textDocument, position } = params;
     const document = documents.get(textDocument.uri);
-
     if (!document) {
         return null;
     }
@@ -460,21 +389,14 @@ connection.onRequest('emmet/expandAbbreviation', async (params: any) => {
                 end: Position.create(position.line, extracted.end)
             }
         };
-    } catch (error) {
+    } catch {
         return null;
     }
 });
 
-// Request for abbreviation tracking statistics (useful for debugging)
 connection.onRequest('emmet/getTrackingStats', () => {
     return abbreviationTracker.getStats();
 });
 
-// Make the text document manager listen on the connection
 documents.listen(connection);
-
-// Listen on the connection
 connection.listen();
-
-// Log server start
-connection.console.log('Emmet LSP Server started with real-time abbreviation tracking');
